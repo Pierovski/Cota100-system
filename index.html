@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COTA100 SYSTEM - Inicio</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --primary-color: #FF6600; /* Anaranjado COTA100 */
+            --card-bg: #111111;
+            --border-color: #333333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            padding-bottom: 80px; /* Espacio para el menú inferior */
+        }
+
+        /* Encabezado Principal */
+        .header {
+            text-align: center;
+            padding: 25px 20px;
+            border-bottom: 2px solid var(--border-color);
+            background-color: #0a0a0a;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Cuadrícula de Módulos */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 columnas exactas */
+            gap: 15px;
+            padding: 25px 20px;
+        }
+        
+        /* Para que el último botón quede centrado si es impar */
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        /* Diseño de los Botones (Tarjetas) */
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px 5px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            min-height: 130px;
+            transition: 0.2s;
+        }
+
+        .card:active {
+            background-color: var(--primary-color);
+            color: #000;
+            border-color: var(--primary-color);
+        }
+
+        .card:active .icon { opacity: 0.8; }
+
+        .icon {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+        }
+
+        .card span {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        /* Menú Navegación Inferior */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #050505;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item i { display: block; font-size: 1.2rem; margin-bottom: 5px; font-style: normal; }
+        
+        .version-tag {
+            text-align: center;
+            color: #444;
+            font-size: 0.7rem;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+    </style>
+<link rel="manifest" href="manifest.json">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').then(function(registration) {
+                    console.log('ServiceWorker registrado con éxito');
+                }, function(err) {
+                    console.log('Error al registrar el ServiceWorker: ', err);
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <div class="header">
+        <h1>COTA100 SYSTEM</h1>
+        <p>Field App</p>
+    </div>
+
+    <div class="grid-container">
+        
+        <a href="nivelacion.html" class="card">
+            <div class="icon">🔭</div>
+            <span>Nivelación</span>
+        </a>
+
+        <a href="coordenadas.html" class="card">
+            <div class="icon">🌍</div>
+            <span>Transf.<br>Coordenadas</span>
+        </a>
+
+        <a href="poligonales.html" class="card">
+            <div class="icon">⬡</div>
+            <span>Poligonales</span>
+        </a>
+
+        <a href="atmosfera.html" class="card">
+            <div class="icon">☁️</div>
+            <span>Atmósfera<br>& PPM</span>
+        </a>
+
+        <a href="areas.html" class="card full-width-card">
+            <div class="icon">📐</div>
+            <span>Áreas y Perímetros</span>
+        </a>
+
+    </div>
+    
+    <div class="version-tag">V 1.0.0 - OPERACIÓN OFFLINE</div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i>🏠</i>
+            Inicio
+        </a>
+        <a href="#" class="nav-item">
+            <i>⚙️</i>
+            Ajustes
+        </a>
+        <a href="#" class="nav-item">
+            <i>📁</i>
+            Archivos
+        </a>
+    </nav>
+
+</body>
+</html>

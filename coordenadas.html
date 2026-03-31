@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COTA100 SYSTEM - Coordenadas</title>
+    <style>
+        :root {
+            --bg-color: #000000; --text-color: #ffffff;
+            --primary-color: #FF6600; --input-bg: #1a1a1a;
+            --error-color: #ff3333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 80px; }
+
+        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); font-size: 1.5rem; font-weight: bold; cursor: pointer; padding-right: 15px; }
+        .top-bar-title { color: var(--primary-color); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin: 0; }
+
+        header.main-header { color: var(--primary-color); text-align: center; font-weight: 900; font-size: 1.5rem; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid #333; padding-bottom: 10px; }
+
+        .pantalla { display: none; }
+        .pantalla.activa { display: block; }
+
+        .btn-menu {
+            width: 100%; padding: 20px; font-size: 0.95rem; background-color: #111;
+            color: var(--text-color); border: 2px solid #333; border-radius: 8px;
+            font-weight: bold; margin-bottom: 15px; cursor: pointer;
+            text-align: left; text-transform: uppercase; display: flex; justify-content: space-between;
+        }
+        .btn-menu:active { border-color: var(--primary-color); }
+        .btn-menu span.destaque { color: var(--primary-color); }
+
+        .btn-volver { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 12px; border-radius: 5px; margin-bottom: 15px; cursor: pointer; width: 100%; font-weight: bold; text-transform: uppercase; }
+
+        .tabs { display: flex; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--primary-color); }
+        .tab-btn { flex: 1; padding: 12px; background-color: #111; color: #888; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
+        .tab-btn.activa { background-color: var(--primary-color); color: #000; }
+        .tab-content { display: none; }
+        .tab-content.activa { display: block; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .input-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
+        
+        label { margin-bottom: 5px; font-weight: bold; color: #ccc; font-size: 0.75rem; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; font-size: 1rem; background-color: var(--input-bg); border: 2px solid #444; color: var(--text-color); border-radius: 8px; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; }
+        input.error { border-color: var(--error-color); background-color: #330000; }
+        
+        .helper-text { font-size: 0.75rem; color: #aaa; margin-top: 4px; line-height: 1.4; text-align: center; }
+        .error-text { color: var(--error-color); font-size: 0.75rem; font-weight: bold; margin-top: 5px; display: none; }
+
+        .btn-calc { width: 100%; padding: 15px; font-size: 1.2rem; background-color: var(--primary-color); color: #000; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 15px; }
+
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; border: 2px dashed var(--primary-color); border-radius: 8px; background-color: #111; display: none; }
+        .result-box-inner { text-align: center; margin-bottom: 10px; }
+        .result-label { color: #aaa; font-size: 0.75rem; margin-bottom: 5px; text-transform: uppercase;}
+        .result-value { font-size: 1.4rem; color: var(--primary-color); font-weight: bold; font-family: monospace; }
+        .result-box-wide { grid-column: 1 / -1; text-align: center; margin-bottom: 10px; padding: 10px; background-color: #222; border-radius: 5px;}
+        .result-value-wide { font-size: 1.2rem; color: var(--primary-color); font-weight: bold; font-family: monospace; margin-top: 5px;}
+        
+        .btn-action { padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; font-size: 0.9rem; }
+        .btn-copiar { background-color: #333; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .btn-limpiar { background-color: #330000; color: var(--error-color); border: 1px solid var(--error-color); }
+        .btn-map { grid-column: 1 / -1; background-color: #004400; color: #00ff00; border: 1px solid #00ff00; }
+
+        .info-box { background-color: #1a0f00; border-left: 4px solid var(--primary-color); padding: 12px; margin-top: 20px; font-size: 0.8rem; color: #ddd; line-height: 1.4; border-radius: 0 8px 8px 0; }
+        .info-box strong { color: var(--primary-color); }
+        .drop-zone { border: 2px dashed #666; border-radius: 8px; padding: 30px 20px; text-align: center; background-color: #111; margin-bottom: 15px; color: #888; transition: 0.3s; }
+        
+        .seccion-modulo { border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #0a0a0a; }
+        .seccion-titulo { color: var(--primary-color); font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+
+        /* Estilo para la alerta crítica roja */
+        .alerta-critica {
+            background-color: #330000;
+            border-left: 6px solid var(--error-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        .alerta-critica h4 { color: var(--error-color); margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; }
+        .alerta-critica p { color: #fff; font-size: 0.85rem; line-height: 1.4; margin: 0; }
+        .alerta-critica strong { color: var(--error-color); font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div id="menu-coordenadas" class="pantalla activa">
+        <header class="main-header">COTA100 SYSTEM</header>
+        <h2 style="color: #fff; font-size: 1rem; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px;">MÓDULOS DE COORDENADAS</h2>
+        
+        <button class="btn-menu" onclick="cambiarPantalla('calc-datum')"><span>1. <span class="destaque">PSAD56 ⇄ WGS84</span></span> <span>→</span></button>
+        <button class="btn-menu" onclick="cambiarPantalla('calc-utm-geo')"><span>2. <span class="destaque">UTM ⇄ Geográficas</span></span> <span>→</span></button>
+        <button class="btn-menu" onclick="cambiarPantalla('calc-utm-topo')"><span>3. <span class="destaque">UTM a Topográficas (PTL)</span></span> <span>→</span></button>
+        
+        <button class="btn-volver" style="margin-top: 30px;" onclick="window.location.href='index.html'">← Volver al Inicio</button>
+    </div>
+
+    <div id="calc-datum" class="pantalla">
+        <div class="top-bar"><button class="btn-volver-mini" onclick="cambiarPantalla('menu-coordenadas')">←</button><h2 class="top-bar-title">Cambio de Datum</h2></div>
+        
+        <div class="form-grid">
+            <div class="input-group"><label>Dirección</label><select id="direccionTransf" onchange="actualizarInterfaz()"><option value="psad_to_wgs">PSAD ➔ WGS</option><option value="wgs_to_psad">WGS ➔ PSAD</option></select></div>
+            <div class="input-group"><label>Zona UTM</label><select id="zonaUtm" onchange="actualizarAyudaZona()"><option value="17">17 Sur</option><option value="18">18 Sur</option><option value="19">19 Sur</option></select></div>
+        </div>
+        <div id="ayudaZona" class="helper-text" style="margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; color: var(--primary-color);">Tumbes, Piura, Lambayeque, La Libertad, Cajamarca.</div>
+
+        <div class="tabs"><button class="tab-btn activa" onclick="cambiarTab('manual')" id="btnTabManual">Punto a Punto</button><button class="tab-btn" onclick="cambiarTab('masivo')" id="btnTabMasivo">Masivo</button></div>
+
+        <div id="tab-manual" class="tab-content activa">
+            <div class="form-grid">
+                <div class="input-group"><label id="lblEsteIn">ESTE (X) - PSAD56</label><input type="number" id="esteIn" step="0.001" placeholder="Ej: 715000" oninput="validarDigitos('esteIn','errEste','norteIn','errNorte','btnCalcular')"><div id="errEste" class="error-text">⚠️ 6 dígitos.</div></div>
+                <div class="input-group"><label id="lblNorteIn">NORTE (Y) - PSAD56</label><input type="number" id="norteIn" step="0.001" placeholder="Ej: 9105000" oninput="validarDigitos('esteIn','errEste','norteIn','errNorte','btnCalcular')"><div id="errNorte" class="error-text">⚠️ 7 dígitos.</div></div>
+            </div>
+            <button class="btn-calc" onclick="ejecutarTransformacion()" id="btnCalcular">Calcular</button>
+            
+            <div class="result-grid" id="cajaResultado">
+                <div class="result-box-inner"><div class="result-label" id="lblEsteOut">ESTE (WGS84)</div><div class="result-value" id="resEste">0.000</div></div>
+                <div class="result-box-inner"><div class="result-label" id="lblNorteOut">NORTE (WGS84)</div><div class="result-value" id="resNorte">0.000</div></div>
+                <button class="btn-action btn-copiar" onclick="copiarTxt('resEste', 'resNorte')">📋 Copiar</button>
+                <button class="btn-action btn-limpiar" onclick="limpiarFormularioDatum()">🗑️ Limpiar</button>
+                <button class="btn-action btn-map" onclick="verEnGoogleMapsDatum()">🗺️ Ver en Maps</button>
+            </div>
+        </div>
+
+        <div id="tab-masivo" class="tab-content">
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label>Columnas del Archivo</label>
+                <select id="formatoColumnas"><option value="PENZD">P, E, N, Z, D</option><option value="EN">Solo E, N</option></select>
+                <div class="helper-text" style="text-align: left; color: #888; margin-top: 5px;">El archivo debe ser .CSV o .TXT.</div>
+            </div>
+            <div class="drop-zone" id="dropZone"><p>Carga tu archivo aquí</p><input type="file" id="fileInput" accept=".csv, .txt" style="margin-top: 15px;"></div>
+            <button class="btn-calc" onclick="procesarArchivo()">Procesar y Descargar</button>
+        </div>
+        
+        <div class="info-box"><strong>💡 DATO DE CAMPO:</strong> No transformes de ida y vuelta múltiples veces. Conserva tu data maestra original.</div>
+    </div>
+
+    <div id="calc-utm-geo" class="pantalla">
+        <div class="top-bar"><button class="btn-volver-mini" onclick="cambiarPantalla('menu-coordenadas')">←</button><h2 class="top-bar-title">UTM ⇄ Geográficas</h2></div>
+        
+        <div class="form-grid">
+            <div class="input-group full-width"><label>Dirección</label><select id="dirUtmGeo" onchange="toggleInputsGeo()"><option value="u2g">UTM ➔ Lat/Lon</option><option value="g2u">Lat/Lon ➔ UTM</option></select></div>
+            <div class="input-group"><label>Hemisferio</label><select id="hemiGeo"><option value="S">Sur (-)</option><option value="N">Norte (+)</option></select></div>
+            <div class="input-group"><label>Zona UTM</label><select id="zonaUtmGeo"><option value="17">17</option><option value="18">18</option><option value="19">19</option></select></div>
+        </div>
+        
+        <div class="form-grid" id="input-u2g">
+            <div class="input-group"><label>ESTE (X)</label><input type="number" id="esteGeo" step="0.001" placeholder="Ej: 715000" oninput="validarDigitos('esteGeo','errEsteGeo','norteGeo','errNorteGeo','btnCalcularGeo')"><div id="errEsteGeo" class="error-text">⚠️ 6 dígitos.</div></div>
+            <div class="input-group"><label>NORTE (Y)</label><input type="number" id="norteGeo" step="0.001" placeholder="Ej: 9105000" oninput="validarDigitos('esteGeo','errEsteGeo','norteGeo','errNorteGeo','btnCalcularGeo')"><div id="errNorteGeo" class="error-text">⚠️ 7 dígitos.</div></div>
+        </div>
+        
+        <div class="form-grid" id="input-g2u" style="display: none;">
+            <div class="input-group"><label>LATITUD</label><input type="number" id="latIn" step="0.000001" placeholder="Ej: -8.123456"></div>
+            <div class="input-group"><label>LONGITUD</label><input type="number" id="lonIn" step="0.000001" placeholder="Ej: -79.123456"></div>
+        </div>
+        
+        <button class="btn-calc" onclick="ejecutarUtmGeo()" id="btnCalcularGeo">Calcular</button>
+        
+        <div class="result-grid" id="cajaResGeoU2G">
+            <div class="result-box-wide"><div class="result-label">DECIMALES</div><div class="result-value-wide" id="resLatDec">0.0</div><div class="result-value-wide" id="resLonDec">0.0</div></div>
+            <button class="btn-action btn-copiar" onclick="copiarTxt('resLatDec', 'resLonDec')">📋 Copiar</button>
+            <button class="btn-action btn-limpiar" onclick="limpiarFormularioGeo()">🗑️ Limpiar</button>
+            <button class="btn-action btn-map" onclick="verEnGoogleMapsGeoU2G()">🗺️ Maps</button>
+        </div>
+        
+        <div class="result-grid" id="cajaResGeoG2U">
+            <div class="result-box-inner"><div class="result-label">ESTE</div><div class="result-value" id="resEsteGeoOut">0.000</div></div>
+            <div class="result-box-inner"><div class="result-label">NORTE</div><div class="result-value" id="resNorteGeoOut">0.000</div></div>
+            <button class="btn-action btn-copiar" onclick="copiarTxt('resEsteGeoOut', 'resNorteGeoOut')">📋 Copiar</button>
+            <button class="btn-action btn-limpiar" onclick="limpiarFormularioGeo()">🗑️ Limpiar</button>
+            <button class="btn-action btn-map" onclick="verEnGoogleMapsGeoG2U()">🗺️ Maps</button>
+        </div>
+    </div>
+
+    <div id="calc-utm-topo" class="pantalla">
+        <div class="top-bar"><button class="btn-volver-mini" onclick="cambiarPantalla('menu-coordenadas')">←</button><h2 class="top-bar-title">UTM a Topográficas</h2></div>
+        
+        <div class="alerta-critica">
+            <h4>⚠️ Ojo: Evita la Doble Corrección</h4>
+            <p>Al generar tus coordenadas Topográficas (PTL) aquí, el software asume el estiramiento. Por lo tanto, <strong>la configuración de tu Estación Total debe quedar ESTRICTAMENTE en 1.000000.</strong></p>
+        </div>
+        
+        <div class="seccion-modulo">
+            <div class="seccion-titulo">1. PUNTO DE ORIGEN (BASE / BM)</div>
+            <div class="helper-text" style="text-align: left; margin-bottom: 10px;">La "chincheta" que amarra el plano. Ingresa la coordenada UTM donde se calculará el factor.</div>
+            <div class="form-grid">
+                <div class="input-group full-width"><label>ELEVACIÓN (Cota m.s.n.m)</label><input type="number" id="cotaBase" step="0.001" placeholder="Ej: 2850.000"></div>
+                <div class="input-group"><label>ESTE BASE (X)</label><input type="number" id="esteBase" step="0.001" placeholder="Ej: 715000"></div>
+                <div class="input-group"><label>NORTE BASE (Y)</label><input type="number" id="norteBase" step="0.001" placeholder="Ej: 9105000"></div>
+            </div>
+        </div>
+
+        <div class="seccion-modulo">
+            <div class="seccion-titulo">2. PUNTO A CONVERTIR</div>
+            <div class="helper-text" style="text-align: left; margin-bottom: 10px;">Ingresa el punto UTM que deseas "estirar" a escala real 1:1.</div>
+            <div class="form-grid">
+                <div class="input-group"><label>ESTE UTM (X)</label><input type="number" id="estePunto" step="0.001" placeholder="Ej: 715100"></div>
+                <div class="input-group"><label>NORTE UTM (Y)</label><input type="number" id="nortePunto" step="0.001" placeholder="Ej: 9105200"></div>
+            </div>
+        </div>
+
+        <button class="btn-calc" onclick="ejecutarPtl()" id="btnCalcularPtl">Generar Coordenada PTL</button>
+
+        <div class="result-grid" id="cajaResultadoPtl">
+            
+            <div class="result-box-wide" style="background-color: #330000; border: 1px solid var(--error-color);">
+                <div class="result-label" style="color: var(--error-color);">FACTOR A INGRESAR EN ESTACIÓN TOTAL</div>
+                <div class="result-value-wide" style="color: #fff; font-size: 1.6rem;">1.000000</div>
+            </div>
+
+            <div class="result-box-inner"><div class="result-label" style="color: var(--primary-color);">ESTE TOPOGRÁFICO</div><div class="result-value" id="resEsteTopo">0.000</div></div>
+            <div class="result-box-inner"><div class="result-label" style="color: var(--primary-color);">NORTE TOPOGRÁFICO</div><div class="result-value" id="resNorteTopo">0.000</div></div>
+            
+            <div class="result-box-wide" style="background-color: #1a1a1a; margin-top: 10px; margin-bottom: 0; padding: 5px;">
+                <div class="helper-text" style="font-size: 0.7rem;">Factor CSF calculado internamente: <span id="resFactorCombinadoVal">1.00000000</span></div>
+            </div>
+
+            <button class="btn-action btn-copiar" onclick="copiarTxt('resEsteTopo', 'resNorteTopo')">📋 Copiar</button>
+            <button class="btn-action btn-limpiar" onclick="limpiarFormularioPtl()">🗑️ Limpiar Todo</button>
+        </div>
+    </div>
+
+    <script>
+        // --- NAVEGACIÓN Y TABS ---
+        function cambiarPantalla(idPantalla) {
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            document.getElementById(idPantalla).classList.add('activa');
+            if(idPantalla === 'calc-utm-geo') { document.getElementById('zonaUtmGeo').value = document.getElementById('zonaUtm').value; }
+        }
+
+        function cambiarTab(modo) {
+            document.getElementById('btnTabManual').classList.remove('activa'); document.getElementById('btnTabMasivo').classList.remove('activa');
+            document.getElementById('tab-manual').classList.remove('activa'); document.getElementById('tab-masivo').classList.remove('activa');
+            if(modo === 'manual') { document.getElementById('btnTabManual').classList.add('activa'); document.getElementById('tab-manual').classList.add('activa'); } 
+            else { document.getElementById('btnTabMasivo').classList.add('activa'); document.getElementById('tab-masivo').classList.add('activa'); }
+        }
+
+        // --- VALIDACIONES DE INTERFAZ ---
+        function actualizarInterfaz() {
+            let dir = document.getElementById('direccionTransf').value;
+            if (dir === 'psad_to_wgs') {
+                document.getElementById('lblEsteIn').innerText = 'ESTE (X) - PSAD56'; document.getElementById('lblNorteIn').innerText = 'NORTE (Y) - PSAD56';
+                document.getElementById('lblEsteOut').innerText = 'ESTE (WGS84)'; document.getElementById('lblNorteOut').innerText = 'NORTE (WGS84)';
+            } else {
+                document.getElementById('lblEsteIn').innerText = 'ESTE (X) - WGS84'; document.getElementById('lblNorteIn').innerText = 'NORTE (Y) - WGS84';
+                document.getElementById('lblEsteOut').innerText = 'ESTE (PSAD56)'; document.getElementById('lblNorteOut').innerText = 'NORTE (PSAD56)';
+            }
+            document.getElementById('cajaResultado').style.display = 'none';
+        }
+
+        function actualizarAyudaZona() {
+            let zona = document.getElementById('zonaUtm').value;
+            let texto = "";
+            if(zona === "17") texto = "Tumbes, Piura, Lambayeque, La Libertad, Cajamarca.";
+            if(zona === "18") texto = "Áncash, Lima, Ica, Huánuco, Pasco, Junín, Loreto, San Martín, Amazonas, Ayacucho, Huancavelica, Apurímac.";
+            if(zona === "19") texto = "Arequipa, Moquegua, Tacna, Puno, Cusco, Madre de Dios.";
+            document.getElementById('ayudaZona').innerText = texto;
+            localStorage.setItem("cota100_zona", zona);
+            document.getElementById('zonaUtmGeo').value = zona;
+        }
+
+        function validarDigitos(idE, idErrE, idN, idErrN, idBtn) {
+            let eIn=document.getElementById(idE); let nIn=document.getElementById(idN); let btn=document.getElementById(idBtn);
+            if(!eIn || !nIn) return true;
+            let eV=eIn.value.split('.')[0]; let nV=nIn.value.split('.')[0]; let err=false;
+            if(eV.length>0 && eV.length!==6){ eIn.classList.add('error'); document.getElementById(idErrE).style.display='block'; err=true; } else { eIn.classList.remove('error'); document.getElementById(idErrE).style.display='none'; }
+            if(nV.length>0 && nV.length!==7){ nIn.classList.add('error'); document.getElementById(idErrN).style.display='block'; err=true; } else { nIn.classList.remove('error'); document.getElementById(idErrN).style.display='none'; }
+            btn.style.opacity = err?'0.5':'1'; btn.style.pointerEvents = err?'none':'auto';
+            return !err;
+        }
+
+        window.onload = function() {
+            let zG = localStorage.getItem("cota100_zona");
+            if(zG) { document.getElementById('zonaUtm').value = zG; document.getElementById('zonaUtmGeo').value = zG; actualizarAyudaZona(); }
+        };
+
+        function copiarTxt(id1, id2) {
+            let v1 = document.getElementById(id1).innerText.replace(/[a-zA-Z\s:]/g, ''); 
+            let v2 = document.getElementById(id2).innerText.replace(/[a-zA-Z\s:]/g, '');
+            navigator.clipboard.writeText(`${v1}\t${v2}`).then(() => alert("Copiado al portapapeles."));
+        }
+
+        // --- MOTOR MATEMÁTICO GEODÉSICO COMPLETO ---
+        const PI = Math.PI;
+        const PSAD56 = { a: 6378388.0, f: 1/297.0 };
+        const WGS84 = { a: 6378137.0, f: 1/298.257223563 };
+        const dX = -288.0; const dY = 175.0; const dZ = -376.0;
+
+        function molodenskyTransform(lat, lon, fromEllip, toEllip, deltaX, deltaY, deltaZ) {
+            let latRad = lat * PI / 180.0; let lonRad = lon * PI / 180.0;
+            let a = fromEllip.a; let f = fromEllip.f;
+            let da = toEllip.a - fromEllip.a; let df = toEllip.f - fromEllip.f; let e2 = 2*f - f*f;
+            let sinLat = Math.sin(latRad); let cosLat = Math.cos(latRad);
+            let sinLon = Math.sin(lonRad); let cosLon = Math.cos(lonRad);
+            let rm = a * (1 - e2) / Math.pow(1 - e2 * sinLat * sinLat, 1.5);
+            let rn = a / Math.sqrt(1 - e2 * sinLat * sinLat);
+            let dLat = (-deltaX * sinLat * cosLon - deltaY * sinLat * sinLon + deltaZ * cosLat + (a * df + f * da) * Math.sin(2 * latRad)) / rm;
+            let dLon = (-deltaX * sinLon + deltaY * cosLon) / (rn * cosLat);
+            return { lat: lat + (dLat * 180.0 / PI), lon: lon + (dLon * 180.0 / PI) };
+        }
+
+        function utmToLatLon(x, y, zone, isSouth, a, f) {
+            let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2);
+            if (isSouth) y = y - 10000000.0;
+            let lonOrigin = (zone - 1) * 6 - 180 + 3; x = x - 500000.0;
+            let m = y / 0.9996;
+            let mu = m / (a * (1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256));
+            let e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+            let phi1Rad = mu + (3*e1/2 - 27*Math.pow(e1,3)/32)*Math.sin(2*mu) + (21*e1*e1/16 - 55*Math.pow(e1,4)/32)*Math.sin(4*mu) + (151*Math.pow(e1,3)/96)*Math.sin(6*mu);
+            let n1 = a / Math.sqrt(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad));
+            let t1 = Math.tan(phi1Rad) * Math.tan(phi1Rad); let c1 = ep2 * Math.cos(phi1Rad) * Math.cos(phi1Rad);
+            let r1 = a * (1 - e2) / Math.pow(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad), 1.5);
+            let d = x / (n1 * 0.9996);
+            let latRad = phi1Rad - (n1 * Math.tan(phi1Rad) / r1) * (d*d/2 - (5 + 3*t1 + 10*c1 - 4*c1*c1 - 9*ep2)*Math.pow(d,4)/24 + (61 + 90*t1 + 298*c1 + 45*t1*t1 - 252*ep2 - 3*c1*c1)*Math.pow(d,6)/720);
+            let lonRad = (d - (1 + 2*t1 + c1)*Math.pow(d,3)/6 + (5 - 2*c1 + 28*t1 - 3*c1*c1 + 8*ep2 + 24*t1*t1)*Math.pow(d,5)/120) / Math.cos(phi1Rad);
+            return { lat: latRad * 180.0 / PI, lon: lonOrigin + (lonRad * 180.0 / PI) };
+        }
+
+        function latLonToUtm(lat, lon, zone, a, f) {
+            let latRad = lat * PI / 180.0; let lonRad = lon * PI / 180.0;
+            let lonOrigin = (zone - 1) * 6 - 180 + 3; let lonOriginRad = lonOrigin * PI / 180.0;
+            let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2);
+            let n = a / Math.sqrt(1 - e2 * Math.sin(latRad)*Math.sin(latRad));
+            let t = Math.tan(latRad) * Math.tan(latRad); let c = ep2 * Math.cos(latRad) * Math.cos(latRad);
+            let A = Math.cos(latRad) * (lonRad - lonOriginRad);
+            let m = a * ((1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256)*latRad - (3*e2/8 + 3*e2*e2/32 + 45*Math.pow(e2,3)/1024)*Math.sin(2*latRad) + (15*e2*e2/256 + 45*Math.pow(e2,3)/1024)*Math.sin(4*latRad) - (35*Math.pow(e2,3)/3072)*Math.sin(6*latRad));
+            let x = 0.9996 * n * (A + (1 - t + c)*Math.pow(A,3)/6 + (5 - 18*t + t*t + 72*c - 58*ep2)*Math.pow(A,5)/120); x = x + 500000.0;
+            let y = 0.9996 * (m + n * Math.tan(latRad) * (A*A/2 + (5 - t + 9*c + 4*c*c)*Math.pow(A,4)/24 + (61 - 58*t + t*t + 600*c - 330*ep2)*Math.pow(A,6)/720));
+            if (lat < 0) y = y + 10000000.0;
+            return { este: x, norte: y };
+        }
+
+        // --- LÓGICA MÓDULO 1: DATUM ---
+        function ejecutarTransformacion() {
+            if(!validarDigitos('esteIn', 'errEste', 'norteIn', 'errNorte', 'btnCalcular')) return; 
+            let este = parseFloat(document.getElementById('esteIn').value);
+            let norte = parseFloat(document.getElementById('norteIn').value);
+            let zona = parseInt(document.getElementById('zonaUtm').value);
+            let dir = document.getElementById('direccionTransf').value;
+            if(isNaN(este) || isNaN(norte)) { alert("Faltan datos."); return; }
+            
+            let res;
+            if (dir === 'psad_to_wgs') {
+                let geo1 = utmToLatLon(este, norte, zona, true, PSAD56.a, PSAD56.f);
+                let geo2 = molodenskyTransform(geo1.lat, geo1.lon, PSAD56, WGS84, dX, dY, dZ);
+                res = latLonToUtm(geo2.lat, geo2.lon, zona, WGS84.a, WGS84.f);
+            } else {
+                let geo1 = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f);
+                let geo2 = molodenskyTransform(geo1.lat, geo1.lon, WGS84, PSAD56, -dX, -dY, -dZ);
+                res = latLonToUtm(geo2.lat, geo2.lon, zona, PSAD56.a, PSAD56.f);
+            }
+
+            document.getElementById('resEste').innerText = res.este.toFixed(3);
+            document.getElementById('resNorte').innerText = res.norte.toFixed(3);
+            document.getElementById('cajaResultado').style.display = 'grid';
+        }
+
+        function limpiarFormularioDatum() { document.getElementById('esteIn').value = ''; document.getElementById('norteIn').value = ''; document.getElementById('cajaResultado').style.display = 'none'; document.getElementById('esteIn').focus(); validarDigitos('esteIn', 'errEste', 'norteIn', 'errNorte', 'btnCalcular'); }
+        
+        function verEnGoogleMapsDatum() {
+            let este, norte; let dir = document.getElementById('direccionTransf').value; let zona = parseInt(document.getElementById('zonaUtm').value);
+            if (dir === 'psad_to_wgs') { este = parseFloat(document.getElementById('resEste').innerText); norte = parseFloat(document.getElementById('resNorte').innerText); } 
+            else { este = parseFloat(document.getElementById('esteIn').value); norte = parseFloat(document.getElementById('norteIn').value); }
+            let latLon = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${latLon.lat},${latLon.lon}`, '_blank');
+        }
+
+        function procesarArchivo() {
+            let fileInput = document.getElementById('fileInput'); let formato = document.getElementById('formatoColumnas').value;
+            let zona = parseInt(document.getElementById('zonaUtm').value); let dir = document.getElementById('direccionTransf').value;
+            if (!fileInput.files.length) { alert("Selecciona un archivo."); return; }
+            let file = fileInput.files[0]; let reader = new FileReader();
+            reader.onload = function(e) {
+                let lineas = e.target.result.split(/\r?\n/); let resultadoCSV = ""; let procesadas = 0;
+                for (let i = 0; i < lineas.length; i++) {
+                    let linea = lineas[i].trim(); if (linea === "") continue;
+                    let sep = linea.includes(';') ? ';' : (linea.includes('\t') ? '\t' : ',');
+                    let columnas = linea.split(sep); let colE = (formato === "PENZD") ? 1 : 0; let colN = (formato === "PENZD") ? 2 : 1;
+                    if(columnas.length <= colN) continue;
+                    let este = parseFloat(columnas[colE]); let norte = parseFloat(columnas[colN]);
+                    if (isNaN(este) || isNaN(norte)) { resultadoCSV += linea + "\n"; continue; }
+                    
+                    let res;
+                    if (dir === 'psad_to_wgs') {
+                        let geo1 = utmToLatLon(este, norte, zona, true, PSAD56.a, PSAD56.f);
+                        let geo2 = molodenskyTransform(geo1.lat, geo1.lon, PSAD56, WGS84, dX, dY, dZ);
+                        res = latLonToUtm(geo2.lat, geo2.lon, zona, WGS84.a, WGS84.f);
+                    } else {
+                        let geo1 = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f);
+                        let geo2 = molodenskyTransform(geo1.lat, geo1.lon, WGS84, PSAD56, -dX, -dY, -dZ);
+                        res = latLonToUtm(geo2.lat, geo2.lon, zona, PSAD56.a, PSAD56.f);
+                    }
+                    
+                    columnas[colE] = res.este.toFixed(3); columnas[colN] = res.norte.toFixed(3);
+                    resultadoCSV += columnas.join(sep) + "\n"; procesadas++;
+                }
+                let sufijo = dir === 'psad_to_wgs' ? '_WGS84' : '_PSAD56';
+                let nombre = file.name.split('.')[0] + sufijo + ".csv";
+                let blob = new Blob(["\uFEFF" + resultadoCSV], { type: 'text/csv;charset=utf-8;' });
+                let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = nombre;
+                link.click(); alert(`Se transformaron ${procesadas} puntos.`);
+            };
+            reader.readAsText(file);
+        }
+
+        // --- LÓGICA MÓDULO 2: UTM A GEO BIDIRECCIONAL ---
+        function toggleInputsGeo() {
+            let dir = document.getElementById('dirUtmGeo').value;
+            if(dir === 'u2g') {
+                document.getElementById('input-u2g').style.display = 'grid'; document.getElementById('input-g2u').style.display = 'none';
+                document.getElementById('cajaResGeoU2G').style.display = 'none'; document.getElementById('cajaResGeoG2U').style.display = 'none';
+            } else {
+                document.getElementById('input-u2g').style.display = 'none'; document.getElementById('input-g2u').style.display = 'grid';
+                document.getElementById('cajaResGeoU2G').style.display = 'none'; document.getElementById('cajaResGeoG2U').style.display = 'none';
+            }
+        }
+
+        function decimalAGMS(gradosDecimales, esLatitud) {
+            let absoluto = Math.abs(gradosDecimales); let grados = Math.floor(absoluto);
+            let minutosFloat = (absoluto - grados) * 60; let minutos = Math.floor(minutosFloat);
+            let segundos = (minutosFloat - minutos) * 60; let direccion = "";
+            if (esLatitud) { direccion = gradosDecimales < 0 ? "S" : "N"; } else { direccion = gradosDecimales < 0 ? "W" : "E"; }
+            return `${grados}° ${minutos}' ${segundos.toFixed(4)}" ${direccion}`;
+        }
+
+        function ejecutarUtmGeo() {
+            let dir = document.getElementById('dirUtmGeo').value;
+            let zona = parseInt(document.getElementById('zonaUtmGeo').value);
+            let hemi = document.getElementById('hemiGeo').value === 'S';
+
+            if(dir === 'u2g') {
+                if(!validarDigitos('esteGeo', 'errEsteGeo', 'norteGeo', 'errNorteGeo', 'btnCalcularGeo')) return;
+                let este = parseFloat(document.getElementById('esteGeo').value);
+                let norte = parseFloat(document.getElementById('norteGeo').value);
+                if(isNaN(este) || isNaN(norte)) { alert("Faltan datos."); return; }
+                let geo = utmToLatLon(este, norte, zona, hemi, WGS84.a, WGS84.f);
+                document.getElementById('resLatDec').innerText = geo.lat.toFixed(6);
+                document.getElementById('resLonDec').innerText = geo.lon.toFixed(6);
+                document.getElementById('cajaResGeoU2G').style.display = 'grid';
+            } else {
+                let lat = parseFloat(document.getElementById('latIn').value);
+                let lon = parseFloat(document.getElementById('lonIn').value);
+                if(isNaN(lat) || isNaN(lon)) { alert("Faltan datos."); return; }
+                let utm = latLonToUtm(lat, lon, zona, WGS84.a, WGS84.f);
+                document.getElementById('resEsteGeoOut').innerText = utm.este.toFixed(3);
+                document.getElementById('resNorteGeoOut').innerText = utm.norte.toFixed(3);
+                document.getElementById('cajaResGeoG2U').style.display = 'grid';
+            }
+        }
+
+        function limpiarFormularioGeo() {
+            document.getElementById('esteGeo').value = ''; document.getElementById('norteGeo').value = '';
+            document.getElementById('latIn').value = ''; document.getElementById('lonIn').value = '';
+            document.getElementById('cajaResGeoU2G').style.display = 'none'; document.getElementById('cajaResGeoG2U').style.display = 'none';
+            document.getElementById('esteGeo').focus();
+        }
+
+        function verEnGoogleMapsGeoU2G() {
+            let lat = document.getElementById('resLatDec').innerText; let lon = document.getElementById('resLonDec').innerText;
+            window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank');
+        }
+
+        function verEnGoogleMapsGeoG2U() {
+            let lat = document.getElementById('latIn').value; let lon = document.getElementById('lonIn').value;
+            window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank');
+        }
+
+        // --- MÓDULO 3: CÁLCULO DE PTL RIGUROSO ---
+        function ejecutarPtl() {
+            let esteBase = parseFloat(document.getElementById('esteBase').value);
+            let norteBase = parseFloat(document.getElementById('norteBase').value);
+            let cotaBase = parseFloat(document.getElementById('cotaBase').value);
+            let estePunto = parseFloat(document.getElementById('estePunto').value);
+            let nortePunto = parseFloat(document.getElementById('nortePunto').value);
+            
+            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase) || isNaN(estePunto) || isNaN(nortePunto)) { 
+                alert("Completa todos los datos de la Base y del Punto."); return; 
+            }
+
+            const R = 6378137.0; 
+            
+            let factorElevacion = R / (R + cotaBase);
+            let deltaE_Base = esteBase - 500000.0;
+            let factorEscala = 0.9996 * (1 + (Math.pow(deltaE_Base, 2) / (2 * Math.pow(R, 2))));
+            let csf = factorElevacion * factorEscala;
+            
+            let deltaE_UTM = estePunto - esteBase;
+            let deltaN_UTM = nortePunto - norteBase;
+
+            let deltaE_Topo = deltaE_UTM / csf;
+            let deltaN_Topo = deltaN_UTM / csf;
+
+            let esteTopoFinal = esteBase + deltaE_Topo;
+            let norteTopoFinal = norteBase + deltaN_Topo;
+
+            document.getElementById('resFactorCombinadoVal').innerText = csf.toFixed(8);
+            document.getElementById('resEsteTopo').innerText = esteTopoFinal.toFixed(3);
+            document.getElementById('resNorteTopo').innerText = norteTopoFinal.toFixed(3);
+            
+            document.getElementById('cajaResultadoPtl').style.display = 'grid';
+        }
+
+        function limpiarFormularioPtl() {
+            document.getElementById('estePunto').value = '';
+            document.getElementById('nortePunto').value = '';
+            document.getElementById('cajaResultadoPtl').style.display = 'none';
+            document.getElementById('estePunto').focus();
+        }
+    </script>
+</body>
+</html>

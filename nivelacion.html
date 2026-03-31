@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COTA100 SYSTEM - Nivelación</title>
+    <style>
+        :root {
+            --bg-color: #000000; --text-color: #ffffff;
+            --primary-color: #FF6600; --input-bg: #1a1a1a;
+            --table-border: #333333; --error-color: #ff3333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 50px; }
+
+        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); font-size: 1.5rem; font-weight: bold; cursor: pointer; padding-right: 15px; }
+        .top-bar-title { color: var(--primary-color); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin: 0; }
+
+        .seccion-modulo { border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #0a0a0a; }
+        .seccion-titulo { color: var(--primary-color); font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+
+        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { margin-bottom: 5px; font-weight: bold; color: #ccc; font-size: 0.75rem; text-transform: uppercase; }
+        input { width: 100%; padding: 12px; font-size: 1.1rem; background-color: var(--input-bg); border: 2px solid #444; color: var(--text-color); border-radius: 8px; }
+        input:focus { border-color: var(--primary-color); outline: none; background-color: #222;}
+
+        .table-container { width: 100%; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--table-border); }
+        table { width: 100%; min-width: 600px; border-collapse: collapse; background-color: var(--input-bg); }
+        th, td { border: 1px solid var(--table-border); padding: 5px; text-align: center; font-size: 0.85rem; }
+        th { background-color: #111; color: var(--primary-color); font-weight: bold; text-transform: uppercase; padding: 10px 5px;}
+        
+        /* Inputs dentro de la tabla */
+        td input { border: none; background: transparent; width: 100%; height: 100%; padding: 8px 4px; font-weight: bold; color: #fff; text-align: center; font-size: 0.95rem; border-radius: 0;}
+        td input:focus { background-color: #222; outline: 1px solid var(--primary-color); }
+        
+        .cota-calculada { color: #00ff00; font-weight: bold; font-family: monospace; font-size: 1.1rem; }
+        .ai-calculada { color: #aaa; font-size: 0.8rem; font-style: italic; }
+
+        .btn-accion { width: 100%; padding: 15px; font-size: 1rem; background-color: #222; color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; text-transform: uppercase; }
+        .btn-accion:active { background-color: var(--primary-color); color: #000; }
+        .btn-calc { background-color: var(--primary-color); color: #000; font-size: 1.2rem; margin-top: 10px; }
+        
+        .flex-buttons { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
+        <h2 class="top-bar-title">Libreta de Nivelación</h2>
+    </div>
+
+    <div class="seccion-modulo">
+        <div class="seccion-titulo">1. DATOS DE PARTIDA (BM)</div>
+        <div class="input-group" style="margin-bottom: 0;">
+            <label>COTA INICIAL (m.s.n.m)</label>
+            <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2850.000">
+        </div>
+    </div>
+
+    <div class="seccion-modulo" style="padding: 10px 5px;">
+        <div class="seccion-titulo" style="padding-left: 10px;">2. REGISTRO DE LECTURAS</div>
+        
+        <div class="table-container">
+            <table id="tablaNivelacion">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">PUNTO</th>
+                        <th style="width: 18%;">V. ATRÁS (+)</th>
+                        <th style="width: 18%;">V. INTER.</th>
+                        <th style="width: 18%;">V. ADEL. (-)</th>
+                        <th style="width: 31%;">COTA</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaNivelacion">
+                    <tr>
+                        <td><input type="text" value="BM1" class="in-pto"></td>
+                        <td><input type="number" step="0.001" class="in-va" placeholder="0.000"></td>
+                        <td><input type="number" step="0.001" class="in-vi" disabled style="opacity:0.2;"></td>
+                        <td><input type="number" step="0.001" class="in-vd" disabled style="opacity:0.2;"></td>
+                        <td class="cota-calculada out-cota">---</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="P1" class="in-pto"></td>
+                        <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                        <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
+                        <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                        <td class="cota-calculada out-cota">---</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex-buttons" style="padding: 0 5px;">
+            <button class="btn-accion" onclick="agregarFila()">+ Fila</button>
+            <button class="btn-accion" style="background-color: #330000; border-color: var(--error-color); color: var(--error-color);" onclick="quitarFila()">- Fila</button>
+        </div>
+    </div>
+
+    <button class="btn-accion btn-calc" onclick="calcularNivelacion()">Calcular Cotas</button>
+    <button class="btn-accion" style="background-color: #111; border-color: #555; color: #fff;" onclick="copiarLibreta()">📋 Copiar Libreta</button>
+
+    <script>
+        let ptoContador = 2;
+
+        function agregarFila() {
+            const tbody = document.getElementById('cuerpoTablaNivelacion');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" value="P${ptoContador}" class="in-pto"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                <td class="cota-calculada out-cota">---</td>
+            `;
+            tbody.appendChild(tr);
+            ptoContador++;
+        }
+
+        function quitarFila() {
+            const tbody = document.getElementById('cuerpoTablaNivelacion');
+            if (tbody.children.length > 1) {
+                tbody.removeChild(tbody.lastChild);
+                ptoContador--;
+            }
+        }
+
+        function calcularNivelacion() {
+            let tbody = document.getElementById('cuerpoTablaNivelacion');
+            let filas = tbody.querySelectorAll('tr');
+            let cotaInicial = parseFloat(document.getElementById('cotaBM').value);
+
+            if (isNaN(cotaInicial)) {
+                alert("Por favor, ingresa la Cota Inicial del BM.");
+                document.getElementById('cotaBM').focus();
+                return;
+            }
+
+            let aiActual = 0;
+            let cotaActual = cotaInicial;
+            let errorDetectado = false;
+
+            for (let i = 0; i < filas.length; i++) {
+                let fila = filas[i];
+                let va = parseFloat(fila.querySelector('.in-va').value);
+                let vi = parseFloat(fila.querySelector('.in-vi').value);
+                let vd = parseFloat(fila.querySelector('.in-vd').value);
+                let cotaCell = fila.querySelector('.out-cota');
+
+                // Fila 1 (BM Inicial)
+                if (i === 0) {
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+                    if (!isNaN(va)) {
+                        aiActual = cotaActual + va;
+                        // Añadimos la AI chiquita para referencia visual
+                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    } else {
+                        errorDetectado = true;
+                        alert("El BM inicial necesita una lectura de Vista Atrás (+).");
+                        break;
+                    }
+                    continue;
+                }
+
+                // Lógica de cálculo para el resto de filas
+                if (!isNaN(vi)) {
+                    // Si hay Vista Intermedia
+                    cotaActual = aiActual - vi;
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+                } else if (!isNaN(vd)) {
+                    // Si hay Vista Adelante (Punto de cambio o cierre)
+                    cotaActual = aiActual - vd;
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+
+                    // Si además en la misma fila puso Vista Atrás (Cambio de Estación real)
+                    if (!isNaN(va)) {
+                        aiActual = cotaActual + va;
+                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    }
+                } else {
+                    cotaCell.innerText = "---";
+                }
+            }
+
+            if (!errorDetectado) {
+                // Pequeña animación visual para indicar éxito
+                document.querySelector('.btn-calc').style.backgroundColor = "#00ff00";
+                setTimeout(() => {
+                    document.querySelector('.btn-calc').style.backgroundColor = "var(--primary-color)";
+                }, 500);
+            }
+        }
+
+        function copiarLibreta() {
+            let filas = document.querySelectorAll('#cuerpoTablaNivelacion tr');
+            let textoCopia = "PUNTO\tV.ATRAS\tV.INTER\tV.ADELANTE\tCOTA\n";
+            
+            // Agregar BM original a la copia
+            let cotaBase = document.getElementById('cotaBM').value;
+            textoCopia += `BM\t\t\t\t${cotaBase}\n`;
+
+            filas.forEach((fila, index) => {
+                let pto = fila.querySelector('.in-pto').value || "";
+                let va = fila.querySelector('.in-va').value || "";
+                let vi = fila.querySelector('.in-vi').value || "";
+                let vd = fila.querySelector('.in-vd').value || "";
+                
+                // Extraer solo el número de la cota, ignorando el texto del "AI"
+                let cotaCelda = fila.querySelector('.out-cota').innerText.split('\n')[0]; 
+                
+                if(cotaCelda !== "---") {
+                    textoCopia += `${pto}\t${va}\t${vi}\t${vd}\t${cotaCelda}\n`;
+                }
+            });
+
+            navigator.clipboard.writeText(textoCopia).then(() => {
+                alert("Libreta copiada correctamente. Lista para pegar en Excel.");
+            });
+        }
+    </script>
+</body>
+</html>

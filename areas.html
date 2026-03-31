@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COTA100 SYSTEM - Áreas</title>
+    <style>
+        :root {
+            --bg-color: #000000; --text-color: #ffffff;
+            --primary-color: #FF6600; --input-bg: #1a1a1a;
+            --table-border: #333333; --error-color: #ff3333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 50px; }
+
+        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); font-size: 1.5rem; font-weight: bold; cursor: pointer; padding-right: 15px; }
+        .top-bar-title { color: var(--primary-color); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin: 0; }
+
+        .seccion-modulo { border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #0a0a0a; }
+        .seccion-titulo { color: var(--primary-color); font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .helper-text { font-size: 0.75rem; color: #888; margin-bottom: 15px; line-height: 1.3; }
+
+        .table-container { width: 100%; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--table-border); }
+        table { width: 100%; min-width: 400px; border-collapse: collapse; background-color: var(--input-bg); }
+        th, td { border: 1px solid var(--table-border); padding: 8px 4px; text-align: center; font-size: 0.9rem; }
+        th { background-color: #111; color: var(--primary-color); font-weight: bold; text-transform: uppercase; }
+        td input { border: none; background: transparent; width: 100%; height: 100%; padding: 8px; font-weight: bold; color: #fff; text-align: center;}
+        td input:focus { background-color: #222; outline: 1px solid var(--primary-color); }
+
+        .btn-accion { width: 100%; padding: 15px; font-size: 1rem; background-color: #222; color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; text-transform: uppercase; }
+        .btn-accion:active { background-color: var(--primary-color); color: #000; }
+        .btn-calc { background-color: var(--primary-color); color: #000; font-size: 1.2rem; margin-top: 5px; }
+
+        .result-box { margin-top: 20px; padding: 15px; border: 2px dashed var(--primary-color); border-radius: 8px; background-color: #111; display: none; text-align: center; }
+        .res-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
+        .res-item { background-color: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;}
+        .res-titulo { color: #aaa; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; font-weight: bold;}
+        .res-valor { font-size: 1.8rem; color: var(--primary-color); font-weight: bold; font-family: monospace;}
+        .res-hectareas { font-size: 1.2rem; color: #00ff00; margin-top: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
+        <h2 class="top-bar-title">Áreas y Perímetros</h2>
+    </div>
+
+    <div class="seccion-modulo" style="padding: 10px 5px;">
+        <div class="seccion-titulo" style="padding-left: 10px;">VÉRTICES DEL POLÍGONO</div>
+        <div class="helper-text" style="padding-left: 10px; padding-right: 10px;">* Ingresa las coordenadas en orden perimetral (horario o antihorario). El sistema cerrará la figura automáticamente.</div>
+        
+        <div class="table-container">
+            <table id="tablaAreas">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">PT.</th>
+                        <th style="width: 40%;">ESTE (X)</th>
+                        <th style="width: 40%;">NORTE (Y)</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaAreas">
+                    <tr>
+                        <td style="color:var(--primary-color); font-weight:bold;">1</td>
+                        <td><input type="number" class="coor-x" step="0.001" placeholder="Ej: 715000"></td>
+                        <td><input type="number" class="coor-y" step="0.001" placeholder="Ej: 9105000"></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--primary-color); font-weight:bold;">2</td>
+                        <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
+                        <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--primary-color); font-weight:bold;">3</td>
+                        <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
+                        <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: flex; gap: 10px; padding: 0 5px;">
+            <button class="btn-accion" onclick="agregarPunto()">+ Punto</button>
+            <button class="btn-accion" style="background-color: #330000; border-color: var(--error-color); color: var(--error-color);" onclick="quitarPunto()">- Punto</button>
+        </div>
+    </div>
+
+    <button class="btn-accion btn-calc" onclick="calcularArea()">Calcular Área</button>
+
+    <div class="result-box" id="cajaResultado">
+        <div class="res-grid">
+            <div class="res-item" style="border-color: var(--primary-color);">
+                <div class="res-titulo" style="color: var(--primary-color);">ÁREA TOTAL DEL LOTE</div>
+                <div class="res-valor" id="resAreaM2">0.00 m²</div>
+                <div class="res-hectareas" id="resAreaHa">0.0000 Ha</div>
+            </div>
+            <div class="res-item">
+                <div class="res-titulo">PERÍMETRO TOTAL</div>
+                <div class="res-valor" id="resPerimetro" style="color: #fff;">0.000 m</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function agregarPunto() {
+            const tbody = document.getElementById('cuerpoTablaAreas');
+            const num = tbody.children.length + 1;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:var(--primary-color); font-weight:bold;">${num}</td>
+                <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
+                <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function quitarPunto() {
+            const tbody = document.getElementById('cuerpoTablaAreas');
+            if (tbody.children.length > 3) {
+                tbody.removeChild(tbody.lastChild);
+            } else {
+                alert("Un polígono debe tener al menos 3 puntos para generar un área.");
+            }
+        }
+
+        function calcularArea() {
+            let filas = document.querySelectorAll('#cuerpoTablaAreas tr');
+            let X = [];
+            let Y = [];
+
+            for (let i = 0; i < filas.length; i++) {
+                let xVal = parseFloat(filas[i].querySelector('.coor-x').value);
+                let yVal = parseFloat(filas[i].querySelector('.coor-y').value);
+                
+                if (isNaN(xVal) || isNaN(yVal)) {
+                    alert(`Falta completar coordenadas en el Punto ${i+1}`);
+                    return;
+                }
+                X.push(xVal);
+                Y.push(yVal);
+            }
+
+            let area = 0;
+            let perimetro = 0;
+            let j = X.length - 1; // El último vértice se conecta con el primero
+
+            for (let i = 0; i < X.length; i++) {
+                // Teorema de Shoelace (Gauss) para Área
+                area += (X[j] + X[i]) * (Y[j] - Y[i]);
+                
+                // Distancia euclidiana para Perímetro
+                let dX = X[i] - X[j];
+                let dY = Y[i] - Y[j];
+                perimetro += Math.sqrt(dX*dX + dY*dY);
+                
+                j = i; // j es siempre el vértice anterior a i
+            }
+
+            area = Math.abs(area / 2.0);
+            let hectareas = area / 10000.0;
+
+            document.getElementById('resAreaM2').innerText = area.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " m²";
+            document.getElementById('resAreaHa').innerText = hectareas.toLocaleString('en-US', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " Ha";
+            document.getElementById('resPerimetro').innerText = perimetro.toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + " m";
+
+            document.getElementById('cajaResultado').style.display = 'block';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
