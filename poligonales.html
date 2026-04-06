@@ -2,392 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COTA100 SYSTEM - Poligonales</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 - Hub Poligonales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #000000; --text-color: #ffffff;
-            --primary-color: #FF6600; --input-bg: #1a1a1a;
-            --table-border: #333333; --error-color: #ff3333;
+            --bg-color: #ffffff; --text-color: #000000;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 50px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); font-size: 1.5rem; font-weight: bold; cursor: pointer; padding-right: 15px; }
-        .top-bar-title { color: var(--primary-color); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin: 0; }
+        body { 
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
+            /* MAPA GEOMÉTRICO RAW TECH (Triangulaciones y polígonos) */
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.10' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3Cline x1='150' y1='20' x2='250' y2='50' /%3E%3Cline x1='200' y1='100' x2='220' y2='150' /%3E%3Cline x1='120' y1='150' x2='180' y2='300' /%3E%3Cline x1='250' y1='250' x2='220' y2='150' /%3E%3Cline x1='250' y1='250' x2='180' y2='300' /%3E%3Ccircle cx='50' cy='50' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='150' cy='20' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='200' cy='100' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='120' cy='150' r='3' fill='%23000' fill-opacity='0.1' /%3E%3C/g%3E%3C/svg%3E");
+            background-size: 400px 400px;
+        }
 
-        .seccion-modulo { border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #0a0a0a; }
-        .seccion-titulo { color: var(--primary-color); font-size: 0.85rem; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .top-bar { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.9); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);
+        }
+        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.5rem; text-transform: uppercase; margin: 0; }
+        .top-bar-title span { color: var(--primary-color); }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .input-group { display: flex; flex-direction: column; }
-        .full-width { grid-column: 1 / -1; }
+        .hub-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 20px 15px; }
         
-        label { margin-bottom: 5px; font-weight: bold; color: #ccc; font-size: 0.75rem; text-transform: uppercase; }
-        input, select { width: 100%; padding: 10px; font-size: 1rem; background-color: var(--input-bg); border: 1px solid #444; color: var(--text-color); border-radius: 5px; text-align: center;}
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; }
-        
-        .gms-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
-        .gms-container input { padding: 8px 2px; font-size: 0.9rem; }
-
-        .table-container { width: 100%; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--table-border); }
-        table { width: 100%; min-width: 650px; border-collapse: collapse; background-color: var(--input-bg); }
-        th, td { border: 1px solid var(--table-border); padding: 8px 4px; text-align: center; font-size: 0.85rem; }
-        th { background-color: #111; color: var(--primary-color); font-weight: bold; text-transform: uppercase; }
-        td input { border: none; background: transparent; width: 100%; height: 100%; padding: 5px; font-weight: bold; color: #fff;}
-        td input:focus { background-color: #222; outline: 1px solid var(--primary-color); }
-        
-        .btn-accion { width: 100%; padding: 15px; font-size: 1rem; background-color: #222; color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; text-transform: uppercase; }
-        .btn-accion:active { background-color: var(--primary-color); color: #000; }
-        .btn-calc { background-color: var(--primary-color); color: #000; font-size: 1.2rem; margin-top: 15px; }
-
-        .result-box { margin-top: 20px; padding: 15px; border: 2px dashed var(--primary-color); border-radius: 8px; background-color: #111; display: none; text-align: center; }
-        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .res-item { background-color: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;}
-        .res-titulo { color: #aaa; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; font-weight: bold;}
-        .res-valor { font-size: 1.3rem; color: var(--primary-color); font-weight: bold; font-family: monospace;}
-        .res-ok { color: #00ff00; }
-        .res-error { color: var(--error-color); }
-        
-        .tabla-resultados th { background-color: var(--primary-color); color: #000; }
-        .tabla-resultados td { color: #fff; font-family: monospace; font-size: 1rem; padding: 10px;}
+        .btn-hub {
+            background-color: rgba(255, 255, 255, 0.85); border: 2px solid var(--border-color);
+            border-radius: 12px; padding: 25px 15px; display: flex; align-items: center;
+            text-decoration: none; color: var(--text-color); cursor: pointer;
+            backdrop-filter: blur(5px); transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .btn-hub:active { border-color: var(--primary-color); background-color: #fff; transform: scale(0.97); }
+        .btn-hub .hub-icon { font-size: 3.5rem; margin-right: 20px; text-shadow: 0 0 5px #fff; }
+        .hub-info { text-align: left; }
+        .hub-info h3 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 5px #fff;}
+        .hub-info p { font-size: 0.9rem; font-weight: 600; color: #444; line-height: 1.2; text-shadow: 0 0 5px #fff;}
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
-        <h2 class="top-bar-title">Poligonal Cerrada</h2>
+        <a href="index.html" class="btn-volver-mini">←</a>
+        <h2 class="top-bar-title">MÓDULOS <span>POLIGONALES</span></h2>
+        <div style="width: 25px;"></div>
     </div>
 
-    <div class="seccion-modulo">
-        <div class="seccion-titulo">1. DATOS DE PARTIDA (BM1 / ESTACIÓN 1)</div>
-        <div class="form-grid">
-            <div class="input-group">
-                <label>ESTE INICIAL (X)</label>
-                <input type="number" id="estePartida" step="0.001" placeholder="Ej: 715000.000">
+    <div class="hub-grid">
+        <a href="pol-cerrada.html" class="btn-hub">
+            <div class="hub-icon">⬡</div>
+            <div class="hub-info">
+                <h3>Poligonal Cerrada</h3>
+                <p>Ajuste de circuitos cerrados. Cálculo de error angular, lineal y compensación de coordenadas.</p>
             </div>
-            <div class="input-group">
-                <label>NORTE INICIAL (Y)</label>
-                <input type="number" id="nortePartida" step="0.001" placeholder="Ej: 9105000.000">
-            </div>
-            <div class="input-group full-width">
-                <label>AZIMUT DE PARTIDA (Est. 1 Hacia Est. 2)</label>
-                <div class="gms-container">
-                    <input type="number" id="azGrados" placeholder="Grados (°)">
-                    <input type="number" id="azMinutos" placeholder="Min (')">
-                    <input type="number" id="azSegundos" step="0.1" placeholder="Seg ('')">
-                </div>
-            </div>
-            <div class="input-group full-width" style="margin-top: 5px;">
-                <label>Sentido de los Ángulos Medidos</label>
-                <select id="sentidoAngulos">
-                    <option value="1">Hacia la Derecha (Horarios / Ángulos Internos estándar)</option>
-                    <option value="-1">Hacia la Izquierda (Antihorarios)</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="seccion-modulo" style="padding: 10px 5px;">
-        <div class="seccion-titulo" style="padding-left: 10px;">2. REGISTRO DE CAMPO</div>
-        <div style="padding-left: 10px; color: #aaa; font-size: 0.75rem; margin-bottom: 10px;">
-            * Ingresa el ángulo observado en cada estación y la distancia hacia la siguiente.
-        </div>
+        </a>
         
-        <div class="table-container">
-            <table id="tablaPoligonal">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">EST.</th>
-                        <th style="width: 15%;">GRADOS</th>
-                        <th style="width: 15%;">MIN.</th>
-                        <th style="width: 20%;">SEG.</th>
-                        <th style="width: 35%;">DIST. ADELANTE (m)</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTablaPoligonal">
-                    <tr>
-                        <td><input type="text" value="E1" disabled style="color:var(--primary-color);"></td>
-                        <td><input type="number" class="ang-g" placeholder="°"></td>
-                        <td><input type="number" class="ang-m" placeholder="'"></td>
-                        <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                        <td><input type="number" step="0.001" class="dist" placeholder="Dist. E1 a E2"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" value="E2" disabled style="color:var(--primary-color);"></td>
-                        <td><input type="number" class="ang-g" placeholder="°"></td>
-                        <td><input type="number" class="ang-m" placeholder="'"></td>
-                        <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                        <td><input type="number" step="0.001" class="dist" placeholder="Dist. E2 a E3"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text" value="E3" disabled style="color:var(--primary-color);"></td>
-                        <td><input type="number" class="ang-g" placeholder="°"></td>
-                        <td><input type="number" class="ang-m" placeholder="'"></td>
-                        <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                        <td><input type="number" step="0.001" class="dist" placeholder="Dist. E3 a E1"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <button class="btn-accion" onclick="agregarVertice()">+ Agregar Vértice</button>
-        <button class="btn-accion" style="background-color: #330000; border-color: var(--error-color); color: var(--error-color);" onclick="quitarVertice()">- Quitar Vértice</button>
+        <a href="pol-abierta.html" class="btn-hub">
+            <div class="hub-icon">📈</div>
+            <div class="hub-info">
+                <h3>Abierta / Encuadrada</h3>
+                <p>Poligonales con control de azimut de partida y llegada. Ajuste sobre línea base conocida.</p>
+            </div>
+        </a>
     </div>
 
-    <button class="btn-accion btn-calc" onclick="calcularPoligonal()">Calcular y Compensar</button>
-
-    <div class="result-box" id="cajaResultado">
-        <h3 style="color: #fff; margin-bottom: 15px; font-size: 1.1rem; border-bottom: 1px solid #444; padding-bottom: 10px;">REPORTE DE CIERRE</h3>
-        
-        <div class="res-grid">
-            <div class="res-item">
-                <div class="res-titulo">ERROR ANGULAR</div>
-                <div class="res-valor" id="resErrAng">00° 00' 00"</div>
-            </div>
-            <div class="res-item">
-                <div class="res-titulo">ERROR LINEAL</div>
-                <div class="res-valor" id="resErrLin">0.000 m</div>
-            </div>
-            <div class="res-item" style="grid-column: 1 / -1; background-color: #222; border-color: var(--primary-color);">
-                <div class="res-titulo" style="color: var(--primary-color);">PRECISIÓN RELATIVA</div>
-                <div class="res-valor" id="resPrecision" style="font-size: 1.8rem;">1 : 0</div>
-            </div>
-        </div>
-
-        <h3 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1rem; text-align: left;">COORDENADAS AJUSTADAS</h3>
-        <div class="table-container">
-            <table class="tabla-resultados">
-                <thead>
-                    <tr>
-                        <th>PUNTO</th>
-                        <th>ESTE (X)</th>
-                        <th>NORTE (Y)</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoResultados">
-                    </tbody>
-            </table>
-        </div>
-
-        <button class="btn-accion" style="background-color: #333; color: var(--primary-color); margin-top: 10px;" onclick="copiarResultados()">📋 Copiar Coordenadas</button>
-    </div>
-
-    <script>
-        // --- GESTIÓN DE LA TABLA ---
-        function agregarVertice() {
-            const tbody = document.getElementById('cuerpoTablaPoligonal');
-            const numEstaciones = tbody.children.length + 1;
-            const tr = document.createElement('tr');
-            
-            tr.innerHTML = `
-                <td><input type="text" value="E${numEstaciones}" disabled style="color:var(--primary-color);"></td>
-                <td><input type="number" class="ang-g" placeholder="°"></td>
-                <td><input type="number" class="ang-m" placeholder="'"></td>
-                <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                <td><input type="number" step="0.001" class="dist" placeholder="Dist. E${numEstaciones} a E1"></td>
-            `;
-            
-            // Actualizar el placeholder de la penúltima fila para que tenga sentido visual
-            let penultimaDist = tbody.lastElementChild.querySelector('.dist');
-            penultimaDist.placeholder = `Dist. E${numEstaciones-1} a E${numEstaciones}`;
-            
-            tbody.appendChild(tr);
-        }
-
-        function quitarVertice() {
-            const tbody = document.getElementById('cuerpoTablaPoligonal');
-            if (tbody.children.length > 3) {
-                tbody.removeChild(tbody.lastChild);
-                // Restaurar el placeholder de la nueva última fila
-                let nuevaUltimaDist = tbody.lastElementChild.querySelector('.dist');
-                let numEst = tbody.children.length;
-                nuevaUltimaDist.placeholder = `Dist. E${numEst} a E1`;
-            } else {
-                alert("Una poligonal cerrada debe tener al menos 3 vértices.");
-            }
-        }
-
-        // --- FUNCIONES MATEMÁTICAS ---
-        function gmsADecimal(g, m, s) {
-            let signo = (g < 0) ? -1 : 1;
-            return signo * (Math.abs(g) + (m / 60) + (s / 3600));
-        }
-
-        function decimalAGMSString(dec) {
-            let absoluto = Math.abs(dec);
-            let g = Math.floor(absoluto);
-            let mFloat = (absoluto - g) * 60;
-            let m = Math.floor(mFloat);
-            let s = (mFloat - m) * 60;
-            let signoStr = (dec < 0) ? "-" : "";
-            return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`;
-        }
-
-        function normalizarAzimut(az) {
-            while (az >= 360.0) az -= 360.0;
-            while (az < 0.0) az += 360.0;
-            return az;
-        }
-
-        // --- MOTOR BOWDITCH ---
-        function calcularPoligonal() {
-            // 1. Recopilar Datos de Partida
-            let ePartida = parseFloat(document.getElementById('estePartida').value);
-            let nPartida = parseFloat(document.getElementById('nortePartida').value);
-            let azG = parseFloat(document.getElementById('azGrados').value) || 0;
-            let azM = parseFloat(document.getElementById('azMinutos').value) || 0;
-            let azS = parseFloat(document.getElementById('azSegundos').value) || 0;
-            let sentido = parseFloat(document.getElementById('sentidoAngulos').value); // 1 (Derecha) o -1 (Izquierda)
-
-            if (isNaN(ePartida) || isNaN(nPartida)) {
-                alert("Ingresa las coordenadas de partida."); return;
-            }
-
-            let azInicial = gmsADecimal(azG, azM, azS);
-
-            // 2. Recopilar Datos de Campo
-            let filas = document.querySelectorAll('#cuerpoTablaPoligonal tr');
-            let n = filas.length;
-            let angObs = [];
-            let distancias = [];
-            let perimetro = 0;
-
-            for (let i = 0; i < n; i++) {
-                let g = parseFloat(filas[i].querySelector('.ang-g').value) || 0;
-                let m = parseFloat(filas[i].querySelector('.ang-m').value) || 0;
-                let s = parseFloat(filas[i].querySelector('.ang-s').value) || 0;
-                let dist = parseFloat(filas[i].querySelector('.dist').value);
-
-                if (isNaN(dist) || dist <= 0) {
-                    alert(`Falta la distancia válida en la Estación E${i+1}`); return;
-                }
-
-                angObs.push(gmsADecimal(g, m, s));
-                distancias.push(dist);
-                perimetro += dist;
-            }
-
-            // 3. Cierre y Compensación Angular (Cálculo por propagación de Azimut)
-            let azCalculados = [azInicial];
-            let azActual = azInicial;
-
-            // Propagamos el azimut vértice a vértice
-            for (let i = 1; i < n; i++) {
-                azActual = normalizarAzimut(azActual + 180 + (sentido * angObs[i]));
-                azCalculados.push(azActual);
-            }
-            // Azimut de cierre (Debería ser igual al azInicial)
-            let azCierre = normalizarAzimut(azActual + 180 + (sentido * angObs[0]));
-            
-            // Calculamos el error angular
-            let errorAngular = azCierre - azInicial;
-            if (errorAngular > 180) errorAngular -= 360;
-            if (errorAngular < -180) errorAngular += 360;
-
-            let compensacionAngular = -errorAngular / n;
-            
-            // Compensamos los ángulos observados
-            let angCompensados = [];
-            for (let i = 0; i < n; i++) {
-                // Si la poligonal está medida en sentido antihorario, el error se invierte matemáticamente en el ángulo interior
-                angCompensados.push(angObs[i] + (compensacionAngular * sentido)); 
-            }
-
-            // 4. Recalcular Azimuts con ángulos compensados
-            let azCompensados = [azInicial];
-            azActual = azInicial;
-            for (let i = 1; i < n; i++) {
-                azActual = normalizarAzimut(azActual + 180 + (sentido * angCompensados[i]));
-                azCompensados.push(azActual);
-            }
-
-            // 5. Cálculo de Proyecciones (Delta Este, Delta Norte)
-            let proyE = [];
-            let proyN = [];
-            let errorE = 0;
-            let errorN = 0;
-
-            for (let i = 0; i < n; i++) {
-                let azRad = azCompensados[i] * Math.PI / 180.0;
-                let dE = distancias[i] * Math.sin(azRad);
-                let dN = distancias[i] * Math.cos(azRad);
-                
-                proyE.push(dE);
-                proyN.push(dN);
-                errorE += dE;
-                errorN += dN;
-            }
-
-            // 6. Cierre Lineal y Precisión Relativa
-            let errorLineal = Math.sqrt(Math.pow(errorE, 2) + Math.pow(errorN, 2));
-            let precisionRelativa = perimetro / errorLineal;
-
-            // 7. Compensación Lineal (Regla de Bowditch / Brújula)
-            let coordE = [ePartida];
-            let coordN = [nPartida];
-            let actualE = ePartida;
-            let actualN = nPartida;
-
-            for (let i = 0; i < n; i++) {
-                // Compensación proporcional a la longitud del lado
-                let compE = -errorE * (distancias[i] / perimetro);
-                let compN = -errorN * (distancias[i] / perimetro);
-
-                actualE = actualE + proyE[i] + compE;
-                actualN = actualN + proyN[i] + compN;
-                
-                coordE.push(actualE);
-                coordN.push(actualN);
-            }
-
-            // --- IMPRESIÓN DE RESULTADOS ---
-            document.getElementById('resErrAng').innerText = decimalAGMSString(errorAngular);
-            document.getElementById('resErrLin').innerText = errorLineal.toFixed(4) + " m";
-            
-            let resPrec = document.getElementById('resPrecision');
-            resPrec.innerText = "1 : " + Math.round(precisionRelativa).toLocaleString();
-            
-            // Colores según precisión (Asumiendo 1:10000 como estándar aceptable)
-            if (precisionRelativa >= 10000) {
-                resPrec.className = "res-valor res-ok";
-            } else {
-                resPrec.className = "res-valor res-error";
-            }
-
-            // Llenar tabla de coordenadas (No mostramos el último punto porque es el mismo E1 compensado)
-            const tbodyRes = document.getElementById('cuerpoResultados');
-            tbodyRes.innerHTML = ""; // Limpiar tabla anterior
-            
-            for (let i = 0; i < n; i++) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="color: var(--primary-color); font-weight: bold;">E${i+1}</td>
-                    <td>${coordE[i].toFixed(3)}</td>
-                    <td>${coordN[i].toFixed(3)}</td>
-                `;
-                tbodyRes.appendChild(tr);
-            }
-
-            // Mostrar caja y hacer scroll
-            document.getElementById('cajaResultado').style.display = 'block';
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        function copiarResultados() {
-            let filas = document.querySelectorAll('#cuerpoResultados tr');
-            let textoCopia = "PUNTO\tESTE\tNORTE\n";
-            filas.forEach(fila => {
-                let celdas = fila.querySelectorAll('td');
-                textoCopia += `${celdas[0].innerText}\t${celdas[1].innerText}\t${celdas[2].innerText}\n`;
-            });
-            navigator.clipboard.writeText(textoCopia).then(() => {
-                alert("Coordenadas listas para pegar en Excel o Civil 3D.");
-            });
-        }
-    </script>
 </body>
 </html>

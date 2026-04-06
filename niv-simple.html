@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 - Nivelación Simple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff; --text-color: #000000;
+            --primary-color: #FF6600; --primary-metallic-light: #FF8833;
+            --border-color: rgba(0, 0, 0, 0.3); --table-header: #111;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
+            /* MAPA TOPOGRÁFICO RAW TECH */
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 600px 600px; background-attachment: fixed;
+        }
+
+        .top-bar { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
+        .top-bar-title span { color: var(--primary-color); }
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-tool { 
+            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
+            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
+            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
+        }
+        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
+
+        .panel-control { 
+            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
+            margin-bottom: 15px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+        }
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.2rem; text-transform: uppercase; 
+            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            text-shadow: 0 0 5px #fff;
+        }
+        
+        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { font-weight: 800; color: #000; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 3px; text-shadow: 0 0 5px #fff;}
+        input { 
+            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
+            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
+            color: #000; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary-color); outline: none; background: #fff; box-shadow: 0 0 10px rgba(255,102,0,0.2);}
+
+        .btn-accion { 
+            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
+            margin-top: 5px; transition: 0.2s;
+        }
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
+        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.3rem;}
+        .btn-calc:active { background-color: #cc5200; }
+
+        /* TABLA RAW TECH */
+        .table-container { 
+            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
+            border-radius: 8px; background: rgba(255,255,255,0.85); margin-bottom: 15px; backdrop-filter: blur(5px);
+        }
+        table { width: 100%; min-width: 600px; border-collapse: collapse; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; font-size: 0.9rem; border: 1px solid #444; text-transform: uppercase;}
+        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
+        
+        td input { 
+            border: none; width: 100%; height: 100%; padding: 15px 5px; font-size: 1.15rem; 
+            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 700;
+        }
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2; position: relative;}
+        
+        .td-readonly { background: rgba(0,0,0,0.05); }
+        .out-cota { text-align: center; font-weight: 800; font-size: 1.2rem; color: #000; padding: 15px 5px;}
+        .ai-calculada { display: block; font-size: 0.8rem; color: var(--primary-color); font-weight: 800; margin-top: 2px;}
+
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="nivelacion.html" class="btn-volver-mini">←</a>
+        <h2 class="top-bar-title">NIVELACIÓN <span>SIMPLE</span></h2>
+        <div style="width: 25px;"></div>
+    </div>
+
+    <div class="modulo-container">
+        
+        <div class="toolbar-archivos">
+            <button class="btn-tool">💾 Guardar</button>
+            <button class="btn-tool">📂 Importar</button>
+            <button class="btn-tool" onclick="exportarTXTSimple()">📤 Exportar TXT</button>
+        </div>
+
+        <div class="panel-control">
+            <div class="panel-titulo">1. DATOS DE PARTIDA (BM)</div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>COTA INICIAL (m.s.n.m)</label>
+                <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2850.000">
+            </div>
+        </div>
+
+        <div class="panel-control" style="padding: 10px;">
+            <div class="panel-titulo" style="padding-left: 5px;">2. REGISTRO DE CAMPO</div>
+            
+            <div class="table-container">
+                <table id="tablaSimple">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">PUNTO</th>
+                            <th style="width: 20%;">V. ATRÁS (+)</th>
+                            <th style="width: 20%;">V. INTER.</th>
+                            <th style="width: 20%;">V. ADEL. (-)</th>
+                            <th style="width: 25%;">COTA FINAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoSimple">
+                        <tr>
+                            <td><input type="text" value="BM1" class="in-pto"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="0.000"></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vi" disabled></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
+                            <td class="out-cota">---</td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="P1" class="in-pto"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                            <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
+                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                            <td class="out-cota">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 0;">
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #000; color:#000;" onclick="agregarFilaSimple()">+ Fila</button>
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="quitarFilaSimple()">- Fila</button>
+            </div>
+        </div>
+
+        <button class="btn-accion btn-calc" id="btnProcesar" onclick="calcularSimple()">PROCESAR COTAS</button>
+
+    </div>
+
+    <script>
+        // --- GESTIÓN DE FILAS ---
+        let contadorSimple = 2;
+        function agregarFilaSimple() {
+            const tbody = document.getElementById('cuerpoSimple');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" value="P${contadorSimple}" class="in-pto"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                <td class="out-cota">---</td>
+            `;
+            tbody.appendChild(tr);
+            contadorSimple++;
+        }
+
+        function quitarFilaSimple() {
+            const tbody = document.getElementById('cuerpoSimple');
+            if (tbody.children.length > 1) { 
+                tbody.removeChild(tbody.lastChild); 
+                contadorSimple--; 
+            }
+        }
+
+        // --- CÁLCULO DE NIVELACIÓN SIMPLE ---
+        function calcularSimple() {
+            let tbody = document.getElementById('cuerpoSimple');
+            let filas = tbody.querySelectorAll('tr');
+            let cotaInicial = parseFloat(document.getElementById('cotaBM').value);
+
+            if (isNaN(cotaInicial)) {
+                alert("Por favor, ingresa la Cota Inicial del BM de partida.");
+                document.getElementById('cotaBM').focus();
+                return;
+            }
+
+            let aiActual = 0;
+            let cotaActual = cotaInicial;
+            let errorDetectado = false;
+
+            for (let i = 0; i < filas.length; i++) {
+                let fila = filas[i];
+                let va = parseFloat(fila.querySelector('.in-va').value);
+                let vi = parseFloat(fila.querySelector('.in-vi').value);
+                let vd = parseFloat(fila.querySelector('.in-vd').value);
+                let cotaCell = fila.querySelector('.out-cota');
+
+                // Fila 1 (El BM de partida)
+                if (i === 0) {
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+                    if (!isNaN(va)) {
+                        aiActual = cotaActual + va;
+                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    } else {
+                        errorDetectado = true;
+                        alert("El BM inicial necesita una lectura de Vista Atrás (+).");
+                        break;
+                    }
+                    continue;
+                }
+
+                // Resto de filas
+                if (!isNaN(vi)) {
+                    // Vista Intermedia
+                    cotaActual = aiActual - vi;
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+                } else if (!isNaN(vd)) {
+                    // Vista Adelante (Punto de cambio o cierre)
+                    cotaActual = aiActual - vd;
+                    cotaCell.innerHTML = cotaActual.toFixed(3);
+
+                    // Si también hay Vista Atrás en la misma fila (Cambio de Estación)
+                    if (!isNaN(va)) {
+                        aiActual = cotaActual + va;
+                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    }
+                } else {
+                    cotaCell.innerText = "---";
+                }
+            }
+
+            // Efecto visual de éxito
+            if (!errorDetectado) {
+                let btn = document.getElementById('btnProcesar');
+                let textoOriginal = btn.innerText;
+                btn.style.backgroundColor = "#000";
+                btn.innerText = "PROCESADO CON ÉXITO";
+                setTimeout(() => {
+                    btn.style.backgroundColor = "var(--primary-color)";
+                    btn.innerText = textoOriginal;
+                }, 1000);
+            }
+        }
+
+        // --- EXPORTAR A TXT ---
+        function exportarTXTSimple() {
+            let filas = document.querySelectorAll('#cuerpoSimple tr');
+            let cotaBase = document.getElementById('cotaBM').value;
+
+            if(!cotaBase) {
+                alert("Debes ingresar una cota de inicio antes de exportar.");
+                return;
+            }
+
+            let contenidoTXT = "PROYECTO: COTA100 - NIVELACION SIMPLE\n";
+            contenidoTXT += "FECHA: " + new Date().toLocaleDateString() + "\n";
+            contenidoTXT += "COTA INICIAL BM: " + cotaBase + "\n";
+            contenidoTXT += "---------------------------------------------------\n";
+            contenidoTXT += "PTO\tV.ATRÁS\tV.INTER\tV.ADELANTE\tCOTA\n";
+            contenidoTXT += "---------------------------------------------------\n";
+
+            filas.forEach((fila) => {
+                let pto = fila.querySelector('.in-pto').value || "---";
+                let va = fila.querySelector('.in-va').value || "---";
+                let vi = fila.querySelector('.in-vi').value || "---";
+                let vd = fila.querySelector('.in-vd').value || "---";
+                
+                // Limpiar el texto de la celda de cota para no exportar el "AI: 2850..."
+                let textoCota = fila.querySelector('.out-cota').innerText;
+                let cotaLimpia = textoCota.split('\n')[0].replace('AI:', '').trim(); 
+                
+                if(cotaLimpia !== "---") {
+                    contenidoTXT += `${pto}\t${va}\t${vi}\t${vd}\t${cotaLimpia}\n`;
+                }
+            });
+
+            // Generar descarga
+            let blob = new Blob([contenidoTXT], { type: "text/plain;charset=utf-8" });
+            let enlace = document.createElement("a");
+            enlace.href = URL.createObjectURL(blob);
+            enlace.download = "Nivelacion_Simple_Cota100.txt";
+            enlace.click();
+        }
+    </script>
+</body>
+</html>

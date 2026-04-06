@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 - Nivelación Avanzada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff; --text-color: #000000;
+            --primary-color: #FF6600; --primary-metallic-light: #FF8833;
+            --border-color: rgba(0, 0, 0, 0.3); --table-header: #111;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
+            /* MAPA TOPOGRÁFICO RAW TECH */
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 600px 600px; background-attachment: fixed;
+        }
+
+        .top-bar { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
+        .top-bar-title span { color: var(--primary-color); }
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toolbar de archivos estilo Brutalista */
+        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-tool { 
+            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
+            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
+            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
+        }
+        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
+
+        /* Paneles Transparentes */
+        .panel-control { 
+            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
+            margin-bottom: 15px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+        }
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.2rem; text-transform: uppercase; 
+            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            text-shadow: 0 0 5px #fff;
+        }
+        
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        label { font-weight: 800; color: #000; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 3px; text-shadow: 0 0 5px #fff;}
+        
+        input { 
+            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
+            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
+            color: #000; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary-color); outline: none; background: #fff; box-shadow: 0 0 10px rgba(255,102,0,0.2);}
+
+        .btn-accion { 
+            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
+            margin-top: 5px; transition: 0.2s;
+        }
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
+
+        /* Banco de BMs visual */
+        #lista-bms { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .bm-tag { 
+            background: #000; color: #fff; padding: 5px 10px; border-radius: 4px; 
+            font-size: 0.9rem; font-weight: 700; border-left: 4px solid var(--primary-color);
+        }
+
+        /* TABLA RAW TECH */
+        .table-container { 
+            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
+            border-radius: 8px; background: rgba(255,255,255,0.85); margin-bottom: 15px; backdrop-filter: blur(5px);
+        }
+        table { width: 100%; min-width: 750px; border-collapse: collapse; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; font-size: 0.9rem; border: 1px solid #444; text-transform: uppercase;}
+        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
+        
+        td input { 
+            border: none; width: 100%; height: 100%; padding: 15px 5px; font-size: 1.15rem; 
+            text-align: center; background: transparent; border-radius: 0; color: #000;
+        }
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2; position: relative;}
+        
+        .td-readonly { background: rgba(0,0,0,0.05); }
+        .cota-replanteo { background: rgba(0, 200, 83, 0.15); color: #00600f !important; font-weight: 800 !important; }
+        
+        .ai-marker { font-size: 0.8rem; color: var(--primary-color); display: block; margin-top: 2px; font-weight: 800;}
+
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="nivelacion.html" class="btn-volver-mini">←</a>
+        <h2 class="top-bar-title">NIVELACIÓN <span>AVANZADA</span></h2>
+        <div style="width: 25px;"></div>
+    </div>
+
+    <div class="modulo-container">
+        
+        <div class="toolbar-archivos">
+            <button class="btn-tool">💾 Guardar</button>
+            <button class="btn-tool">📂 Importar</button>
+            <button class="btn-tool" onclick="exportarTXT()">📤 Exportar TXT</button>
+        </div>
+
+        <div class="panel-control">
+            <div class="panel-titulo">📍 Banco de Puntos / BMs</div>
+            <div class="input-row">
+                <div class="input-group" style="flex: 1.2;">
+                    <label>Punto (Ej: BM1)</label>
+                    <input type="text" id="bmNombre" placeholder="Nombre">
+                </div>
+                <div class="input-group" style="flex: 2;">
+                    <label>Cota de Proyecto</label>
+                    <input type="number" id="bmCota" step="0.001" placeholder="0.000">
+                </div>
+            </div>
+            <button class="btn-accion" onclick="guardarBM()">+ Guardar en Memoria</button>
+            <div id="lista-bms">
+                </div>
+        </div>
+
+        <div class="panel-control" style="padding: 10px;">
+            <div class="panel-titulo" style="padding-left: 5px;">🎯 Libreta de Replanteo</div>
+            
+            <datalist id="bancoBmsDatalist"></datalist>
+
+            <div class="table-container">
+                <table id="tablaAvanzada">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">PUNTO</th>
+                            <th style="width: 16%;">V. ATRÁS (+)</th>
+                            <th style="width: 16%;">V. INTER.</th>
+                            <th style="width: 18%;">V. ADEL. / LECTURA</th>
+                            <th style="width: 35%;">COTA FINAL / RASANTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoAvanzada">
+                        <tr>
+                            <td><input type="text" class="in-pto" list="bancoBmsDatalist" onblur="autocompletarCota(this)" placeholder="BM..."></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="(+)" oninput="calcularAvanzada()"></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vi" disabled></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
+                            <td><input type="number" step="0.001" class="in-cota" style="font-weight: 800; color: var(--primary-color);" placeholder="Cota Base" oninput="calcularAvanzada()"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="in-pto" placeholder="P1" list="bancoBmsDatalist" onblur="autocompletarCota(this)"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="..." oninput="calcularAvanzada()"></td>
+                            <td><input type="number" step="0.001" class="in-vi" placeholder="..." oninput="calcularAvanzada()"></td>
+                            <td><input type="number" step="0.001" class="in-vd" placeholder="Lectura" oninput="calcularAvanzada()"></td>
+                            <td><input type="number" step="0.001" class="in-cota" placeholder="Cota Obj." oninput="calcularAvanzada()"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 0;">
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #000; color:#000;" onclick="agregarFilaAvanzada()">+ Fila</button>
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="quitarFilaAvanzada()">- Fila</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTOR DEL BANCO DE BMs ---
+        let bancoBMs = {}; 
+
+        function guardarBM() {
+            let nombre = document.getElementById('bmNombre').value.trim().toUpperCase();
+            let cota = parseFloat(document.getElementById('bmCota').value);
+
+            if(nombre === "" || isNaN(cota)) {
+                alert("Ingrese un nombre y cota válidos.");
+                return;
+            }
+
+            bancoBMs[nombre] = cota;
+            actualizarUIBanco();
+            
+            document.getElementById('bmNombre').value = "";
+            document.getElementById('bmCota').value = "";
+            document.getElementById('bmNombre').focus();
+        }
+
+        function actualizarUIBanco() {
+            let contenedor = document.getElementById('lista-bms');
+            let datalist = document.getElementById('bancoBmsDatalist');
+            contenedor.innerHTML = ""; datalist.innerHTML = "";
+
+            for (let [nombre, cota] of Object.entries(bancoBMs)) {
+                let tag = document.createElement('div');
+                tag.className = 'bm-tag';
+                tag.innerText = `${nombre}: ${cota.toFixed(3)}`;
+                contenedor.appendChild(tag);
+
+                let option = document.createElement('option');
+                option.value = nombre;
+                datalist.appendChild(option);
+            }
+        }
+
+        function autocompletarCota(inputElement) {
+            let nombre = inputElement.value.trim().toUpperCase();
+            if(bancoBMs[nombre] !== undefined) {
+                let fila = inputElement.closest('tr');
+                let inputCota = fila.querySelector('.in-cota');
+                inputCota.value = bancoBMs[nombre].toFixed(3);
+                inputCota.style.backgroundColor = "rgba(0, 200, 83, 0.2)";
+                setTimeout(() => { inputCota.style.backgroundColor = "transparent"; }, 1000);
+                calcularAvanzada();
+            }
+        }
+
+        // --- GESTIÓN DE FILAS ---
+        let contadorAvanzada = 2;
+        function agregarFilaAvanzada() {
+            const tbody = document.getElementById('cuerpoAvanzada');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="in-pto" list="bancoBmsDatalist" onblur="autocompletarCota(this)" placeholder="P${contadorAvanzada}"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="..." oninput="calcularAvanzada()"></td>
+                <td><input type="number" step="0.001" class="in-vi" placeholder="..." oninput="calcularAvanzada()"></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="Lectura" oninput="calcularAvanzada()"></td>
+                <td><input type="number" step="0.001" class="in-cota" placeholder="Cota Obj." oninput="calcularAvanzada()"></td>
+            `;
+            tbody.appendChild(tr);
+            contadorAvanzada++;
+        }
+
+        function quitarFilaAvanzada() {
+            const tbody = document.getElementById('cuerpoAvanzada');
+            if (tbody.children.length > 1) { tbody.removeChild(tbody.lastChild); contadorAvanzada--; calcularAvanzada();}
+        }
+
+        // --- EL MOTOR DE CÁLCULO INVERSO (REPLANTEO) ---
+        function calcularAvanzada() {
+            let filas = document.querySelectorAll('#cuerpoAvanzada tr');
+            let aiActual = null;
+
+            for (let i = 0; i < filas.length; i++) {
+                let fila = filas[i];
+                let vaInput = fila.querySelector('.in-va');
+                let viInput = fila.querySelector('.in-vi');
+                let vdInput = fila.querySelector('.in-vd');
+                let cotaInput = fila.querySelector('.in-cota');
+
+                let va = parseFloat(vaInput.value);
+                let vi = parseFloat(viInput.value);
+                let vd = parseFloat(vdInput.value);
+                let cota = parseFloat(cotaInput.value);
+
+                // FILA 1: Origen del AI
+                if (i === 0) {
+                    if (!isNaN(cota) && !isNaN(va)) {
+                        aiActual = cota + va;
+                        // Mostrar el AI visualmente si no existe
+                        if(!fila.querySelector('.ai-marker')) {
+                            let aiTag = document.createElement('span');
+                            aiTag.className = 'ai-marker';
+                            aiTag.innerText = `AI: ${aiActual.toFixed(3)}`;
+                            cotaInput.parentNode.appendChild(aiTag);
+                        } else {
+                            fila.querySelector('.ai-marker').innerText = `AI: ${aiActual.toFixed(3)}`;
+                        }
+                    } else {
+                        aiActual = null;
+                        if(fila.querySelector('.ai-marker')) fila.querySelector('.ai-marker').remove();
+                    }
+                    continue;
+                }
+
+                if (aiActual === null) {
+                    if(fila.querySelector('.ai-marker')) fila.querySelector('.ai-marker').remove();
+                    continue;
+                }
+
+                vdInput.classList.remove('cota-replanteo');
+                cotaInput.classList.remove('cota-replanteo');
+                if(fila.querySelector('.ai-marker')) fila.querySelector('.ai-marker').remove();
+
+                // LÓGICA NORMAL (Lectura -> Cota)
+                if (!isNaN(vi)) {
+                    cotaInput.value = (aiActual - vi).toFixed(3);
+                } 
+                else if (!isNaN(vd) && isNaN(cota)) {
+                    let nuevaCota = aiActual - vd;
+                    cotaInput.value = nuevaCota.toFixed(3);
+                    cotaInput.classList.add('cota-replanteo'); 
+                    
+                    if(!isNaN(va)) {
+                        aiActual = nuevaCota + va;
+                        let aiTag = document.createElement('span');
+                        aiTag.className = 'ai-marker';
+                        aiTag.innerText = `AI: ${aiActual.toFixed(3)}`;
+                        cotaInput.parentNode.appendChild(aiTag);
+                    }
+                } 
+                // LÓGICA INVERSA (Cota estructural -> Lectura en Mira)
+                else if (!isNaN(cota) && isNaN(vd)) {
+                    let lecturaRequerida = aiActual - cota;
+                    vdInput.value = lecturaRequerida.toFixed(3);
+                    vdInput.classList.add('cota-replanteo'); 
+                    
+                    if(!isNaN(va)) {
+                        aiActual = cota + va;
+                        let aiTag = document.createElement('span');
+                        aiTag.className = 'ai-marker';
+                        aiTag.innerText = `AI: ${aiActual.toFixed(3)}`;
+                        cotaInput.parentNode.appendChild(aiTag);
+                    }
+                }
+                // Si ingresa ambos manualmente y hay vista atrás (Punto de Liga forzado)
+                else if (!isNaN(cota) && !isNaN(va) && !isNaN(vd)) {
+                     aiActual = cota + va;
+                     let aiTag = document.createElement('span');
+                     aiTag.className = 'ai-marker';
+                     aiTag.innerText = `AI: ${aiActual.toFixed(3)}`;
+                     cotaInput.parentNode.appendChild(aiTag);
+                }
+            }
+        }
+
+        // --- EXPORTAR A TXT ---
+        function exportarTXT() {
+            let filas = document.querySelectorAll('#cuerpoAvanzada tr');
+            let contenidoTXT = "PROYECTO: COTA100 - REPLANTEO AVANZADO\n";
+            contenidoTXT += "FECHA: " + new Date().toLocaleDateString() + "\n";
+            contenidoTXT += "---------------------------------------------------\n";
+            contenidoTXT += "PTO\tV.ATRÁS\tV.INTER\tV.ADELANTE\tCOTA\n";
+            contenidoTXT += "---------------------------------------------------\n";
+
+            filas.forEach((fila) => {
+                let pto = fila.querySelector('.in-pto').value || "---";
+                let va = fila.querySelector('.in-va').value || "---";
+                let vi = fila.querySelector('.in-vi').value || "---";
+                let vd = fila.querySelector('.in-vd').value || "---";
+                let cota = fila.querySelector('.in-cota').value || "---";
+                
+                contenidoTXT += `${pto}\t${va}\t${vi}\t${vd}\t${cota}\n`;
+            });
+
+            // Crear el archivo físico para descargar
+            let blob = new Blob([contenidoTXT], { type: "text/plain;charset=utf-8" });
+            let enlace = document.createElement("a");
+            enlace.href = URL.createObjectURL(blob);
+            enlace.download = "Replanteo_Cota100.txt";
+            enlace.click();
+        }
+    </script>
+</body>
+</html>

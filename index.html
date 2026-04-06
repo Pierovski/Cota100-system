@@ -2,67 +2,81 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COTA100 SYSTEM - Inicio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 SYSTEM - Raw Tech Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #000000;
-            --text-color: #ffffff;
-            --primary-color: #FF6600; /* Anaranjado COTA100 */
-            --card-bg: #111111;
-            --border-color: #333333;
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --primary-color: #FF6600; 
+            --primary-metallic-light: #FF8833; 
+            --border-color: rgba(0, 0, 0, 0.2); 
+            --nav-bg: rgba(255, 255, 255, 0.90);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
-            padding-bottom: 80px; /* Espacio para el menú inferior */
+            padding-bottom: 100px;
+            /* MAPA TOPOGRÁFICO REALISTA: Curvas maestras gruesas y ordinarias delgadas */
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.15'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 600px 600px;
+            background-position: center;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* Encabezado Principal */
         .header {
             text-align: center;
-            padding: 25px 20px;
+            padding: 40px 20px 20px;
+            background-color: transparent;
             border-bottom: 2px solid var(--border-color);
-            background-color: #0a0a0a;
         }
 
         .header h1 {
-            color: var(--primary-color);
-            font-size: 2.1rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            color: #888;
-            font-size: 0.85rem;
-            letter-spacing: 3px;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 3.2rem;
+            letter-spacing: -1px;
+            margin-bottom: 0px;
             text-transform: uppercase;
         }
 
-        /* Cuadrícula de Módulos */
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 columnas exactas */
-            gap: 15px;
-            padding: 25px 20px;
-        }
-        
-        /* Para que el último botón quede centrado si es impar */
-        .full-width-card {
-            grid-column: 1 / -1;
+        .header h1 span { color: var(--primary-color); }
+
+        .header p {
+            color: #111; 
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
         }
 
-        /* Diseño de los Botones (Tarjetas) */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px;
+            padding: 20px 15px;
+        }
+        
+        .full-width-card { grid-column: 1 / -1; }
+
+        @keyframes fluidEntrance {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Diseño de Tarjetas: CAJETÍN TRANSPARENTE */
         .card {
-            background-color: var(--card-bg);
+            background-color: transparent; 
             border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px 5px;
+            border-radius: 16px;
+            padding: 15px 5px; 
             text-align: center;
             text-decoration: none;
             color: var(--text-color);
@@ -70,75 +84,135 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-            min-height: 130px;
-            transition: 0.2s;
+            min-height: 195px; /* Caja MASIVA para acomodar los nuevos íconos */
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fluidEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.10s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.20s; }
+        .card:nth-child(5) { animation-delay: 0.25s; }
 
         .card:active {
-            background-color: var(--primary-color);
-            color: #000;
+            transform: scale(0.96);
             border-color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Luz Naranja Metálica Emanando */
+        .card::after {
+            content: "";
+            position: absolute;
+            top: 50%; left: 50%; width: 10px; height: 10px;
+            background: radial-gradient(circle, var(--primary-metallic-light) 0%, rgba(255,102,0,0) 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition: none;
+            z-index: -1; 
+        }
+        
+        .card:active::after {
+            animation: metallicPulse 0.4s ease-out;
+            opacity: 1;
         }
 
-        .card:active .icon { opacity: 0.8; }
+        @keyframes metallicPulse {
+            0% { width: 10px; height: 10px; opacity: 0.9; }
+            100% { width: 400px; height: 400px; opacity: 0; }
+        }
 
-        .icon {
-            font-size: 2.8rem;
-            margin-bottom: 12px;
+        .icon-container {
+            height: 125px; /* Contenedor gigantesco */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        /* ÍCONOS EMOJI TITÁNICOS */
+        .icon-emoji { 
+            font-size: 7rem; /* Tamaño brutal para igualar al SVG */
+            line-height: 1;
+            display: block;
+        }
+
+        .icon-svg {
+            position: relative;
+            z-index: 1;
         }
 
         .card span {
-            font-size: 0.85rem;
-            font-weight: bold;
+            font-size: 0.95rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            line-height: 1.3;
+            line-height: 1.1;
+            color: #000;
+            z-index: 1;
+            transition: color 0.2s;
+            /* Sombra blanca gruesa para proteger el texto */
+            text-shadow: -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff, 1px 1px 3px #fff, 0 0 8px #fff;
         }
+        
+        .card:active span { color: var(--primary-color); text-shadow: none;}
 
         /* Menú Navegación Inferior */
         .bottom-nav {
             position: fixed;
             bottom: 0;
+            left: 0;
             width: 100%;
-            background-color: #050505;
+            background-color: var(--nav-bg);
             display: flex;
             justify-content: space-around;
-            padding: 15px 0;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
             border-top: 1px solid var(--border-color);
             z-index: 1000;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
         }
 
         .nav-item {
             color: #666;
             text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: bold;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-align: center;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .nav-item.active { color: var(--primary-color); }
-        .nav-item i { display: block; font-size: 1.2rem; margin-bottom: 5px; font-style: normal; }
+        .nav-icon { font-size: 1.7rem; margin-bottom: 2px; font-style: normal; transition: transform 0.2s; }
+        .nav-item:active .nav-icon { transform: scale(1.1) translateY(-2px); }
         
         .version-tag {
             text-align: center;
-            color: #444;
-            font-size: 0.7rem;
-            margin-top: 10px;
+            color: #777;
+            font-size: 0.8rem;
+            font-weight: bold;
             font-family: monospace;
+            display: block;
+            margin: 15px 0;
         }
     </style>
-<link rel="manifest" href="manifest.json">
-    
+    <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js').then(function(registration) {
-                    console.log('ServiceWorker registrado con éxito');
-                }, function(err) {
-                    console.log('Error al registrar el ServiceWorker: ', err);
-                });
+                navigator.serviceWorker.register('sw.js');
             });
         }
     </script>
@@ -146,52 +220,70 @@
 <body>
 
     <div class="header">
-        <h1>COTA100 SYSTEM</h1>
-        <p>Field App</p>
+        <h1>COTA<span>100</span></h1>
+        <p>Field System</p>
     </div>
 
     <div class="grid-container">
         
         <a href="nivelacion.html" class="card">
-            <div class="icon">🔭</div>
+            <div class="icon-container">
+                <svg class="icon-svg" viewBox="0 0 24 24" width="110" height="110" fill="none" stroke="var(--text-color)" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15v6m-4 0l2-6m6 6l-2-6" stroke-width="1.5"/>
+                    <path d="M8 15h8" stroke-width="2.5"/>
+                    <path d="M10 15V9a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v6" stroke-width="2" stroke="var(--primary-color)"/>
+                    <rect x="5" y="8" width="14" height="4" rx="1" stroke-width="2" fill="var(--bg-color)" />
+                    <path d="M19 8l2-1v6l-2-1" stroke-width="2"/>
+                    <path d="M5 9l-2-1v4l2-1" stroke-width="2"/>
+                    <circle cx="12" cy="10" r="1.5" stroke-width="1.5" fill="var(--bg-color)"/>
+                </svg>
+            </div>
             <span>Nivelación</span>
         </a>
 
         <a href="coordenadas.html" class="card">
-            <div class="icon">🌍</div>
+            <div class="icon-container">
+                <span class="icon-emoji">🌍</span>
+            </div>
             <span>Transf.<br>Coordenadas</span>
         </a>
 
         <a href="poligonales.html" class="card">
-            <div class="icon">⬡</div>
+            <div class="icon-container">
+                <span class="icon-emoji">⬡</span>
+            </div>
             <span>Poligonales</span>
         </a>
 
         <a href="atmosfera.html" class="card">
-            <div class="icon">☁️</div>
+            <div class="icon-container">
+                <span class="icon-emoji">☁️</span>
+            </div>
             <span>Atmósfera<br>& PPM</span>
         </a>
 
         <a href="areas.html" class="card full-width-card">
-            <div class="icon">📐</div>
+            <div class="icon-container">
+                <span class="icon-emoji">📐</span>
+            </div>
             <span>Áreas y Perímetros</span>
         </a>
 
     </div>
     
-    <div class="version-tag">V 1.0.0 - OPERACIÓN OFFLINE</div>
+    <div class="version-tag">V 1.2.0 - OFFLINE READY</div>
 
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item active">
-            <i>🏠</i>
+            <i class="nav-icon">🏠</i>
             Inicio
         </a>
-        <a href="#" class="nav-item">
-            <i>⚙️</i>
+        <a href="configuraciones.html" class="nav-item">
+            <i class="nav-icon">⚙️</i>
             Ajustes
         </a>
         <a href="#" class="nav-item">
-            <i>📁</i>
+            <i class="nav-icon">📁</i>
             Archivos
         </a>
     </nav>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 - Nivelación Poligonal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff; --text-color: #000000;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.3); 
+            --table-header: #111; --corte-color: #d32f2f; --success-color: #2e7d32;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
+            /* MAPA TOPOGRÁFICO RAW TECH */
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 600px 600px; background-attachment: fixed;
+        }
+
+        .top-bar { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
+        .top-bar-title span { color: var(--primary-color); }
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-tool { 
+            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
+            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
+            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
+        }
+        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
+
+        .panel-control { 
+            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
+            margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+        }
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            text-shadow: 0 0 5px #fff;
+        }
+        
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        label { font-weight: 800; color: #000; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 3px; text-shadow: 0 0 5px #fff;}
+        input { 
+            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
+            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
+            color: #000; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+
+        .btn-accion { 
+            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
+            margin-top: 5px; transition: 0.2s;
+        }
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
+        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.3rem;}
+        .btn-calc:active { background-color: #cc5200; }
+
+        /* TABLAS RAW TECH */
+        .table-container { 
+            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
+            border-radius: 8px; background: rgba(255,255,255,0.95); margin-bottom: 10px;
+        }
+        table { width: 100%; min-width: 650px; border-collapse: collapse; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.85rem; border: 1px solid #444; text-transform: uppercase;}
+        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
+        
+        td input { 
+            border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.05rem; 
+            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 700;
+        }
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
+        
+        .td-readonly { background: rgba(0,0,0,0.05); }
+        .out-cota { text-align: center; font-weight: 800; font-size: 1.1rem; color: #000; padding: 12px 2px;}
+        .ai-calculada { display: block; font-size: 0.75rem; color: var(--primary-color); font-weight: 800; margin-top: 2px;}
+
+        /* Panel de Resultados del Ajuste */
+        .panel-resultados { 
+            background: #fff; border: 3px solid #111; border-radius: 12px; padding: 15px; 
+            text-align: center; display: none; margin-bottom: 15px;
+        }
+        .res-valor { font-size: 1.8rem; font-weight: 800; margin: 10px 0; }
+        .estado-cumple { color: var(--success-color); background: rgba(46, 125, 50, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem;}
+        .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem;}
+
+        .tabla-ida th { background: #1976d2; }
+        .tabla-vuelta th { background: #d32f2f; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="nivelacion.html" class="btn-volver-mini">←</a>
+        <h2 class="top-bar-title">CIRCUITO <span>POLIGONAL</span></h2>
+        <div style="width: 25px;"></div>
+    </div>
+
+    <div class="modulo-container">
+        
+        <div class="toolbar-archivos">
+            <button class="btn-tool">💾 Guardar</button>
+            <button class="btn-tool">📂 Importar</button>
+            <button class="btn-tool" onclick="exportarTXTPoligonal()">📤 Exportar TXT</button>
+        </div>
+
+        <div class="panel-control">
+            <div class="panel-titulo">⚙️ 1. Datos del Circuito</div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Cota Inicial (BM Partida)</label>
+                    <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2850.000">
+                </div>
+                <div class="input-group">
+                    <label>Distancia Total (km)</label>
+                    <input type="number" id="distanciaKm" step="0.001" placeholder="Ej: 1.5">
+                </div>
+            </div>
+            <p style="font-size: 0.75rem; font-weight: 700; color: #555;">* Tolerancia estándar para obra: T = 0.020 √K (metros).</p>
+        </div>
+
+        <div class="panel-control" style="padding: 10px;">
+            <div class="panel-titulo" style="padding-left: 5px; color: #1976d2;">➡️ 2. TRAMO DE IDA</div>
+            
+            <div class="table-container tabla-ida">
+                <table id="tablaIda">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">PUNTO</th>
+                            <th style="width: 15%;">V. ATRÁS</th>
+                            <th style="width: 15%;">V. ADEL.</th>
+                            <th style="width: 25%;">COTA CALC.</th>
+                            <th style="width: 30%;">COTA COMPENSADA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoIda">
+                        <tr>
+                            <td><input type="text" value="BM1" class="in-pto"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="(+)"></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
+                            <td class="out-cota">---</td>
+                            <td class="out-cota out-comp">---</td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="PC-1" class="in-pto"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                            <td class="out-cota">---</td>
+                            <td class="out-cota out-comp">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="input-row" style="margin-bottom: 0;">
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #1976d2; color:#1976d2;" onclick="agregarFila('cuerpoIda')">+ Fila Ida</button>
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #555; color:#555;" onclick="quitarFila('cuerpoIda')">- Fila</button>
+            </div>
+        </div>
+
+        <div class="panel-control" style="padding: 10px;">
+            <div class="panel-titulo" style="padding-left: 5px; color: #d32f2f;">⬅️ 3. TRAMO DE VUELTA</div>
+            
+            <div class="table-container tabla-vuelta">
+                <table id="tablaVuelta">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">PUNTO</th>
+                            <th style="width: 15%;">V. ATRÁS</th>
+                            <th style="width: 15%;">V. ADEL.</th>
+                            <th style="width: 25%;">COTA CALC.</th>
+                            <th style="width: 30%;">COTA COMPENSADA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoVuelta">
+                        <tr>
+                            <td><input type="text" value="PC-1" class="in-pto" title="Debe coincidir con el último de Ida"></td>
+                            <td><input type="number" step="0.001" class="in-va" placeholder="(+)"></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
+                            <td class="out-cota">---</td>
+                            <td class="out-cota out-comp">---</td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" value="BM1" class="in-pto"></td>
+                            <td class="td-readonly"><input type="number" step="0.001" class="in-va" disabled></td>
+                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                            <td class="out-cota">---</td>
+                            <td class="out-cota out-comp" style="font-weight: 900; color: var(--primary-color);">---</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="input-row" style="margin-bottom: 0;">
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="agregarFilaVuelta()">+ Fila Vuelta</button>
+                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #555; color:#555;" onclick="quitarFila('cuerpoVuelta')">- Fila</button>
+            </div>
+        </div>
+
+        <button class="btn-accion btn-calc" onclick="procesarPoligonal()">CALCULAR Y COMPENSAR</button>
+
+        <div class="panel-resultados" id="panelResultados">
+            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría de Cierre</h3>
+            <div class="input-row" style="margin-top: 15px;">
+                <div class="input-group">
+                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">ERROR DE CIERRE (E)</span>
+                    <div class="res-valor" id="resError">0.000 m</div>
+                </div>
+                <div class="input-group">
+                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA MÁX. (T)</span>
+                    <div class="res-valor" id="resTol">0.000 m</div>
+                </div>
+            </div>
+            <div id="resEstado" class="estado-cumple" style="margin-top: 10px;">CUMPLE ESPECIFICACIONES</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- MANEJO DE FILAS ---
+        let contIda = 2;
+        let contVuelta = 2;
+
+        function agregarFila(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            const tr = document.createElement('tr');
+            let prefijo = tbodyId === 'cuerpoIda' ? `PC-${contIda++}` : `PC-${contVuelta++}V`;
+            
+            tr.innerHTML = `
+                <td><input type="text" value="${prefijo}" class="in-pto"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
+                <td class="out-cota">---</td>
+                <td class="out-cota out-comp">---</td>
+            `;
+            
+            // Insertar antes de la última fila (que en Vuelta es el cierre en BM)
+            if(tbodyId === 'cuerpoVuelta') {
+                tbody.insertBefore(tr, tbody.lastElementChild);
+            } else {
+                tbody.appendChild(tr);
+            }
+        }
+
+        function agregarFilaVuelta() { agregarFila('cuerpoVuelta'); }
+
+        function quitarFila(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (tbodyId === 'cuerpoIda' && tbody.children.length > 2) { 
+                tbody.removeChild(tbody.lastChild); 
+            } else if (tbodyId === 'cuerpoVuelta' && tbody.children.length > 2) {
+                // Remover la penúltima fila para no borrar la fila de cierre
+                tbody.removeChild(tbody.children[tbody.children.length - 2]);
+            }
+        }
+
+        // --- MOTOR DE CIERRE Y COMPENSACIÓN ---
+        function procesarPoligonal() {
+            let cotaBM = parseFloat(document.getElementById('cotaBM').value);
+            let distKm = parseFloat(document.getElementById('distanciaKm').value);
+
+            if(isNaN(cotaBM) || isNaN(distKm)) {
+                alert("Falta ingresar Cota Inicial o Distancia Total del circuito.");
+                return;
+            }
+
+            let filasIda = document.querySelectorAll('#cuerpoIda tr');
+            let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+
+            // 1. CALCULAR COTAS EN BRUTO (IDA)
+            let cotaActual = cotaBM;
+            let aiActual = 0;
+            let lecturasTotales = 0; // Para distribuir el error por número de posiciones de instrumento
+
+            for(let i=0; i<filasIda.length; i++) {
+                let va = parseFloat(filasIda[i].querySelector('.in-va').value) || 0;
+                let vd = parseFloat(filasIda[i].querySelector('.in-vd').value) || 0;
+                let celdaCota = filasIda[i].querySelector('.out-cota');
+
+                if(i === 0) {
+                    aiActual = cotaActual + va;
+                    celdaCota.innerHTML = `${cotaActual.toFixed(3)} <span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                } else {
+                    cotaActual = aiActual - vd;
+                    celdaCota.innerHTML = cotaActual.toFixed(3);
+                    if(va !== 0) {
+                        aiActual = cotaActual + va;
+                        celdaCota.innerHTML += `<span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                        lecturasTotales++;
+                    }
+                }
+            }
+
+            let cotaEnlace = cotaActual; // Cota del punto de retorno
+
+            // 2. CALCULAR COTAS EN BRUTO (VUELTA)
+            cotaActual = cotaEnlace;
+            aiActual = 0;
+
+            for(let i=0; i<filasVuelta.length; i++) {
+                let va = parseFloat(filasVuelta[i].querySelector('.in-va').value) || 0;
+                let vd = parseFloat(filasVuelta[i].querySelector('.in-vd').value) || 0;
+                let celdaCota = filasVuelta[i].querySelector('.out-cota');
+
+                if(i === 0) {
+                    // El primer punto de vuelta toma la cota del último de ida
+                    aiActual = cotaActual + va;
+                    celdaCota.innerHTML = `${cotaActual.toFixed(3)} <span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    lecturasTotales++;
+                } else {
+                    cotaActual = aiActual - vd;
+                    celdaCota.innerHTML = cotaActual.toFixed(3);
+                    if(va !== 0 && i < filasVuelta.length - 1) { // La última fila solo cierra, no hace VA
+                        aiActual = cotaActual + va;
+                        celdaCota.innerHTML += `<span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                        lecturasTotales++;
+                    }
+                }
+            }
+
+            // 3. AUDITORÍA DE CIERRE
+            let cotaCierre = cotaActual;
+            let errorCierre = cotaCierre - cotaBM;
+            let tolerancia = 0.020 * Math.sqrt(distKm); // 20mm por raiz de K
+
+            document.getElementById('panelResultados').style.display = 'block';
+            document.getElementById('resError').innerText = errorCierre.toFixed(4) + " m";
+            document.getElementById('resTol').innerText = "±" + tolerancia.toFixed(4) + " m";
+
+            let estadoTag = document.getElementById('resEstado');
+            if(Math.abs(errorCierre) <= tolerancia) {
+                estadoTag.innerText = "✓ CUMPLE TOLERANCIA";
+                estadoTag.className = "estado-cumple";
+            } else {
+                estadoTag.innerText = "❌ RECHAZADO (SUPERA TOLERANCIA)";
+                estadoTag.className = "estado-falla";
+            }
+
+            // 4. COMPENSACIÓN PROPORCIONAL
+            // Corrección total a aplicar = - Error
+            // Corrección por tramo de equipo = (-Error) / Numero de armadas
+            let correccionUnitaria = (-errorCierre) / lecturasTotales;
+            let correccionAcumulada = 0;
+
+            // Compensar Ida
+            for(let i=0; i<filasIda.length; i++) {
+                let celdaCota = filasIda[i].querySelector('.out-cota');
+                let celdaComp = filasIda[i].querySelector('.out-comp');
+                
+                if(i === 0) {
+                    celdaComp.innerText = cotaBM.toFixed(3); // El BM inicial no se corrige
+                } else {
+                    correccionAcumulada += correccionUnitaria;
+                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
+                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
+                }
+            }
+
+            // Compensar Vuelta
+            for(let i=0; i<filasVuelta.length; i++) {
+                let celdaCota = filasVuelta[i].querySelector('.out-cota');
+                let celdaComp = filasVuelta[i].querySelector('.out-comp');
+                
+                if(i === 0) {
+                    // El punto de enlace ya recibió corrección al final de la ida
+                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
+                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
+                } else {
+                    correccionAcumulada += correccionUnitaria;
+                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
+                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
+                }
+            }
+            
+            // Forzar visualmente el cierre perfecto en la última celda para tranquilidad del usuario
+            let ultimaCeldaComp = filasVuelta[filasVuelta.length-1].querySelector('.out-comp');
+            ultimaCeldaComp.innerText = cotaBM.toFixed(3);
+        }
+
+        // --- EXPORTAR A TXT ---
+        function exportarTXTPoligonal() {
+            let cotaBM = document.getElementById('cotaBM').value;
+            if(!cotaBM) { alert("Debe procesar los datos antes de exportar."); return; }
+
+            let contenidoTXT = "PROYECTO: COTA100 - NIVELACION POLIGONAL (IDA Y VUELTA)\n";
+            contenidoTXT += "FECHA: " + new Date().toLocaleDateString() + "\n";
+            contenidoTXT += "--------------------------------------------------------------------\n";
+            contenidoTXT += "PTO\tV.ATRÁS\tV.ADEL.\tCOTA CALC.\tCOTA COMPENSADA\n";
+            contenidoTXT += "--------------------------------------------------------------------\n";
+            contenidoTXT += "--- TRAMO IDA ---\n";
+
+            // Extraer Ida
+            document.querySelectorAll('#cuerpoIda tr').forEach((fila) => {
+                let pto = fila.querySelector('.in-pto').value || "---";
+                let va = fila.querySelector('.in-va').value || "---";
+                let vd = fila.querySelector('.in-vd').value || "---";
+                let calc = fila.querySelector('.out-cota').innerText.split('\n')[0].replace('AI:','').trim();
+                let comp = fila.querySelector('.out-comp').innerText;
+                if(calc !== "---") contenidoTXT += `${pto}\t${va}\t${vd}\t${calc}\t${comp}\n`;
+            });
+
+            contenidoTXT += "--- TRAMO VUELTA ---\n";
+            // Extraer Vuelta
+            document.querySelectorAll('#cuerpoVuelta tr').forEach((fila) => {
+                let pto = fila.querySelector('.in-pto').value || "---";
+                let va = fila.querySelector('.in-va').value || "---";
+                let vd = fila.querySelector('.in-vd').value || "---";
+                let calc = fila.querySelector('.out-cota').innerText.split('\n')[0].replace('AI:','').trim();
+                let comp = fila.querySelector('.out-comp').innerText;
+                if(calc !== "---") contenidoTXT += `${pto}\t${va}\t${vd}\t${calc}\t${comp}\n`;
+            });
+
+            // Resumen Final
+            let error = document.getElementById('resError').innerText;
+            let tol = document.getElementById('resTol').innerText;
+            let estado = document.getElementById('resEstado').innerText;
+
+            contenidoTXT += "--------------------------------------------------------------------\n";
+            contenidoTXT += `ERROR DE CIERRE: ${error}\n`;
+            contenidoTXT += `TOLERANCIA MÁX: ${tol}\n`;
+            contenidoTXT += `AUDITORÍA: ${estado}\n`;
+
+            let blob = new Blob([contenidoTXT], { type: "text/plain;charset=utf-8" });
+            let enlace = document.createElement("a");
+            enlace.href = URL.createObjectURL(blob);
+            enlace.download = "Nivelacion_Poligonal_Cota100.txt";
+            enlace.click();
+        }
+    </script>
+</body>
+</html>
