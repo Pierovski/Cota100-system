@@ -1,9 +1,9 @@
 {
-  "name": "Cota100 system",
-  "short_name": "Cota100 system",
+  "name": "COTA100 SYSTEM",
+  "short_name": "COTA100",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#ffffff",
   "theme_color": "#FF6600",
   "orientation": "portrait",
   "icons": [
