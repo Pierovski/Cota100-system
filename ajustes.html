@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COTA100 SYSTEM - Ajustes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff; --text-color: #000000;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
+            --table-header: #111; --danger-color: #d32f2f; --success-color: #2e7d32;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' fill='none'%3E%3Ccircle cx='200' cy='200' r='100' stroke-width='2'/%3E%3Ccircle cx='200' cy='200' r='150' stroke-width='2' stroke-dasharray='10,10'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 400px 400px; background-attachment: fixed;
+        }
+
+        /* --- CABECERA SUPERIOR --- */
+        .top-bar { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        
+        .btn-volver-mini { 
+            background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); 
+            width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none; transition: 0.2s;
+        }
+        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95); }
+
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; text-align: center;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PANELES --- */
+        .panel-control { 
+            border: 2px solid var(--border-color); border-radius: 12px; padding: 20px 15px; 
+            margin-bottom: 20px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+        }
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.2rem; text-transform: uppercase; 
+            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
+        
+        label { font-weight: 800; color: #111; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px;}
+        input, select { 
+            width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 700; 
+            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
+            color: #000; transition: 0.2s; font-family: 'Rajdhani', sans-serif;
+        }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        
+        .txt-ayuda { font-size: 0.8rem; font-weight: 600; color: #555; margin-top: 5px; line-height: 1.3; grid-column: 1 / -1;}
+
+        /* --- BOTONES --- */
+        .btn-accion { 
+            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; 
+            transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-accion:active { transform: scale(0.98); }
+        .btn-guardar { background: var(--primary-color); font-size: 1.3rem;}
+        .btn-limpiar { background: #fff; color: var(--danger-color); border: 2px solid var(--danger-color); margin-top: 5px;}
+        .btn-limpiar:active { background: var(--danger-color); color: #fff;}
+
+        /* Notificación Flotante */
+        .notificacion {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #111; color: #fff; padding: 12px 25px; border-radius: 30px; font-weight: 800;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; transition: 0.3s; z-index: 1000;
+            border: 2px solid var(--primary-color);
+        }
+        .notificacion.mostrar { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    </style>
+</head>
+<body onload="cargarAjustes()">
+
+    <div class="top-bar">
+        <a href="index.html" class="btn-volver-mini">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <h2 class="top-bar-title">AJUSTES <span>Sistema Cota100</span></h2>
+        <div style="width: 45px;"></div>
+    </div>
+
+    <div class="modulo-container">
+
+        <!-- BLOQUE 1: PROYECTO Y OPERADOR -->
+        <div class="panel-control" style="border-left: 5px solid var(--primary-color);">
+            <div class="panel-titulo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                1. Registros Personales
+            </div>
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Proyecto / Obra Activa</label>
+                    <input type="text" id="ajusteProyecto" placeholder="Ej: Carretera Valle Sol" oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <div class="input-group">
+                    <label>Topógrafo</label>
+                    <input type="text" id="ajusteOperador" placeholder="Ej: Piero C." oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <div class="input-group">
+                    <label>Equipo Topográfico</label>
+                    <input type="text" id="ajusteEquipo" placeholder="Ej: Nivel Leica" oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <div class="txt-ayuda">Estos datos encabezarán tus archivos Excel y memorias de cálculo para mantener tus trabajos ordenados.</div>
+            </div>
+        </div>
+
+        <!-- BLOQUE 2: PREFERENCIAS GLOBALES -->
+        <div class="panel-control" style="border-left: 5px solid #1976d2;">
+            <div class="panel-titulo" style="color: #1976d2; border-bottom-color: rgba(25,118,210,0.2);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                2. Visualización y Unidades
+            </div>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Precisión de Cotas</label>
+                    <select id="ajusteDecimales">
+                        <option value="3">3 Decimales (0.000)</option>
+                        <option value="4">4 Decimales (0.0000)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Unidad de Medida</label>
+                    <select id="ajusteUnidades">
+                        <option value="m">Metros (m)</option>
+                        <option value="ft">Pies Int. (ft)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOQUE 3: PARÁMETROS TÉCNICOS GLOBALES -->
+        <div class="panel-control" style="border-left: 5px solid #2e7d32;">
+            <div class="panel-titulo" style="color: #2e7d32; border-bottom-color: rgba(46,125,50,0.2);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                3. Topografía General
+            </div>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Límite de Mira (Alerta)</label>
+                    <select id="ajusteAlertaMira">
+                        <option value="5">Regla de 5.0m</option>
+                        <option value="4">Regla de 4.0m</option>
+                        <option value="3">Regla de 3.0m</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Coef. Refracción (k)</label>
+                    <input type="number" id="ajusteFactorCR" step="0.0001" value="0.14" placeholder="0.14">
+                </div>
+                <div class="txt-ayuda">El límite de mira activará celdas rojas cuando superes la altura física de tu regla.</div>
+            </div>
+        </div>
+
+        <!-- BLOQUE 4: EXPORTACIÓN -->
+        <div class="panel-control" style="border-left: 5px solid #111;">
+            <div class="panel-titulo" style="color: #111;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                4. Exportación y Reportes
+            </div>
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Formato Predeterminado</label>
+                    <select id="ajusteFormatoExport">
+                        <option value="xlsx">Excel (.xlsx) - Para Civil 3D</option>
+                        <option value="csv">Texto (.csv) - Coma separada</option>
+                    </select>
+                </div>
+                <div class="input-group full-width">
+                    <label>Fecha Automática en Archivo</label>
+                    <select id="ajusteFechaName">
+                        <option value="si">Sí, agregar (Ej: Proyecto_20260505.xlsx)</option>
+                        <option value="no">No, nombre simple</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-accion btn-guardar" onclick="guardarAjustes()">💾 GUARDAR AJUSTES</button>
+
+        <!-- BLOQUE 5: MANTENIMIENTO DEL SISTEMA -->
+        <div class="panel-control" style="margin-top: 30px; border: 2px dashed var(--danger-color); background: rgba(211, 47, 47, 0.02);">
+            <div class="panel-titulo" style="color: var(--danger-color); border-bottom-color: rgba(211, 47, 47, 0.2);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                Mantenimiento de PWA
+            </div>
+            <div class="txt-ayuda" style="margin-bottom: 15px; color: #111;">
+                Si modificaste archivos HTML/JS pero tu celular sigue mostrando la versión antigua offline, usa este botón para forzar la actualización del sistema.
+            </div>
+            <button class="btn-accion btn-limpiar" onclick="forzarActualizacionPWA()">🔄 LIMPIAR CACHÉ Y RECARGAR</button>
+        </div>
+
+    </div>
+
+    <!-- Mensaje Toast -->
+    <div id="toastMsg" class="notificacion">Ajustes Guardados ✓</div>
+
+    <script>
+        // Cargar datos al abrir la pantalla
+        function cargarAjustes() {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
+            
+            if(conf.proyecto) document.getElementById('ajusteProyecto').value = conf.proyecto;
+            if(conf.operador) document.getElementById('ajusteOperador').value = conf.operador;
+            if(conf.equipo) document.getElementById('ajusteEquipo').value = conf.equipo;
+            
+            if(conf.decimales) document.getElementById('ajusteDecimales').value = conf.decimales;
+            if(conf.unidades) document.getElementById('ajusteUnidades').value = conf.unidades;
+            
+            if(conf.alertaMira) document.getElementById('ajusteAlertaMira').value = conf.alertaMira;
+            if(conf.factorCR) document.getElementById('ajusteFactorCR').value = conf.factorCR;
+            
+            if(conf.formatoExport) document.getElementById('ajusteFormatoExport').value = conf.formatoExport;
+            if(conf.fechaName) document.getElementById('ajusteFechaName').value = conf.fechaName;
+        }
+
+        // Guardar datos en el navegador
+        function guardarAjustes() {
+            let conf = {
+                proyecto: document.getElementById('ajusteProyecto').value,
+                operador: document.getElementById('ajusteOperador').value,
+                equipo: document.getElementById('ajusteEquipo').value,
+                
+                decimales: document.getElementById('ajusteDecimales').value,
+                unidades: document.getElementById('ajusteUnidades').value,
+                
+                alertaMira: document.getElementById('ajusteAlertaMira').value,
+                factorCR: document.getElementById('ajusteFactorCR').value,
+                
+                formatoExport: document.getElementById('ajusteFormatoExport').value,
+                fechaName: document.getElementById('ajusteFechaName').value
+            };
+            
+            localStorage.setItem('cota100_ajustes', JSON.stringify(conf));
+            
+            // Mostrar notificación
+            let toast = document.getElementById('toastMsg');
+            toast.classList.add('mostrar');
+            setTimeout(() => { toast.classList.remove('mostrar'); }, 2500);
+        }
+
+        // Limpiar Service Worker y Caché para Forzar Actualización
+        function forzarActualizacionPWA() {
+            if(confirm("¿Forzar actualización? Esto borrará la memoria caché de la aplicación y recargará el sistema. Necesitas internet para descargar la nueva versión.")) {
+                
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        for (let name of names) {
+                            caches.delete(name);
+                        }
+                    });
+                }
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                    }).then(function() {
+                        window.location.href = 'index.html';
+                        window.location.reload(true);
+                    });
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

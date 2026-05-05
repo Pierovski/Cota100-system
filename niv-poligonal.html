@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>COTA100 - Nivelación Poligonal</title>
+    <title>COTA100 - Nivelación Simultánea</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- LIBRERÍA PROFESIONAL PARA EXPORTAR A EXCEL (.XLSX) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --bg-color: #ffffff; --text-color: #000000;
@@ -16,428 +20,677 @@
 
         body { 
             background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
-            /* MAPA TOPOGRÁFICO RAW TECH */
-            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 600px 600px; background-attachment: fixed;
         }
 
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
             padding: 15px 20px; border-bottom: 2px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
         }
         .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
-        .top-bar-title span { color: var(--primary-color); }
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
-        .btn-tool { 
-            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
-            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
-            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
-        }
-        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
 
         .panel-control { 
             border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
             margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
         }
         .panel-titulo { 
+            display: flex; justify-content: space-between; align-items: center;
             color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
             margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
-            text-shadow: 0 0 5px #fff;
         }
         
-        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-weight: 800; color: #000; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 3px; text-shadow: 0 0 5px #fff;}
-        input { 
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: 800; color: #000; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px;}
+        input, select { 
             width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
             background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
-            color: #000; transition: 0.2s;
+            color: #000; transition: 0.2s; text-align: center; font-family: 'Rajdhani', sans-serif;
         }
-        input:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        input.in-pto { text-transform: uppercase; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        input:disabled, input[readonly] { background: rgba(0,0,0,0.05); cursor: not-allowed; border-style: dashed; color: #555; }
+        select { text-align: left; padding: 11px; }
+
+        .txt-ayuda { font-size: 0.8rem; font-weight: 700; color: #1976d2; margin-top: 5px; background: #e3f2fd; padding: 6px; border-radius: 4px; border: 1px solid #90caf9;}
 
         .btn-accion { 
             width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
             background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
-            margin-top: 5px; transition: 0.2s;
+            transition: 0.2s;
         }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
         .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.3rem;}
-        .btn-calc:active { background-color: #cc5200; }
 
-        /* TABLAS RAW TECH */
+        .dos-columnas { display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px;}
+        .col-tabla { flex: 1; min-width: 350px; margin-bottom: 0;}
+
         .table-container { 
-            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
-            border-radius: 8px; background: rgba(255,255,255,0.95); margin-bottom: 10px;
+            width: 100%; border: 2px solid var(--border-color); 
+            border-radius: 8px; background: rgba(255,255,255,0.95); margin-bottom: 0;
         }
-        table { width: 100%; min-width: 650px; border-collapse: collapse; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.85rem; border: 1px solid #444; text-transform: uppercase;}
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; border: 1px solid #444; text-transform: uppercase;}
         td { border: 1px solid var(--border-color); padding: 0; position: relative; }
         
         td input { 
-            border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.05rem; 
-            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 700;
+            border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.1rem; 
+            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800;
         }
-        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
+        td input:focus:not(:disabled):not([readonly]) { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
         
-        .td-readonly { background: rgba(0,0,0,0.05); }
-        .out-cota { text-align: center; font-weight: 800; font-size: 1.1rem; color: #000; padding: 12px 2px;}
-        .ai-calculada { display: block; font-size: 0.75rem; color: var(--primary-color); font-weight: 800; margin-top: 2px;}
+        .td-readonly { background: rgba(0,0,0,0.03); }
+        .out-cota { text-align: center; font-weight: 800; font-size: 1.1rem; color: #000; padding: 6px 2px; background: rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 70px;}
+        
+        .badge-tramo { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-top: 2px; font-weight: 800; }
+        .badge-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .badge-error { background: #ffebee; color: #d32f2f; border: 1px solid #ef9a9a; animation: parpadeo 1s infinite;}
+        .badge-oculto { visibility: hidden; }
 
-        /* Panel de Resultados del Ajuste */
+        @keyframes parpadeo { 0% {opacity:1;} 50% {opacity:0.6;} 100% {opacity:1;} }
+
+        .tabla-ida th { background: #1976d2; }
+        .tabla-vuelta th { background: #d32f2f; }
+
         .panel-resultados { 
             background: #fff; border: 3px solid #111; border-radius: 12px; padding: 15px; 
             text-align: center; display: none; margin-bottom: 15px;
         }
         .res-valor { font-size: 1.8rem; font-weight: 800; margin: 10px 0; }
-        .estado-cumple { color: var(--success-color); background: rgba(46, 125, 50, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem;}
-        .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem;}
+        .estado-cumple { color: var(--success-color); background: rgba(46, 125, 50, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800;}
+        .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800;}
 
-        .tabla-ida th { background: #1976d2; }
-        .tabla-vuelta th { background: #d32f2f; }
+        .tabla-compensada { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #111;}
+        .tabla-compensada th { background: #111; color: #fff; font-size: 0.85rem; padding: 8px; text-transform: uppercase;}
+        .tabla-compensada td { border: 1px solid #ccc; padding: 8px; font-weight: 800; font-size: 1.1rem;}
 
+        /* CALCULADORA FLOTANTE */
+        .btn-calculadora-flotante {
+            position: fixed; bottom: 20px; right: 20px; 
+            width: 60px; height: 60px; background: #111; color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color);
+            cursor: pointer; z-index: 9999; transition: 0.3s;
+        }
+        .btn-calculadora-flotante:active { transform: scale(0.9); background: var(--primary-color); border-color: #111;}
+        .calculadora-modal {
+            position: fixed; bottom: 90px; right: 20px; width: 260px;
+            background: rgba(255, 255, 255, 0.95); border: 2px solid #111;
+            border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            z-index: 10000; display: none; backdrop-filter: blur(10px);
+        }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; color: #111;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer; padding: 0 5px;}
+        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-family: monospace; font-weight: 800; border: 2px solid rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; padding: 5px 10px; background: #fff; color: #000; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-family: 'Rajdhani', sans-serif; font-weight: 800; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; background: #fff; color: #111; cursor: pointer;}
+        .calc-grid button:active { background: #e0e0e0; }
+        .calc-op { background: #111 !important; color: #fff !important; }
+        .calc-op:active { background: var(--primary-color) !important; }
+        .calc-clear { background: #ffebee !important; color: #d32f2f !important; border-color: #ef9a9a !important; }
+        .calc-eq { background: var(--primary-color) !important; color: #fff !important; border: none !important; margin-top: 4px; font-size: 1.6rem !important;}
     </style>
 </head>
-<body>
+<body onload="cargarLocal()">
 
     <div class="top-bar">
         <a href="nivelacion.html" class="btn-volver-mini">←</a>
-        <h2 class="top-bar-title">CIRCUITO <span>POLIGONAL</span></h2>
+        <h2 class="top-bar-title">CONTROL POR TRAMOS <span>Doble Nivelación Simultánea</span></h2>
         <div style="width: 25px;"></div>
     </div>
 
     <div class="modulo-container">
         
-        <div class="toolbar-archivos">
-            <button class="btn-tool">💾 Guardar</button>
-            <button class="btn-tool">📂 Importar</button>
-            <button class="btn-tool" onclick="exportarTXTPoligonal()">📤 Exportar TXT</button>
-        </div>
-
         <div class="panel-control">
-            <div class="panel-titulo">⚙️ 1. Datos del Circuito</div>
-            <div class="input-row">
+            <div class="panel-titulo">
+                ⚙️ 1. Parámetros de Control
+                <button class="btn-accion" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin: 0; background: #d32f2f;" onclick="nuevoProyecto()">🗑️ NUEVO PROYECTO</button>
+            </div>
+            <div class="form-grid">
                 <div class="input-group">
-                    <label>Cota Inicial (BM Partida)</label>
-                    <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2850.000">
+                    <label>Orden de Nivelación</label>
+                    <select id="ordenNiv" onchange="actualizarOrdenTxt(); guardarLocal(); procesarDobleLiga();">
+                        <option value="0.004">Orden I (4mm √K)</option>
+                        <option value="0.008">Orden II (8mm √K)</option>
+                        <option value="0.012">Orden III (12mm √K)</option>
+                        <option value="0.020" selected>Orden IV (20mm √K)</option>
+                    </select>
                 </div>
                 <div class="input-group">
-                    <label>Distancia Total (km)</label>
-                    <input type="number" id="distanciaKm" step="0.001" placeholder="Ej: 1.5">
+                    <label>Cota Inicial (BM)</label>
+                    <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 100.000" oninput="guardarLocal(); procesarDobleLiga();" onblur="formatearTresDecimales(this)">
                 </div>
             </div>
-            <p style="font-size: 0.75rem; font-weight: 700; color: #555;">* Tolerancia estándar para obra: T = 0.020 √K (metros).</p>
-        </div>
-
-        <div class="panel-control" style="padding: 10px;">
-            <div class="panel-titulo" style="padding-left: 5px; color: #1976d2;">➡️ 2. TRAMO DE IDA</div>
             
-            <div class="table-container tabla-ida">
-                <table id="tablaIda">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">PUNTO</th>
-                            <th style="width: 15%;">V. ATRÁS</th>
-                            <th style="width: 15%;">V. ADEL.</th>
-                            <th style="width: 25%;">COTA CALC.</th>
-                            <th style="width: 30%;">COTA COMPENSADA</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoIda">
-                        <tr>
-                            <td><input type="text" value="BM1" class="in-pto"></td>
-                            <td><input type="number" step="0.001" class="in-va" placeholder="(+)"></td>
-                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
-                            <td class="out-cota">---</td>
-                            <td class="out-cota out-comp">---</td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="PC-1" class="in-pto"></td>
-                            <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
-                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
-                            <td class="out-cota">---</td>
-                            <td class="out-cota out-comp">---</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="input-row" style="margin-bottom: 0;">
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #1976d2; color:#1976d2;" onclick="agregarFila('cuerpoIda')">+ Fila Ida</button>
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #555; color:#555;" onclick="quitarFila('cuerpoIda')">- Fila</button>
+            <div id="txtOrdenHelp" class="txt-ayuda">Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.</div>
+
+            <div class="form-grid" style="margin-top: 10px;">
+                <div class="input-group">
+                    <label>Dist. Total Circuito (m)</label>
+                    <input type="number" id="distanciaM" step="1" placeholder="Ej: 1500" oninput="guardarLocal(); procesarDobleLiga();">
+                </div>
+                <div class="input-group">
+                    <label>Tol. por Armada (mm)</label>
+                    <input type="number" id="tolTramo" step="1" value="2" placeholder="Ej: 2" oninput="guardarLocal(); procesarDobleLiga();">
+                </div>
             </div>
         </div>
 
-        <div class="panel-control" style="padding: 10px;">
-            <div class="panel-titulo" style="padding-left: 5px; color: #d32f2f;">⬅️ 3. TRAMO DE VUELTA</div>
+        <div class="dos-columnas">
             
-            <div class="table-container tabla-vuelta">
-                <table id="tablaVuelta">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">PUNTO</th>
-                            <th style="width: 15%;">V. ATRÁS</th>
-                            <th style="width: 15%;">V. ADEL.</th>
-                            <th style="width: 25%;">COTA CALC.</th>
-                            <th style="width: 30%;">COTA COMPENSADA</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoVuelta">
-                        <tr>
-                            <td><input type="text" value="PC-1" class="in-pto" title="Debe coincidir con el último de Ida"></td>
-                            <td><input type="number" step="0.001" class="in-va" placeholder="(+)"></td>
-                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
-                            <td class="out-cota">---</td>
-                            <td class="out-cota out-comp">---</td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="BM1" class="in-pto"></td>
-                            <td class="td-readonly"><input type="number" step="0.001" class="in-va" disabled></td>
-                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
-                            <td class="out-cota">---</td>
-                            <td class="out-cota out-comp" style="font-weight: 900; color: var(--primary-color);">---</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- TRAMO IDA -->
+            <div class="panel-control col-tabla" style="border: 2px solid #1976d2; border-radius: 12px;">
+                <div class="panel-titulo" style="color: #1976d2; border-bottom-color: #1976d2;">➡️ NIVELACIÓN (IDA)</div>
+                <div class="table-container tabla-ida">
+                    <table id="tablaIda">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">PTO</th>
+                                <th style="width: 20%;">V.AT(+)</th>
+                                <th style="width: 20%;">V.AD(-)</th>
+                                <th style="width: 35%;">COTA & ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoIda">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="input-row" style="margin-bottom: 0;">
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="agregarFilaVuelta()">+ Fila Vuelta</button>
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #555; color:#555;" onclick="quitarFila('cuerpoVuelta')">- Fila</button>
+
+            <!-- TRAMO VUELTA -->
+            <div class="panel-control col-tabla" style="border: 2px solid #d32f2f; border-radius: 12px;">
+                <div class="panel-titulo" style="color: #d32f2f; border-bottom-color: #d32f2f;">⬅️ NIVELACIÓN (VUELTA)</div>
+                <div class="table-container tabla-vuelta">
+                    <table id="tablaVuelta">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">PTO</th>
+                                <th style="width: 20%;">V.AT(+)</th>
+                                <th style="width: 20%;">V.AD(-)</th>
+                                <th style="width: 35%;">COTA & ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoVuelta">
+                             <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
 
-        <button class="btn-accion btn-calc" onclick="procesarPoligonal()">CALCULAR Y COMPENSAR</button>
+        <div class="form-grid" style="margin-top: 5px; margin-bottom: 20px;">
+            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2; margin-top: 0;" onclick="agregarFila(false)">+ Avanzar Estación</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555; margin-top: 0;" onclick="quitarFila()">- Deshacer</button>
+        </div>
+
+        <button class="btn-accion btn-calc" onclick="procesarDobleLiga()">VERIFICAR CIERRE FINAL</button>
 
         <div class="panel-resultados" id="panelResultados">
-            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría de Cierre</h3>
+            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría Final del Circuito</h3>
             <div class="input-row" style="margin-top: 15px;">
                 <div class="input-group">
                     <span style="font-size: 0.8rem; font-weight: 800; color: #666;">ERROR DE CIERRE (E)</span>
-                    <div class="res-valor" id="resError">0.000 m</div>
+                    <div class="res-valor" id="resError" style="color: #111;">0.000 m</div>
                 </div>
                 <div class="input-group">
-                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA MÁX. (T)</span>
-                    <div class="res-valor" id="resTol">0.000 m</div>
+                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA GLOBAL (T)</span>
+                    <div class="res-valor" id="resTol" style="color: #111;">0.000 m</div>
                 </div>
             </div>
             <div id="resEstado" class="estado-cumple" style="margin-top: 10px;">CUMPLE ESPECIFICACIONES</div>
+            
+            <button class="btn-accion" style="background:#111; margin-top: 15px; font-size: 1rem;" onclick="generarCompensadas()" id="btnCompensar">Obtener Cotas Compensadas (Promedio)</button>
+            
+            <div id="contenedorCompensadas" style="display: none;">
+                <table class="tabla-compensada" id="tablaCompensada">
+                    <thead><tr><th>PUNTO</th><th>COTA IDA</th><th>COTA VUELTA</th><th>PROMEDIO</th></tr></thead>
+                    <tbody id="cuerpoCompensadas"></tbody>
+                </table>
+                <button class="btn-accion" style="background:#1b5e20; margin-top: 15px; font-size: 1rem; border: 2px solid #1b5e20;" onclick="exportarExcel()" id="btnExcel">📥 Exportar a Excel (.xlsx)</button>
+            </div>
         </div>
 
     </div>
 
+    <!-- CALCULADORA -->
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
+    </div>
+
+    <div class="calculadora-modal" id="calculadoraModal">
+        <div class="calc-header"><span>CALCULADORA</span><button onclick="toggleCalculadora()">X</button></div>
+        <input type="text" id="calcDisplay" disabled>
+        <div class="calc-grid">
+            <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button class="calc-op" onclick="calcInput('/')">÷</button>
+            <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button class="calc-op" onclick="calcInput('*')">×</button>
+            <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button class="calc-op" onclick="calcInput('-')">-</button>
+            <button class="calc-clear" onclick="calcClear()">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button class="calc-op" onclick="calcInput('+')">+</button>
+            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 4;">=</button>
+        </div>
+    </div>
+
     <script>
-        // --- MANEJO DE FILAS ---
-        let contIda = 2;
-        let contVuelta = 2;
-
-        function agregarFila(tbodyId) {
-            const tbody = document.getElementById(tbodyId);
-            const tr = document.createElement('tr');
-            let prefijo = tbodyId === 'cuerpoIda' ? `PC-${contIda++}` : `PC-${contVuelta++}V`;
-            
-            tr.innerHTML = `
-                <td><input type="text" value="${prefijo}" class="in-pto"></td>
-                <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
-                <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
-                <td class="out-cota">---</td>
-                <td class="out-cota out-comp">---</td>
-            `;
-            
-            // Insertar antes de la última fila (que en Vuelta es el cierre en BM)
-            if(tbodyId === 'cuerpoVuelta') {
-                tbody.insertBefore(tr, tbody.lastElementChild);
-            } else {
-                tbody.appendChild(tr);
+        // --- INICIALIZACIÓN Y LOCAL STORAGE ---
+        function nuevoProyecto() {
+            if(confirm("¿Estás seguro de borrar todo? Se perderán las lecturas actuales.")) {
+                localStorage.removeItem('cota100_poligonal');
+                location.reload();
             }
         }
 
-        function agregarFilaVuelta() { agregarFila('cuerpoVuelta'); }
-
-        function quitarFila(tbodyId) {
-            const tbody = document.getElementById(tbodyId);
-            if (tbodyId === 'cuerpoIda' && tbody.children.length > 2) { 
-                tbody.removeChild(tbody.lastChild); 
-            } else if (tbodyId === 'cuerpoVuelta' && tbody.children.length > 2) {
-                // Remover la penúltima fila para no borrar la fila de cierre
-                tbody.removeChild(tbody.children[tbody.children.length - 2]);
-            }
-        }
-
-        // --- MOTOR DE CIERRE Y COMPENSACIÓN ---
-        function procesarPoligonal() {
-            let cotaBM = parseFloat(document.getElementById('cotaBM').value);
-            let distKm = parseFloat(document.getElementById('distanciaKm').value);
-
-            if(isNaN(cotaBM) || isNaN(distKm)) {
-                alert("Falta ingresar Cota Inicial o Distancia Total del circuito.");
-                return;
-            }
+        function guardarLocal() {
+            let data = {
+                cotaBM: document.getElementById('cotaBM').value,
+                orden: document.getElementById('ordenNiv').value,
+                distanciaM: document.getElementById('distanciaM').value,
+                tolTramo: document.getElementById('tolTramo').value,
+                ida: [], vuelta: []
+            };
 
             let filasIda = document.querySelectorAll('#cuerpoIda tr');
             let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
 
-            // 1. CALCULAR COTAS EN BRUTO (IDA)
-            let cotaActual = cotaBM;
-            let aiActual = 0;
-            let lecturasTotales = 0; // Para distribuir el error por número de posiciones de instrumento
-
-            for(let i=0; i<filasIda.length; i++) {
-                let va = parseFloat(filasIda[i].querySelector('.in-va').value) || 0;
-                let vd = parseFloat(filasIda[i].querySelector('.in-vd').value) || 0;
-                let celdaCota = filasIda[i].querySelector('.out-cota');
-
-                if(i === 0) {
-                    aiActual = cotaActual + va;
-                    celdaCota.innerHTML = `${cotaActual.toFixed(3)} <span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
-                } else {
-                    cotaActual = aiActual - vd;
-                    celdaCota.innerHTML = cotaActual.toFixed(3);
-                    if(va !== 0) {
-                        aiActual = cotaActual + va;
-                        celdaCota.innerHTML += `<span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
-                        lecturasTotales++;
-                    }
-                }
+            for (let i = 0; i < filasIda.length; i++) {
+                data.ida.push({
+                    pto: filasIda[i].querySelector('.in-pto').value,
+                    va: filasIda[i].querySelector('.in-va').value,
+                    vd: filasIda[i].querySelector('.in-vd').value
+                });
+                data.vuelta.push({
+                    pto: filasVuelta[i].querySelector('.in-pto').value,
+                    va: filasVuelta[i].querySelector('.in-va').value,
+                    vd: filasVuelta[i].querySelector('.in-vd').value
+                });
             }
-
-            let cotaEnlace = cotaActual; // Cota del punto de retorno
-
-            // 2. CALCULAR COTAS EN BRUTO (VUELTA)
-            cotaActual = cotaEnlace;
-            aiActual = 0;
-
-            for(let i=0; i<filasVuelta.length; i++) {
-                let va = parseFloat(filasVuelta[i].querySelector('.in-va').value) || 0;
-                let vd = parseFloat(filasVuelta[i].querySelector('.in-vd').value) || 0;
-                let celdaCota = filasVuelta[i].querySelector('.out-cota');
-
-                if(i === 0) {
-                    // El primer punto de vuelta toma la cota del último de ida
-                    aiActual = cotaActual + va;
-                    celdaCota.innerHTML = `${cotaActual.toFixed(3)} <span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
-                    lecturasTotales++;
-                } else {
-                    cotaActual = aiActual - vd;
-                    celdaCota.innerHTML = cotaActual.toFixed(3);
-                    if(va !== 0 && i < filasVuelta.length - 1) { // La última fila solo cierra, no hace VA
-                        aiActual = cotaActual + va;
-                        celdaCota.innerHTML += `<span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
-                        lecturasTotales++;
-                    }
-                }
-            }
-
-            // 3. AUDITORÍA DE CIERRE
-            let cotaCierre = cotaActual;
-            let errorCierre = cotaCierre - cotaBM;
-            let tolerancia = 0.020 * Math.sqrt(distKm); // 20mm por raiz de K
-
-            document.getElementById('panelResultados').style.display = 'block';
-            document.getElementById('resError').innerText = errorCierre.toFixed(4) + " m";
-            document.getElementById('resTol').innerText = "±" + tolerancia.toFixed(4) + " m";
-
-            let estadoTag = document.getElementById('resEstado');
-            if(Math.abs(errorCierre) <= tolerancia) {
-                estadoTag.innerText = "✓ CUMPLE TOLERANCIA";
-                estadoTag.className = "estado-cumple";
-            } else {
-                estadoTag.innerText = "❌ RECHAZADO (SUPERA TOLERANCIA)";
-                estadoTag.className = "estado-falla";
-            }
-
-            // 4. COMPENSACIÓN PROPORCIONAL
-            // Corrección total a aplicar = - Error
-            // Corrección por tramo de equipo = (-Error) / Numero de armadas
-            let correccionUnitaria = (-errorCierre) / lecturasTotales;
-            let correccionAcumulada = 0;
-
-            // Compensar Ida
-            for(let i=0; i<filasIda.length; i++) {
-                let celdaCota = filasIda[i].querySelector('.out-cota');
-                let celdaComp = filasIda[i].querySelector('.out-comp');
-                
-                if(i === 0) {
-                    celdaComp.innerText = cotaBM.toFixed(3); // El BM inicial no se corrige
-                } else {
-                    correccionAcumulada += correccionUnitaria;
-                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
-                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
-                }
-            }
-
-            // Compensar Vuelta
-            for(let i=0; i<filasVuelta.length; i++) {
-                let celdaCota = filasVuelta[i].querySelector('.out-cota');
-                let celdaComp = filasVuelta[i].querySelector('.out-comp');
-                
-                if(i === 0) {
-                    // El punto de enlace ya recibió corrección al final de la ida
-                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
-                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
-                } else {
-                    correccionAcumulada += correccionUnitaria;
-                    let cotaBruta = parseFloat(celdaCota.innerText.split('<')[0]);
-                    celdaComp.innerText = (cotaBruta + correccionAcumulada).toFixed(3);
-                }
-            }
-            
-            // Forzar visualmente el cierre perfecto en la última celda para tranquilidad del usuario
-            let ultimaCeldaComp = filasVuelta[filasVuelta.length-1].querySelector('.out-comp');
-            ultimaCeldaComp.innerText = cotaBM.toFixed(3);
+            localStorage.setItem('cota100_poligonal', JSON.stringify(data));
         }
 
-        // --- EXPORTAR A TXT ---
-        function exportarTXTPoligonal() {
-            let cotaBM = document.getElementById('cotaBM').value;
-            if(!cotaBM) { alert("Debe procesar los datos antes de exportar."); return; }
+        function cargarLocal() {
+            let dataStr = localStorage.getItem('cota100_poligonal');
+            if (dataStr) {
+                let data = JSON.parse(dataStr);
+                document.getElementById('cotaBM').value = data.cotaBM || "";
+                document.getElementById('ordenNiv').value = data.orden || "0.020";
+                document.getElementById('distanciaM').value = data.distanciaM || "";
+                document.getElementById('tolTramo').value = data.tolTramo || "2";
+                
+                document.getElementById('cuerpoIda').innerHTML = "";
+                document.getElementById('cuerpoVuelta').innerHTML = "";
+                
+                for(let i=0; i<data.ida.length; i++) {
+                    agregarFila(true); 
+                    let trIda = document.querySelectorAll('#cuerpoIda tr')[i];
+                    let trVuelta = document.querySelectorAll('#cuerpoVuelta tr')[i];
+                    
+                    trIda.querySelector('.in-pto').value = data.ida[i].pto;
+                    trIda.querySelector('.in-va').value = data.ida[i].va;
+                    trIda.querySelector('.in-vd').value = data.ida[i].vd;
 
-            let contenidoTXT = "PROYECTO: COTA100 - NIVELACION POLIGONAL (IDA Y VUELTA)\n";
-            contenidoTXT += "FECHA: " + new Date().toLocaleDateString() + "\n";
-            contenidoTXT += "--------------------------------------------------------------------\n";
-            contenidoTXT += "PTO\tV.ATRÁS\tV.ADEL.\tCOTA CALC.\tCOTA COMPENSADA\n";
-            contenidoTXT += "--------------------------------------------------------------------\n";
-            contenidoTXT += "--- TRAMO IDA ---\n";
+                    trVuelta.querySelector('.in-pto').value = data.vuelta[i].pto;
+                    trVuelta.querySelector('.in-va').value = data.vuelta[i].va;
+                    trVuelta.querySelector('.in-vd').value = data.vuelta[i].vd;
+                }
+            } else {
+                agregarFila(true); 
+            }
+            actualizarOrdenTxt();
+            procesarDobleLiga();
+        }
 
-            // Extraer Ida
-            document.querySelectorAll('#cuerpoIda tr').forEach((fila) => {
-                let pto = fila.querySelector('.in-pto').value || "---";
-                let va = fila.querySelector('.in-va').value || "---";
-                let vd = fila.querySelector('.in-vd').value || "---";
-                let calc = fila.querySelector('.out-cota').innerText.split('\n')[0].replace('AI:','').trim();
-                let comp = fila.querySelector('.out-comp').innerText;
-                if(calc !== "---") contenidoTXT += `${pto}\t${va}\t${vd}\t${calc}\t${comp}\n`;
+        function actualizarOrdenTxt() {
+            let select = document.getElementById('ordenNiv');
+            let txt = document.getElementById('txtOrdenHelp');
+            if(select.value === "0.004") txt.innerText = "Orden I: Alta precisión. Presas, redes geodésicas base, túneles extensos.";
+            else if(select.value === "0.008") txt.innerText = "Orden II: Precisión media. Puentes importantes, viaductos, carreteras principales.";
+            else if(select.value === "0.012") txt.innerText = "Orden III: Precisión básica. Drenaje, vías urbanas, alcantarillado, canales.";
+            else txt.innerText = "Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.";
+        }
+
+        function syncBM(input) {
+            let trIda = input.closest('tr');
+            let tbodyIda = trIda.parentNode;
+            let len = tbodyIda.children.length;
+            let idx = Array.from(tbodyIda.children).indexOf(trIda);
+            
+            let ptoNombres = [];
+            for(let i=0; i<len; i++) {
+                ptoNombres.push(tbodyIda.children[i].querySelector('.in-pto').value.toUpperCase());
+            }
+
+            let filasVuelta = document.getElementById('cuerpoVuelta').children;
+
+            for(let i=0; i<len; i++) { filasVuelta[i].querySelector('.in-pto').value = ""; }
+
+            let bmIndices = [];
+            ptoNombres.forEach((nombre, index) => {
+                if (nombre.includes('BM') || index === 0) bmIndices.push(index);
             });
 
-            contenidoTXT += "--- TRAMO VUELTA ---\n";
-            // Extraer Vuelta
-            document.querySelectorAll('#cuerpoVuelta tr').forEach((fila) => {
-                let pto = fila.querySelector('.in-pto').value || "---";
-                let va = fila.querySelector('.in-va').value || "---";
-                let vd = fila.querySelector('.in-vd').value || "---";
-                let calc = fila.querySelector('.out-cota').innerText.split('\n')[0].replace('AI:','').trim();
-                let comp = fila.querySelector('.out-comp').innerText;
-                if(calc !== "---") contenidoTXT += `${pto}\t${va}\t${vd}\t${calc}\t${comp}\n`;
+            let lastProcessedIdx = -1;
+            for (let k = 0; k < bmIndices.length - 1; k++) {
+                let startIdx = bmIndices[k];
+                let endIdx = bmIndices[k+1];
+                
+                filasVuelta[startIdx].querySelector('.in-pto').value = ptoNombres[startIdx];
+                filasVuelta[endIdx].querySelector('.in-pto').value = ptoNombres[endIdx];
+                
+                let middle = ptoNombres.slice(startIdx + 1, endIdx).reverse();
+                for (let j = 0; j < middle.length; j++) {
+                    filasVuelta[startIdx + 1 + j].querySelector('.in-pto').value = middle[j];
+                }
+                lastProcessedIdx = endIdx;
+            }
+
+            let startMirror = lastProcessedIdx === -1 ? 0 : lastProcessedIdx;
+            for (let i = startMirror; i < len; i++) {
+                if (!filasVuelta[i].querySelector('.in-pto').value) {
+                    filasVuelta[i].querySelector('.in-pto').value = ptoNombres[i];
+                }
+            }
+
+            let isFirstBM = idx === 0;
+            let isAnyBM = ptoNombres[idx].includes('BM');
+
+            if (isFirstBM || isAnyBM) {
+                let trVuelta = filasVuelta[idx];
+                if(trVuelta) {
+                    if (input.classList.contains('in-va') && !trVuelta.querySelector('.in-vd').disabled) {
+                        trVuelta.querySelector('.in-vd').value = input.value;
+                        trVuelta.querySelector('.in-vd').dataset.prevLen = input.value.length;
+                    }
+                    if (input.classList.contains('in-vd') && !trVuelta.querySelector('.in-va').disabled) {
+                        trVuelta.querySelector('.in-va').value = input.value;
+                        trVuelta.querySelector('.in-va').dataset.prevLen = input.value.length;
+                    }
+                }
+            } else if (input.classList.contains('in-pto') && idx !== 0) {
+                let trVuelta = filasVuelta[idx];
+                if (trVuelta) {
+                    trVuelta.querySelector('.in-va').value = "";
+                    trVuelta.querySelector('.in-vd').value = "";
+                }
+            }
+            guardarLocal();
+        }
+
+        function formatearTresDecimales(input) {
+            if (input.value.trim() !== "") {
+                let val = parseFloat(input.value);
+                if (!isNaN(val)) {
+                    input.value = val.toFixed(3);
+                    input.dataset.prevLen = input.value.length; 
+                    syncBM(input); 
+                    procesarDobleLiga();
+                }
+            }
+        }
+
+        function autoPunto(input) {
+            let val = input.value.replace(/[^0-9.]/g, ''); 
+            let prevLen = parseInt(input.dataset.prevLen) || 0;
+            if (val.length === 1 && /^[0-9]$/.test(val) && val.length > prevLen) { val = val + "."; }
+            input.dataset.prevLen = val.length;
+            input.value = val;
+            guardarLocal();
+        }
+
+        function agregarFila(isLoad = false) {
+            const tbodyIda = document.getElementById('cuerpoIda');
+            const tbodyVuelta = document.getElementById('cuerpoVuelta');
+            const idx = tbodyIda.children.length;
+            
+            const disVDIda = idx === 0 ? 'disabled' : '';
+            const disVAVuelta = idx === 0 ? 'disabled' : '';
+            
+            const trIda = document.createElement('tr');
+            trIda.innerHTML = `<td><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga();"></td>
+                <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="autoPunto(this); syncBM(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
+                <td class="${idx===0?'td-readonly':''}"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" ${disVDIda} oninput="autoPunto(this); syncBM(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
+                <td class="out-cota" id="cotaIda-${idx}">---</td>`;
+            
+            const trVuelta = document.createElement('tr');
+            trVuelta.innerHTML = `<td><input type="text" class="in-pto" placeholder="..." readonly></td>
+                <td class="${idx===0?'td-readonly':''}"><input type="text" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="autoPunto(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
+                <td><input type="text" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="autoPunto(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
+                <td class="out-cota" id="cotaVuelta-${idx}">---</td>`;
+
+            tbodyIda.appendChild(trIda);
+            tbodyVuelta.appendChild(trVuelta);
+            
+            if(!isLoad) { guardarLocal(); }
+        }
+
+        function quitarFila() {
+            const tbodyIda = document.getElementById('cuerpoIda');
+            const tbodyVuelta = document.getElementById('cuerpoVuelta');
+            if (tbodyIda.children.length > 1) { 
+                tbodyIda.removeChild(tbodyIda.lastChild); 
+                tbodyVuelta.removeChild(tbodyVuelta.lastChild);
+                procesarDobleLiga();
+                guardarLocal();
+            }
+        }
+
+        function procesarDobleLiga() {
+            let cotaBM = parseFloat(document.getElementById('cotaBM').value);
+            let distM = parseFloat(document.getElementById('distanciaM').value);
+            let tolTramoMM = parseFloat(document.getElementById('tolTramo').value) || 2;
+            let multiplicador = parseFloat(document.getElementById('ordenNiv').value);
+
+            let filasIda = document.querySelectorAll('#cuerpoIda tr');
+            let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+
+            let cotaActIda = 0; let aiIda = 0;
+            let cotaActVuelta = 0; let aiVuelta = 0;
+
+            for(let i=0; i<filasIda.length; i++) {
+                let vaIda = parseFloat(filasIda[i].querySelector('.in-va').value);
+                let vdIda = parseFloat(filasIda[i].querySelector('.in-vd').value);
+                let celdaIda = document.getElementById('cotaIda-'+i);
+
+                let vaVuelta = parseFloat(filasVuelta[i].querySelector('.in-va').value);
+                let vdVuelta = parseFloat(filasVuelta[i].querySelector('.in-vd').value);
+                let celdaVuelta = document.getElementById('cotaVuelta-'+i);
+
+                let badgeInvisible = `<div class="badge-tramo badge-oculto">_</div>`;
+
+                if (i === 0) {
+                    cotaActIda = isNaN(cotaBM) ? NaN : cotaBM;
+                    if (!isNaN(cotaActIda)) {
+                        if (!isNaN(vaIda)) {
+                            aiIda = cotaActIda + vaIda;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                        } else {
+                            celdaIda.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                        }
+                    } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
+                } else {
+                    if (!isNaN(vdIda)) {
+                        cotaActIda = aiIda - vdIda;
+                        if (!isNaN(vaIda)) {
+                            aiIda = cotaActIda + vaIda;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                        } else {
+                            celdaIda.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                        }
+                    } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
+                }
+
+                if (i === 0) {
+                    cotaActVuelta = isNaN(cotaBM) ? NaN : cotaBM;
+                    if (!isNaN(cotaActVuelta)) {
+                        if (!isNaN(vdVuelta)) {
+                            aiVuelta = cotaActVuelta + vdVuelta;
+                            celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                        } else {
+                            celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                        }
+                    } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
+                } else {
+                    if (!isNaN(vaVuelta)) {
+                        cotaActVuelta = aiVuelta - vaVuelta;
+                        if (!isNaN(vdVuelta)) {
+                            aiVuelta = cotaActVuelta + vdVuelta;
+                            if (!isNaN(vdIda)) {
+                                let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
+                                let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
+                                let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
+                                celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                        } else {
+                            if (!isNaN(vdIda)) {
+                                let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
+                                let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
+                                let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
+                                celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                        }
+                    } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
+                }
+            }
+
+            document.getElementById('contenedorCompensadas').style.display = 'none';
+
+            if(!isNaN(cotaBM) && !isNaN(distM) && distM > 0 && filasIda.length > 0) {
+                let distKm = distM / 1000;
+                let errorCierre = Math.abs(cotaActIda - cotaActVuelta); 
+                let toleranciaGlobal = multiplicador * Math.sqrt(distKm);
+
+                document.getElementById('resError').innerText = errorCierre.toFixed(4) + " m";
+                document.getElementById('resTol').innerText = "±" + toleranciaGlobal.toFixed(4) + " m";
+
+                let estadoTag = document.getElementById('resEstado');
+                if(errorCierre <= toleranciaGlobal) {
+                    estadoTag.innerText = "✓ CUMPLE TOLERANCIA";
+                    estadoTag.className = "estado-cumple";
+                    document.getElementById('btnCompensar').style.display = 'block';
+                } else {
+                    estadoTag.innerText = "❌ RECHAZADO (SUPERA TOLERANCIA)";
+                    estadoTag.className = "estado-falla";
+                    document.getElementById('btnCompensar').style.display = 'none';
+                }
+                document.getElementById('panelResultados').style.display = 'block';
+            } else {
+                document.getElementById('panelResultados').style.display = 'none';
+            }
+            guardarLocal();
+        }
+
+        function generarCompensadas() {
+            const filasIda = document.querySelectorAll('#cuerpoIda tr');
+            const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+            const cuerpoCompensadas = document.getElementById('cuerpoCompensadas');
+            cuerpoCompensadas.innerHTML = "";
+
+            let dictIda = {};
+            let listIdaOrden = [];
+
+            for(let i=0; i<filasIda.length; i++) {
+                let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase();
+                let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
+                if(pto && divCota) {
+                    let cota = parseFloat(divCota.getAttribute('data-cota'));
+                    dictIda[pto] = { cotaIda: cota };
+                    listIdaOrden.push(pto);
+                }
+            }
+
+            for(let i=0; i<filasVuelta.length; i++) {
+                let pto = filasVuelta[i].querySelector('.in-pto').value.toUpperCase();
+                let divCota = filasVuelta[i].querySelector('.out-cota div[data-cota]');
+                if(pto && divCota && dictIda[pto]) {
+                    let cota = parseFloat(divCota.getAttribute('data-cota'));
+                    dictIda[pto].cotaVuelta = cota;
+                }
+            }
+
+            listIdaOrden.forEach(pto => {
+                let data = dictIda[pto];
+                if(data.cotaVuelta !== undefined) {
+                    let promedio = (data.cotaIda + data.cotaVuelta) / 2;
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="color:var(--primary-color);">${pto}</td>
+                        <td>${data.cotaIda.toFixed(3)}</td>
+                        <td>${data.cotaVuelta.toFixed(3)}</td>
+                        <td style="color:#2e7d32;">${promedio.toFixed(3)}</td>
+                    `;
+                    cuerpoCompensadas.appendChild(tr);
+                }
             });
 
-            // Resumen Final
-            let error = document.getElementById('resError').innerText;
-            let tol = document.getElementById('resTol').innerText;
-            let estado = document.getElementById('resEstado').innerText;
+            document.getElementById('contenedorCompensadas').style.display = 'block';
+            setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
+        }
 
-            contenidoTXT += "--------------------------------------------------------------------\n";
-            contenidoTXT += `ERROR DE CIERRE: ${error}\n`;
-            contenidoTXT += `TOLERANCIA MÁX: ${tol}\n`;
-            contenidoTXT += `AUDITORÍA: ${estado}\n`;
+        // --- EXPORTAR A EXCEL (XLSX) PROFESIONAL ---
+        function exportarExcel() {
+            let wb = XLSX.utils.book_new();
 
-            let blob = new Blob([contenidoTXT], { type: "text/plain;charset=utf-8" });
-            let enlace = document.createElement("a");
-            enlace.href = URL.createObjectURL(blob);
-            enlace.download = "Nivelacion_Poligonal_Cota100.txt";
-            enlace.click();
+            // 1. Extraer datos de IDA
+            let datosIda = [["REPORTE DE NIVELACIÓN - IDA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
+            let filasIda = document.querySelectorAll('#cuerpoIda tr');
+            for(let i=0; i<filasIda.length; i++) {
+                let pto = filasIda[i].querySelector('.in-pto').value || "";
+                let va = filasIda[i].querySelector('.in-va').value || "";
+                let vd = filasIda[i].querySelector('.in-vd').value || "";
+                let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
+                let cota = divCota ? divCota.getAttribute('data-cota') : "";
+                datosIda.push([pto, va, vd, cota]);
+            }
+            let wsIda = XLSX.utils.aoa_to_sheet(datosIda);
+            wsIda['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+            XLSX.utils.book_append_sheet(wb, wsIda, "Libreta IDA");
+
+            // 2. Extraer datos de VUELTA
+            let datosVuelta = [["REPORTE DE NIVELACIÓN - VUELTA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
+            let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+            for(let i=0; i<filasVuelta.length; i++) {
+                let pto = filasVuelta[i].querySelector('.in-pto').value || "";
+                let va = filasVuelta[i].querySelector('.in-va').value || "";
+                let vd = filasVuelta[i].querySelector('.in-vd').value || "";
+                let divCota = filasVuelta[i].querySelector('.out-cota div[data-cota]');
+                let cota = divCota ? divCota.getAttribute('data-cota') : "";
+                datosVuelta.push([pto, va, vd, cota]);
+            }
+            let wsVuelta = XLSX.utils.aoa_to_sheet(datosVuelta);
+            wsVuelta['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+            XLSX.utils.book_append_sheet(wb, wsVuelta, "Libreta VUELTA");
+
+            // 3. Extraer COMPENSADAS
+            let tablaComp = document.getElementById("tablaCompensada");
+            if(tablaComp) {
+                let wsComp = XLSX.utils.table_to_sheet(tablaComp);
+                wsComp['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+                XLSX.utils.book_append_sheet(wb, wsComp, "Cotas Compensadas");
+            }
+
+            XLSX.writeFile(wb, "Nivelacion_Simultanea_Cota100.xlsx");
+        }
+
+        function toggleCalculadora() {
+            const modal = document.getElementById('calculadoraModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+        function calcInput(val) { document.getElementById('calcDisplay').value += val; }
+        function calcClear() { document.getElementById('calcDisplay').value = ''; }
+        function calcEval() {
+            const display = document.getElementById('calcDisplay');
+            try {
+                let res = new Function('return ' + display.value)();
+                display.value = (res % 1 !== 0) ? parseFloat(res.toFixed(3)) : res;
+            } catch (e) {
+                display.value = 'Error'; setTimeout(calcClear, 1200);
+            }
         }
     </script>
 </body>

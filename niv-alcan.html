@@ -66,7 +66,6 @@
         input:focus { border-color: var(--primary-color); outline: none; background: #fff;}
         input::placeholder { color: #bbb; font-weight: 600; }
 
-        /* --- CLASE NUEVA: ALERTA PREDICTIVA --- */
         .alerta-predictiva { font-size: 0.75rem; font-weight: 800; color: var(--primary-color); margin-top: 4px; text-align: center; min-height: 14px;}
 
         /* --- BOTONES --- */
@@ -77,17 +76,13 @@
         .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; display: none;}
         .btn-excel:active { background: var(--excel-color); color: #fff; }
 
-        /* --- TABLA RAW TECH (CON SCROLL INTERNO Y CONGELAMIENTO) --- */
+        /* --- TABLA RAW TECH --- */
         .seccion-tabla { display: none; margin-top: 15px; }
         
         .table-wrapper { 
-            width: 100%; 
-            max-height: 55vh; /* La tabla no crecerá más del 55% de la pantalla */
-            overflow: auto; /* Permite scroll horizontal y vertical dentro de la caja */
-            border: 3px solid var(--table-header); 
-            border-radius: 8px; 
-            background: #fff; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            width: 100%; max-height: 55vh; overflow: auto; 
+            border: 3px solid var(--table-header); border-radius: 8px; 
+            background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
         
         table { width: 100%; min-width: 700px; border-collapse: separate; border-spacing: 0; }
@@ -95,13 +90,10 @@
         th { 
             background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; 
             font-size: 0.85rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444;
-            /* Congelamiento de Cabecera Perfecto (Se pega al techo del .table-wrapper) */
             position: sticky; top: 0; z-index: 10; 
         }
-        /* Para que las esquinas superiores de la cabecera encajen con los bordes redondeados */
         th:first-child { border-top-left-radius: 5px; }
         th:last-child { border-right: none; border-top-right-radius: 5px; }
-
         th span.th-info { display: block; font-size: 0.7rem; color: var(--primary-color); margin-top: 2px;}
 
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 12px 5px; text-align: center; vertical-align: middle; }
@@ -112,19 +104,16 @@
         .col-lectura-lomo { font-weight: 900; font-size: 1.7rem; color: #111; font-family: monospace; letter-spacing: -1px;}
         .col-cota-oculta { font-weight: 700; font-size: 0.95rem; color: #888; font-family: monospace;}
 
-        /* ALERTA DE MIRA FÍSICA (>5m o <0m) */
         .alerta-mira { 
-            color: var(--danger-color) !important; 
-            background: rgba(211, 47, 47, 0.1) !important; 
-            text-shadow: 0 0 8px rgba(211,47,47,0.3);
-            animation: parpadeoAlerta 2s infinite;
+            color: var(--danger-color) !important; background: rgba(211, 47, 47, 0.1) !important; 
+            text-shadow: 0 0 8px rgba(211,47,47,0.3); animation: parpadeoAlerta 2s infinite;
         }
         @keyframes parpadeoAlerta { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
         .res-ai { text-align: center; font-size: 1.2rem; font-weight: 800; color: #111; margin: 15px 0; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px dashed #111;}
         .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.5rem;}
 
-        /* --- BOTÓN FLOTANTE MODO REPORTE --- */
+        /* --- BOTÓN CÁMARA MODO REPORTE --- */
         .btn-flotante {
             position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
             background: #111; color: #fff; border-radius: 50%; display: none;
@@ -134,16 +123,45 @@
         }
         .btn-flotante:active { transform: scale(0.9); }
 
-        /* --- CLASES DINÁMICAS: MODO REPORTE (SCREENSHOT) --- */
         body.modo-reporte .top-bar { display: none !important; }
         body.modo-reporte .panel-control { display: none !important; }
         body.modo-reporte .btn-generar { display: none !important; }
         body.modo-reporte .btn-excel { display: none !important; }
         body.modo-reporte .modulo-container { padding: 0; }
         body.modo-reporte .seccion-tabla { margin-top: 0; }
-        /* En modo reporte la tabla ocupa toda la altura posible */
         body.modo-reporte .table-wrapper { max-height: 90vh; }
         body.modo-reporte .btn-flotante { background: var(--primary-color); border-color: #111; }
+
+        /* --- CSS CALCULADORA FLOTANTE --- */
+        .btn-calculadora-flotante {
+            position: fixed; bottom: 90px; right: 20px; 
+            width: 60px; height: 60px; background: #fff; color: var(--primary-color);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color);
+            cursor: pointer; z-index: 999; transition: 0.3s;
+        }
+        .btn-calculadora-flotante:active { transform: scale(0.9); background: var(--primary-color); color: #fff;}
+
+        .calculadora-modal {
+            position: fixed; bottom: 160px; right: 20px; width: 260px;
+            background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header);
+            border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            z-index: 1000; display: none; backdrop-filter: blur(10px);
+            animation: slideInCalc 0.2s ease-out forwards;
+        }
+        @keyframes slideInCalc { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; color: var(--table-header);}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color, #d32f2f); cursor: pointer; padding: 0 5px;}
+        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-family: monospace; font-weight: 800; border: 2px solid rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; padding: 5px 10px; background: #f5f5f5; color: #000; }
+
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-family: 'Rajdhani', sans-serif; font-weight: 800; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; background: #fff; color: #111; cursor: pointer; transition: 0.1s; }
+        .calc-grid button:active { background: #e0e0e0; transform: scale(0.95); }
+        .calc-op { background: var(--table-header) !important; color: #fff !important; }
+        .calc-op:active { background: var(--primary-color) !important; }
+        .calc-clear { background: #ffebee !important; color: #d32f2f !important; border-color: #ef9a9a !important; }
+        .calc-eq { background: var(--primary-color) !important; color: #fff !important; border: none !important; margin-top: 4px; font-size: 1.6rem !important;}
     </style>
 </head>
 <body>
@@ -161,13 +179,11 @@
 
     <div class="modulo-container">
 
-        <!-- BLOQUE 1: DISEÑO DEL COLECTOR -->
         <div class="panel-control panel-ocultable" style="border-left: 5px solid #111;">
             <div class="panel-titulo" style="color: #111;">1. Parámetros de Diseño</div>
             <button class="btn-accion btn-auto" onclick="autocalcularTramo()">🪄 Deducir Dato Faltante (Auto-Cálculo)</button>
 
             <div class="form-grid">
-                <!-- Se agregó el oninput="evaluarLimiteVA()" para la predicción en tiempo real -->
                 <div class="input-group"><label>Cota Fondo Inicial</label><input type="number" id="cotaIni" step="0.001" placeholder="Ej: 2850.100" oninput="evaluarLimiteVA()"></div>
                 <div class="input-group"><label>Cota Fondo Final</label><input type="number" id="cotaFin" step="0.001" placeholder="Ej: 2848.500" oninput="evaluarLimiteVA()"></div>
                 <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" placeholder="Ej: 80.000"></div>
@@ -176,17 +192,14 @@
             <p style="font-size: 0.75rem; color: #555; font-weight: 600; margin-top: 5px; line-height: 1.3;">* Deja vacía solo UNA casilla y presiona "Deducir" para que el sistema calcule el dato que falte.</p>
         </div>
 
-        <!-- BLOQUE 2: DATOS DE CAMPO -->
         <div class="panel-control panel-ocultable" style="border-left: 5px solid var(--primary-color);">
             <div class="panel-titulo">2. Estación y Tubería (Campo)</div>
             <div class="form-grid">
-                <!-- Se agregó el oninput="evaluarLimiteVA()" -->
                 <div class="input-group"><label>Cota BM</label><input type="number" id="cotaBM" step="0.001" placeholder="2851.000" oninput="evaluarLimiteVA()"></div>
                 
                 <div class="input-group">
                     <label>Vista Atrás (+)</label>
                     <input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="evaluarLimiteVA()">
-                    <!-- AQUÍ ESTÁ EL MENSAJE PREDICTIVO DE LA MIRA -->
                     <div class="alerta-predictiva" id="txtAlertaVA"></div>
                 </div>
 
@@ -198,7 +211,6 @@
 
         <button class="btn-accion btn-generar" style="background-color: var(--primary-color); font-size: 1.3rem; box-shadow: 0 4px 10px rgba(255,102,0,0.3);" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
 
-        <!-- BLOQUE 3: LIBRETA RESULTANTE -->
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento): <span id="txtAI">0.000</span></div>
             
@@ -214,19 +226,56 @@
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla">
-                        <!-- Filas generadas por JS -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- BOTÓN DE EXCEL NATIVO ACTUALIZADO -->
             <button class="btn-accion btn-excel" id="btnExcel" onclick="exportarXLSX()">📥 Descargar a Excel (.xlsx)</button>
         </div>
 
     </div>
 
-    <!-- Botón flotante para Modo Reporte (Cámara) -->
+    <!-- BOTÓN CÁMARA MODO REPORTE -->
     <div class="btn-flotante" id="btnCamara" onclick="toggleModoReporte()">📷</div>
+
+    <!-- HTML CALCULADORA FLOTANTE -->
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+            <line x1="8" y1="6" x2="16" y2="6"></line>
+            <line x1="16" y1="14" x2="16" y2="18"></line>
+            <path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path>
+            <path d="M8 14h.01"></path><path d="M12 14h.01"></path>
+            <path d="M8 18h.01"></path><path d="M12 18h.01"></path>
+        </svg>
+    </div>
+
+    <div class="calculadora-modal" id="calculadoraModal">
+        <div class="calc-header">
+            <span>CALC. RÁPIDA</span>
+            <button onclick="toggleCalculadora()">X</button>
+        </div>
+        <input type="text" id="calcDisplay" disabled>
+        <div class="calc-grid">
+            <button onclick="calcInput('7')">7</button>
+            <button onclick="calcInput('8')">8</button>
+            <button onclick="calcInput('9')">9</button>
+            <button class="calc-op" onclick="calcInput('/')">÷</button>
+            <button onclick="calcInput('4')">4</button>
+            <button onclick="calcInput('5')">5</button>
+            <button onclick="calcInput('6')">6</button>
+            <button class="calc-op" onclick="calcInput('*')">×</button>
+            <button onclick="calcInput('1')">1</button>
+            <button onclick="calcInput('2')">2</button>
+            <button onclick="calcInput('3')">3</button>
+            <button class="calc-op" onclick="calcInput('-')">-</button>
+            <button class="calc-clear" onclick="calcClear()">C</button>
+            <button onclick="calcInput('0')">0</button>
+            <button onclick="calcInput('.')">.</button>
+            <button class="calc-op" onclick="calcInput('+')">+</button>
+            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 4;">=</button>
+        </div>
+    </div>
 
     <script>
         function autocalcularTramo() {
@@ -243,12 +292,9 @@
                 if (p === 0) { alert("La pendiente no puede ser 0 para calcular una distancia."); return; }
                 document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(3); 
             }
-            
-            // Evaluar el límite de la vista atrás después del auto-cálculo
             evaluarLimiteVA();
         }
 
-        // --- MOTOR PREDICTIVO DE VISTA ATRÁS ---
         function evaluarLimiteVA() {
             let ci = parseFloat(document.getElementById('cotaIni').value);
             let cf = parseFloat(document.getElementById('cotaFin').value);
@@ -256,10 +302,9 @@
             let va = parseFloat(document.getElementById('vistaAtras').value);
             let alerta = document.getElementById('txtAlertaVA');
 
-            // Solo calcular si existen datos suficientes
             if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) {
-                let cotaMinima = Math.min(ci, cf); // Busca la cota más baja de la zanja
-                let limiteVA = 5.000 - bm + cotaMinima; // Calcula la VA máxima
+                let cotaMinima = Math.min(ci, cf); 
+                let limiteVA = 5.000 - bm + cotaMinima; 
                 
                 if (limiteVA < 0) {
                     alerta.style.color = "var(--danger-color)";
@@ -302,7 +347,6 @@
             }
             if (progresivaAct - intervalo < d) { agregarFilaReplanteo(tbody, d, ci, p, ai, cama, altura, intervalo); }
 
-            // Mostrar tabla, botón excel y cámara
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
             document.getElementById('btnCamara').style.display = 'flex';
@@ -320,7 +364,6 @@
             let metrosInt = Math.floor(prog % 1000).toString().padStart(3, '0');
             let progStr = (prog % 1 !== 0 || intervaloInput % 1 !== 0) ? `${km}+${metrosInt}${(prog % 1).toFixed(2).substring(1)}` : `${km}+${metrosInt}`;
 
-            // Lógica de Límite de Mira (> 5m o < 0m)
             let claseZanja = (lecturaZanja < 0 || lecturaZanja > 5) ? 'alerta-mira' : '';
             let claseLomo = (lecturaLomo < 0 || lecturaLomo > 5) ? 'alerta-mira' : '';
 
@@ -348,9 +391,7 @@
             }
         }
 
-        // --- MOTOR PROFESIONAL DE EXPORTACIÓN A .XLSX NATIVO (SheetJS) ---
         function exportarXLSX() {
-            // Verificar si la librería cargó correctamente
             if (typeof XLSX === 'undefined') {
                 alert("La librería de Excel no ha cargado. Verifica tu conexión a internet.");
                 return;
@@ -359,13 +400,11 @@
             let tabla = document.getElementById("tablaAlcantarillado");
             let aiText = document.getElementById('txtAI').innerText;
             
-            // Creamos un arreglo de datos puro para Excel
             let datos = [];
             datos.push(["REPORTE DE ALCANTARILLADO - COTA100 SYSTEM"]);
             datos.push(["Altura de Instrumento (AI):", parseFloat(aiText) || 0]);
-            datos.push([]); // Fila vacía para separar
+            datos.push([]); 
 
-            // Recorrer la tabla HTML y pasar los datos a la matriz
             let filas = tabla.querySelectorAll("tr");
             for (let i = 0; i < filas.length; i++) {
                 let filaExcel = [];
@@ -373,30 +412,51 @@
                 for (let j = 0; j < celdas.length; j++) {
                     let texto = celdas[j].innerText.replace(/\n/g, " ").trim();
                     
-                    // Si es parte de los datos numéricos (no encabezado, y no la progresiva), forzamos número real
                     if (i > 0 && j > 0) {
                         let numero = parseFloat(texto);
                         filaExcel.push(isNaN(numero) ? texto : numero);
                     } else {
-                        // El encabezado y las progresivas (Ej: 0+020) entran como texto
                         filaExcel.push(texto);
                     }
                 }
                 datos.push(filaExcel);
             }
 
-            // Convertir la matriz de datos en una Hoja de Excel real
             let ws = XLSX.utils.aoa_to_sheet(datos);
-            
-            // Ajustar el ancho de las columnas en Excel
             ws['!cols'] = [{wch: 15}, {wch: 18}, {wch: 18}, {wch: 15}, {wch: 15}];
-
-            // Crear el libro y agregar la hoja
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Replanteo Alcan");
-
-            // Generar y descargar el archivo físico .xlsx
             XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx");
+        }
+
+        // --- LÓGICA DE LA CALCULADORA ---
+        function toggleCalculadora() {
+            const modal = document.getElementById('calculadoraModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function calcInput(val) {
+            const display = document.getElementById('calcDisplay');
+            display.value += val;
+        }
+
+        function calcClear() {
+            document.getElementById('calcDisplay').value = '';
+        }
+
+        function calcEval() {
+            const display = document.getElementById('calcDisplay');
+            try {
+                let resultado = new Function('return ' + display.value)();
+                if (resultado % 1 !== 0) {
+                    display.value = parseFloat(resultado.toFixed(3));
+                } else {
+                    display.value = resultado;
+                }
+            } catch (e) {
+                display.value = 'Error';
+                setTimeout(calcClear, 1200);
+            }
         }
     </script>
 </body>
