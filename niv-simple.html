@@ -33,9 +33,8 @@
             .calculadora-modal { right: 10px; bottom: 65px; width: 220px; padding: 8px;}
             #calcDisplay { height: 35px; font-size: 1.3rem; padding: 4px;}
             .calc-grid button { padding: 6px 0; font-size: 1.1rem; }
-            th { font-size: 0.7rem; padding: 6px 1px; }
-            td input { padding: 6px 1px; font-size: 1.1rem; }
-            .out-ai { font-size: 1.1rem; min-height: 30px; padding: 5px 1px;}
+            th { font-size: 0.75rem; padding: 8px 2px; }
+            td input { padding: 8px 2px; font-size: 1.15rem; }
             .modulo-container { padding: 8px; }
             .form-grid { gap: 6px; margin-bottom: 6px;}
             .btn-dual { gap: 5px; }
@@ -71,18 +70,22 @@
         .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer;}
         
         .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
-        table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444; position: sticky; top: 0; z-index: 10; }
+        table { width: 100%; min-width: 400px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444; position: sticky; top: 0; z-index: 10; }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
         td:last-child { border-right: none; }
         
-        td input { border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1.1rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;}
+        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;}
         td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
         td input.calculado { color: #111; }
         td input.fijo { color: var(--primary-color); }
 
-        .out-ai { font-weight: 900; font-size: 1.1rem; color: var(--primary-color); background: rgba(255,102,0,0.05); padding: 8px 2px; display: flex; align-items: center; justify-content: center; min-height: 40px;}
-        .ai-repetido { color: #aaa; background: transparent; font-weight: 700;}
+        /* --- NUEVO DISEÑO: COLUMNA COMBINADA AI/COTA --- */
+        .celda-combinada { display: flex; flex-direction: column; background: rgba(0,0,0,0.02); padding: 2px; }
+        .out-ai { font-size: 0.75rem; font-weight: 800; color: var(--primary-color); text-align: center; padding: 2px 0; margin-bottom: -2px;}
+        .ai-repetido { color: #888; }
+        .celda-combinada input { background: #fff; border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .celda-combinada input:focus { border-color: var(--primary-color); }
 
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
@@ -124,7 +127,6 @@
                     <div class="project-selector">
                         <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value)" style="flex: 1;"></select>
                         <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
-                        <!-- BOTÓN DE ELIMINAR PROYECTO -->
                         <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                     </div>
                 </div>
@@ -150,11 +152,10 @@
             <table id="tablaSimple">
                 <thead>
                     <tr>
-                        <th style="width: 22%;">PTO</th>
-                        <th style="width: 19%;">V. ATRÁS (+)</th>
-                        <th style="width: 20%; background: #000;">AI</th>
-                        <th style="width: 19%;">V. ADEL (-)</th>
-                        <th style="width: 20%;">COTA</th>
+                        <th style="width: 28%;">PTO</th>
+                        <th style="width: 20%;">V.AT(+)</th>
+                        <th style="width: 20%;">V.AD(-)</th>
+                        <th style="width: 32%;">AI / COTA</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpoTabla">
@@ -172,7 +173,6 @@
 
     </div>
 
-    <!-- CALCULADORA FLOTANTE -->
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
         <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
@@ -221,7 +221,6 @@
             guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
         }
 
-        // LÓGICA DE ELIMINAR PROYECTO
         function eliminarProyecto() {
             if(appData.proyectos.length === 1) {
                 alert("No puedes eliminar el único proyecto existente. Crea uno nuevo primero.");
@@ -292,7 +291,6 @@
             p.style.display = p.style.display === "none" ? "block" : "none";
         }
 
-        // --- LÓGICA REFINADA PARA AUTOCOMPLETADO DE VD ---
         function verificarBM(input) {
             const val = input.value.toUpperCase();
             const prevBm = input.dataset.bmAsignado || "";
@@ -310,244 +308,4 @@
 
             if (bmEncontrado) {
                 if (prevBm !== "" && prevBm !== val) {
-                    if(!confirm(`⚠️ Vas a cambiar el punto base de [${prevBm}] a [${val}]. Esto recalculará las cotas. ¿Confirmar?`)) {
-                        input.value = prevBm; 
-                        return;
-                    }
-                }
-                
-                input.dataset.bmAsignado = val;
-                inCota.value = bmEncontrado.cota.toFixed(3);
-                
-                // FIJAR LA COTA ANTES DE EXTRAER EL AI
-                inCota.dataset.fijo = "true";
-                inCota.classList.add('fijo');
-                inCota.classList.remove('calculado');
-
-                // Lógica de Replanteo (Pre-cálculo de Vista Adelante)
-                if (rowIndex > 0) {
-                    procesarTabla(); // Forzar actualización de todos los AI superiores primero
-                    
-                    // Extraemos el AI que viene arrastrándose desde la fila anterior
-                    let prevRow = tbody.children[rowIndex - 1];
-                    let prevAI = parseFloat(prevRow.querySelector('.out-ai').innerText);
-                    
-                    if (!isNaN(prevAI)) {
-                        let vd_calculada = prevAI - bmEncontrado.cota;
-                        inVd.value = vd_calculada.toFixed(3);
-                    }
-                }
-                procesarTabla(); // Recalcular todo al final
-            } else {
-                if (prevBm !== "" && val !== prevBm) {
-                    if(!confirm(`⚠️ Estás borrando el BM [${prevBm}]. El punto pasará a ser un punto radiado normal. ¿Seguro?`)) {
-                        input.value = prevBm;
-                        return;
-                    }
-                    input.dataset.bmAsignado = "";
-                    inCota.dataset.fijo = "false";
-                    inCota.classList.remove('fijo');
-                    inCota.classList.add('calculado');
-                    inVd.value = ""; // Limpiamos la VD precalculada porque ya no es BM
-                    procesarTabla();
-                }
-            }
-            guardarEstadoTabla();
-        }
-
-        function agregarFila() {
-            const tbody = document.getElementById('cuerpoTabla');
-            const esPrimera = tbody.children.length === 0;
-            const disabledVD = esPrimera ? 'disabled style="background: rgba(0,0,0,0.03);"' : '';
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><input type="text" class="in-pto" list="bancoBMsList" placeholder="..." oninput="verificarBM(this); guardarEstadoTabla()"></td>
-                <td><input type="number" step="0.001" class="in-va" placeholder="(+)" oninput="procesarTabla()"></td>
-                <td><div class="out-ai">---</div></td>
-                <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" ${disabledVD} oninput="procesarTabla()"></td>
-                <td><input type="number" step="0.001" class="in-cota calculado" placeholder="..." oninput="fijarCota(this)"></td>
-            `;
-            tbody.appendChild(tr);
-            guardarEstadoTabla();
-        }
-
-        function quitarFila() {
-            const tbody = document.getElementById('cuerpoTabla');
-            if (tbody.children.length > 0) { 
-                tbody.removeChild(tbody.lastChild); 
-                procesarTabla(); 
-            }
-        }
-
-        function limpiarTabla() {
-            if(confirm("🚨 ATENCIÓN: ¿Estás seguro de borrar todas las lecturas de este proyecto? Esta acción no se puede deshacer.")) {
-                document.getElementById('cuerpoTabla').innerHTML = "";
-                agregarFila();
-            }
-        }
-
-        function fijarCota(input) {
-            if(input.value !== "") {
-                input.dataset.fijo = "true";
-                input.classList.add('fijo');
-                input.classList.remove('calculado');
-            } else {
-                input.dataset.fijo = "false";
-                input.classList.remove('fijo');
-                input.classList.add('calculado');
-            }
-            procesarTabla();
-        }
-
-        function procesarTabla() {
-            let trs = document.querySelectorAll('#cuerpoTabla tr');
-            let ai_actual = NaN;
-
-            for(let i = 0; i < trs.length; i++) {
-                let tr = trs[i];
-                let va = parseFloat(tr.querySelector('.in-va').value);
-                let vd = parseFloat(tr.querySelector('.in-vd').value);
-                let cotaInp = tr.querySelector('.in-cota');
-                let cellAI = tr.querySelector('.out-ai');
-
-                if (i === 0) {
-                    let cotaVal = parseFloat(cotaInp.value);
-                    if (!isNaN(cotaVal) && !isNaN(va)) {
-                        ai_actual = cotaVal + va;
-                        cellAI.innerHTML = ai_actual.toFixed(3);
-                        cellAI.className = "out-ai";
-                    } else {
-                        cellAI.innerHTML = "---";
-                        ai_actual = NaN;
-                    }
-                } else {
-                    if (!isNaN(ai_actual)) {
-                        if (cotaInp.dataset.fijo === "true") {
-                            // Si es un BM fijo, el AI solo cambia si ingresamos una nueva VA.
-                            if (!isNaN(va)) {
-                                ai_actual = parseFloat(cotaInp.value) + va;
-                                cellAI.innerHTML = ai_actual.toFixed(3);
-                                cellAI.className = "out-ai";
-                            } else {
-                                cellAI.innerHTML = ai_actual.toFixed(3);
-                                cellAI.className = "out-ai ai-repetido";
-                            }
-                        } else {
-                            // Radiación normal
-                            if (!isNaN(vd)) {
-                                let cotaCalc = ai_actual - vd;
-                                cotaInp.value = cotaCalc.toFixed(3);
-                                if (!isNaN(va)) {
-                                    ai_actual = cotaCalc + va;
-                                    cellAI.innerHTML = ai_actual.toFixed(3);
-                                    cellAI.className = "out-ai";
-                                } else {
-                                    cellAI.innerHTML = ai_actual.toFixed(3);
-                                    cellAI.className = "out-ai ai-repetido";
-                                }
-                            } else {
-                                cotaInp.value = "";
-                                cellAI.innerHTML = ai_actual.toFixed(3);
-                                cellAI.className = "out-ai ai-repetido";
-                            }
-                        }
-                    } else {
-                        cellAI.innerHTML = "---";
-                    }
-                }
-            }
-            guardarEstadoTabla();
-        }
-
-        function guardarEstadoTabla() {
-            let p = obtenerProyectoActivo();
-            if(!p) return;
-            
-            let filas = [];
-            document.querySelectorAll('#cuerpoTabla tr').forEach((tr, i) => {
-                filas.push({
-                    pto: tr.querySelector('.in-pto').value,
-                    bmAsignado: tr.querySelector('.in-pto').dataset.bmAsignado || "",
-                    va: tr.querySelector('.in-va').value,
-                    vd: tr.querySelector('.in-vd').value,
-                    cota: tr.querySelector('.in-cota').value,
-                    fijo: tr.querySelector('.in-cota').dataset.fijo || (i===0 ? "true" : "false")
-                });
-            });
-            p.tabla = filas;
-            guardarBD();
-        }
-
-        function cargarTablaDesdeBD(filas) {
-            const tbody = document.getElementById('cuerpoTabla');
-            tbody.innerHTML = ""; 
-            
-            if (!filas || filas.length === 0) {
-                agregarFila(); 
-                return;
-            }
-
-            filas.forEach((f, i) => {
-                let esPrimera = i === 0;
-                let disabledVD = esPrimera ? 'disabled style="background: rgba(0,0,0,0.03);"' : '';
-                let claseCota = f.fijo === "true" ? 'fijo' : 'calculado';
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" class="in-pto" list="bancoBMsList" placeholder="..." value="${f.pto}" data-bm-asignado="${f.bmAsignado}" oninput="verificarBM(this); guardarEstadoTabla()"></td>
-                    <td><input type="number" step="0.001" class="in-va" placeholder="(+)" value="${f.va}" oninput="procesarTabla()"></td>
-                    <td><div class="out-ai">---</div></td>
-                    <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" value="${f.vd}" ${disabledVD} oninput="procesarTabla()"></td>
-                    <td><input type="number" step="0.001" class="in-cota ${claseCota}" placeholder="..." value="${f.cota}" data-fijo="${f.fijo}" oninput="fijarCota(this)"></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            procesarTabla();
-        }
-
-        function exportarXLSX() {
-            if (typeof XLSX === 'undefined') { alert("Conéctate a internet la primera vez para cargar el exportador."); return; }
-            let p = obtenerProyectoActivo();
-            let wb = XLSX.utils.book_new();
-            let datos = [["REPORTE DE NIVELACIÓN SIMPLE - COTA100"], ["Proyecto:", p.nombre], []];
-            datos.push(["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA"]);
-            
-            document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
-                let pto = tr.querySelector('.in-pto').value;
-                let va = tr.querySelector('.in-va').value;
-                let ai = tr.querySelector('.out-ai').innerText;
-                let vd = tr.querySelector('.in-vd').value;
-                let cota = tr.querySelector('.in-cota').value;
-                
-                va = va ? parseFloat(va) : "";
-                ai = ai !== "---" ? parseFloat(ai) : "";
-                vd = vd ? parseFloat(vd) : "";
-                cota = cota ? parseFloat(cota) : "";
-
-                datos.push([pto, va, ai, vd, cota]);
-            });
-
-            let ws = XLSX.utils.aoa_to_sheet(datos);
-            ws['!cols'] = [{wch: 15}, {wch: 12}, {wch: 18}, {wch: 12}, {wch: 12}];
-            XLSX.utils.book_append_sheet(wb, ws, "Radiación");
-            XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Nivelacion.xlsx`);
-        }
-
-        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function calcInput(v) { document.getElementById('calcDisplay').value += v; }
-        function calcClear() { document.getElementById('calcDisplay').value = ''; }
-        function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { 
-            const d = document.getElementById('calcDisplay');
-            try { 
-                if(d.value.trim() === '') return;
-                let res = new Function('return ' + d.value)(); 
-                d.value = (res % 1 !== 0) ? res.toFixed(3) : res; 
-            } catch(e) { 
-                d.value = 'Error'; setTimeout(calcClear, 1200); 
-            } 
-        }
-    </script>
-</body>
-</html>
+                    if(!confirm(`⚠️ Vas a cambiar el punto base de [${prevBm}] a [${val}]. Esto recalcul
