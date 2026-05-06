@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cota100-v3.1.1';
+const CACHE_NAME = 'cota100-v4';
 
 // AQUÍ DEBEN ESTAR LOS NOMBRES EXACTOS DE TUS ARCHIVOS
 const urlsToCache = [

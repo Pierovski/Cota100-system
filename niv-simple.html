@@ -23,91 +23,116 @@
         }
 
         @media screen and (max-width: 480px) {
-            html { font-size: 11px; }
-            .btn-accion { padding: 8px; font-size: 0.9rem; }
-            input, select { padding: 5px; font-size: 1rem; border-width: 1px;}
-            .panel-control { padding: 8px; margin-bottom: 8px; border-width: 1px;}
+            html { font-size: 12px; } 
+            .btn-accion { padding: 9px; font-size: 0.95rem; }
+            input, select { padding: 6px; font-size: 1.05rem; border-width: 1px;}
+            .panel-control { padding: 10px; margin-bottom: 10px;}
             .top-bar { padding: 5px 10px; height: 50px; }
-            .btn-volver-mini { width: 30px; height: 30px; font-size: 1.2rem;}
-            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px; font-size: 1.2rem;}
-            .calculadora-modal { right: 10px; bottom: 65px; width: 220px; padding: 8px;}
-            #calcDisplay { height: 35px; font-size: 1.3rem; padding: 4px;}
-            .calc-grid button { padding: 6px 0; font-size: 1.1rem; }
-            th { font-size: 0.75rem; padding: 8px 2px; }
-            td input { padding: 8px 2px; font-size: 1.15rem; }
-            .modulo-container { padding: 8px; }
-            .form-grid { gap: 6px; margin-bottom: 6px;}
-            .btn-dual { gap: 5px; }
+            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
+            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px;}
+            .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
+            th { font-size: 0.75rem; padding: 6px 1px; }
+            td input { padding: 6px 2px; font-size: 1.15rem; } 
+            .modulo-container { padding: 10px; }
         }
 
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
         .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; }
-        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95); }
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
-        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
+        
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; 
+            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; 
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; 
+        }
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none;}
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
 
-        label { font-weight: 800; color: #111; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px; }
+        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+        
         input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
         input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important;
+            cursor: pointer;
+        }
 
         .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
         .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
         .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 0.95rem; color: #111; }
-        .bm-info span { font-size: 0.8rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer;}
+        .bm-info strong { font-size: 1rem; color: #111; }
+        .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
+        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
         
         .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
-        table { width: 100%; min-width: 400px; border-collapse: separate; border-spacing: 0; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444; position: sticky; top: 0; z-index: 10; }
+        table { width: 100%; min-width: 380px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; position: sticky; top: 0; z-index: 10; }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
         td:last-child { border-right: none; }
         
-        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;}
+        td input { border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1.15rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;}
         td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
-        td input.calculado { color: #111; }
-        td input.fijo { color: var(--primary-color); }
+        td input.in-pto { cursor: pointer; } 
 
-        /* --- NUEVO DISEÑO: COLUMNA COMBINADA AI/COTA --- */
         .celda-combinada { display: flex; flex-direction: column; background: rgba(0,0,0,0.02); padding: 2px; }
-        .out-ai { font-size: 0.75rem; font-weight: 800; color: var(--primary-color); text-align: center; padding: 2px 0; margin-bottom: -2px;}
-        .ai-repetido { color: #888; }
-        .celda-combinada input { background: #fff; border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
-        .celda-combinada input:focus { border-color: var(--primary-color); }
+        .btn-ai-label { 
+            font-size: 0.75rem; font-weight: 800; color: #fff; background: var(--primary-color); 
+            border-radius: 4px; padding: 2px 4px; width: fit-content; margin: 0 auto 2px auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-transform: uppercase;
+        }
+        .ai-repetido { background: #888 !important; opacity: 0.8; }
+        .celda-combinada input { background: #fff; border: 1px solid var(--border-color); border-radius: 4px; height: 35px;}
 
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
         .btn-dual { display: flex; gap: 8px; margin-bottom: 15px;}
         .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 5px;}
-        .btn-excel:active { background: var(--excel-color); color: #fff; }
+
+        /* --- MENÚ MODAL DE SELECCIÓN DE BM --- */
+        .overlay-bm { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; }
+        .overlay-bm.activo { opacity: 1; }
+        .modal-bm { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 4px solid var(--primary-color); border-radius: 20px 20px 0 0; padding: 20px; z-index: 1001; transform: translateY(100%); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 20px rgba(0,0,0,0.2); }
+        .modal-bm.abierto { transform: translateY(0); }
+        .btn-bm-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-bm-opcion:active { background: var(--primary-color); color: #fff;}
+        .btn-bm-opcion span.cota { color: #111; font-size: 0.95rem; font-weight: 700;}
+        .btn-bm-opcion:active span.cota { color: #fff; }
 
         .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
         .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
         .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer; padding: 0 5px;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer;}
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; cursor: pointer; }
+        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; }
         #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
     </style>
 </head>
 <body onload="inicializarApp()">
 
-    <datalist id="bancoBMsList"></datalist>
+    <div class="overlay-bm" id="overlayBM" onclick="cerrarSelectorBM()"></div>
+    <div class="modal-bm" id="modalSelectorBM">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#111; font-weight:800; font-size:1.2rem;">📍 SELECCIONAR PTO BASE</h3>
+            <button onclick="cerrarSelectorBM()" style="background:none; border:none; font-size:1.5rem; color:#d32f2f; font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+        </div>
+        <div id="contenedorBotonesBM" style="max-height:250px; overflow-y:auto; margin-bottom:15px;">
+            </div>
+        <button class="btn-accion" style="background:#111; color:#fff; font-size:1.1rem; padding:15px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>
+    </div>
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini">
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </a>
         <h2 class="top-bar-title">NIV. SIMPLE <span>Radiación y Perfiles</span></h2>
@@ -117,34 +142,41 @@
     <div class="modulo-container">
 
         <div class="panel-control" style="border-left: 4px solid #111;">
-            <div class="panel-titulo">
-                📁 Base de Datos / Proyectos
-                <button class="btn-toggle-panel" onclick="togglePanel('panelProyecto')">▼</button>
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos / Proyectos</span>
+                <span class="btn-toggle-panel">▼</span>
             </div>
             <div id="panelProyecto">
-                <div class="input-group full-width" style="margin-bottom: 10px;">
-                    <label>Proyectos Guardados</label>
-                    <div class="project-selector">
-                        <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value)" style="flex: 1;"></select>
-                        <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
-                        <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
+                <div class="project-selector">
+                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()">🗑️</button>
                 </div>
-                
                 <div class="input-group full-width" style="margin-bottom: 12px;">
-                    <label>Nombre del Proyecto Actual</label>
+                    <label>Nombre del Levantamiento</label>
                     <input type="text" id="proyectName" placeholder="Ej: Plataforma Mz A" oninput="renombrarProyecto()">
                 </div>
-
                 <div style="border-top: 1px solid #eee; padding-top: 8px;">
-                    <label style="color: var(--primary-color);">+ Registrar BM / Punto Base</label>
+                    <label style="color: var(--primary-color);">+ Registrar BM</label>
                     <div class="form-grid" style="margin-top: 4px;">
-                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-01)">
+                        <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
                         <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
                     </div>
                     <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupSimple()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importSimpleFile" accept=".json" style="display: none;" onchange="importarBackupSimple()">
+                        </label>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -152,14 +184,13 @@
             <table id="tablaSimple">
                 <thead>
                     <tr>
-                        <th style="width: 28%;">PTO</th>
+                        <th style="width: 25%;">PTO</th>
                         <th style="width: 20%;">V.AT(+)</th>
                         <th style="width: 20%;">V.AD(-)</th>
-                        <th style="width: 32%;">AI / COTA</th>
+                        <th style="width: 35%;">AI / COTA</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpoTabla">
-                </tbody>
+                <tbody id="cuerpoTabla"></tbody>
             </table>
         </div>
 
@@ -178,117 +209,198 @@
         <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
-            <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcInput('/')">÷</button>
-            <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcInput('*')">×</button>
-            <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcInput('-')">-</button>
-            <button onclick="calcClear()" style="color:#d32f2f; border-color:#ef9a9a;">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
-            <button onclick="calcBackspace()" style="grid-column: span 2; background:#eee;">⌫</button>
-            <button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
+            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">÷</button>
+            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">×</button>
+            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
+            <button onclick="calcClear()" style="color:#d32f2f; border-color:#ef9a9a;">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
+            <button onclick="calcDel()" style="grid-column: span 2; background:#eee;">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
         let appData = { activoId: 1, proyectos: [] };
+        let inputPtoActivo = null; 
+
+        // --- SISTEMA DE FEEDBACK HÁPTICO (VIBRACIÓN) ---
+        function vibrar() {
+            if (navigator.vibrate) {
+                // 30ms es un "clic" sólido y rápido, ideal para botones de software técnico
+                navigator.vibrate(30);
+            }
+        }
 
         function inicializarApp() {
-            let stored = localStorage.getItem('cota100_db_v2');
-            if (stored) {
-                appData = JSON.parse(stored);
-            } else {
-                appData.proyectos.push({ id: 1, nombre: "Proyecto 1", bms: [], tabla: [] });
-                appData.activoId = 1;
-            }
-            renderSelectProyectos();
-            cargarProyectoActivo();
+            let stored = localStorage.getItem('cota100_db_simple_v3');
+            if (stored) { appData = JSON.parse(stored); } 
+            else { appData.proyectos.push({ id: 1, nombre: "Proyecto 1", bms: [], tabla: [] }); appData.activoId = 1; }
+            renderSelectProyectos(); cargarProyectoActivo();
         }
 
         function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
-        function guardarBD() { localStorage.setItem('cota100_db_v2', JSON.stringify(appData)); }
+        function guardarBD() { localStorage.setItem('cota100_db_simple_v3', JSON.stringify(appData)); }
 
         function renderSelectProyectos() {
             const select = document.getElementById('selectProyecto');
             select.innerHTML = "";
-            appData.proyectos.forEach(p => {
-                let selected = (p.id === appData.activoId) ? "selected" : "";
-                select.innerHTML += `<option value="${p.id}" ${selected}>${p.nombre || "Sin Nombre"}</option>`;
-            });
+            appData.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appData.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
         }
 
         function crearNuevoProyecto() {
+            vibrar();
             let nuevoId = Date.now();
             appData.proyectos.push({ id: nuevoId, nombre: "Nuevo Proyecto", bms: [], tabla: [] });
-            appData.activoId = nuevoId;
-            guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+            appData.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
         }
 
         function eliminarProyecto() {
-            if(appData.proyectos.length === 1) {
-                alert("No puedes eliminar el único proyecto existente. Crea uno nuevo primero.");
-                return;
-            }
+            vibrar();
+            if(appData.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
             let p = obtenerProyectoActivo();
-            if(confirm(`⚠️ ¿ESTÁS COMPLETAMENTE SEGURO? Se borrará el proyecto "${p.nombre}" junto con todos sus BMs y lecturas de forma permanente.`)) {
+            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
                 appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
-                appData.activoId = appData.proyectos[0].id;
-                guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+                appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
             }
         }
 
-        function cambiarProyectoActivo(idStr) {
-            appData.activoId = parseInt(idStr);
-            guardarBD(); cargarProyectoActivo();
-        }
-
-        function renombrarProyecto() {
-            let p = obtenerProyectoActivo();
-            p.nombre = document.getElementById('proyectName').value;
-            guardarBD(); renderSelectProyectos();
-        }
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        function renombrarProyecto() { obtenerProyectoActivo().nombre = document.getElementById('proyectName').value; guardarBD(); renderSelectProyectos(); }
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
             document.getElementById('proyectName').value = p.nombre;
-            renderBMs();
-            cargarTablaDesdeBD(p.tabla);
+            renderBMs(); cargarTablaDesdeBD(p.tabla);
         }
 
         function addBM() {
+            vibrar();
             const name = document.getElementById('newBMName').value.toUpperCase();
             const cota = parseFloat(document.getElementById('newBMCota').value);
-            if(!name || isNaN(cota)) { alert("Ingresa nombre y cota válidos."); return; }
-            
+            if(!name || isNaN(cota)) return alert("Datos inválidos.");
             let p = obtenerProyectoActivo();
-            if(p.bms.some(bm => bm.nombre === name)) {
-                alert("Ya existe un BM guardado con ese nombre en este proyecto. Usa otro identificador.");
-                return;
-            }
-
+            if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre.");
             p.bms.push({ nombre: name, cota: cota });
             document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = "";
             guardarBD(); renderBMs();
         }
 
-        function deleteBM(index) {
+        function deleteBM(i) { 
+            vibrar();
             let p = obtenerProyectoActivo();
-            p.bms.splice(index, 1);
-            guardarBD(); renderBMs();
+            if(confirm(`⚠️ ¿Estás seguro de eliminar el BM "${p.bms[i].nombre}" de la base de datos?`)) {
+                p.bms.splice(i, 1); guardarBD(); renderBMs(); 
+            }
         }
 
         function renderBMs() {
             let p = obtenerProyectoActivo();
             const list = document.getElementById('listaBMs');
-            const datalist = document.getElementById('bancoBMsList');
-            list.innerHTML = ""; datalist.innerHTML = ""; 
-
+            list.innerHTML = ""; 
             p.bms.forEach((bm, i) => {
                 list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`;
-                datalist.innerHTML += `<option value="${bm.nombre}">`;
             });
         }
 
-        function togglePanel(id) {
-            const p = document.getElementById(id);
-            p.style.display = p.style.display === "none" ? "block" : "none";
+        function togglePanel(id) { 
+            vibrar();
+            const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; 
+        }
+
+        function exportarBackupSimple() {
+            vibrar();
+            const backup = JSON.parse(localStorage.getItem('cota100_db_simple_v3'));
+            if(!backup || backup.proyectos.length === 0) return alert("No hay datos para exportar.");
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchorNode = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `DB_NivSimple_${fecha}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importarBackupSimple() {
+            const fileInput = document.getElementById('importSimpleFile');
+            if (fileInput.files.length === 0) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if(backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_simple_v3', JSON.stringify(backup));
+                        alert("✅ Base de datos restaurada con éxito. La página se recargará.");
+                        window.location.reload();
+                    } else {
+                        alert("❌ Archivo no válido. Asegúrate de que sea un backup de Nivelación Simple.");
+                    }
+                } catch(err) {
+                    alert("❌ Error al leer el archivo de base de datos.");
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function abrirSelectorBM(input) {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            inputPtoActivo = input;
+
+            if (!input.hasAttribute('readonly')) return;
+
+            if (p.bms.length === 0) {
+                activarTecladoManual();
+                return;
+            }
+
+            const contenedor = document.getElementById('contenedorBotonesBM');
+            contenedor.innerHTML = "";
+            p.bms.forEach(bm => {
+                contenedor.innerHTML += `
+                    <button class="btn-bm-opcion" onclick="seleccionarBMModal('${bm.nombre}')">
+                        <span>${bm.nombre}</span>
+                        <span class="cota">Cota: ${bm.cota.toFixed(3)}</span>
+                    </button>`;
+            });
+
+            const overlay = document.getElementById('overlayBM');
+            const modal = document.getElementById('modalSelectorBM');
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.classList.add('activo'); modal.classList.add('abierto'); }, 10);
+        }
+
+        function cerrarSelectorBM() {
+            vibrar();
+            const overlay = document.getElementById('overlayBM');
+            const modal = document.getElementById('modalSelectorBM');
+            overlay.classList.remove('activo');
+            modal.classList.remove('abierto');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        }
+
+        function activarTecladoManual() {
+            cerrarSelectorBM();
+            if(inputPtoActivo) {
+                inputPtoActivo.removeAttribute('readonly'); 
+                inputPtoActivo.focus();
+                
+                inputPtoActivo.addEventListener('blur', function() {
+                    this.setAttribute('readonly', 'true');
+                    verificarBM(this); 
+                    guardarEstadoTabla();
+                }, {once: true}); 
+            }
+        }
+
+        function seleccionarBMModal(nombreBM) {
+            vibrar(); // Vibración al elegir el BM
+            cerrarSelectorBM();
+            if(inputPtoActivo) {
+                inputPtoActivo.value = nombreBM;
+                verificarBM(inputPtoActivo);
+                guardarEstadoTabla();
+            }
         }
 
         function verificarBM(input) {
@@ -298,7 +410,6 @@
             
             let p = obtenerProyectoActivo();
             const bmEncontrado = p.bms.find(b => b.nombre === val);
-            
             const tr = input.closest('tr');
             const tbody = document.getElementById('cuerpoTabla');
             const inCota = tr.querySelector('.in-cota');
@@ -308,4 +419,153 @@
 
             if (bmEncontrado) {
                 if (prevBm !== "" && prevBm !== val) {
-                    if(!confirm(`⚠️ Vas a cambiar el punto base de [${prevBm}] a [${val}]. Esto recalcul
+                    if(!confirm(`⚠️ ¿Cambiar BM de [${prevBm}] a [${val}]?`)) { input.value = prevBm; return; }
+                }
+                input.dataset.bmAsignado = val;
+                inCota.value = bmEncontrado.cota.toFixed(3);
+                inCota.dataset.fijo = "true";
+                inCota.classList.add('fijo');
+
+                if (rowIndex > 0) {
+                    procesarTabla(); 
+                    let prevRow = tbody.children[rowIndex - 1];
+                    let prevAI = parseFloat(prevRow.querySelector('.val-ai-num')?.innerText || NaN);
+                    if (!isNaN(prevAI)) { inVd.value = (prevAI - bmEncontrado.cota).toFixed(3); }
+                }
+                procesarTabla(); 
+            } else if (prevBm !== "" && val !== prevBm) {
+                if(!confirm(`⚠️ ¿Desvincular BM [${prevBm}]?`)) { input.value = prevBm; return; }
+                input.dataset.bmAsignado = ""; inCota.dataset.fijo = "false"; inCota.classList.remove('fijo'); inVd.value = ""; procesarTabla();
+            }
+            guardarEstadoTabla();
+        }
+
+        function agregarFila() {
+            vibrar();
+            const tbody = document.getElementById('cuerpoTabla');
+            const esPrimera = tbody.children.length === 0;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="in-pto" placeholder="..." readonly onclick="abrirSelectorBM(this)" oninput="verificarBM(this); guardarEstadoTabla()"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="(+)" oninput="procesarTabla()"></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" ${esPrimera ? 'disabled style="background:rgba(0,0,0,0.03)"' : ''} oninput="procesarTabla()"></td>
+                <td class="celda-combinada">
+                    <div class="btn-ai-label">AI: <span class="val-ai-num">---</span></div>
+                    <input type="number" step="0.001" class="in-cota" placeholder="Cota..." oninput="fijarCota(this)">
+                </td>
+            `;
+            tbody.appendChild(tr); guardarEstadoTabla();
+        }
+
+        function quitarFila() { 
+            vibrar();
+            const b = document.getElementById('cuerpoTabla'); if (b.children.length > 0) { b.removeChild(b.lastChild); procesarTabla(); } 
+        }
+        function limpiarTabla() { 
+            vibrar();
+            if(confirm("🚨 ¿Borrar todas las lecturas?")) { document.getElementById('cuerpoTabla').innerHTML = ""; agregarFila(); } 
+        }
+
+        function fijarCota(input) { input.dataset.fijo = input.value !== "" ? "true" : "false"; if(input.dataset.fijo === "true") input.classList.add('fijo'); else input.classList.remove('fijo'); procesarTabla(); }
+
+        function procesarTabla() {
+            let trs = document.querySelectorAll('#cuerpoTabla tr');
+            let ai_actual = NaN;
+
+            for(let i = 0; i < trs.length; i++) {
+                let tr = trs[i];
+                let va = parseFloat(tr.querySelector('.in-va').value);
+                let vd = parseFloat(tr.querySelector('.in-vd').value);
+                let cotaInp = tr.querySelector('.in-cota');
+                let cellAI = tr.querySelector('.btn-ai-label');
+                let aiNum = tr.querySelector('.val-ai-num');
+
+                if (i === 0) {
+                    let cotaVal = parseFloat(cotaInp.value);
+                    if (!isNaN(cotaVal) && !isNaN(va)) { ai_actual = cotaVal + va; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label"; } 
+                    else { aiNum.innerText = "---"; ai_actual = NaN; }
+                } else {
+                    if (!isNaN(ai_actual)) {
+                        if (cotaInp.dataset.fijo === "true") {
+                            if (!isNaN(va)) { ai_actual = parseFloat(cotaInp.value) + va; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label"; } 
+                            else { aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
+                        } else {
+                            if (!isNaN(vd)) {
+                                let cotaCalc = ai_actual - vd; cotaInp.value = cotaCalc.toFixed(3);
+                                if (!isNaN(va)) { ai_actual = cotaCalc + va; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label"; } 
+                                else { aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
+                            } else { cotaInp.value = ""; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
+                        }
+                    } else { aiNum.innerText = "---"; }
+                }
+            }
+            guardarEstadoTabla();
+        }
+
+        function guardarEstadoTabla() {
+            let p = obtenerProyectoActivo(); if(!p) return;
+            let filas = [];
+            document.querySelectorAll('#cuerpoTabla tr').forEach((tr, i) => {
+                filas.push({
+                    pto: tr.querySelector('.in-pto').value,
+                    bmAsignado: tr.querySelector('.in-pto').dataset.bmAsignado || "",
+                    va: tr.querySelector('.in-va').value,
+                    vd: tr.querySelector('.in-vd').value,
+                    cota: tr.querySelector('.in-cota').value,
+                    fijo: tr.querySelector('.in-cota').dataset.fijo || (i===0 ? "true" : "false")
+                });
+            });
+            p.tabla = filas; guardarBD();
+        }
+
+        function cargarTablaDesdeBD(filas) {
+            const tbody = document.getElementById('cuerpoTabla'); tbody.innerHTML = ""; 
+            if (!filas || filas.length === 0) return agregarFila();
+            filas.forEach((f, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" class="in-pto" placeholder="..." value="${f.pto}" data-bm-asignado="${f.bmAsignado}" readonly onclick="abrirSelectorBM(this)" oninput="verificarBM(this); guardarEstadoTabla()"></td>
+                    <td><input type="number" step="0.001" class="in-va" placeholder="(+)" value="${f.va}" oninput="procesarTabla()"></td>
+                    <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" value="${f.vd}" ${i===0 ? 'disabled style="background:rgba(0,0,0,0.03)"' : ''} oninput="procesarTabla()"></td>
+                    <td class="celda-combinada">
+                        <div class="btn-ai-label">AI: <span class="val-ai-num">---</span></div>
+                        <input type="number" step="0.001" class="in-cota ${f.fijo === "true" ? 'fijo' : ''}" placeholder="Cota..." value="${f.cota}" data-fijo="${f.fijo}" oninput="fijarCota(this)">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            procesarTabla();
+        }
+
+        function exportarXLSX() {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            let datos = [["REPORTE DE NIVELACIÓN SIMPLE - COTA100"], ["Proyecto:", p.nombre], [], ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA"]];
+            document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
+                let ai = tr.querySelector('.val-ai-num').innerText;
+                datos.push([tr.querySelector('.in-pto').value, parseFloat(tr.querySelector('.in-va').value) || "", ai !== "---" ? parseFloat(ai) : "", parseFloat(tr.querySelector('.in-vd').value) || "", parseFloat(tr.querySelector('.in-cota').value) || ""]);
+            });
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(datos), "Radiación");
+            XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Nivelacion.xlsx`);
+        }
+
+        function toggleCalculadora() { 
+            vibrar();
+            const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
+        }
+        
+        // --- VIBRACIÓN EN LA CALCULADORA ---
+        function calcIn(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
+        function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
+        function calcDel() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { 
+            vibrar(); 
+            try { 
+                let res = new Function('return ' + document.getElementById('calcDisplay').value)(); 
+                document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; 
+            } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } 
+        }
+    </script>
+</body>
+</html>
