@@ -1,5 +1,5 @@
 // Nombre de la caché (Cambia el v1 a v2, v3, etc., cuando actualices tu código en el futuro)
-const CACHE_NAME = 'cota100-v1';
+const CACHE_NAME = 'cota100-v3.1.0';
 
 // Lista de todos los archivos necesarios para que la app funcione offline
 const urlsToCache = [
