@@ -3,295 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>COTA100 - Nivelación Simple</title>
+    <title>COTA100 SYSTEM - Nivelación Simple</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --bg-color: #ffffff; --text-color: #000000;
-            --primary-color: #FF6600; --primary-metallic-light: #FF8833;
-            --border-color: rgba(0, 0, 0, 0.3); --table-header: #111;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
+            --table-header: #111; --danger-color: #d32f2f; --excel-color: #1b5e20;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
-            /* MAPA TOPOGRÁFICO RAW TECH */
-            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3Cpath stroke-width='0.8' d='M0 200c110-15 160 55 260 45s160-85 310-65 210 105 230 85'/%3E%3Cpath stroke-width='0.8' d='M0 250c120-10 170 60 270 50s170-90 320-70 220 110 210 90'/%3E%3Cpath stroke-width='0.8' d='M0 300c130-5 180 65 280 55s180-95 330-75 230 115 190 95'/%3E%3Cpath stroke-width='0.8' d='M0 350c140 0 190 70 290 60s190-100 340-80 240 120 170 100'/%3E%3Cpath stroke-width='0.8' d='M0 400c145 25 220 10 345 30s195-50 370 10'/%3E%3Cpath stroke-width='0.8' d='M230 230c40-50 100-30 120 20s-20 100-80 80-70-60-40-100z'/%3E%3Cpath stroke-width='0.8' d='M210 210c50-60 120-40 140 20s-20 120-100 100-80-70-40-120z'/%3E%3Cpath stroke-width='0.8' d='M190 190c60-70 140-50 160 20s-20 140-120 120-90-80-40-140z'/%3E%3Cpath stroke-width='0.8' d='M600 300c40-20 80 0 90 40s-30 60-70 40-40-50-20-80z'/%3E%3Cpath stroke-width='0.8' d='M580 280c50-30 100-10 110 40s-40 80-90 60-50-60-20-100z'/%3E%3Cpath stroke-width='2.5' d='M560 260c60-40 120-20 130 40s-50 100-110 80-60-70-20-120z'/%3E%3C/g%3E%3C/svg%3E");
-            background-size: 600px 600px; background-attachment: fixed;
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' fill='none'%3E%3Ccircle cx='200' cy='200' r='100' stroke-width='2'/%3E%3Ccircle cx='200' cy='200' r='150' stroke-width='2' stroke-dasharray='10,10'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 400px 400px; background-attachment: fixed;
         }
 
-        .top-bar { 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        @media screen and (max-width: 480px) {
+            html { font-size: 11px; }
+            .btn-accion { padding: 8px; font-size: 0.9rem; }
+            input, select { padding: 5px; font-size: 1rem; border-width: 1px;}
+            .panel-control { padding: 8px; margin-bottom: 8px; border-width: 1px;}
+            .top-bar { padding: 5px 10px; height: 50px; }
+            .btn-volver-mini { width: 30px; height: 30px; font-size: 1.2rem;}
+            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px; font-size: 1.2rem;}
+            .calculadora-modal { right: 10px; bottom: 65px; width: 220px; padding: 8px;}
+            #calcDisplay { height: 35px; font-size: 1.3rem; padding: 4px;}
+            .calc-grid button { padding: 6px 0; font-size: 1.1rem; }
+            th { font-size: 0.7rem; padding: 6px 1px; }
+            td input { padding: 6px 1px; font-size: 1.1rem; }
+            .out-ai { font-size: 1.1rem; min-height: 30px; padding: 5px 1px;}
+            .modulo-container { padding: 8px; }
+            .form-grid { gap: 6px; margin-bottom: 6px;}
+            .btn-dual { gap: 5px; }
         }
-        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
-        .top-bar-title span { color: var(--primary-color); }
+
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95); }
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
-        .btn-tool { 
-            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
-            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
-            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
-        }
-        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
-
-        .panel-control { 
-            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
-            margin-bottom: 15px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
-        }
-        .panel-titulo { 
-            color: var(--primary-color); font-weight: 800; font-size: 1.2rem; text-transform: uppercase; 
-            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
-            text-shadow: 0 0 5px #fff;
-        }
+        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
         
-        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
-        label { font-weight: 800; color: #000; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 3px; text-shadow: 0 0 5px #fff;}
-        input { 
-            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
-            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
-            color: #000; transition: 0.2s;
-        }
-        input:focus { border-color: var(--primary-color); outline: none; background: #fff; box-shadow: 0 0 10px rgba(255,102,0,0.2);}
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .input-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
 
-        .btn-accion { 
-            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
-            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
-            margin-top: 5px; transition: 0.2s;
-        }
+        label { font-weight: 800; color: #111; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px; }
+        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+
+        .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
+        .bm-info { display: flex; flex-direction: column; text-align: left; }
+        .bm-info strong { font-size: 0.95rem; color: #111; }
+        .bm-info span { font-size: 0.8rem; color: var(--primary-color); font-weight: 700; }
+        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.1rem; cursor: pointer;}
+        
+        .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
+        table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444; position: sticky; top: 0; z-index: 10; }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
+        td:last-child { border-right: none; }
+        
+        td input { border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1.1rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;}
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
+        td input.calculado { color: #111; }
+        td input.fijo { color: var(--primary-color); }
+
+        .out-ai { font-weight: 900; font-size: 1.1rem; color: var(--primary-color); background: rgba(255,102,0,0.05); padding: 8px 2px; display: flex; align-items: center; justify-content: center; min-height: 40px;}
+        .ai-repetido { color: #aaa; background: transparent; font-weight: 700;}
+
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.3rem;}
-        .btn-calc:active { background-color: #cc5200; }
+        .btn-dual { display: flex; gap: 8px; margin-bottom: 15px;}
+        .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 5px;}
+        .btn-excel:active { background: var(--excel-color); color: #fff; }
 
-        /* TABLA RAW TECH */
-        .table-container { 
-            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
-            border-radius: 8px; background: rgba(255,255,255,0.85); margin-bottom: 15px; backdrop-filter: blur(5px);
-        }
-        table { width: 100%; min-width: 600px; border-collapse: collapse; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; font-size: 0.9rem; border: 1px solid #444; text-transform: uppercase;}
-        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
-        
-        td input { 
-            border: none; width: 100%; height: 100%; padding: 15px 5px; font-size: 1.15rem; 
-            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 700;
-        }
-        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2; position: relative;}
-        
-        .td-readonly { background: rgba(0,0,0,0.05); }
-        .out-cota { text-align: center; font-weight: 800; font-size: 1.2rem; color: #000; padding: 15px 5px;}
-        .ai-calculada { display: block; font-size: 0.8rem; color: var(--primary-color); font-weight: 800; margin-top: 2px;}
-
-        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
-
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer; padding: 0 5px;}
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; cursor: pointer; }
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
     </style>
 </head>
-<body>
+<body onload="inicializarApp()">
+
+    <datalist id="bancoBMsList"></datalist>
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini">←</a>
-        <h2 class="top-bar-title">NIVELACIÓN <span>SIMPLE</span></h2>
-        <div style="width: 25px;"></div>
+        <a href="nivelacion.html" class="btn-volver-mini">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+        <h2 class="top-bar-title">NIV. SIMPLE <span>Radiación y Perfiles</span></h2>
+        <div style="width: 40px;"></div> 
     </div>
 
     <div class="modulo-container">
-        
-        <div class="toolbar-archivos">
-            <button class="btn-tool">💾 Guardar</button>
-            <button class="btn-tool">📂 Importar</button>
-            <button class="btn-tool" onclick="exportarTXTSimple()">📤 Exportar TXT</button>
-        </div>
 
-        <div class="panel-control">
-            <div class="panel-titulo">1. DATOS DE PARTIDA (BM)</div>
-            <div class="input-group" style="margin-bottom: 0;">
-                <label>COTA INICIAL (m.s.n.m)</label>
-                <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2850.000">
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo">
+                📁 Base de Datos / Proyectos
+                <button class="btn-toggle-panel" onclick="togglePanel('panelProyecto')">▼</button>
+            </div>
+            <div id="panelProyecto">
+                <div class="input-group full-width" style="margin-bottom: 10px;">
+                    <label>Proyectos Guardados</label>
+                    <div class="project-selector">
+                        <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value)" style="flex: 1;"></select>
+                        <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                        <!-- BOTÓN DE ELIMINAR PROYECTO -->
+                        <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                </div>
+                
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label>Nombre del Proyecto Actual</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Plataforma Mz A" oninput="renombrarProyecto()">
+                </div>
+
+                <div style="border-top: 1px solid #eee; padding-top: 8px;">
+                    <label style="color: var(--primary-color);">+ Registrar BM / Punto Base</label>
+                    <div class="form-grid" style="margin-top: 4px;">
+                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-01)">
+                        <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
+                    </div>
+                    <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                </div>
+                <div class="bm-list" id="listaBMs"></div>
             </div>
         </div>
 
-        <div class="panel-control" style="padding: 10px;">
-            <div class="panel-titulo" style="padding-left: 5px;">2. REGISTRO DE CAMPO</div>
-            
-            <div class="table-container">
-                <table id="tablaSimple">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">PUNTO</th>
-                            <th style="width: 20%;">V. ATRÁS (+)</th>
-                            <th style="width: 20%;">V. INTER.</th>
-                            <th style="width: 20%;">V. ADEL. (-)</th>
-                            <th style="width: 25%;">COTA FINAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoSimple">
-                        <tr>
-                            <td><input type="text" value="BM1" class="in-pto"></td>
-                            <td><input type="number" step="0.001" class="in-va" placeholder="0.000"></td>
-                            <td class="td-readonly"><input type="number" step="0.001" class="in-vi" disabled></td>
-                            <td class="td-readonly"><input type="number" step="0.001" class="in-vd" disabled></td>
-                            <td class="out-cota">---</td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="P1" class="in-pto"></td>
-                            <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
-                            <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
-                            <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
-                            <td class="out-cota">---</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="input-row" style="margin-bottom: 0;">
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #000; color:#000;" onclick="agregarFilaSimple()">+ Fila</button>
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="quitarFilaSimple()">- Fila</button>
-            </div>
+        <div class="table-wrapper">
+            <table id="tablaSimple">
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">PTO</th>
+                        <th style="width: 19%;">V. ATRÁS (+)</th>
+                        <th style="width: 20%; background: #000;">AI</th>
+                        <th style="width: 19%;">V. ADEL (-)</th>
+                        <th style="width: 20%;">COTA</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla">
+                </tbody>
+            </table>
         </div>
 
-        <button class="btn-accion btn-calc" id="btnProcesar" onclick="calcularSimple()">PROCESAR COTAS</button>
+        <div class="btn-dual">
+            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2;" onclick="agregarFila()">+ Fila</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555;" onclick="quitarFila()">- Borrar</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid var(--danger-color); color:var(--danger-color);" onclick="limpiarTabla()">🗑️ Reset</button>
+        </div>
+
+        <button class="btn-accion btn-excel" onclick="exportarXLSX()">📥 Descargar a Excel (.xlsx)</button>
 
     </div>
 
+    <!-- CALCULADORA FLOTANTE -->
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
+    <div class="calculadora-modal" id="calculadoraModal">
+        <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
+        <input type="text" id="calcDisplay" disabled>
+        <div class="calc-grid">
+            <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcInput('/')">÷</button>
+            <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcInput('*')">×</button>
+            <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcInput('-')">-</button>
+            <button onclick="calcClear()" style="color:#d32f2f; border-color:#ef9a9a;">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
+            <button onclick="calcBackspace()" style="grid-column: span 2; background:#eee;">⌫</button>
+            <button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
+        </div>
+    </div>
+
     <script>
-        // --- GESTIÓN DE FILAS ---
-        let contadorSimple = 2;
-        function agregarFilaSimple() {
-            const tbody = document.getElementById('cuerpoSimple');
+        let appData = { activoId: 1, proyectos: [] };
+
+        function inicializarApp() {
+            let stored = localStorage.getItem('cota100_db_v2');
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                appData.proyectos.push({ id: 1, nombre: "Proyecto 1", bms: [], tabla: [] });
+                appData.activoId = 1;
+            }
+            renderSelectProyectos();
+            cargarProyectoActivo();
+        }
+
+        function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
+        function guardarBD() { localStorage.setItem('cota100_db_v2', JSON.stringify(appData)); }
+
+        function renderSelectProyectos() {
+            const select = document.getElementById('selectProyecto');
+            select.innerHTML = "";
+            appData.proyectos.forEach(p => {
+                let selected = (p.id === appData.activoId) ? "selected" : "";
+                select.innerHTML += `<option value="${p.id}" ${selected}>${p.nombre || "Sin Nombre"}</option>`;
+            });
+        }
+
+        function crearNuevoProyecto() {
+            let nuevoId = Date.now();
+            appData.proyectos.push({ id: nuevoId, nombre: "Nuevo Proyecto", bms: [], tabla: [] });
+            appData.activoId = nuevoId;
+            guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        // LÓGICA DE ELIMINAR PROYECTO
+        function eliminarProyecto() {
+            if(appData.proyectos.length === 1) {
+                alert("No puedes eliminar el único proyecto existente. Crea uno nuevo primero.");
+                return;
+            }
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿ESTÁS COMPLETAMENTE SEGURO? Se borrará el proyecto "${p.nombre}" junto con todos sus BMs y lecturas de forma permanente.`)) {
+                appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
+                appData.activoId = appData.proyectos[0].id;
+                guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+            }
+        }
+
+        function cambiarProyectoActivo(idStr) {
+            appData.activoId = parseInt(idStr);
+            guardarBD(); cargarProyectoActivo();
+        }
+
+        function renombrarProyecto() {
+            let p = obtenerProyectoActivo();
+            p.nombre = document.getElementById('proyectName').value;
+            guardarBD(); renderSelectProyectos();
+        }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('proyectName').value = p.nombre;
+            renderBMs();
+            cargarTablaDesdeBD(p.tabla);
+        }
+
+        function addBM() {
+            const name = document.getElementById('newBMName').value.toUpperCase();
+            const cota = parseFloat(document.getElementById('newBMCota').value);
+            if(!name || isNaN(cota)) { alert("Ingresa nombre y cota válidos."); return; }
+            
+            let p = obtenerProyectoActivo();
+            if(p.bms.some(bm => bm.nombre === name)) {
+                alert("Ya existe un BM guardado con ese nombre en este proyecto. Usa otro identificador.");
+                return;
+            }
+
+            p.bms.push({ nombre: name, cota: cota });
+            document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = "";
+            guardarBD(); renderBMs();
+        }
+
+        function deleteBM(index) {
+            let p = obtenerProyectoActivo();
+            p.bms.splice(index, 1);
+            guardarBD(); renderBMs();
+        }
+
+        function renderBMs() {
+            let p = obtenerProyectoActivo();
+            const list = document.getElementById('listaBMs');
+            const datalist = document.getElementById('bancoBMsList');
+            list.innerHTML = ""; datalist.innerHTML = ""; 
+
+            p.bms.forEach((bm, i) => {
+                list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`;
+                datalist.innerHTML += `<option value="${bm.nombre}">`;
+            });
+        }
+
+        function togglePanel(id) {
+            const p = document.getElementById(id);
+            p.style.display = p.style.display === "none" ? "block" : "none";
+        }
+
+        // --- LÓGICA REFINADA PARA AUTOCOMPLETADO DE VD ---
+        function verificarBM(input) {
+            const val = input.value.toUpperCase();
+            const prevBm = input.dataset.bmAsignado || "";
+            input.value = val; 
+            
+            let p = obtenerProyectoActivo();
+            const bmEncontrado = p.bms.find(b => b.nombre === val);
+            
+            const tr = input.closest('tr');
+            const tbody = document.getElementById('cuerpoTabla');
+            const inCota = tr.querySelector('.in-cota');
+            const inVd = tr.querySelector('.in-vd');
+
+            let rowIndex = Array.from(tbody.children).indexOf(tr);
+
+            if (bmEncontrado) {
+                if (prevBm !== "" && prevBm !== val) {
+                    if(!confirm(`⚠️ Vas a cambiar el punto base de [${prevBm}] a [${val}]. Esto recalculará las cotas. ¿Confirmar?`)) {
+                        input.value = prevBm; 
+                        return;
+                    }
+                }
+                
+                input.dataset.bmAsignado = val;
+                inCota.value = bmEncontrado.cota.toFixed(3);
+                
+                // FIJAR LA COTA ANTES DE EXTRAER EL AI
+                inCota.dataset.fijo = "true";
+                inCota.classList.add('fijo');
+                inCota.classList.remove('calculado');
+
+                // Lógica de Replanteo (Pre-cálculo de Vista Adelante)
+                if (rowIndex > 0) {
+                    procesarTabla(); // Forzar actualización de todos los AI superiores primero
+                    
+                    // Extraemos el AI que viene arrastrándose desde la fila anterior
+                    let prevRow = tbody.children[rowIndex - 1];
+                    let prevAI = parseFloat(prevRow.querySelector('.out-ai').innerText);
+                    
+                    if (!isNaN(prevAI)) {
+                        let vd_calculada = prevAI - bmEncontrado.cota;
+                        inVd.value = vd_calculada.toFixed(3);
+                    }
+                }
+                procesarTabla(); // Recalcular todo al final
+            } else {
+                if (prevBm !== "" && val !== prevBm) {
+                    if(!confirm(`⚠️ Estás borrando el BM [${prevBm}]. El punto pasará a ser un punto radiado normal. ¿Seguro?`)) {
+                        input.value = prevBm;
+                        return;
+                    }
+                    input.dataset.bmAsignado = "";
+                    inCota.dataset.fijo = "false";
+                    inCota.classList.remove('fijo');
+                    inCota.classList.add('calculado');
+                    inVd.value = ""; // Limpiamos la VD precalculada porque ya no es BM
+                    procesarTabla();
+                }
+            }
+            guardarEstadoTabla();
+        }
+
+        function agregarFila() {
+            const tbody = document.getElementById('cuerpoTabla');
+            const esPrimera = tbody.children.length === 0;
+            const disabledVD = esPrimera ? 'disabled style="background: rgba(0,0,0,0.03);"' : '';
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input type="text" value="P${contadorSimple}" class="in-pto"></td>
-                <td><input type="number" step="0.001" class="in-va" placeholder="..."></td>
-                <td><input type="number" step="0.001" class="in-vi" placeholder="..."></td>
-                <td><input type="number" step="0.001" class="in-vd" placeholder="..."></td>
-                <td class="out-cota">---</td>
+                <td><input type="text" class="in-pto" list="bancoBMsList" placeholder="..." oninput="verificarBM(this); guardarEstadoTabla()"></td>
+                <td><input type="number" step="0.001" class="in-va" placeholder="(+)" oninput="procesarTabla()"></td>
+                <td><div class="out-ai">---</div></td>
+                <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" ${disabledVD} oninput="procesarTabla()"></td>
+                <td><input type="number" step="0.001" class="in-cota calculado" placeholder="..." oninput="fijarCota(this)"></td>
             `;
             tbody.appendChild(tr);
-            contadorSimple++;
+            guardarEstadoTabla();
         }
 
-        function quitarFilaSimple() {
-            const tbody = document.getElementById('cuerpoSimple');
-            if (tbody.children.length > 1) { 
+        function quitarFila() {
+            const tbody = document.getElementById('cuerpoTabla');
+            if (tbody.children.length > 0) { 
                 tbody.removeChild(tbody.lastChild); 
-                contadorSimple--; 
+                procesarTabla(); 
             }
         }
 
-        // --- CÁLCULO DE NIVELACIÓN SIMPLE ---
-        function calcularSimple() {
-            let tbody = document.getElementById('cuerpoSimple');
-            let filas = tbody.querySelectorAll('tr');
-            let cotaInicial = parseFloat(document.getElementById('cotaBM').value);
-
-            if (isNaN(cotaInicial)) {
-                alert("Por favor, ingresa la Cota Inicial del BM de partida.");
-                document.getElementById('cotaBM').focus();
-                return;
+        function limpiarTabla() {
+            if(confirm("🚨 ATENCIÓN: ¿Estás seguro de borrar todas las lecturas de este proyecto? Esta acción no se puede deshacer.")) {
+                document.getElementById('cuerpoTabla').innerHTML = "";
+                agregarFila();
             }
+        }
 
-            let aiActual = 0;
-            let cotaActual = cotaInicial;
-            let errorDetectado = false;
+        function fijarCota(input) {
+            if(input.value !== "") {
+                input.dataset.fijo = "true";
+                input.classList.add('fijo');
+                input.classList.remove('calculado');
+            } else {
+                input.dataset.fijo = "false";
+                input.classList.remove('fijo');
+                input.classList.add('calculado');
+            }
+            procesarTabla();
+        }
 
-            for (let i = 0; i < filas.length; i++) {
-                let fila = filas[i];
-                let va = parseFloat(fila.querySelector('.in-va').value);
-                let vi = parseFloat(fila.querySelector('.in-vi').value);
-                let vd = parseFloat(fila.querySelector('.in-vd').value);
-                let cotaCell = fila.querySelector('.out-cota');
+        function procesarTabla() {
+            let trs = document.querySelectorAll('#cuerpoTabla tr');
+            let ai_actual = NaN;
 
-                // Fila 1 (El BM de partida)
+            for(let i = 0; i < trs.length; i++) {
+                let tr = trs[i];
+                let va = parseFloat(tr.querySelector('.in-va').value);
+                let vd = parseFloat(tr.querySelector('.in-vd').value);
+                let cotaInp = tr.querySelector('.in-cota');
+                let cellAI = tr.querySelector('.out-ai');
+
                 if (i === 0) {
-                    cotaCell.innerHTML = cotaActual.toFixed(3);
-                    if (!isNaN(va)) {
-                        aiActual = cotaActual + va;
-                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                    let cotaVal = parseFloat(cotaInp.value);
+                    if (!isNaN(cotaVal) && !isNaN(va)) {
+                        ai_actual = cotaVal + va;
+                        cellAI.innerHTML = ai_actual.toFixed(3);
+                        cellAI.className = "out-ai";
                     } else {
-                        errorDetectado = true;
-                        alert("El BM inicial necesita una lectura de Vista Atrás (+).");
-                        break;
-                    }
-                    continue;
-                }
-
-                // Resto de filas
-                if (!isNaN(vi)) {
-                    // Vista Intermedia
-                    cotaActual = aiActual - vi;
-                    cotaCell.innerHTML = cotaActual.toFixed(3);
-                } else if (!isNaN(vd)) {
-                    // Vista Adelante (Punto de cambio o cierre)
-                    cotaActual = aiActual - vd;
-                    cotaCell.innerHTML = cotaActual.toFixed(3);
-
-                    // Si también hay Vista Atrás en la misma fila (Cambio de Estación)
-                    if (!isNaN(va)) {
-                        aiActual = cotaActual + va;
-                        cotaCell.innerHTML += `<br><span class="ai-calculada">AI: ${aiActual.toFixed(3)}</span>`;
+                        cellAI.innerHTML = "---";
+                        ai_actual = NaN;
                     }
                 } else {
-                    cotaCell.innerText = "---";
+                    if (!isNaN(ai_actual)) {
+                        if (cotaInp.dataset.fijo === "true") {
+                            // Si es un BM fijo, el AI solo cambia si ingresamos una nueva VA.
+                            if (!isNaN(va)) {
+                                ai_actual = parseFloat(cotaInp.value) + va;
+                                cellAI.innerHTML = ai_actual.toFixed(3);
+                                cellAI.className = "out-ai";
+                            } else {
+                                cellAI.innerHTML = ai_actual.toFixed(3);
+                                cellAI.className = "out-ai ai-repetido";
+                            }
+                        } else {
+                            // Radiación normal
+                            if (!isNaN(vd)) {
+                                let cotaCalc = ai_actual - vd;
+                                cotaInp.value = cotaCalc.toFixed(3);
+                                if (!isNaN(va)) {
+                                    ai_actual = cotaCalc + va;
+                                    cellAI.innerHTML = ai_actual.toFixed(3);
+                                    cellAI.className = "out-ai";
+                                } else {
+                                    cellAI.innerHTML = ai_actual.toFixed(3);
+                                    cellAI.className = "out-ai ai-repetido";
+                                }
+                            } else {
+                                cotaInp.value = "";
+                                cellAI.innerHTML = ai_actual.toFixed(3);
+                                cellAI.className = "out-ai ai-repetido";
+                            }
+                        }
+                    } else {
+                        cellAI.innerHTML = "---";
+                    }
                 }
             }
-
-            // Efecto visual de éxito
-            if (!errorDetectado) {
-                let btn = document.getElementById('btnProcesar');
-                let textoOriginal = btn.innerText;
-                btn.style.backgroundColor = "#000";
-                btn.innerText = "PROCESADO CON ÉXITO";
-                setTimeout(() => {
-                    btn.style.backgroundColor = "var(--primary-color)";
-                    btn.innerText = textoOriginal;
-                }, 1000);
-            }
+            guardarEstadoTabla();
         }
 
-        // --- EXPORTAR A TXT ---
-        function exportarTXTSimple() {
-            let filas = document.querySelectorAll('#cuerpoSimple tr');
-            let cotaBase = document.getElementById('cotaBM').value;
+        function guardarEstadoTabla() {
+            let p = obtenerProyectoActivo();
+            if(!p) return;
+            
+            let filas = [];
+            document.querySelectorAll('#cuerpoTabla tr').forEach((tr, i) => {
+                filas.push({
+                    pto: tr.querySelector('.in-pto').value,
+                    bmAsignado: tr.querySelector('.in-pto').dataset.bmAsignado || "",
+                    va: tr.querySelector('.in-va').value,
+                    vd: tr.querySelector('.in-vd').value,
+                    cota: tr.querySelector('.in-cota').value,
+                    fijo: tr.querySelector('.in-cota').dataset.fijo || (i===0 ? "true" : "false")
+                });
+            });
+            p.tabla = filas;
+            guardarBD();
+        }
 
-            if(!cotaBase) {
-                alert("Debes ingresar una cota de inicio antes de exportar.");
+        function cargarTablaDesdeBD(filas) {
+            const tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = ""; 
+            
+            if (!filas || filas.length === 0) {
+                agregarFila(); 
                 return;
             }
 
-            let contenidoTXT = "PROYECTO: COTA100 - NIVELACION SIMPLE\n";
-            contenidoTXT += "FECHA: " + new Date().toLocaleDateString() + "\n";
-            contenidoTXT += "COTA INICIAL BM: " + cotaBase + "\n";
-            contenidoTXT += "---------------------------------------------------\n";
-            contenidoTXT += "PTO\tV.ATRÁS\tV.INTER\tV.ADELANTE\tCOTA\n";
-            contenidoTXT += "---------------------------------------------------\n";
+            filas.forEach((f, i) => {
+                let esPrimera = i === 0;
+                let disabledVD = esPrimera ? 'disabled style="background: rgba(0,0,0,0.03);"' : '';
+                let claseCota = f.fijo === "true" ? 'fijo' : 'calculado';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" class="in-pto" list="bancoBMsList" placeholder="..." value="${f.pto}" data-bm-asignado="${f.bmAsignado}" oninput="verificarBM(this); guardarEstadoTabla()"></td>
+                    <td><input type="number" step="0.001" class="in-va" placeholder="(+)" value="${f.va}" oninput="procesarTabla()"></td>
+                    <td><div class="out-ai">---</div></td>
+                    <td><input type="number" step="0.001" class="in-vd" placeholder="[-]" value="${f.vd}" ${disabledVD} oninput="procesarTabla()"></td>
+                    <td><input type="number" step="0.001" class="in-cota ${claseCota}" placeholder="..." value="${f.cota}" data-fijo="${f.fijo}" oninput="fijarCota(this)"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            procesarTabla();
+        }
 
-            filas.forEach((fila) => {
-                let pto = fila.querySelector('.in-pto').value || "---";
-                let va = fila.querySelector('.in-va').value || "---";
-                let vi = fila.querySelector('.in-vi').value || "---";
-                let vd = fila.querySelector('.in-vd').value || "---";
+        function exportarXLSX() {
+            if (typeof XLSX === 'undefined') { alert("Conéctate a internet la primera vez para cargar el exportador."); return; }
+            let p = obtenerProyectoActivo();
+            let wb = XLSX.utils.book_new();
+            let datos = [["REPORTE DE NIVELACIÓN SIMPLE - COTA100"], ["Proyecto:", p.nombre], []];
+            datos.push(["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA"]);
+            
+            document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
+                let pto = tr.querySelector('.in-pto').value;
+                let va = tr.querySelector('.in-va').value;
+                let ai = tr.querySelector('.out-ai').innerText;
+                let vd = tr.querySelector('.in-vd').value;
+                let cota = tr.querySelector('.in-cota').value;
                 
-                // Limpiar el texto de la celda de cota para no exportar el "AI: 2850..."
-                let textoCota = fila.querySelector('.out-cota').innerText;
-                let cotaLimpia = textoCota.split('\n')[0].replace('AI:', '').trim(); 
-                
-                if(cotaLimpia !== "---") {
-                    contenidoTXT += `${pto}\t${va}\t${vi}\t${vd}\t${cotaLimpia}\n`;
-                }
+                va = va ? parseFloat(va) : "";
+                ai = ai !== "---" ? parseFloat(ai) : "";
+                vd = vd ? parseFloat(vd) : "";
+                cota = cota ? parseFloat(cota) : "";
+
+                datos.push([pto, va, ai, vd, cota]);
             });
 
-            // Generar descarga
-            let blob = new Blob([contenidoTXT], { type: "text/plain;charset=utf-8" });
-            let enlace = document.createElement("a");
-            enlace.href = URL.createObjectURL(blob);
-            enlace.download = "Nivelacion_Simple_Cota100.txt";
-            enlace.click();
+            let ws = XLSX.utils.aoa_to_sheet(datos);
+            ws['!cols'] = [{wch: 15}, {wch: 12}, {wch: 18}, {wch: 12}, {wch: 12}];
+            XLSX.utils.book_append_sheet(wb, ws, "Radiación");
+            XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Nivelacion.xlsx`);
+        }
+
+        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcInput(v) { document.getElementById('calcDisplay').value += v; }
+        function calcClear() { document.getElementById('calcDisplay').value = ''; }
+        function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { 
+            const d = document.getElementById('calcDisplay');
+            try { 
+                if(d.value.trim() === '') return;
+                let res = new Function('return ' + d.value)(); 
+                d.value = (res % 1 !== 0) ? res.toFixed(3) : res; 
+            } catch(e) { 
+                d.value = 'Error'; setTimeout(calcClear, 1200); 
+            } 
         }
     </script>
 </body>

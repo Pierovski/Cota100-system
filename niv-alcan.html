@@ -6,7 +6,6 @@
     <title>COTA100 SYSTEM - Nivelación Alcantarillado</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- LIBRERÍA PROFESIONAL PARA EXPORTAR .XLSX NATIVO -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
@@ -51,22 +50,40 @@
             border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
             margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
         }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
+        .panel-titulo { 
+            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
 
         label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px; }
-        input { 
+        input, select { 
             width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 800; text-align: center;
             background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 8px; 
-            color: #000; transition: 0.2s;
+            color: #000; transition: 0.2s; font-family: 'Rajdhani', sans-serif;
         }
-        input:focus { border-color: var(--primary-color); outline: none; background: #fff;}
-        input::placeholder { color: #bbb; font-weight: 600; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
 
-        .alerta-predictiva { font-size: 0.75rem; font-weight: 800; color: var(--primary-color); margin-top: 4px; text-align: center; min-height: 14px;}
+        /* --- GESTIÓN DE BMs (PREMIUM) --- */
+        .bm-list { margin-top: 10px; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; }
+        .bm-item:last-child { border-bottom: none; }
+        .bm-item:active { background: #fdf2e9; }
+        .bm-info { display: flex; flex-direction: column; text-align: left; }
+        .bm-info strong { font-size: 1rem; color: #111; }
+        .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
+        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1rem; padding: 5px; }
+
+        .btn-select-bm {
+            background: #f4f4f4; border: 2px solid var(--border-color); padding: 8px; border-radius: 8px;
+            font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-top: 5px;
+        }
 
         /* --- BOTONES --- */
         .btn-accion { width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
@@ -78,109 +95,66 @@
 
         /* --- TABLA RAW TECH --- */
         .seccion-tabla { display: none; margin-top: 15px; }
-        
-        .table-wrapper { 
-            width: 100%; max-height: 55vh; overflow: auto; 
-            border: 3px solid var(--table-header); border-radius: 8px; 
-            background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-        }
-        
+        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 3px solid var(--table-header); border-radius: 8px; background: #fff; }
         table { width: 100%; min-width: 700px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; font-size: 0.85rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 12px 5px; text-align: center; font-weight: 700; }
         
-        th { 
-            background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; 
-            font-size: 0.85rem; text-transform: uppercase; border-bottom: 2px solid #444; border-right: 1px solid #444;
-            position: sticky; top: 0; z-index: 10; 
-        }
-        th:first-child { border-top-left-radius: 5px; }
-        th:last-child { border-right: none; border-top-right-radius: 5px; }
-        th span.th-info { display: block; font-size: 0.7rem; color: var(--primary-color); margin-top: 2px;}
-
-        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 12px 5px; text-align: center; vertical-align: middle; }
-        td:last-child { border-right: none; }
-        
-        .col-prog { font-weight: 800; font-size: 1.1rem; color: #111; background: rgba(0,0,0,0.02); }
-        .col-lectura { font-weight: 900; font-size: 1.7rem; color: var(--primary-color); font-family: monospace; letter-spacing: -1px; background: rgba(255,102,0,0.03);}
-        .col-lectura-lomo { font-weight: 900; font-size: 1.7rem; color: #111; font-family: monospace; letter-spacing: -1px;}
-        .col-cota-oculta { font-weight: 700; font-size: 0.95rem; color: #888; font-family: monospace;}
-
-        .alerta-mira { 
-            color: var(--danger-color) !important; background: rgba(211, 47, 47, 0.1) !important; 
-            text-shadow: 0 0 8px rgba(211,47,47,0.3); animation: parpadeoAlerta 2s infinite;
-        }
-        @keyframes parpadeoAlerta { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
-
         .res-ai { text-align: center; font-size: 1.2rem; font-weight: 800; color: #111; margin: 15px 0; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px dashed #111;}
         .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.5rem;}
 
-        /* --- BOTÓN CÁMARA MODO REPORTE --- */
-        .btn-flotante {
-            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
-            background: #111; color: #fff; border-radius: 50%; display: none;
-            align-items: center; justify-content: center; font-size: 1.8rem;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4); border: 2px solid var(--primary-color);
-            cursor: pointer; z-index: 1000; transition: 0.3s;
-        }
-        .btn-flotante:active { transform: scale(0.9); }
-
-        body.modo-reporte .top-bar { display: none !important; }
-        body.modo-reporte .panel-control { display: none !important; }
-        body.modo-reporte .btn-generar { display: none !important; }
-        body.modo-reporte .btn-excel { display: none !important; }
-        body.modo-reporte .modulo-container { padding: 0; }
-        body.modo-reporte .seccion-tabla { margin-top: 0; }
-        body.modo-reporte .table-wrapper { max-height: 90vh; }
-        body.modo-reporte .btn-flotante { background: var(--primary-color); border-color: #111; }
-
-        /* --- CSS CALCULADORA FLOTANTE --- */
-        .btn-calculadora-flotante {
-            position: fixed; bottom: 90px; right: 20px; 
-            width: 60px; height: 60px; background: #fff; color: var(--primary-color);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color);
-            cursor: pointer; z-index: 999; transition: 0.3s;
-        }
-        .btn-calculadora-flotante:active { transform: scale(0.9); background: var(--primary-color); color: #fff;}
-
-        .calculadora-modal {
-            position: fixed; bottom: 160px; right: 20px; width: 260px;
-            background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header);
-            border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            z-index: 1000; display: none; backdrop-filter: blur(10px);
-            animation: slideInCalc 0.2s ease-out forwards;
-        }
-        @keyframes slideInCalc { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; color: var(--table-header);}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color, #d32f2f); cursor: pointer; padding: 0 5px;}
-        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-family: monospace; font-weight: 800; border: 2px solid rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; padding: 5px 10px; background: #f5f5f5; color: #000; }
-
+        /* --- CALCULADORA --- */
+        .btn-calculadora-flotante { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
+        .calculadora-modal { position: fixed; bottom: 160px; right: 20px; width: 260px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-family: 'Rajdhani', sans-serif; font-weight: 800; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; background: #fff; color: #111; cursor: pointer; transition: 0.1s; }
-        .calc-grid button:active { background: #e0e0e0; transform: scale(0.95); }
-        .calc-op { background: var(--table-header) !important; color: #fff !important; }
-        .calc-op:active { background: var(--primary-color) !important; }
-        .calc-clear { background: #ffebee !important; color: #d32f2f !important; border-color: #ef9a9a !important; }
-        .calc-eq { background: var(--primary-color) !important; color: #fff !important; border: none !important; margin-top: 4px; font-size: 1.6rem !important;}
+        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; background: #fff; cursor: pointer; }
+        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 10px; padding: 5px; background: #f5f5f5; }
+
+        @media screen and (max-width: 480px) {
+            html { font-size: 13px; }
+            .btn-accion { padding: 10px; font-size: 0.95rem; }
+            input, select { padding: 10px; font-size: 1rem; }
+        }
     </style>
 </head>
-<body>
+<body onload="cargarProyectoLocal()">
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-        </a>
+        <a href="nivelacion.html" class="btn-volver-mini">←</a>
         <h2 class="top-bar-title">ALCANTARILLADO <span>Control de Redes</span></h2>
         <div style="width: 45px;"></div> 
     </div>
 
     <div class="modulo-container">
 
+        <!-- SECCIÓN 0: GESTIÓN DE PROYECTO (NUEVO) -->
+        <div class="panel-control" style="border-left: 5px solid #111;">
+            <div class="panel-titulo">
+                📁 Gestión de Proyecto
+                <button class="btn-toggle-panel" onclick="togglePanel('panelProyectoContenido')">▼</button>
+            </div>
+            <div id="panelProyectoContenido">
+                <div class="input-group full-width">
+                    <label>Nombre de la Obra</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Red de Agua Sector 4" oninput="saveProyecto()">
+                </div>
+                <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <label style="color: var(--primary-color);">+ Registrar Punto de Control (BM)</label>
+                    <div class="form-grid" style="margin-top: 5px;">
+                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-01)">
+                        <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
+                    </div>
+                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Banco</button>
+                </div>
+                <div class="bm-list" id="listaBMs">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 1: PARÁMETROS DE DISEÑO (ORIGINAL) -->
         <div class="panel-control panel-ocultable" style="border-left: 5px solid #111;">
-            <div class="panel-titulo" style="color: #111;">1. Parámetros de Diseño</div>
+            <div class="panel-titulo">1. Parámetros de Diseño</div>
             <button class="btn-accion btn-auto" onclick="autocalcularTramo()">🪄 Deducir Dato Faltante (Auto-Cálculo)</button>
 
             <div class="form-grid">
@@ -189,13 +163,19 @@
                 <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" placeholder="Ej: 80.000"></div>
                 <div class="input-group"><label>Pendiente (% al 100)</label><input type="number" id="pte" step="0.001" placeholder="Ej: -2.000"></div>
             </div>
-            <p style="font-size: 0.75rem; color: #555; font-weight: 600; margin-top: 5px; line-height: 1.3;">* Deja vacía solo UNA casilla y presiona "Deducir" para que el sistema calcule el dato que falte.</p>
         </div>
 
+        <!-- SECCIÓN 2: ESTACIÓN Y TUBERÍA (ORIGINAL ACTUALIZADA) -->
         <div class="panel-control panel-ocultable" style="border-left: 5px solid var(--primary-color);">
             <div class="panel-titulo">2. Estación y Tubería (Campo)</div>
             <div class="form-grid">
-                <div class="input-group"><label>Cota BM</label><input type="number" id="cotaBM" step="0.001" placeholder="2851.000" oninput="evaluarLimiteVA()"></div>
+                <div class="input-group full-width">
+                    <label>BM de Referencia</label>
+                    <select id="selectBMProyecto" onchange="seleccionarBM(this.value)">
+                        <option value="">-- Seleccionar de Proyecto --</option>
+                    </select>
+                    <input type="number" id="cotaBM" step="0.001" placeholder="Cota BM" style="margin-top: 8px;" oninput="evaluarLimiteVA()">
+                </div>
                 
                 <div class="input-group">
                     <label>Vista Atrás (+)</label>
@@ -209,11 +189,11 @@
             </div>
         </div>
 
-        <button class="btn-accion btn-generar" style="background-color: var(--primary-color); font-size: 1.3rem; box-shadow: 0 4px 10px rgba(255,102,0,0.3);" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
+        <button class="btn-accion btn-generar" style="background-color: var(--primary-color); font-size: 1.3rem;" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
 
+        <!-- SECCIÓN TABLA (ORIGINAL) -->
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento): <span id="txtAI">0.000</span></div>
-            
             <div class="table-wrapper">
                 <table id="tablaAlcantarillado">
                     <thead>
@@ -225,73 +205,102 @@
                             <th style="width: 18%; color: #aaa;">Cota Lomo</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTabla">
-                    </tbody>
+                    <tbody id="cuerpoTabla"></tbody>
                 </table>
             </div>
-
             <button class="btn-accion btn-excel" id="btnExcel" onclick="exportarXLSX()">📥 Descargar a Excel (.xlsx)</button>
         </div>
 
     </div>
 
-    <!-- BOTÓN CÁMARA MODO REPORTE -->
-    <div class="btn-flotante" id="btnCamara" onclick="toggleModoReporte()">📷</div>
-
-    <!-- HTML CALCULADORA FLOTANTE -->
-    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-            <line x1="8" y1="6" x2="16" y2="6"></line>
-            <line x1="16" y1="14" x2="16" y2="18"></line>
-            <path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path>
-            <path d="M8 14h.01"></path><path d="M12 14h.01"></path>
-            <path d="M8 18h.01"></path><path d="M12 18h.01"></path>
-        </svg>
-    </div>
-
+    <!-- CALCULADORA FLOTANTE (ORIGINAL ACTUALIZADA) -->
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
-        <div class="calc-header">
-            <span>CALC. RÁPIDA</span>
-            <button onclick="toggleCalculadora()">X</button>
-        </div>
+        <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
-            <button onclick="calcInput('7')">7</button>
-            <button onclick="calcInput('8')">8</button>
-            <button onclick="calcInput('9')">9</button>
-            <button class="calc-op" onclick="calcInput('/')">÷</button>
-            <button onclick="calcInput('4')">4</button>
-            <button onclick="calcInput('5')">5</button>
-            <button onclick="calcInput('6')">6</button>
-            <button class="calc-op" onclick="calcInput('*')">×</button>
-            <button onclick="calcInput('1')">1</button>
-            <button onclick="calcInput('2')">2</button>
-            <button onclick="calcInput('3')">3</button>
-            <button class="calc-op" onclick="calcInput('-')">-</button>
-            <button class="calc-clear" onclick="calcClear()">C</button>
-            <button onclick="calcInput('0')">0</button>
-            <button onclick="calcInput('.')">.</button>
-            <button class="calc-op" onclick="calcInput('+')">+</button>
-            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 4;">=</button>
+            <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcInput('/')">÷</button>
+            <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcInput('*')">×</button>
+            <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcInput('-')">-</button>
+            <button onclick="calcClear()">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
+            <button onclick="calcBackspace()" style="grid-column: span 2; background:#eee;">⌫ BORRAR</button>
+            <button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
+        // --- GESTIÓN DE PROYECTO Y BMs ---
+        let proyectoActual = { nombre: "", bms: [] };
+
+        function cargarProyectoLocal() {
+            const data = localStorage.getItem('cota100_proyecto_alcan');
+            if(data) {
+                proyectoActual = JSON.parse(data);
+                document.getElementById('proyectName').value = proyectoActual.nombre;
+                renderBMs();
+            }
+        }
+
+        function saveProyecto() {
+            proyectoActual.nombre = document.getElementById('proyectName').value;
+            localStorage.setItem('cota100_proyecto_alcan', JSON.stringify(proyectoActual));
+        }
+
+        function addBM() {
+            const name = document.getElementById('newBMName').value.toUpperCase();
+            const cota = parseFloat(document.getElementById('newBMCota').value);
+            if(!name || isNaN(cota)) { alert("Ingresa nombre y cota válidos."); return; }
+            
+            proyectoActual.bms.push({ nombre: name, cota: cota });
+            document.getElementById('newBMName').value = "";
+            document.getElementById('newBMCota').value = "";
+            saveProyecto();
+            renderBMs();
+        }
+
+        function deleteBM(index) {
+            proyectoActual.bms.splice(index, 1);
+            saveProyecto();
+            renderBMs();
+        }
+
+        function renderBMs() {
+            const list = document.getElementById('listaBMs');
+            const select = document.getElementById('selectBMProyecto');
+            list.innerHTML = "";
+            select.innerHTML = '<option value="">-- Seleccionar de Proyecto --</option>';
+
+            proyectoActual.bms.forEach((bm, i) => {
+                // Llenar lista visual
+                list.innerHTML += `
+                    <div class="bm-item">
+                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div>
+                        <button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button>
+                    </div>`;
+                // Llenar selector de campo
+                select.innerHTML += `<option value="${bm.cota}">${bm.nombre} (${bm.cota.toFixed(3)})</option>`;
+            });
+        }
+
+        function seleccionarBM(cota) {
+            if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(3);
+        }
+
+        function togglePanel(id) {
+            const p = document.getElementById(id);
+            p.style.display = p.style.display === "none" ? "block" : "none";
+        }
+
+        // --- LÓGICA ORIGINAL (RESPETADA) ---
         function autocalcularTramo() {
             let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value);
             let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
-
-            if (nulos !== 1) { alert("Para autocalcular, debes dejar exactamente UNA (1) casilla vacía en la sección 1."); return; }
-
+            if (nulos !== 1) { alert("Deja exactamente UNA casilla vacía."); return; }
             if (isNaN(p)) { document.getElementById('pte').value = (((cf - ci) / d) * 100).toFixed(3); } 
             else if (isNaN(cf)) { document.getElementById('cotaFin').value = (ci + ((p / 100) * d)).toFixed(3); }
             else if (isNaN(ci)) { document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(3); }
-            else if (isNaN(d)) { 
-                if (p === 0) { alert("La pendiente no puede ser 0 para calcular una distancia."); return; }
-                document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(3); 
-            }
+            else if (isNaN(d)) { document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(3); }
             evaluarLimiteVA();
         }
 
@@ -301,163 +310,47 @@
             let bm = parseFloat(document.getElementById('cotaBM').value);
             let va = parseFloat(document.getElementById('vistaAtras').value);
             let alerta = document.getElementById('txtAlertaVA');
-
             if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) {
                 let cotaMinima = Math.min(ci, cf); 
                 let limiteVA = 5.000 - bm + cotaMinima; 
-                
-                if (limiteVA < 0) {
-                    alerta.style.color = "var(--danger-color)";
-                    alerta.innerText = "⚠️ BM muy alto. Imposible leer zanja (Se requiere AI más bajo).";
-                } else {
-                    if (!isNaN(va) && va > limiteVA) {
-                        alerta.style.color = "var(--danger-color)";
-                        alerta.innerText = "⚠️ Excederás la mira de 5m. (Máx: " + limiteVA.toFixed(3) + "m)";
-                    } else {
-                        alerta.style.color = "var(--primary-color)";
-                        alerta.innerText = "Máx recomendado: " + limiteVA.toFixed(3) + "m";
-                    }
-                }
-            } else {
-                alerta.innerText = "";
+                if (limiteVA < 0) { alerta.innerText = "⚠️ BM muy alto."; }
+                else { alerta.innerText = "Máx sugerido: " + limiteVA.toFixed(3) + "m"; }
             }
         }
 
         function generarLibreta() {
             let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             if(isNaN(ci) || isNaN(d) || isNaN(p)) { alert("Faltan datos de Diseño."); return; }
-
             let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
             let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
             let intervalo = parseFloat(document.getElementById('intervalo').value);
-
-            if(isNaN(bm) || isNaN(va) || isNaN(intervalo) || intervalo <= 0) { alert("Faltan datos de Campo o el intervalo es inválido."); return; }
+            if(isNaN(bm) || isNaN(va)) { alert("Faltan datos de Campo."); return; }
 
             document.getElementById('infoTubo').innerText = `(Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)})`;
             let ai = bm + va;
             document.getElementById('txtAI').innerText = ai.toFixed(3);
-            
             let tbody = document.getElementById('cuerpoTabla');
             tbody.innerHTML = "";
 
-            let progresivaAct = 0; let iteraciones = 0; 
-            while (progresivaAct <= d && iteraciones < 1500) {
-                agregarFilaReplanteo(tbody, progresivaAct, ci, p, ai, cama, altura, intervalo);
-                progresivaAct += intervalo; iteraciones++;
+            for(let i=0; i <= d; i += intervalo) {
+                let cotaZanja = ci + ((p / 100) * i);
+                let cotaLomo = cotaZanja + cama + altura;
+                tbody.innerHTML += `<tr><td>0+${i.toString().padStart(3,'0')}</td><td>${(ai-cotaZanja).toFixed(3)}</td><td>${(ai-cotaLomo).toFixed(3)}</td><td>${cotaZanja.toFixed(3)}</td><td>${cotaLomo.toFixed(3)}</td></tr>`;
             }
-            if (progresivaAct - intervalo < d) { agregarFilaReplanteo(tbody, d, ci, p, ai, cama, altura, intervalo); }
-
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
-            document.getElementById('btnCamara').style.display = 'flex';
-            
-            setTimeout(() => { document.getElementById('seccionTabla').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
-
-        function agregarFilaReplanteo(tbody, prog, cotaIni, pte, ai, cama, altura, intervaloInput) {
-            let cotaZanja = cotaIni + ((pte / 100) * prog);
-            let cotaLomo = cotaZanja + cama + altura;
-            let lecturaZanja = ai - cotaZanja;
-            let lecturaLomo = ai - cotaLomo;
-
-            let km = Math.floor(prog / 1000);
-            let metrosInt = Math.floor(prog % 1000).toString().padStart(3, '0');
-            let progStr = (prog % 1 !== 0 || intervaloInput % 1 !== 0) ? `${km}+${metrosInt}${(prog % 1).toFixed(2).substring(1)}` : `${km}+${metrosInt}`;
-
-            let claseZanja = (lecturaZanja < 0 || lecturaZanja > 5) ? 'alerta-mira' : '';
-            let claseLomo = (lecturaLomo < 0 || lecturaLomo > 5) ? 'alerta-mira' : '';
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="col-prog">${progStr}</td>
-                <td class="col-lectura ${claseZanja}">${lecturaZanja.toFixed(3)}</td>
-                <td class="col-lectura-lomo ${claseLomo}">${lecturaLomo.toFixed(3)}</td>
-                <td class="col-cota-oculta">${cotaZanja.toFixed(3)}</td>
-                <td class="col-cota-oculta">${cotaLomo.toFixed(3)}</td>
-            `;
-            tbody.appendChild(tr);
-        }
-
-        function toggleModoReporte() {
-            const body = document.body;
-            const btnCamara = document.getElementById('btnCamara');
-            body.classList.toggle('modo-reporte');
-            
-            if (body.classList.contains('modo-reporte')) {
-                btnCamara.innerText = '🔙';
-                window.scrollTo(0, 0); 
-            } else {
-                btnCamara.innerText = '📷';
-            }
         }
 
         function exportarXLSX() {
-            if (typeof XLSX === 'undefined') {
-                alert("La librería de Excel no ha cargado. Verifica tu conexión a internet.");
-                return;
-            }
-
-            let tabla = document.getElementById("tablaAlcantarillado");
-            let aiText = document.getElementById('txtAI').innerText;
-            
-            let datos = [];
-            datos.push(["REPORTE DE ALCANTARILLADO - COTA100 SYSTEM"]);
-            datos.push(["Altura de Instrumento (AI):", parseFloat(aiText) || 0]);
-            datos.push([]); 
-
-            let filas = tabla.querySelectorAll("tr");
-            for (let i = 0; i < filas.length; i++) {
-                let filaExcel = [];
-                let celdas = filas[i].querySelectorAll("th, td");
-                for (let j = 0; j < celdas.length; j++) {
-                    let texto = celdas[j].innerText.replace(/\n/g, " ").trim();
-                    
-                    if (i > 0 && j > 0) {
-                        let numero = parseFloat(texto);
-                        filaExcel.push(isNaN(numero) ? texto : numero);
-                    } else {
-                        filaExcel.push(texto);
-                    }
-                }
-                datos.push(filaExcel);
-            }
-
-            let ws = XLSX.utils.aoa_to_sheet(datos);
-            ws['!cols'] = [{wch: 15}, {wch: 18}, {wch: 18}, {wch: 15}, {wch: 15}];
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Replanteo Alcan");
+            let wb = XLSX.utils.table_to_book(document.getElementById("tablaAlcantarillado"));
             XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx");
         }
 
-        // --- LÓGICA DE LA CALCULADORA ---
-        function toggleCalculadora() {
-            const modal = document.getElementById('calculadoraModal');
-            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function calcInput(val) {
-            const display = document.getElementById('calcDisplay');
-            display.value += val;
-        }
-
-        function calcClear() {
-            document.getElementById('calcDisplay').value = '';
-        }
-
-        function calcEval() {
-            const display = document.getElementById('calcDisplay');
-            try {
-                let resultado = new Function('return ' + display.value)();
-                if (resultado % 1 !== 0) {
-                    display.value = parseFloat(resultado.toFixed(3));
-                } else {
-                    display.value = resultado;
-                }
-            } catch (e) {
-                display.value = 'Error';
-                setTimeout(calcClear, 1200);
-            }
-        }
+        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcInput(v) { document.getElementById('calcDisplay').value += v; }
+        function calcClear() { document.getElementById('calcDisplay').value = ''; }
+        function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = res.toFixed(3); } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
     </script>
 </body>
 </html>

@@ -6,7 +6,6 @@
     <title>COTA100 - Nivelación Simultánea</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- LIBRERÍA PROFESIONAL PARA EXPORTAR A EXCEL (.XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
@@ -136,12 +135,30 @@
         .calc-op:active { background: var(--primary-color) !important; }
         .calc-clear { background: #ffebee !important; color: #d32f2f !important; border-color: #ef9a9a !important; }
         .calc-eq { background: var(--primary-color) !important; color: #fff !important; border: none !important; margin-top: 4px; font-size: 1.6rem !important;}
+    /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
+        @media screen and (max-width: 480px) {
+            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
+            .btn-accion { padding: 10px; font-size: 0.95rem; }
+            input, select { padding: 8px; font-size: 1rem; }
+            .panel-control { padding: 10px; margin-bottom: 10px;}
+            .top-bar { padding: 8px 15px; height: 60px; }
+            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
+            .header h1 { font-size: 2.2rem; }
+            .grid-container { gap: 10px; padding: 10px; }
+            .card { min-height: 120px; padding: 10px; }
+            .icon-container { height: 45px; margin-bottom: 5px; }
+            .icon-container svg { width: 35px; height: 35px; }
+            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
+            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
+            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
+            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body onload="cargarLocal()">
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini">←</a>
+        <a href="index.html" class="btn-volver-mini">←</a>
         <h2 class="top-bar-title">CONTROL POR TRAMOS <span>Doble Nivelación Simultánea</span></h2>
         <div style="width: 25px;"></div>
     </div>
@@ -261,7 +278,7 @@
 
     </div>
 
-    <!-- CALCULADORA -->
+    <!-- CALCULADORA ACTUALIZADA CON BOTÓN DE BORRADO -->
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
     </div>
@@ -274,7 +291,11 @@
             <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button class="calc-op" onclick="calcInput('*')">×</button>
             <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button class="calc-op" onclick="calcInput('-')">-</button>
             <button class="calc-clear" onclick="calcClear()">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button class="calc-op" onclick="calcInput('+')">+</button>
-            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 4;">=</button>
+            
+            <!-- Nuevo botón de borrado individual -->
+            <button onclick="calcBackspace()" style="background: #e0e0e0; color: #111; grid-column: span 2; font-size: 1.1rem;">⌫ BORRAR</button>
+            <!-- Botón de igual -->
+            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 2;">=</button>
         </div>
     </div>
 
@@ -632,11 +653,9 @@
             setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        // --- EXPORTAR A EXCEL (XLSX) PROFESIONAL ---
         function exportarExcel() {
             let wb = XLSX.utils.book_new();
 
-            // 1. Extraer datos de IDA
             let datosIda = [["REPORTE DE NIVELACIÓN - IDA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
             let filasIda = document.querySelectorAll('#cuerpoIda tr');
             for(let i=0; i<filasIda.length; i++) {
@@ -651,7 +670,6 @@
             wsIda['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
             XLSX.utils.book_append_sheet(wb, wsIda, "Libreta IDA");
 
-            // 2. Extraer datos de VUELTA
             let datosVuelta = [["REPORTE DE NIVELACIÓN - VUELTA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
             let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
             for(let i=0; i<filasVuelta.length; i++) {
@@ -666,7 +684,6 @@
             wsVuelta['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
             XLSX.utils.book_append_sheet(wb, wsVuelta, "Libreta VUELTA");
 
-            // 3. Extraer COMPENSADAS
             let tablaComp = document.getElementById("tablaCompensada");
             if(tablaComp) {
                 let wsComp = XLSX.utils.table_to_sheet(tablaComp);
@@ -677,15 +694,23 @@
             XLSX.writeFile(wb, "Nivelacion_Simultanea_Cota100.xlsx");
         }
 
+        // --- FUNCIONES DE LA CALCULADORA MEJORADAS ---
         function toggleCalculadora() {
             const modal = document.getElementById('calculadoraModal');
             modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
         function calcInput(val) { document.getElementById('calcDisplay').value += val; }
         function calcClear() { document.getElementById('calcDisplay').value = ''; }
+        
+        function calcBackspace() {
+            const display = document.getElementById('calcDisplay');
+            display.value = display.value.slice(0, -1);
+        }
+        
         function calcEval() {
             const display = document.getElementById('calcDisplay');
             try {
+                if (display.value.trim() === '') return; 
                 let res = new Function('return ' + display.value)();
                 display.value = (res % 1 !== 0) ? parseFloat(res.toFixed(3)) : res;
             } catch (e) {

@@ -42,6 +42,24 @@
         .hub-info { text-align: left; }
         .hub-info h3 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 5px #fff;}
         .hub-info p { font-size: 0.9rem; font-weight: 600; color: #444; line-height: 1.2; text-shadow: 0 0 5px #fff;}
+    /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
+        @media screen and (max-width: 480px) {
+            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
+            .btn-accion { padding: 10px; font-size: 0.95rem; }
+            input, select { padding: 8px; font-size: 1rem; }
+            .panel-control { padding: 10px; margin-bottom: 10px;}
+            .top-bar { padding: 8px 15px; height: 60px; }
+            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
+            .header h1 { font-size: 2.2rem; }
+            .grid-container { gap: 10px; padding: 10px; }
+            .card { min-height: 120px; padding: 10px; }
+            .icon-container { height: 45px; margin-bottom: 5px; }
+            .icon-container svg { width: 35px; height: 35px; }
+            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
+            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
+            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
+            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
