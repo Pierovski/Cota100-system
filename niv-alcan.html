@@ -23,175 +23,218 @@
             background-size: 400px 400px; background-attachment: fixed;
         }
 
-        /* --- CABECERA SUPERIOR --- */
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; border-bottom: 2px solid var(--border-color);
             background-color: rgba(255, 255, 255, 0.95); 
             position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-            height: 75px; 
+            height: 70px; 
         }
         
         .btn-volver-mini { 
             background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); 
-            width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; text-decoration: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none; transition: 0.2s;
         }
-        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: translateX(-5px) scale(0.95); border-color: var(--text-color);}
+        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95);}
 
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
-        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.9rem;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- PANELES DE CONTROL --- */
         .panel-control { 
-            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
-            margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+            border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; 
+            margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
         }
         .panel-titulo { 
-            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
-            margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
-            display: flex; justify-content: space-between; align-items: center;
+            color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; 
+            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; 
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
 
-        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color); }
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none;}
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
 
-        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px; }
+        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
         input, select { 
-            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 800; text-align: center;
-            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 8px; 
-            color: #000; transition: 0.2s; font-family: 'Rajdhani', sans-serif;
+            width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center;
+            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
+            color: #000; transition: 0.2s;
         }
         input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important;
+            cursor: pointer;
+        }
 
-        /* --- GESTIÓN DE BMs (PREMIUM) --- */
-        .bm-list { margin-top: 10px; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
-        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; }
-        .bm-item:last-child { border-bottom: none; }
-        .bm-item:active { background: #fdf2e9; }
+        .txt-ayuda { font-size: 0.8rem; font-weight: 600; color: #555; line-height: 1.2; margin-bottom: 8px;}
+
+        .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
         .bm-info strong { font-size: 1rem; color: #111; }
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1rem; padding: 5px; }
+        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
 
-        .btn-select-bm {
-            background: #f4f4f4; border: 2px solid var(--border-color); padding: 8px; border-radius: 8px;
-            font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-top: 5px;
-        }
-
-        /* --- BOTONES --- */
-        .btn-accion { width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-auto { background: #fff; color: #111; border: 2px dashed #111; margin-bottom: 15px; font-size: 0.95rem; padding: 12px;}
+        .btn-auto { background: #fff; color: #111; border: 2px dashed #111; margin-bottom: 10px;}
         .btn-auto:active { background: #111; color: var(--primary-color); border-style: solid;}
         .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; display: none;}
         .btn-excel:active { background: var(--excel-color); color: #fff; }
 
-        /* --- TABLA RAW TECH --- */
+        /* --- TABLA OPTIMIZADA --- */
         .seccion-tabla { display: none; margin-top: 15px; }
-        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 3px solid var(--table-header); border-radius: 8px; background: #fff; }
-        table { width: 100%; min-width: 700px; border-collapse: separate; border-spacing: 0; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 12px 5px; font-size: 0.85rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
-        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 12px 5px; text-align: center; font-weight: 700; }
+        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; }
+        table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 8px 2px; text-align: center; font-weight: 800; font-size: 1.15rem; }
         
-        .res-ai { text-align: center; font-size: 1.2rem; font-weight: 800; color: #111; margin: 15px 0; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; border: 1px dashed #111;}
-        .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.5rem;}
+        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: #111; margin: 15px 0; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 6px; border: 1px dashed #111;}
+        .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.3rem;}
 
-        /* --- CALCULADORA --- */
-        .btn-calculadora-flotante { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
-        .calculadora-modal { position: fixed; bottom: 160px; right: 20px; width: 260px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; background: #fff; cursor: pointer; }
-        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 10px; padding: 5px; background: #f5f5f5; }
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer;}
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; }
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
 
         @media screen and (max-width: 480px) {
-            html { font-size: 13px; }
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 10px; font-size: 1rem; }
+            html { font-size: 12px; }
+            .btn-accion { padding: 9px; font-size: 0.95rem; }
+            input, select { padding: 8px; font-size: 1.05rem; }
+            .modulo-container { padding: 10px; }
         }
     </style>
 </head>
-<body onload="cargarProyectoLocal()">
+<body onload="inicializarApp()">
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini">←</a>
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
         <h2 class="top-bar-title">ALCANTARILLADO <span>Control de Redes</span></h2>
-        <div style="width: 45px;"></div> 
+        <div style="width: 40px;"></div> 
     </div>
 
     <div class="modulo-container">
 
-        <!-- SECCIÓN 0: GESTIÓN DE PROYECTO (NUEVO) -->
-        <div class="panel-control" style="border-left: 5px solid #111;">
-            <div class="panel-titulo">
-                📁 Gestión de Proyecto
-                <button class="btn-toggle-panel" onclick="togglePanel('panelProyectoContenido')">▼</button>
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos / Proyectos</span>
+                <span class="btn-toggle-panel">▼</span>
             </div>
-            <div id="panelProyectoContenido">
-                <div class="input-group full-width">
-                    <label>Nombre de la Obra</label>
-                    <input type="text" id="proyectName" placeholder="Ej: Red de Agua Sector 4" oninput="saveProyecto()">
+            <div id="panelProyecto">
+                <div class="project-selector">
+                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <button class="btn-accion" style="width: auto; padding: 8px 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 8px 10px; background: var(--danger-color);" onclick="eliminarProyecto()">🗑️</button>
                 </div>
-                <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                    <label style="color: var(--primary-color);">+ Registrar Punto de Control (BM)</label>
-                    <div class="form-grid" style="margin-top: 5px;">
-                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-01)">
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label>Nombre de la Red / Obra</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Red de Agua Sector 4" oninput="renombrarProyecto()">
+                </div>
+                <div style="border-top: 1px solid #eee; padding-top: 8px;">
+                    <label style="color: var(--primary-color);">+ Registrar BM</label>
+                    <div class="form-grid" style="margin-top: 4px;">
+                        <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
                         <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
                     </div>
-                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Banco</button>
+                    <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
-                <div class="bm-list" id="listaBMs">
-                    <!-- Se llena dinámicamente -->
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN 1: PARÁMETROS DE DISEÑO (ORIGINAL) -->
-        <div class="panel-control panel-ocultable" style="border-left: 5px solid #111;">
-            <div class="panel-titulo">1. Parámetros de Diseño</div>
-            <button class="btn-accion btn-auto" onclick="autocalcularTramo()">🪄 Deducir Dato Faltante (Auto-Cálculo)</button>
-
-            <div class="form-grid">
-                <div class="input-group"><label>Cota Fondo Inicial</label><input type="number" id="cotaIni" step="0.001" placeholder="Ej: 2850.100" oninput="evaluarLimiteVA()"></div>
-                <div class="input-group"><label>Cota Fondo Final</label><input type="number" id="cotaFin" step="0.001" placeholder="Ej: 2848.500" oninput="evaluarLimiteVA()"></div>
-                <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" placeholder="Ej: 80.000"></div>
-                <div class="input-group"><label>Pendiente (% al 100)</label><input type="number" id="pte" step="0.001" placeholder="Ej: -2.000"></div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN 2: ESTACIÓN Y TUBERÍA (ORIGINAL ACTUALIZADA) -->
-        <div class="panel-control panel-ocultable" style="border-left: 5px solid var(--primary-color);">
-            <div class="panel-titulo">2. Estación y Tubería (Campo)</div>
-            <div class="form-grid">
-                <div class="input-group full-width">
-                    <label>BM de Referencia</label>
-                    <select id="selectBMProyecto" onchange="seleccionarBM(this.value)">
-                        <option value="">-- Seleccionar de Proyecto --</option>
-                    </select>
-                    <input type="number" id="cotaBM" step="0.001" placeholder="Cota BM" style="margin-top: 8px;" oninput="evaluarLimiteVA()">
-                </div>
+                <div class="bm-list" id="listaBMs"></div>
                 
-                <div class="input-group">
-                    <label>Vista Atrás (+)</label>
-                    <input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="evaluarLimiteVA()">
-                    <div class="alerta-predictiva" id="txtAlertaVA"></div>
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 8px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupAlcan()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 8px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importAlcanFile" accept=".json" style="display: none;" onchange="importarBackupAlcan()">
+                        </label>
+                    </div>
                 </div>
-
-                <div class="input-group"><label>Cama de Apoyo (m)</label><input type="number" id="camaApoyo" step="0.001" placeholder="Ej: 0.100"></div>
-                <div class="input-group"><label>Altura de Tubo (m)</label><input type="number" id="alturaTubo" step="0.001" placeholder="Ej: 0.200"></div>
-                <div class="input-group full-width"><label>Progresivas cada (m)</label><input type="number" id="intervalo" step="0.01" value="10.000" placeholder="Ej: 5.000"></div>
             </div>
         </div>
 
-        <button class="btn-accion btn-generar" style="background-color: var(--primary-color); font-size: 1.3rem;" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
+        <div class="panel-control" style="border-left: 4px solid #1976d2;">
+            <div class="panel-titulo" onclick="togglePanel('panelParametros')">
+                <span>1. Parámetros de Diseño</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelParametros">
+                
+                <div class="txt-ayuda">💡 <strong>Truco:</strong> Llena los datos de tu plano. Si te falta uno, déjalo vacío y presiona el botón mágico para deducirlo.</div>
+                
+                <div class="input-group full-width" style="margin-bottom: 10px;">
+                    <label style="color: #1976d2;">Cargar Perfil/Tramo Guardado</label>
+                    <select id="selectPerfil" onchange="cargarPerfil(this.value); vibrar();">
+                        <option value="">-- INGRESO MANUAL --</option>
+                    </select>
+                </div>
 
-        <!-- SECCIÓN TABLA (ORIGINAL) -->
+                <button class="btn-accion btn-auto" onclick="autocalcularTramo()">🪄 Deducir Dato Faltante</button>
+
+                <div class="form-grid">
+                    <div class="input-group"><label>Cota Fondo Inicial</label><input type="number" id="cotaIni" step="0.001" placeholder="Ej: 2850.100" oninput="evaluarLimiteVA(); desmarcarPerfil();"></div>
+                    <div class="input-group"><label>Cota Fondo Final</label><input type="number" id="cotaFin" step="0.001" placeholder="Ej: 2848.500" oninput="evaluarLimiteVA(); desmarcarPerfil();"></div>
+                    <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" placeholder="Ej: 80.000" oninput="desmarcarPerfil();"></div>
+                    <div class="input-group"><label>Pendiente (% al 100)</label><input type="number" id="pte" step="0.001" placeholder="Ej: -2.000" oninput="desmarcarPerfil();"></div>
+                </div>
+
+                <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                    <label style="color: #111;">💾 Guardar este Tramo/Perfil en el proyecto</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <input type="text" id="nombrePerfilNuevo" placeholder="Ej: BZ1 - BZ2" style="flex: 1; text-align: left; padding: 8px;" oninput="this.value = this.value.toUpperCase()">
+                        <button class="btn-accion" style="width: auto; padding: 8px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfil()">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-control" style="border-left: 4px solid var(--primary-color);" id="panelEstacionWrapper">
+            <div class="panel-titulo" onclick="togglePanel('panelEstacion')">
+                <span>2. Estación y Tubería (Campo)</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelEstacion">
+                <div class="form-grid">
+                    <div class="input-group full-width">
+                        <label>BM de Referencia</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="selectBMProyecto" onchange="seleccionarBM(this.value); vibrar();" style="flex: 60%;">
+                                <option value="">-- ELEGIR BM --</option>
+                            </select>
+                            <input type="number" id="cotaBM" step="0.001" placeholder="Cota..." style="flex: 40%;" oninput="evaluarLimiteVA()">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group full-width">
+                        <label>Vista Atrás (+)</label>
+                        <input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="evaluarLimiteVA()">
+                        <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800; font-size:0.8rem;"></div>
+                    </div>
+
+                    <div class="input-group"><label>Cama de Apoyo (m)</label><input type="number" id="camaApoyo" step="0.001" placeholder="Ej: 0.100"></div>
+                    <div class="input-group"><label>Altura de Tubo (m)</label><input type="number" id="alturaTubo" step="0.001" placeholder="Ej: 0.200"></div>
+                    <div class="input-group full-width"><label>Progresivas cada (m)</label><input type="number" id="intervalo" step="0.01" value="10.000" placeholder="Ej: 5.000"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; padding: 15px;" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
+
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento): <span id="txtAI">0.000</span></div>
             <div class="table-wrapper">
@@ -199,10 +242,10 @@
                     <thead>
                         <tr>
                             <th style="width: 15%;">PROG.</th>
-                            <th style="width: 25%;">LEER ZANJA<span class="th-info">(Excavación)</span></th>
-                            <th style="width: 25%;">LEER LOMO<span class="th-info" id="infoTubo">Tubo + Cama</span></th>
-                            <th style="width: 17%; color: #aaa;">Cota Zanja</th>
-                            <th style="width: 18%; color: #aaa;">Cota Lomo</th>
+                            <th style="width: 25%;">LEER ZANJA<br><span style="font-size:0.6rem; opacity:0.8;">(Excavación)</span></th>
+                            <th style="width: 25%;">LEER LOMO<br><span style="font-size:0.6rem; opacity:0.8;" id="infoTubo">Tubo + Cama</span></th>
+                            <th style="width: 17.5%; color: #aaa;">Cota Zanja</th>
+                            <th style="width: 17.5%; color: #aaa;">Cota Lomo</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla"></tbody>
@@ -213,7 +256,6 @@
 
     </div>
 
-    <!-- CALCULADORA FLOTANTE (ORIGINAL ACTUALIZADA) -->
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
         <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
@@ -222,77 +264,193 @@
             <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcInput('/')">÷</button>
             <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcInput('*')">×</button>
             <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcInput('-')">-</button>
-            <button onclick="calcClear()">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
+            <button onclick="calcClear()" style="color:#d32f2f;">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
             <button onclick="calcBackspace()" style="grid-column: span 2; background:#eee;">⌫ BORRAR</button>
             <button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
-        // --- GESTIÓN DE PROYECTO Y BMs ---
-        let proyectoActual = { nombre: "", bms: [] };
+        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
 
-        function cargarProyectoLocal() {
-            const data = localStorage.getItem('cota100_proyecto_alcan');
-            if(data) {
-                proyectoActual = JSON.parse(data);
-                document.getElementById('proyectName').value = proyectoActual.nombre;
-                renderBMs();
+        let appDataAlcan = { activoId: 1, proyectos: [] };
+
+        function inicializarApp() {
+            let stored = localStorage.getItem('cota100_db_alcan_v1');
+            if (stored) { appDataAlcan = JSON.parse(stored); } 
+            else { appDataAlcan.proyectos.push({ id: 1, nombre: "Proyecto Alcantarillado 1", bms: [], perfiles: [] }); appDataAlcan.activoId = 1; }
+            renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        function obtenerProyectoActivo() { return appDataAlcan.proyectos.find(p => p.id === appDataAlcan.activoId); }
+        function guardarBD() { localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(appDataAlcan)); }
+
+        function renderSelectProyectos() {
+            const select = document.getElementById('selectProyecto');
+            select.innerHTML = "";
+            appDataAlcan.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appDataAlcan.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
+        }
+
+        function crearNuevoProyecto() {
+            vibrar();
+            let nuevoId = Date.now();
+            appDataAlcan.proyectos.push({ id: nuevoId, nombre: "Nueva Obra", bms: [], perfiles: [] });
+            appDataAlcan.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        function eliminarProyecto() {
+            vibrar();
+            if(appDataAlcan.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
+                appDataAlcan.proyectos = appDataAlcan.proyectos.filter(proj => proj.id !== p.id);
+                appDataAlcan.activoId = appDataAlcan.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
             }
         }
 
-        function saveProyecto() {
-            proyectoActual.nombre = document.getElementById('proyectName').value;
-            localStorage.setItem('cota100_proyecto_alcan', JSON.stringify(proyectoActual));
+        function cambiarProyectoActivo(idStr) { appDataAlcan.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        function renombrarProyecto() { obtenerProyectoActivo().nombre = document.getElementById('proyectName').value; guardarBD(); renderSelectProyectos(); }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('proyectName').value = p.nombre;
+            renderBMs();
+            renderPerfiles();
         }
 
         function addBM() {
+            vibrar();
             const name = document.getElementById('newBMName').value.toUpperCase();
             const cota = parseFloat(document.getElementById('newBMCota').value);
-            if(!name || isNaN(cota)) { alert("Ingresa nombre y cota válidos."); return; }
-            
-            proyectoActual.bms.push({ nombre: name, cota: cota });
-            document.getElementById('newBMName').value = "";
-            document.getElementById('newBMCota').value = "";
-            saveProyecto();
-            renderBMs();
+            if(!name || isNaN(cota)) return alert("Datos inválidos.");
+            let p = obtenerProyectoActivo();
+            if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre.");
+            p.bms.push({ nombre: name, cota: cota });
+            document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = "";
+            guardarBD(); renderBMs();
         }
 
-        function deleteBM(index) {
-            proyectoActual.bms.splice(index, 1);
-            saveProyecto();
-            renderBMs();
+        function deleteBM(i) { 
+            vibrar();
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Eliminar el BM "${p.bms[i].nombre}"?`)) {
+                p.bms.splice(i, 1); guardarBD(); renderBMs(); 
+            }
         }
 
         function renderBMs() {
+            let p = obtenerProyectoActivo();
             const list = document.getElementById('listaBMs');
             const select = document.getElementById('selectBMProyecto');
-            list.innerHTML = "";
-            select.innerHTML = '<option value="">-- Seleccionar de Proyecto --</option>';
+            list.innerHTML = ""; 
+            select.innerHTML = '<option value="">-- ELEGIR BM --</option>';
 
-            proyectoActual.bms.forEach((bm, i) => {
-                // Llenar lista visual
-                list.innerHTML += `
-                    <div class="bm-item">
-                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div>
-                        <button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button>
-                    </div>`;
-                // Llenar selector de campo
-                select.innerHTML += `<option value="${bm.cota}">${bm.nombre} (${bm.cota.toFixed(3)})</option>`;
+            p.bms.forEach((bm, i) => {
+                list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`;
+                select.innerHTML += `<option value="${bm.cota}">${bm.nombre}</option>`;
             });
         }
 
         function seleccionarBM(cota) {
             if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(3);
+            evaluarLimiteVA();
         }
 
-        function togglePanel(id) {
-            const p = document.getElementById(id);
-            p.style.display = p.style.display === "none" ? "block" : "none";
+        function exportarBackupAlcan() {
+            vibrar();
+            const backup = JSON.parse(localStorage.getItem('cota100_db_alcan_v1'));
+            if(!backup || backup.proyectos.length === 0) return alert("No hay datos para exportar.");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchorNode = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `DB_Alcantarillado_${fecha}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
         }
 
-        // --- LÓGICA ORIGINAL (RESPETADA) ---
+        function importarBackupAlcan() {
+            const fileInput = document.getElementById('importAlcanFile');
+            if (fileInput.files.length === 0) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if(backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(backup));
+                        alert("✅ Base de datos restaurada.");
+                        window.location.reload();
+                    } else { alert("❌ Archivo no válido para Alcantarillado."); }
+                } catch(err) { alert("❌ Error al leer el archivo."); }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function guardarPerfil() {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            let nom = document.getElementById('nombrePerfilNuevo').value.trim();
+            let ci = document.getElementById('cotaIni').value;
+            let cf = document.getElementById('cotaFin').value;
+            let dist = document.getElementById('distTotal').value;
+            let pte = document.getElementById('pte').value;
+
+            if(!nom || ci==="" || cf==="" || dist==="" || pte==="") {
+                return alert("⚠️ Calcula y llena todos los datos de diseño antes de guardar el tramo.");
+            }
+
+            if(!p.perfiles) p.perfiles = [];
+            let idx = p.perfiles.findIndex(per => per.nombre === nom);
+            if(idx >= 0) {
+                if(confirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?")) {
+                    p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte};
+                } else return;
+            } else {
+                p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte});
+            }
+
+            guardarBD();
+            document.getElementById('nombrePerfilNuevo').value = "";
+            renderPerfiles();
+            alert("✅ Tramo guardado en el proyecto.");
+        }
+
+        function renderPerfiles() {
+            let p = obtenerProyectoActivo();
+            const select = document.getElementById('selectPerfil');
+            select.innerHTML = '<option value="">-- INGRESO MANUAL --</option>';
+            if(p.perfiles) {
+                p.perfiles.forEach((per, i) => {
+                    select.innerHTML += `<option value="${i}">${per.nombre}</option>`;
+                });
+            }
+        }
+
+        function cargarPerfil(indexStr) {
+            if(indexStr === "") return;
+            let p = obtenerProyectoActivo();
+            let per = p.perfiles[parseInt(indexStr)];
+            if(per) {
+                document.getElementById('cotaIni').value = per.ci;
+                document.getElementById('cotaFin').value = per.cf;
+                document.getElementById('distTotal').value = per.dist;
+                document.getElementById('pte').value = per.pte;
+                evaluarLimiteVA();
+            }
+        }
+
+        function desmarcarPerfil() {
+            document.getElementById('selectPerfil').value = "";
+        }
+
+        function togglePanel(id) { 
+            vibrar();
+            const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; 
+        }
+
         function autocalcularTramo() {
+            vibrar();
             let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value);
             let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
@@ -302,29 +460,41 @@
             else if (isNaN(ci)) { document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(3); }
             else if (isNaN(d)) { document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(3); }
             evaluarLimiteVA();
+            desmarcarPerfil(); 
         }
 
         function evaluarLimiteVA() {
             let ci = parseFloat(document.getElementById('cotaIni').value);
             let cf = parseFloat(document.getElementById('cotaFin').value);
             let bm = parseFloat(document.getElementById('cotaBM').value);
-            let va = parseFloat(document.getElementById('vistaAtras').value);
             let alerta = document.getElementById('txtAlertaVA');
+            
             if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) {
                 let cotaMinima = Math.min(ci, cf); 
                 let limiteVA = 5.000 - bm + cotaMinima; 
-                if (limiteVA < 0) { alerta.innerText = "⚠️ BM muy alto."; }
-                else { alerta.innerText = "Máx sugerido: " + limiteVA.toFixed(3) + "m"; }
+                if (limiteVA < 0) { 
+                    alerta.style.color = "var(--danger-color)";
+                    alerta.innerText = "⚠️ BM muy alto para regla de 5m."; 
+                } else { 
+                    alerta.style.color = "var(--primary-color)";
+                    alerta.innerText = "Lectura máxima: " + limiteVA.toFixed(3) + " m"; 
+                }
+            } else {
+                alerta.innerText = "";
             }
         }
 
         function generarLibreta() {
+            vibrar();
             let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             if(isNaN(ci) || isNaN(d) || isNaN(p)) { alert("Faltan datos de Diseño."); return; }
             let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
             let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
             let intervalo = parseFloat(document.getElementById('intervalo').value);
             if(isNaN(bm) || isNaN(va)) { alert("Faltan datos de Campo."); return; }
+
+            // OCULTAR PANEL ESTACIÓN AL GENERAR LIBRETA
+            document.getElementById('panelEstacion').style.display = 'none';
 
             document.getElementById('infoTubo').innerText = `(Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)})`;
             let ai = bm + va;
@@ -335,22 +505,43 @@
             for(let i=0; i <= d; i += intervalo) {
                 let cotaZanja = ci + ((p / 100) * i);
                 let cotaLomo = cotaZanja + cama + altura;
-                tbody.innerHTML += `<tr><td>0+${i.toString().padStart(3,'0')}</td><td>${(ai-cotaZanja).toFixed(3)}</td><td>${(ai-cotaLomo).toFixed(3)}</td><td>${cotaZanja.toFixed(3)}</td><td>${cotaLomo.toFixed(3)}</td></tr>`;
+                
+                let leerZanja = ai - cotaZanja;
+                let leerLomo = ai - cotaLomo;
+
+                // VALIDACIÓN DE LECTURA DE REGLA
+                let styleZanja = (leerZanja >= 5 || leerZanja <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+                let styleLomo = (leerLomo >= 5 || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+
+                tbody.innerHTML += `<tr>
+                    <td>0+${i.toString().padStart(3,'0')}</td>
+                    <td style="${styleZanja}">${leerZanja.toFixed(3)}</td>
+                    <td style="${styleLomo}">${leerLomo.toFixed(3)}</td>
+                    <td>${cotaZanja.toFixed(3)}</td>
+                    <td>${cotaLomo.toFixed(3)}</td>
+                </tr>`;
             }
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
         }
 
         function exportarXLSX() {
+            vibrar();
             let wb = XLSX.utils.table_to_book(document.getElementById("tablaAlcantarillado"));
             XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx");
         }
 
-        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function calcInput(v) { document.getElementById('calcDisplay').value += v; }
-        function calcClear() { document.getElementById('calcDisplay').value = ''; }
-        function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = res.toFixed(3); } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
+        function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcInput(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
+        function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
+        function calcBackspace() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { 
+            vibrar(); 
+            try { 
+                let res = new Function('return ' + document.getElementById('calcDisplay').value)(); 
+                document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; 
+            } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } 
+        }
     </script>
 </body>
 </html>
