@@ -75,7 +75,7 @@
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
         .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
         
-        .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
+        .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px; transition: 0.3s;}
         table { width: 100%; min-width: 380px; border-collapse: separate; border-spacing: 0; }
         th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; position: sticky; top: 0; z-index: 10; }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
@@ -96,7 +96,7 @@
 
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-dual { display: flex; gap: 8px; margin-bottom: 15px;}
+        .btn-dual { display: flex; gap: 5px; margin-bottom: 15px;}
         .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 5px;}
 
         /* --- MENÚ MODAL DE SELECCIÓN DE BM --- */
@@ -180,8 +180,8 @@
             </div>
         </div>
 
-        <div class="table-wrapper">
-            <table id="tablaSimple">
+        <div class="table-wrapper" id="tablaSimple">
+            <table>
                 <thead>
                     <tr>
                         <th style="width: 25%;">PTO</th>
@@ -195,9 +195,10 @@
         </div>
 
         <div class="btn-dual">
-            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2;" onclick="agregarFila()">+ Fila</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555;" onclick="quitarFila()">- Borrar</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid var(--danger-color); color:var(--danger-color);" onclick="limpiarTabla()">🗑️ Reset</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2; padding: 10px 4px; font-size: 0.9rem;" onclick="agregarFila()">+ Fila</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555; padding: 10px 4px; font-size: 0.9rem;" onclick="quitarFila()">- Borrar</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid var(--danger-color); color:var(--danger-color); padding: 10px 4px; font-size: 0.9rem;" onclick="limpiarTabla()">🗑️ Reset</button>
+            <button class="btn-accion" id="btnBloquear" style="background:#fff; border: 2px solid #fbc02d; color:#f57f17; padding: 10px 4px; font-size: 0.9rem;" onclick="toggleBloqueoTabla()">🔒 Bloq.</button>
         </div>
 
         <button class="btn-accion btn-excel" onclick="exportarXLSX()">📥 Descargar a Excel (.xlsx)</button>
@@ -220,12 +221,33 @@
     <script>
         let appData = { activoId: 1, proyectos: [] };
         let inputPtoActivo = null; 
+        let tablaBloqueada = false;
 
-        // --- SISTEMA DE FEEDBACK HÁPTICO (VIBRACIÓN) ---
         function vibrar() {
             if (navigator.vibrate) {
-                // 30ms es un "clic" sólido y rápido, ideal para botones de software técnico
                 navigator.vibrate(30);
+            }
+        }
+
+        // --- NUEVO: CANDADO DE SEGURIDAD PARA LA TABLA ---
+        function toggleBloqueoTabla() {
+            vibrar();
+            tablaBloqueada = !tablaBloqueada;
+            const btn = document.getElementById('btnBloquear');
+            const tabla = document.getElementById('tablaSimple');
+            
+            if (tablaBloqueada) {
+                btn.innerHTML = "🔓 Desbloq.";
+                btn.style.color = "#d32f2f";
+                btn.style.borderColor = "#d32f2f";
+                tabla.style.pointerEvents = "none";
+                tabla.style.opacity = "0.7";
+            } else {
+                btn.innerHTML = "🔒 Bloq.";
+                btn.style.color = "#f57f17";
+                btn.style.borderColor = "#fbc02d";
+                tabla.style.pointerEvents = "auto";
+                tabla.style.opacity = "1";
             }
         }
 
@@ -394,7 +416,7 @@
         }
 
         function seleccionarBMModal(nombreBM) {
-            vibrar(); // Vibración al elegir el BM
+            vibrar(); 
             cerrarSelectorBM();
             if(inputPtoActivo) {
                 inputPtoActivo.value = nombreBM;
@@ -440,8 +462,9 @@
             guardarEstadoTabla();
         }
 
-        function agregarFila() {
-            vibrar();
+        // --- MODIFICADO: FUNCIÓN DE FILA ADMITE CREACIÓN SILENCIOSA PARA LOS BUCLES ---
+        function agregarFila(isAuto = false) {
+            if(!isAuto) vibrar();
             const tbody = document.getElementById('cuerpoTabla');
             const esPrimera = tbody.children.length === 0;
             const tr = document.createElement('tr');
@@ -454,16 +477,23 @@
                     <input type="number" step="0.001" class="in-cota" placeholder="Cota..." oninput="fijarCota(this)">
                 </td>
             `;
-            tbody.appendChild(tr); guardarEstadoTabla();
+            tbody.appendChild(tr); 
+            if(!isAuto) guardarEstadoTabla();
         }
 
         function quitarFila() { 
             vibrar();
             const b = document.getElementById('cuerpoTabla'); if (b.children.length > 0) { b.removeChild(b.lastChild); procesarTabla(); } 
         }
+
+        // --- MODIFICADO: GENERACIÓN DE 8 FILAS AL LIMPIAR ---
         function limpiarTabla() { 
             vibrar();
-            if(confirm("🚨 ¿Borrar todas las lecturas?")) { document.getElementById('cuerpoTabla').innerHTML = ""; agregarFila(); } 
+            if(confirm("🚨 ¿Borrar todas las lecturas?")) { 
+                document.getElementById('cuerpoTabla').innerHTML = ""; 
+                for(let i = 0; i < 8; i++) agregarFila(true);
+                guardarEstadoTabla();
+            } 
         }
 
         function fijarCota(input) { input.dataset.fijo = input.value !== "" ? "true" : "false"; if(input.dataset.fijo === "true") input.classList.add('fijo'); else input.classList.remove('fijo'); procesarTabla(); }
@@ -474,11 +504,32 @@
 
             for(let i = 0; i < trs.length; i++) {
                 let tr = trs[i];
-                let va = parseFloat(tr.querySelector('.in-va').value);
-                let vd = parseFloat(tr.querySelector('.in-vd').value);
+                let inPto = tr.querySelector('.in-pto');
+                let inVa = tr.querySelector('.in-va');
+                let inVd = tr.querySelector('.in-vd');
                 let cotaInp = tr.querySelector('.in-cota');
                 let cellAI = tr.querySelector('.btn-ai-label');
                 let aiNum = tr.querySelector('.val-ai-num');
+
+                let va = parseFloat(inVa.value);
+                let vd = parseFloat(inVd.value);
+                let isBM = inPto.dataset.bmAsignado && inPto.dataset.bmAsignado !== "";
+
+                // --- NUEVO: RECALCULAR COTA SI HAY V.AD EN UN BM ---
+                if (isBM) {
+                    if (inVd.value !== "") {
+                        cotaInp.dataset.fijo = "false";
+                        cotaInp.classList.remove('fijo');
+                    } else {
+                        let p = obtenerProyectoActivo();
+                        let bmData = p.bms.find(b => b.nombre === inPto.dataset.bmAsignado);
+                        if (bmData) {
+                            cotaInp.dataset.fijo = "true";
+                            cotaInp.classList.add('fijo');
+                            cotaInp.value = bmData.cota.toFixed(3);
+                        }
+                    }
+                }
 
                 if (i === 0) {
                     let cotaVal = parseFloat(cotaInp.value);
@@ -518,9 +569,14 @@
             p.tabla = filas; guardarBD();
         }
 
+        // --- MODIFICADO: GENERACIÓN DE 8 FILAS EN PROYECTO NUEVO ---
         function cargarTablaDesdeBD(filas) {
             const tbody = document.getElementById('cuerpoTabla'); tbody.innerHTML = ""; 
-            if (!filas || filas.length === 0) return agregarFila();
+            if (!filas || filas.length === 0) {
+                for(let i = 0; i < 8; i++) agregarFila(true);
+                guardarEstadoTabla();
+                return;
+            }
             filas.forEach((f, i) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -555,7 +611,6 @@
             const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; 
         }
         
-        // --- VIBRACIÓN EN LA CALCULADORA ---
         function calcIn(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
         function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
         function calcDel() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
