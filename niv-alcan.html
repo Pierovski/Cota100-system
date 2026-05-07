@@ -116,7 +116,20 @@
             input, select { padding: 8px; font-size: 1.05rem; }
             .modulo-container { padding: 10px; }
         }
-    </style>
+                /* --- ESTILOS PARA FILAS COMPLETADAS EN CAMPO --- */
+        .fila-ok td { 
+            background-color: #e8f5e9 !important; /* Verde muy suave */
+            color: #2e7d32 !important; /* Texto verde oscuro */
+            transition: background-color 0.3s; 
+        }
+        /* Agrega el check a la progresiva */
+        .fila-ok td:first-child::after { 
+            content: ' ✓'; 
+            font-weight: 900; 
+        }
+        /* Indica que la celda se puede tocar */
+        .celda-prog { cursor: pointer; } 
+        </style>
 </head>
 <body onload="inicializarApp()">
 
@@ -513,13 +526,14 @@
                 let styleZanja = (leerZanja >= 5 || leerZanja <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
                 let styleLomo = (leerLomo >= 5 || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
 
-                tbody.innerHTML += `<tr>
-                    <td>0+${i.toString().padStart(3,'0')}</td>
+                               tbody.innerHTML += `<tr>
+                    <td class="celda-prog" onclick="this.parentElement.classList.toggle('fila-ok'); vibrar();">0+${i.toString().padStart(3,'0')}</td>
                     <td style="${styleZanja}">${leerZanja.toFixed(3)}</td>
                     <td style="${styleLomo}">${leerLomo.toFixed(3)}</td>
                     <td>${cotaZanja.toFixed(3)}</td>
                     <td>${cotaLomo.toFixed(3)}</td>
                 </tr>`;
+
             }
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
