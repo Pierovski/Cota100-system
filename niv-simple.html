@@ -229,7 +229,6 @@
             }
         }
 
-        // --- NUEVO: CANDADO DE SEGURIDAD PARA LA TABLA ---
         function toggleBloqueoTabla() {
             vibrar();
             tablaBloqueada = !tablaBloqueada;
@@ -462,7 +461,6 @@
             guardarEstadoTabla();
         }
 
-        // --- MODIFICADO: FUNCIÓN DE FILA ADMITE CREACIÓN SILENCIOSA PARA LOS BUCLES ---
         function agregarFila(isAuto = false) {
             if(!isAuto) vibrar();
             const tbody = document.getElementById('cuerpoTabla');
@@ -486,7 +484,6 @@
             const b = document.getElementById('cuerpoTabla'); if (b.children.length > 0) { b.removeChild(b.lastChild); procesarTabla(); } 
         }
 
-        // --- MODIFICADO: GENERACIÓN DE 8 FILAS AL LIMPIAR ---
         function limpiarTabla() { 
             vibrar();
             if(confirm("🚨 ¿Borrar todas las lecturas?")) { 
@@ -512,24 +509,19 @@
                 let aiNum = tr.querySelector('.val-ai-num');
 
                 let va = parseFloat(inVa.value);
-                let vd = parseFloat(inVd.value);
                 let isBM = inPto.dataset.bmAsignado && inPto.dataset.bmAsignado !== "";
 
-                // --- NUEVO: RECALCULAR COTA SI HAY V.AD EN UN BM ---
                 if (isBM) {
-                    if (inVd.value !== "") {
-                        cotaInp.dataset.fijo = "false";
-                        cotaInp.classList.remove('fijo');
-                    } else {
-                        let p = obtenerProyectoActivo();
-                        let bmData = p.bms.find(b => b.nombre === inPto.dataset.bmAsignado);
-                        if (bmData) {
-                            cotaInp.dataset.fijo = "true";
-                            cotaInp.classList.add('fijo');
-                            cotaInp.value = bmData.cota.toFixed(3);
-                        }
+                    let p = obtenerProyectoActivo();
+                    let bmData = p.bms.find(b => b.nombre === inPto.dataset.bmAsignado);
+                    if (bmData) {
+                        cotaInp.dataset.fijo = "true";
+                        cotaInp.classList.add('fijo');
+                        cotaInp.value = bmData.cota.toFixed(3);
                     }
                 }
+
+                let vd = parseFloat(inVd.value);
 
                 if (i === 0) {
                     let cotaVal = parseFloat(cotaInp.value);
@@ -538,7 +530,11 @@
                 } else {
                     if (!isNaN(ai_actual)) {
                         if (cotaInp.dataset.fijo === "true") {
-                            if (!isNaN(va)) { ai_actual = parseFloat(cotaInp.value) + va; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label"; } 
+                            let cotaFija = parseFloat(cotaInp.value);
+                            vd = ai_actual - cotaFija;
+                            inVd.value = vd.toFixed(3);
+
+                            if (!isNaN(va)) { ai_actual = cotaFija + va; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label"; } 
                             else { aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
                         } else {
                             if (!isNaN(vd)) {
@@ -547,7 +543,23 @@
                                 else { aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
                             } else { cotaInp.value = ""; aiNum.innerText = ai_actual.toFixed(3); cellAI.className = "btn-ai-label ai-repetido"; }
                         }
-                    } else { aiNum.innerText = "---"; }
+                    } else { 
+                        aiNum.innerText = "---"; 
+                        if (cotaInp.dataset.fijo !== "true") cotaInp.value = "";
+                        if (cotaInp.dataset.fijo === "true") inVd.value = ""; 
+                    }
+                }
+
+                if (inVd.value !== "") {
+                    let valVdCheck = parseFloat(inVd.value);
+                    if (valVdCheck >= 5 || valVdCheck <= 0) {
+                        inVd.style.color = "var(--danger-color)";
+                        inVd.style.fontWeight = "800";
+                    } else {
+                        inVd.style.color = "#000"; 
+                    }
+                } else {
+                    inVd.style.color = "#000";
                 }
             }
             guardarEstadoTabla();
@@ -569,7 +581,6 @@
             p.tabla = filas; guardarBD();
         }
 
-        // --- MODIFICADO: GENERACIÓN DE 8 FILAS EN PROYECTO NUEVO ---
         function cargarTablaDesdeBD(filas) {
             const tbody = document.getElementById('cuerpoTabla'); tbody.innerHTML = ""; 
             if (!filas || filas.length === 0) {
