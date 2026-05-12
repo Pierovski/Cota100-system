@@ -5,30 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>COTA100 - Nivelación Simultánea</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
     <style>
         :root {
             --bg-color: #ffffff; --text-color: #000000;
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.3); 
-            --table-header: #111; --corte-color: #d32f2f; --success-color: #2e7d32;
+            --table-header: #111; --corte-color: #d32f2f; --success-color: #2e7d32; --excel-color: #1b5e20;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
             background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 600px 600px; background-attachment: fixed;
         }
 
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
+            padding: 10px 20px; border-bottom: 2px solid var(--border-color); height: 70px;
             background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
         }
-        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
+        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; }
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
@@ -36,67 +35,102 @@
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .panel-control { 
-            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
-            margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+            border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; 
+            margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
         }
         .panel-titulo { 
-            display: flex; justify-content: space-between; align-items: center;
-            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
-            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; 
+            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; 
         }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
         .input-group { display: flex; flex-direction: column; }
-        label { font-weight: 800; color: #000; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px;}
+        .full-width { grid-column: 1 / -1; }
+        label { font-weight: 800; color: #111; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 2px;}
         input, select { 
-            width: 100%; padding: 12px; font-size: 1.15rem; font-weight: 700; 
+            width: 100%; padding: 12px 10px; font-size: 1.15rem; font-weight: 800; 
             background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
             color: #000; transition: 0.2s; text-align: center; font-family: 'Rajdhani', sans-serif;
         }
         input.in-pto { text-transform: uppercase; }
+        input.bm-selector { cursor: pointer; border: 2px solid var(--primary-color); background: #fff3e0;}
         input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
         input:disabled, input[readonly] { background: rgba(0,0,0,0.05); cursor: not-allowed; border-style: dashed; color: #555; }
-        select { text-align: left; padding: 11px; }
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important;
+        }
+
+        .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
+        .bm-info { display: flex; flex-direction: column; text-align: left; }
+        .bm-info strong { font-size: 1rem; color: #111; }
+        .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
+        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
 
         .txt-ayuda { font-size: 0.8rem; font-weight: 700; color: #1976d2; margin-top: 5px; background: #e3f2fd; padding: 6px; border-radius: 4px; border: 1px solid #90caf9;}
 
         .btn-accion { 
-            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            width: 100%; padding: 12px; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; 
             background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
             transition: 0.2s;
         }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.3rem;}
+        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.2rem;}
+        .btn-dual { display: flex; gap: 5px; margin-bottom: 15px;}
 
-        .dos-columnas { display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px;}
-        .col-tabla { flex: 1; min-width: 350px; margin-bottom: 0;}
+        .dos-columnas { display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px; margin-bottom: 10px;}
+        .col-tabla { flex: 1; min-width: 350px; margin-bottom: 0; padding: 0 !important; overflow: visible;}
+
+        .cabecera-ida { background: #1976d2; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
+        .cabecera-vuelta { background: #d32f2f; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
 
         .table-container { 
-            width: 100%; border: 2px solid var(--border-color); 
-            border-radius: 8px; background: rgba(255,255,255,0.95); margin-bottom: 0;
+            width: 100%; background: #fff; margin-bottom: 0; border-radius: 0 0 6px 6px;
         }
         table { width: 100%; border-collapse: collapse; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; border: 1px solid #444; text-transform: uppercase;}
-        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
+        
+        th { 
+            color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.85rem; border-bottom: 2px solid #444; 
+            text-transform: uppercase; position: sticky; top: 70px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .tabla-ida th { background: #1565c0; }
+        .tabla-vuelta th { background: #c62828; }
+
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; position: relative; text-align: center; vertical-align: middle;}
+        td:last-child { border-right: none; }
         
         td input { 
-            border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.1rem; 
-            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800;
+            border: none; width: 100%; height: 100%; padding: 8px 2px; font-size: 1rem; 
+            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;
         }
         td input:focus:not(:disabled):not([readonly]) { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
         
         .td-readonly { background: rgba(0,0,0,0.03); }
-        .out-cota { text-align: center; font-weight: 800; font-size: 1.1rem; color: #000; padding: 6px 2px; background: rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 70px;}
+        .out-cota { text-align: center; font-weight: 800; font-size: 1.05rem; color: #000; padding: 4px 2px; background: rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px;}
         
+        /* BOTÓN DE BORRADO ESPECÍFICO */
+        .btn-del-fila { 
+            background: transparent; border: none; color: #d32f2f; font-size: 1.4rem; font-weight: 900; 
+            cursor: pointer; padding: 5px; width: 100%; height: 100%; display: flex; align-items: center; 
+            justify-content: center; transition: 0.2s;
+        }
+        .btn-del-fila:active { background: #ffebee; transform: scale(0.85); }
+
+        .modo-bloqueado input { pointer-events: none !important; }
+        .modo-bloqueado .bm-selector { border-color: transparent !important; background: transparent !important; }
+        .fila-inactiva { opacity: 0.35; pointer-events: none; transition: opacity 0.3s; background-color: #f9f9f9; }
+
         .badge-tramo { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-top: 2px; font-weight: 800; }
         .badge-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
         .badge-error { background: #ffebee; color: #d32f2f; border: 1px solid #ef9a9a; animation: parpadeo 1s infinite;}
         .badge-oculto { visibility: hidden; }
 
         @keyframes parpadeo { 0% {opacity:1;} 50% {opacity:0.6;} 100% {opacity:1;} }
-
-        .tabla-ida th { background: #1976d2; }
-        .tabla-vuelta th { background: #d32f2f; }
 
         .panel-resultados { 
             background: #fff; border: 3px solid #111; border-radius: 12px; padding: 15px; 
@@ -107,299 +141,483 @@
         .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800;}
 
         .tabla-compensada { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #111;}
-        .tabla-compensada th { background: #111; color: #fff; font-size: 0.85rem; padding: 8px; text-transform: uppercase;}
+        .tabla-compensada th { background: #111; color: #fff; font-size: 0.85rem; padding: 8px; text-transform: uppercase; position: static; box-shadow: none;}
         .tabla-compensada td { border: 1px solid #ccc; padding: 8px; font-weight: 800; font-size: 1.1rem;}
 
-        /* CALCULADORA FLOTANTE */
-        .btn-calculadora-flotante {
-            position: fixed; bottom: 20px; right: 20px; 
-            width: 60px; height: 60px; background: #111; color: #fff;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color);
-            cursor: pointer; z-index: 9999; transition: 0.3s;
-        }
-        .btn-calculadora-flotante:active { transform: scale(0.9); background: var(--primary-color); border-color: #111;}
-        .calculadora-modal {
-            position: fixed; bottom: 90px; right: 20px; width: 260px;
-            background: rgba(255, 255, 255, 0.95); border: 2px solid #111;
-            border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            z-index: 10000; display: none; backdrop-filter: blur(10px);
-        }
-        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; color: #111;}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer; padding: 0 5px;}
-        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.6rem; font-family: monospace; font-weight: 800; border: 2px solid rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; padding: 5px 10px; background: #fff; color: #000; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        .calc-grid button { padding: 10px 0; font-size: 1.3rem; font-family: 'Rajdhani', sans-serif; font-weight: 800; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; background: #fff; color: #111; cursor: pointer;}
-        .calc-grid button:active { background: #e0e0e0; }
-        .calc-op { background: #111 !important; color: #fff !important; }
-        .calc-op:active { background: var(--primary-color) !important; }
-        .calc-clear { background: #ffebee !important; color: #d32f2f !important; border-color: #ef9a9a !important; }
-        .calc-eq { background: var(--primary-color) !important; color: #fff !important; border: none !important; margin-top: 4px; font-size: 1.6rem !important;}
-    /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
+        .overlay-bm { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; }
+        .overlay-bm.activo { opacity: 1; }
+        .modal-bm { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 4px solid var(--primary-color); border-radius: 20px 20px 0 0; padding: 20px; z-index: 1001; transform: translateY(100%); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 20px rgba(0,0,0,0.2); }
+        .modal-bm.abierto { transform: translateY(0); }
+        .btn-bm-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-bm-opcion:active { background: var(--primary-color); color: #fff;}
+        .btn-bm-opcion span.cota { color: #111; font-size: 0.95rem; font-weight: 700;}
+        .btn-bm-opcion:active span.cota { color: #fff; }
+
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer;}
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; }
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
+
         @media screen and (max-width: 480px) {
-            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1rem; }
+            html { font-size: 14px; } 
+            .btn-accion { padding: 10px; font-size: 1rem; }
+            input, select { padding: 8px; font-size: 1.1rem; border-width: 1px;}
             .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 8px 15px; height: 60px; }
-            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
-            .header h1 { font-size: 2.2rem; }
-            .grid-container { gap: 10px; padding: 10px; }
-            .card { min-height: 120px; padding: 10px; }
-            .icon-container { height: 45px; margin-bottom: 5px; }
-            .icon-container svg { width: 35px; height: 35px; }
-            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
-            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
-            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
-            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+            .top-bar { padding: 5px 10px; height: 50px; }
+            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
+            th { top: 50px; font-size: 0.8rem; }
+            td input { padding: 6px 1px; font-size: 0.95rem; } 
+            .modulo-container { padding: 10px; }
         }
     </style>
 </head>
-<body onload="cargarLocal()">
+<body onload="inicializarApp()">
+
+    <div class="overlay-bm" id="overlayBM" onclick="cerrarSelectorBM()"></div>
+    <div class="modal-bm" id="modalSelectorBM">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#111; font-weight:800; font-size:1.2rem;">📍 SELECCIONAR PTO BASE</h3>
+            <button onclick="cerrarSelectorBM()" style="background:none; border:none; font-size:1.5rem; color:#d32f2f; font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+        </div>
+        <div id="contenedorBotonesBM" style="max-height:250px; overflow-y:auto; margin-bottom:15px;"></div>
+        <button class="btn-accion" style="background:#111; color:#fff; font-size:1.1rem; padding:15px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>
+    </div>
 
     <div class="top-bar">
-        <a href="index.html" class="btn-volver-mini">←</a>
-        <h2 class="top-bar-title">CONTROL POR TRAMOS <span>Doble Nivelación Simultánea</span></h2>
-        <div style="width: 25px;"></div>
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+        <h2 class="top-bar-title">POLIGONAL ABIERTA <span>Doble Nivelación Simultánea</span></h2>
+        <div style="width: 40px;"></div>
     </div>
 
     <div class="modulo-container">
         
-        <div class="panel-control">
-            <div class="panel-titulo">
-                ⚙️ 1. Parámetros de Control
-                <button class="btn-accion" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin: 0; background: #d32f2f;" onclick="nuevoProyecto()">🗑️ NUEVO PROYECTO</button>
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos y Parámetros</span>
+                <span>▼</span>
             </div>
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Orden de Nivelación</label>
-                    <select id="ordenNiv" onchange="actualizarOrdenTxt(); guardarLocal(); procesarDobleLiga();">
-                        <option value="0.004">Orden I (4mm √K)</option>
-                        <option value="0.008">Orden II (8mm √K)</option>
-                        <option value="0.012">Orden III (12mm √K)</option>
-                        <option value="0.020" selected>Orden IV (20mm √K)</option>
-                    </select>
+            <div id="panelProyecto" style="display: none;">
+                <div class="project-selector">
+                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--corte-color);" onclick="eliminarProyecto()">🗑️</button>
                 </div>
-                <div class="input-group">
-                    <label>Cota Inicial (BM)</label>
-                    <input type="number" id="cotaBM" step="0.001" placeholder="Ej: 100.000" oninput="guardarLocal(); procesarDobleLiga();" onblur="formatearTresDecimales(this)">
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label>Nombre de la Poligonal</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Eje Principal Mz A" oninput="renombrarProyecto()">
                 </div>
-            </div>
-            
-            <div id="txtOrdenHelp" class="txt-ayuda">Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.</div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px; margin-bottom: 12px;">
+                    <label style="color: #111; font-size: 0.85rem; margin-bottom: 8px; display: block;">⚙️ Parámetros del Circuito</label>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Cota Inicial (BM)</label>
+                            <input type="number" id="cotaBM" step="0.001" inputmode="decimal" placeholder="Ej: 100.000" oninput="guardarBD(); procesarDobleLiga();">
+                        </div>
+                        <div class="input-group">
+                            <label>Orden Niv.</label>
+                            <select id="ordenNiv" onchange="actualizarOrdenTxt(); guardarBD(); procesarDobleLiga();">
+                                <option value="0.004">Orden I (4mm √K)</option>
+                                <option value="0.008">Orden II (8mm √K)</option>
+                                <option value="0.012">Orden III (12mm √K)</option>
+                                <option value="0.020" selected>Orden IV (20mm √K)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 5px; margin-bottom: 5px;">
+                        <div class="input-group">
+                            <label>Dist. Total (m)</label>
+                            <input type="number" id="distanciaM" step="1" inputmode="decimal" placeholder="Ej: 1500" oninput="guardarBD(); procesarDobleLiga();">
+                        </div>
+                        <div class="input-group">
+                            <label>Tol. Armada (mm)</label>
+                            <input type="number" id="tolTramo" step="1" inputmode="decimal" value="2" placeholder="Ej: 2" oninput="guardarBD(); procesarDobleLiga();">
+                        </div>
+                    </div>
+                    <div id="txtOrdenHelp" class="txt-ayuda">Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.</div>
+                </div>
 
-            <div class="form-grid" style="margin-top: 10px;">
-                <div class="input-group">
-                    <label>Dist. Total Circuito (m)</label>
-                    <input type="number" id="distanciaM" step="1" placeholder="Ej: 1500" oninput="guardarLocal(); procesarDobleLiga();">
+                <div style="border-top: 1px solid #eee; padding-top: 12px;">
+                    <label style="color: var(--primary-color);">+ Registrar BM</label>
+                    <div class="form-grid" style="margin-top: 4px;">
+                        <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
+                        <input type="number" id="newBMCota" step="0.001" inputmode="decimal" placeholder="Cota (m)">
+                    </div>
+                    <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
-                <div class="input-group">
-                    <label>Tol. por Armada (mm)</label>
-                    <input type="number" id="tolTramo" step="1" value="2" placeholder="Ej: 2" oninput="guardarLocal(); procesarDobleLiga();">
+                <div class="bm-list" id="listaBMs"></div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.8rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupPoligonal()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importPoligFile" accept=".json" style="display: none;" onchange="importarBackupPoligonal()">
+                        </label>
+                    </div>
                 </div>
+
             </div>
         </div>
 
-        <div class="dos-columnas">
-            
-            <!-- TRAMO IDA -->
-            <div class="panel-control col-tabla" style="border: 2px solid #1976d2; border-radius: 12px;">
-                <div class="panel-titulo" style="color: #1976d2; border-bottom-color: #1976d2;">➡️ NIVELACIÓN (IDA)</div>
+        <div class="dos-columnas" id="contenedorTablas">
+            <div class="panel-control col-tabla" style="border: 2px solid #1976d2; border-radius: 8px;">
+                <div class="cabecera-ida">➡️ NIVELACIÓN (IDA)</div>
                 <div class="table-container tabla-ida">
                     <table id="tablaIda">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">PTO</th>
-                                <th style="width: 20%;">V.AT(+)</th>
-                                <th style="width: 20%;">V.AD(-)</th>
-                                <th style="width: 35%;">COTA & ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoIda">
-                            <!-- Inyectado por JS -->
-                        </tbody>
+                        <thead><tr><th style="width: 22%;">PTO</th><th style="width: 18%;">V.AT(+)</th><th style="width: 18%;">V.AD(-)</th><th style="width: 32%;">COTA & ESTADO</th><th style="width: 10%;">🗑️</th></tr></thead>
+                        <tbody id="cuerpoIda"></tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- TRAMO VUELTA -->
-            <div class="panel-control col-tabla" style="border: 2px solid #d32f2f; border-radius: 12px;">
-                <div class="panel-titulo" style="color: #d32f2f; border-bottom-color: #d32f2f;">⬅️ NIVELACIÓN (VUELTA)</div>
+            <div class="panel-control col-tabla" style="border: 2px solid #d32f2f; border-radius: 8px;">
+                <div class="cabecera-vuelta">⬅️ NIVELACIÓN (VUELTA)</div>
                 <div class="table-container tabla-vuelta">
                     <table id="tablaVuelta">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">PTO</th>
-                                <th style="width: 20%;">V.AT(+)</th>
-                                <th style="width: 20%;">V.AD(-)</th>
-                                <th style="width: 35%;">COTA & ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoVuelta">
-                             <!-- Inyectado por JS -->
-                        </tbody>
+                        <thead><tr><th style="width: 22%;">PTO</th><th style="width: 18%;">V.AT(+)</th><th style="width: 18%;">V.AD(-)</th><th style="width: 32%;">COTA & ESTADO</th><th style="width: 10%;">🗑️</th></tr></thead>
+                        <tbody id="cuerpoVuelta"></tbody>
                     </table>
                 </div>
             </div>
-
         </div>
 
-        <div class="form-grid" style="margin-top: 5px; margin-bottom: 20px;">
-            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2; margin-top: 0;" onclick="agregarFila(false)">+ Avanzar Estación</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555; margin-top: 0;" onclick="quitarFila()">- Deshacer</button>
+        <div class="btn-dual">
+            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2; font-size: 0.95rem;" onclick="agregarFila()">+ Fila</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555; font-size: 0.95rem;" onclick="quitarFila()">- Borrar Última</button>
+            <button class="btn-accion" style="background:#fff; border: 2px solid var(--corte-color); color:var(--corte-color); font-size: 0.95rem;" onclick="limpiarTabla()">🗑️ Reset</button>
+            <button class="btn-accion" id="btnBloquear" style="background:#fff; border: 2px solid #fbc02d; color:#f57f17; font-size: 0.95rem;" onclick="toggleBloqueoTabla()">🔒 Bloq.</button>
         </div>
 
-        <button class="btn-accion btn-calc" onclick="procesarDobleLiga()">VERIFICAR CIERRE FINAL</button>
+        <button class="btn-accion btn-calc" onclick="verificarCierreFinal()">VERIFICAR CIERRE FINAL</button>
 
         <div class="panel-resultados" id="panelResultados">
-            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría Final del Circuito</h3>
-            <div class="input-row" style="margin-top: 15px;">
-                <div class="input-group">
-                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">ERROR DE CIERRE (E)</span>
-                    <div class="res-valor" id="resError" style="color: #111;">0.000 m</div>
+            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría del Circuito</h3>
+            <div id="contenedorSegmentos" style="margin-top: 15px;"></div>
+            <div style="border-top: 2px solid #111; margin-top: 15px; padding-top: 15px;">
+                <h4 style="color: #666; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase;">Resumen Global</h4>
+                <div style="display: flex; gap: 10px;">
+                    <div class="input-group" style="flex: 1;">
+                        <span style="font-size: 0.8rem; font-weight: 800; color: #666;">ERROR TOTAL (E)</span>
+                        <div class="res-valor" id="resError" style="color: #111;">0.000 m</div>
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA (T)</span>
+                        <div class="res-valor" id="resTol" style="color: #111;">0.000 m</div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA GLOBAL (T)</span>
-                    <div class="res-valor" id="resTol" style="color: #111;">0.000 m</div>
-                </div>
+                <div id="resEstado" class="estado-cumple" style="margin-top: 10px;">CUMPLE ESPECIFICACIONES</div>
             </div>
-            <div id="resEstado" class="estado-cumple" style="margin-top: 10px;">CUMPLE ESPECIFICACIONES</div>
             
-            <button class="btn-accion" style="background:#111; margin-top: 15px; font-size: 1rem;" onclick="generarCompensadas()" id="btnCompensar">Obtener Cotas Compensadas (Promedio)</button>
+            <button class="btn-accion" style="background:#111; margin-top: 15px; font-size: 1rem;" onclick="generarCompensadas()" id="btnCompensar">Obtener Cotas Compensadas</button>
             
             <div id="contenedorCompensadas" style="display: none;">
                 <table class="tabla-compensada" id="tablaCompensada">
                     <thead><tr><th>PUNTO</th><th>COTA IDA</th><th>COTA VUELTA</th><th>PROMEDIO</th></tr></thead>
                     <tbody id="cuerpoCompensadas"></tbody>
                 </table>
-                <button class="btn-accion" style="background:#1b5e20; margin-top: 15px; font-size: 1rem; border: 2px solid #1b5e20;" onclick="exportarExcel()" id="btnExcel">📥 Exportar a Excel (.xlsx)</button>
+                <button class="btn-accion" style="background:var(--excel-color); margin-top: 15px; font-size: 1rem;" onclick="exportarExcelConEstilos()" id="btnExcel">📥 Exportar a Excel (Con Colores)</button>
             </div>
         </div>
 
     </div>
 
-    <!-- CALCULADORA ACTUALIZADA CON BOTÓN DE BORRADO -->
-    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
-    </div>
-
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
-        <div class="calc-header"><span>CALCULADORA</span><button onclick="toggleCalculadora()">X</button></div>
+        <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
-            <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button class="calc-op" onclick="calcInput('/')">÷</button>
-            <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button class="calc-op" onclick="calcInput('*')">×</button>
-            <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button class="calc-op" onclick="calcInput('-')">-</button>
-            <button class="calc-clear" onclick="calcClear()">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button class="calc-op" onclick="calcInput('+')">+</button>
-            
-            <!-- Nuevo botón de borrado individual -->
-            <button onclick="calcBackspace()" style="background: #e0e0e0; color: #111; grid-column: span 2; font-size: 1.1rem;">⌫ BORRAR</button>
-            <!-- Botón de igual -->
-            <button class="calc-eq" onclick="calcEval()" style="grid-column: span 2;">=</button>
+            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">÷</button>
+            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">×</button>
+            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
+            <button onclick="calcClear()" style="color:#d32f2f; border-color:#ef9a9a;">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
+            <button onclick="calcDel()" style="grid-column: span 2; background:#eee;">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
-        // --- INICIALIZACIÓN Y LOCAL STORAGE ---
-        function nuevoProyecto() {
-            if(confirm("¿Estás seguro de borrar todo? Se perderán las lecturas actuales.")) {
-                localStorage.removeItem('cota100_poligonal');
-                location.reload();
+        let appData = { activoId: 1, proyectos: [] };
+        let inputPtoActivo = null; 
+        let tablaBloqueada = false;
+
+        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+
+        function toggleBloqueoTabla() {
+            vibrar(); tablaBloqueada = !tablaBloqueada;
+            const btn = document.getElementById('btnBloquear');
+            const tabla = document.getElementById('contenedorTablas');
+            if (tablaBloqueada) {
+                btn.innerHTML = "🔓 Desbloq."; btn.style.color = "#d32f2f"; btn.style.borderColor = "#d32f2f";
+                tabla.classList.add('modo-bloqueado');
+            } else {
+                btn.innerHTML = "🔒 Bloq."; btn.style.color = "#f57f17"; btn.style.borderColor = "#fbc02d";
+                tabla.classList.remove('modo-bloqueado');
             }
         }
 
-        function guardarLocal() {
-            let data = {
-                cotaBM: document.getElementById('cotaBM').value,
-                orden: document.getElementById('ordenNiv').value,
-                distanciaM: document.getElementById('distanciaM').value,
-                tolTramo: document.getElementById('tolTramo').value,
-                ida: [], vuelta: []
-            };
+        function inicializarApp() {
+            let stored = localStorage.getItem('cota100_db_poligonal_v9');
+            if (stored) { appData = JSON.parse(stored); } 
+            else { 
+                appData.proyectos.push({ id: 1, nombre: "Nuevo Proyecto 1", bms: [], tablaIda: [], tablaVuelta: [], params: { cotaBM: "", orden: "0.020", dist: "", tol: "2" } }); 
+                appData.activoId = 1; 
+            }
+            renderSelectProyectos(); cargarProyectoActivo();
+        }
 
+        function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
+        
+        function guardarBD() { 
+            let p = obtenerProyectoActivo();
+            if(!p) return;
+            p.nombre = document.getElementById('proyectName').value;
+            p.params.cotaBM = document.getElementById('cotaBM').value;
+            p.params.orden = document.getElementById('ordenNiv').value;
+            p.params.dist = document.getElementById('distanciaM').value;
+            p.params.tol = document.getElementById('tolTramo').value;
+
+            p.tablaIda = []; p.tablaVuelta = [];
             let filasIda = document.querySelectorAll('#cuerpoIda tr');
             let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
 
             for (let i = 0; i < filasIda.length; i++) {
-                data.ida.push({
+                p.tablaIda.push({
                     pto: filasIda[i].querySelector('.in-pto').value,
+                    bmAsignado: i === 0 ? (filasIda[i].querySelector('.in-pto').dataset.bmAsignado || "") : "",
                     va: filasIda[i].querySelector('.in-va').value,
                     vd: filasIda[i].querySelector('.in-vd').value
                 });
-                data.vuelta.push({
+                p.tablaVuelta.push({
                     pto: filasVuelta[i].querySelector('.in-pto').value,
                     va: filasVuelta[i].querySelector('.in-va').value,
                     vd: filasVuelta[i].querySelector('.in-vd').value
                 });
             }
-            localStorage.setItem('cota100_poligonal', JSON.stringify(data));
+            localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(appData)); 
         }
 
-        function cargarLocal() {
-            let dataStr = localStorage.getItem('cota100_poligonal');
-            if (dataStr) {
-                let data = JSON.parse(dataStr);
-                document.getElementById('cotaBM').value = data.cotaBM || "";
-                document.getElementById('ordenNiv').value = data.orden || "0.020";
-                document.getElementById('distanciaM').value = data.distanciaM || "";
-                document.getElementById('tolTramo').value = data.tolTramo || "2";
-                
-                document.getElementById('cuerpoIda').innerHTML = "";
-                document.getElementById('cuerpoVuelta').innerHTML = "";
-                
-                for(let i=0; i<data.ida.length; i++) {
-                    agregarFila(true); 
-                    let trIda = document.querySelectorAll('#cuerpoIda tr')[i];
-                    let trVuelta = document.querySelectorAll('#cuerpoVuelta tr')[i];
-                    
-                    trIda.querySelector('.in-pto').value = data.ida[i].pto;
-                    trIda.querySelector('.in-va').value = data.ida[i].va;
-                    trIda.querySelector('.in-vd').value = data.ida[i].vd;
+        function renderSelectProyectos() {
+            const select = document.getElementById('selectProyecto');
+            select.innerHTML = "";
+            appData.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appData.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
+        }
 
-                    trVuelta.querySelector('.in-pto').value = data.vuelta[i].pto;
-                    trVuelta.querySelector('.in-va').value = data.vuelta[i].va;
-                    trVuelta.querySelector('.in-vd').value = data.vuelta[i].vd;
-                }
-            } else {
-                agregarFila(true); 
+        function crearNuevoProyecto() {
+            vibrar(); 
+            let n = 1;
+            while(appData.proyectos.some(p => p.nombre === `Nuevo Proyecto ${n}`)) n++;
+            let nuevoId = Date.now();
+            
+            appData.proyectos.push({ id: nuevoId, nombre: `Nuevo Proyecto ${n}`, bms: [], tablaIda: [], tablaVuelta: [], params: { cotaBM: "", orden: "0.020", dist: "", tol: "2" } });
+            appData.activoId = nuevoId; 
+            localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(appData));
+            
+            renderSelectProyectos(); 
+            cargarProyectoActivo();
+        }
+
+        function eliminarProyecto() {
+            vibrar();
+            if(appData.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
+                appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
+                appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
             }
-            actualizarOrdenTxt();
-            procesarDobleLiga();
         }
 
-        function actualizarOrdenTxt() {
-            let select = document.getElementById('ordenNiv');
-            let txt = document.getElementById('txtOrdenHelp');
-            if(select.value === "0.004") txt.innerText = "Orden I: Alta precisión. Presas, redes geodésicas base, túneles extensos.";
-            else if(select.value === "0.008") txt.innerText = "Orden II: Precisión media. Puentes importantes, viaductos, carreteras principales.";
-            else if(select.value === "0.012") txt.innerText = "Orden III: Precisión básica. Drenaje, vías urbanas, alcantarillado, canales.";
-            else txt.innerText = "Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.";
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); cargarProyectoActivo(); }
+        function renombrarProyecto() { guardarBD(); renderSelectProyectos(); }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('proyectName').value = p.nombre;
+            document.getElementById('cotaBM').value = p.params.cotaBM || "";
+            document.getElementById('ordenNiv').value = p.params.orden;
+            document.getElementById('distanciaM').value = p.params.dist;
+            document.getElementById('tolTramo').value = p.params.tol;
+            actualizarOrdenTxt(); renderBMs(); 
+            
+            const tbodyIda = document.getElementById('cuerpoIda');
+            const tbodyVuelta = document.getElementById('cuerpoVuelta');
+            tbodyIda.innerHTML = ""; tbodyVuelta.innerHTML = "";
+
+            if (!p.tablaIda || p.tablaIda.length === 0) {
+                for(let i = 0; i < 8; i++) agregarFila(true);
+                guardarBD();
+            } else {
+                for(let i=0; i<p.tablaIda.length; i++) {
+                    agregarFila(true); 
+                    let trIda = tbodyIda.children[i];
+                    let trVuelta = tbodyVuelta.children[i];
+                    
+                    trIda.querySelector('.in-pto').value = p.tablaIda[i].pto;
+                    if(i === 0) trIda.querySelector('.in-pto').dataset.bmAsignado = p.tablaIda[i].bmAsignado;
+                    
+                    trIda.querySelector('.in-va').value = p.tablaIda[i].va;
+                    trIda.querySelector('.in-vd').value = p.tablaIda[i].vd;
+
+                    trVuelta.querySelector('.in-pto').value = p.tablaVuelta[i].pto;
+                    trVuelta.querySelector('.in-va').value = p.tablaVuelta[i].va;
+                    trVuelta.querySelector('.in-vd').value = p.tablaVuelta[i].vd;
+                }
+                procesarDobleLiga();
+            }
+        }
+
+        function exportarBackupPoligonal() {
+            vibrar();
+            const backup = JSON.parse(localStorage.getItem('cota100_db_poligonal_v9'));
+            if(!backup || backup.proyectos.length === 0) return alert("No hay datos guardados para exportar.");
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchorNode = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `DB_Poligonal_${fecha}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importarBackupPoligonal() {
+            const fileInput = document.getElementById('importPoligFile');
+            if (fileInput.files.length === 0) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if(backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(backup));
+                        alert("✅ Base de datos restaurada con éxito.");
+                        window.location.reload();
+                    } else {
+                        alert("❌ Archivo no válido para esta aplicación.");
+                    }
+                } catch(err) {
+                    alert("❌ Error al leer el archivo.");
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; }
+
+        function addBM() {
+            vibrar();
+            const name = document.getElementById('newBMName').value.toUpperCase();
+            const cota = parseFloat(document.getElementById('newBMCota').value);
+            if(!name || isNaN(cota)) return alert("Datos inválidos.");
+            let p = obtenerProyectoActivo();
+            if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre.");
+            p.bms.push({ nombre: name, cota: cota });
+            document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = "";
+            guardarBD(); renderBMs();
+        }
+
+        function deleteBM(i) { 
+            vibrar(); let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`)) { p.bms.splice(i, 1); guardarBD(); renderBMs(); }
+        }
+
+        function renderBMs() {
+            let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
+            p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; });
+        }
+
+        function abrirSelectorBM(input) {
+            vibrar(); let p = obtenerProyectoActivo(); inputPtoActivo = input;
+            let tr = input.closest('tr');
+            let tbodyIda = document.getElementById('cuerpoIda');
+            if (tr.parentNode !== tbodyIda || Array.from(tbodyIda.children).indexOf(tr) !== 0) return; 
+
+            if (p.bms.length === 0) { activarTecladoManual(); return; }
+
+            const contenedor = document.getElementById('contenedorBotonesBM'); contenedor.innerHTML = "";
+            p.bms.forEach(bm => { contenedor.innerHTML += `<button class="btn-bm-opcion" onclick="seleccionarBMModal('${bm.nombre}')"><span>${bm.nombre}</span><span class="cota">Cota: ${bm.cota.toFixed(3)}</span></button>`; });
+
+            const overlay = document.getElementById('overlayBM'); const modal = document.getElementById('modalSelectorBM');
+            overlay.style.display = 'block'; setTimeout(() => { overlay.classList.add('activo'); modal.classList.add('abierto'); }, 10);
+        }
+
+        function cerrarSelectorBM() {
+            vibrar(); const overlay = document.getElementById('overlayBM'); const modal = document.getElementById('modalSelectorBM');
+            overlay.classList.remove('activo'); modal.classList.remove('abierto');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        }
+
+        function activarTecladoManual() {
+            cerrarSelectorBM();
+            if(inputPtoActivo) {
+                inputPtoActivo.removeAttribute('readonly'); inputPtoActivo.focus();
+                inputPtoActivo.addEventListener('blur', function() { verificarBM(this); syncBM(this); guardarBD(); }, {once: true}); 
+            }
+        }
+
+        function seleccionarBMModal(nombreBM) {
+            vibrar(); cerrarSelectorBM();
+            if(inputPtoActivo) { inputPtoActivo.value = nombreBM; verificarBM(inputPtoActivo); syncBM(inputPtoActivo); guardarBD(); }
+        }
+
+        function verificarBM(input) {
+            const val = input.value.toUpperCase(); input.value = val; 
+            let p = obtenerProyectoActivo(); const bmEncontrado = p.bms.find(b => b.nombre === val);
+            const tr = input.closest('tr'); const tbody = document.getElementById('cuerpoIda');
+            let rowIndex = Array.from(tbody.children).indexOf(tr);
+
+            if (rowIndex === 0) {
+                const inCotaBM = document.getElementById('cotaBM');
+                if (bmEncontrado) {
+                    input.dataset.bmAsignado = val;
+                    inCotaBM.value = bmEncontrado.cota.toFixed(3);
+                } else {
+                    input.dataset.bmAsignado = "";
+                }
+            }
+            procesarDobleLiga();
+            guardarBD();
         }
 
         function syncBM(input) {
             let trIda = input.closest('tr');
-            let tbodyIda = trIda.parentNode;
-            let len = tbodyIda.children.length;
+            if(!trIda || trIda.parentNode.id !== 'cuerpoIda') return;
+            let tbodyIda = trIda.parentNode; 
+            let len = tbodyIda.children.length; 
             let idx = Array.from(tbodyIda.children).indexOf(trIda);
             
             let ptoNombres = [];
-            for(let i=0; i<len; i++) {
-                ptoNombres.push(tbodyIda.children[i].querySelector('.in-pto').value.toUpperCase());
+            let anchors = []; 
+
+            for(let i=0; i<len; i++) { 
+                let val = tbodyIda.children[i].querySelector('.in-pto').value.trim().toUpperCase();
+                ptoNombres.push(val);
+                
+                let isAnchor = val !== "" && !val.startsWith("PC");
+                if (i === 0 || isAnchor) {
+                    if (!anchors.includes(i)) anchors.push(i);
+                }
+            }
+
+            let lastFilled = -1;
+            for (let i = len - 1; i >= 0; i--) {
+                if (ptoNombres[i] !== "") { lastFilled = i; break; }
+            }
+            if (lastFilled > anchors[anchors.length - 1]) {
+                anchors.push(lastFilled);
             }
 
             let filasVuelta = document.getElementById('cuerpoVuelta').children;
-
             for(let i=0; i<len; i++) { filasVuelta[i].querySelector('.in-pto').value = ""; }
 
-            let bmIndices = [];
-            ptoNombres.forEach((nombre, index) => {
-                if (nombre.includes('BM') || index === 0) bmIndices.push(index);
-            });
-
-            let lastProcessedIdx = -1;
-            for (let k = 0; k < bmIndices.length - 1; k++) {
-                let startIdx = bmIndices[k];
-                let endIdx = bmIndices[k+1];
+            for (let k = 0; k < anchors.length - 1; k++) {
+                let startIdx = anchors[k];
+                let endIdx = anchors[k+1];
                 
                 filasVuelta[startIdx].querySelector('.in-pto').value = ptoNombres[startIdx];
                 filasVuelta[endIdx].querySelector('.in-pto').value = ptoNombres[endIdx];
@@ -408,96 +626,141 @@
                 for (let j = 0; j < middle.length; j++) {
                     filasVuelta[startIdx + 1 + j].querySelector('.in-pto').value = middle[j];
                 }
-                lastProcessedIdx = endIdx;
             }
 
-            let startMirror = lastProcessedIdx === -1 ? 0 : lastProcessedIdx;
-            for (let i = startMirror; i < len; i++) {
-                if (!filasVuelta[i].querySelector('.in-pto').value) {
-                    filasVuelta[i].querySelector('.in-pto').value = ptoNombres[i];
-                }
+            if (anchors.length === 1 && ptoNombres[0] !== "") {
+                filasVuelta[0].querySelector('.in-pto').value = ptoNombres[0];
             }
 
-            let isFirstBM = idx === 0;
-            let isAnyBM = ptoNombres[idx].includes('BM');
-
-            if (isFirstBM || isAnyBM) {
+            let valActual = ptoNombres[idx] || "";
+            let isControlPoint = valActual !== "" && !valActual.startsWith("PC");
+            
+            if (isControlPoint) {
                 let trVuelta = filasVuelta[idx];
                 if(trVuelta) {
                     if (input.classList.contains('in-va') && !trVuelta.querySelector('.in-vd').disabled) {
                         trVuelta.querySelector('.in-vd').value = input.value;
-                        trVuelta.querySelector('.in-vd').dataset.prevLen = input.value.length;
                     }
                     if (input.classList.contains('in-vd') && !trVuelta.querySelector('.in-va').disabled) {
                         trVuelta.querySelector('.in-va').value = input.value;
-                        trVuelta.querySelector('.in-va').dataset.prevLen = input.value.length;
                     }
                 }
-            } else if (input.classList.contains('in-pto') && idx !== 0) {
+            } else if (input.classList.contains('in-pto')) {
                 let trVuelta = filasVuelta[idx];
-                if (trVuelta) {
-                    trVuelta.querySelector('.in-va').value = "";
-                    trVuelta.querySelector('.in-vd').value = "";
+                if (trVuelta && idx !== 0) { 
+                    trVuelta.querySelector('.in-va').value = ""; 
+                    trVuelta.querySelector('.in-vd').value = ""; 
                 }
             }
-            guardarLocal();
+            guardarBD();
         }
 
-        function formatearTresDecimales(input) {
-            if (input.value.trim() !== "") {
-                let val = parseFloat(input.value);
-                if (!isNaN(val)) {
-                    input.value = val.toFixed(3);
-                    input.dataset.prevLen = input.value.length; 
-                    syncBM(input); 
-                    procesarDobleLiga();
-                }
+        function reconstruirSincronizacion() {
+            let tbodyIda = document.getElementById('cuerpoIda');
+            if(tbodyIda.children.length > 0) {
+                syncBM(tbodyIda.children[0].querySelector('.in-pto'));
             }
         }
 
-        function autoPunto(input) {
-            let val = input.value.replace(/[^0-9.]/g, ''); 
-            let prevLen = parseInt(input.dataset.prevLen) || 0;
-            if (val.length === 1 && /^[0-9]$/.test(val) && val.length > prevLen) { val = val + "."; }
-            input.dataset.prevLen = val.length;
-            input.value = val;
-            guardarLocal();
+        // --- LÓGICA DE BORRADO ESPECÍFICO (NUEVO) ---
+        function borrarFilaEspecifica(btn) {
+            vibrar();
+            let trIda = btn.closest('tr');
+            let tbodyIda = trIda.parentNode;
+            let idx = Array.from(tbodyIda.children).indexOf(trIda);
+            let pto = trIda.querySelector('.in-pto').value.trim() || `Estación ${idx + 1}`;
+            
+            if(confirm(`⚠️ ¿Estás seguro de eliminar permanentemente la lectura del punto: ${pto}? Se recalculará todo el circuito.`)) {
+                let tbodyVuelta = document.getElementById('cuerpoVuelta');
+                
+                tbodyIda.removeChild(trIda);
+                tbodyVuelta.removeChild(tbodyVuelta.children[idx]);
+                
+                reconstruirSincronizacion();
+                procesarDobleLiga();
+                guardarBD();
+            }
         }
 
-        function agregarFila(isLoad = false) {
-            const tbodyIda = document.getElementById('cuerpoIda');
+        function agregarFila(isAuto = false) {
+            if(!isAuto) vibrar();
+            const tbodyIda = document.getElementById('cuerpoIda'); 
             const tbodyVuelta = document.getElementById('cuerpoVuelta');
             const idx = tbodyIda.children.length;
-            
-            const disVDIda = idx === 0 ? 'disabled' : '';
+            const disVDIda = idx === 0 ? 'disabled' : ''; 
             const disVAVuelta = idx === 0 ? 'disabled' : '';
             
+            // Reemplazo de los identificadores ID en el HTML para evitar colapsos al borrar filas del medio
             const trIda = document.createElement('tr');
-            trIda.innerHTML = `<td><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga();"></td>
-                <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="autoPunto(this); syncBM(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
-                <td class="${idx===0?'td-readonly':''}"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" ${disVDIda} oninput="autoPunto(this); syncBM(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
-                <td class="out-cota" id="cotaIda-${idx}">---</td>`;
+            if (idx === 0) {
+                trIda.innerHTML = `<td><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)"></td>
+                    <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
+                    <td class="td-readonly"><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
+                    <td class="out-cota" style="padding: 2px;">---</td>
+                    <td style="background: rgba(0,0,0,0.02);"></td>`;
+            } else {
+                trIda.innerHTML = `<td><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();"></td>
+                    <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
+                    <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="syncBM(this); procesarDobleLiga();"></td>
+                    <td class="out-cota">---</td>
+                    <td style="background: rgba(0,0,0,0.02);"><button class="btn-del-fila" onclick="borrarFilaEspecifica(this)">✖</button></td>`;
+            }
             
             const trVuelta = document.createElement('tr');
             trVuelta.innerHTML = `<td><input type="text" class="in-pto" placeholder="..." readonly></td>
-                <td class="${idx===0?'td-readonly':''}"><input type="text" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="autoPunto(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
-                <td><input type="text" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="autoPunto(this); procesarDobleLiga();" onblur="formatearTresDecimales(this)"></td>
-                <td class="out-cota" id="cotaVuelta-${idx}">---</td>`;
+                <td class="${idx===0?'td-readonly':''}"><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="syncBM(this); procesarDobleLiga();"></td>
+                <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
+                <td class="out-cota">---</td>
+                <td style="background: rgba(0,0,0,0.02);"></td>`;
 
-            tbodyIda.appendChild(trIda);
-            tbodyVuelta.appendChild(trVuelta);
-            
-            if(!isLoad) { guardarLocal(); }
+            tbodyIda.appendChild(trIda); tbodyVuelta.appendChild(trVuelta);
+            if(!isAuto) guardarBD();
         }
 
-        function quitarFila() {
-            const tbodyIda = document.getElementById('cuerpoIda');
-            const tbodyVuelta = document.getElementById('cuerpoVuelta');
-            if (tbodyIda.children.length > 1) { 
-                tbodyIda.removeChild(tbodyIda.lastChild); 
-                tbodyVuelta.removeChild(tbodyVuelta.lastChild);
-                procesarDobleLiga();
-                guardarLocal();
+        function quitarFila() { 
+            vibrar(); 
+            const bi = document.getElementById('cuerpoIda'); 
+            const bv = document.getElementById('cuerpoVuelta'); 
+            if (bi.children.length > 1) { 
+                bi.removeChild(bi.lastChild); 
+                bv.removeChild(bv.lastChild); 
+                reconstruirSincronizacion();
+                procesarDobleLiga(); 
+                guardarBD(); 
+            } 
+        }
+
+        function limpiarTabla() {
+            vibrar();
+            if(confirm("🚨 ¿Borrar todas las lecturas de este circuito?")) { 
+                document.getElementById('cuerpoIda').innerHTML = ""; document.getElementById('cuerpoVuelta').innerHTML = "";
+                for(let i = 0; i < 8; i++) agregarFila(true);
+                document.getElementById('panelResultados').style.display = 'none';
+                guardarBD();
+            } 
+        }
+
+        function actualizarOrdenTxt() {
+            let select = document.getElementById('ordenNiv'); let txt = document.getElementById('txtOrdenHelp');
+            if(select.value === "0.004") txt.innerText = "Orden I: Alta precisión. Presas, redes geodésicas base, túneles extensos.";
+            else if(select.value === "0.008") txt.innerText = "Orden II: Precisión media. Puentes importantes, viaductos, carreteras principales.";
+            else if(select.value === "0.012") txt.innerText = "Orden III: Precisión básica. Drenaje, vías urbanas, alcantarillado, canales.";
+            else txt.innerText = "Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.";
+        }
+
+        function verificarCierreFinal() {
+            vibrar();
+            let cotaBM = parseFloat(document.getElementById('cotaBM').value);
+            let distM = parseFloat(document.getElementById('distanciaM').value);
+            
+            if(isNaN(cotaBM)) return alert("⚠️ Atención: Debes ingresar tu Cota Inicial (BM) en la parte superior para calcular.");
+            if(isNaN(distM) || distM <= 0) return alert("⚠️ Atención: Debes ingresar la Distancia Total del circuito en metros para hallar la tolerancia.");
+            
+            procesarDobleLiga(); 
+            
+            let panel = document.getElementById('panelResultados');
+            if(panel.style.display === 'block') {
+                panel.scrollIntoView({ behavior: 'smooth' });
             }
         }
 
@@ -510,28 +773,44 @@
             let filasIda = document.querySelectorAll('#cuerpoIda tr');
             let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
 
+            if(filasIda.length === 0) return;
+
             let cotaActIda = 0; let aiIda = 0;
             let cotaActVuelta = 0; let aiVuelta = 0;
+            let habilitarSiguiente = true; 
 
             for(let i=0; i<filasIda.length; i++) {
+                
+                if (habilitarSiguiente) {
+                    filasIda[i].classList.remove('fila-inactiva');
+                    filasVuelta[i].classList.remove('fila-inactiva');
+                } else {
+                    filasIda[i].classList.add('fila-inactiva');
+                    filasVuelta[i].classList.add('fila-inactiva');
+                    filasIda[i].querySelector('.out-cota').innerHTML = `<div style="color:#aaa;">---</div>`;
+                    filasVuelta[i].querySelector('.out-cota').innerHTML = `<div style="color:#aaa;">---</div>`;
+                    continue; 
+                }
+
                 let vaIda = parseFloat(filasIda[i].querySelector('.in-va').value);
                 let vdIda = parseFloat(filasIda[i].querySelector('.in-vd').value);
-                let celdaIda = document.getElementById('cotaIda-'+i);
-
                 let vaVuelta = parseFloat(filasVuelta[i].querySelector('.in-va').value);
                 let vdVuelta = parseFloat(filasVuelta[i].querySelector('.in-vd').value);
-                let celdaVuelta = document.getElementById('cotaVuelta-'+i);
-
+                
+                // Evitamos el ID dinámico para que no colapse al borrar filas
+                let celdaIda = filasIda[i].querySelector('.out-cota');
+                let celdaVuelta = filasVuelta[i].querySelector('.out-cota');
                 let badgeInvisible = `<div class="badge-tramo badge-oculto">_</div>`;
 
+                // IDA
                 if (i === 0) {
                     cotaActIda = isNaN(cotaBM) ? NaN : cotaBM;
                     if (!isNaN(cotaActIda)) {
                         if (!isNaN(vaIda)) {
                             aiIda = cotaActIda + vaIda;
-                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
                         } else {
-                            celdaIda.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
                         }
                     } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
                 } else {
@@ -539,21 +818,22 @@
                         cotaActIda = aiIda - vdIda;
                         if (!isNaN(vaIda)) {
                             aiIda = cotaActIda + vaIda;
-                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
                         } else {
-                            celdaIda.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
                         }
                     } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
                 }
 
+                // VUELTA
                 if (i === 0) {
                     cotaActVuelta = isNaN(cotaBM) ? NaN : cotaBM;
                     if (!isNaN(cotaActVuelta)) {
                         if (!isNaN(vdVuelta)) {
                             aiVuelta = cotaActVuelta + vdVuelta;
-                            celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                            celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
                         } else {
-                            celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                            celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
                         }
                     } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
                 } else {
@@ -565,86 +845,158 @@
                                 let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
                                 let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
                                 let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
-                                celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
-                            } else { celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                                celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
                         } else {
                             if (!isNaN(vdIda)) {
                                 let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
                                 let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
                                 let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
-                                celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
-                            } else { celdaVuelta.innerHTML = `<div style="font-size:1.1rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                                celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
                         }
                     } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
+                }
+
+                if (i === 0) {
+                    if (isNaN(vaIda) || isNaN(vdVuelta) || isNaN(cotaBM)) habilitarSiguiente = false;
+                } else {
+                    if (isNaN(vaIda) || isNaN(vdIda) || isNaN(vaVuelta) || isNaN(vdVuelta)) habilitarSiguiente = false;
                 }
             }
 
             document.getElementById('contenedorCompensadas').style.display = 'none';
 
             if(!isNaN(cotaBM) && !isNaN(distM) && distM > 0 && filasIda.length > 0) {
+                
+                let anchors = [];
+                let filledRows = 0;
+                for(let i=0; i<filasIda.length; i++) {
+                    if (filasIda[i].classList.contains('fila-inactiva')) continue;
+
+                    let pto = filasIda[i].querySelector('.in-pto').value.trim().toUpperCase();
+                    if(pto !== "") {
+                        filledRows++;
+                        if(!pto.startsWith("PC")) anchors.push(i);
+                    }
+                }
+
+                let ultimoLleno = -1;
+                for(let i = filasIda.length - 1; i >= 0; i--) {
+                    if (filasIda[i].classList.contains('fila-inactiva')) continue;
+                    if(filasIda[i].querySelector('.in-pto').value.trim() !== "") {
+                        ultimoLleno = i; break;
+                    }
+                }
+                if(ultimoLleno > anchors[anchors.length - 1]) anchors.push(ultimoLleno);
+
+                let htmlSeg = "";
+                let todosCumplen = true;
+
+                if(anchors.length > 1) {
+                    let distPerSetup = distM / (filledRows > 1 ? filledRows - 1 : 1);
+
+                    for(let k=0; k<anchors.length-1; k++) {
+                        let start = anchors[k];
+                        let end = anchors[k+1];
+                        let ptoStart = filasIda[start].querySelector('.in-pto').value.toUpperCase();
+                        let ptoEnd = filasIda[end].querySelector('.in-pto').value.toUpperCase();
+
+                        let divIda = filasIda[end].querySelector('.out-cota div[data-cota]');
+                        let cotaIdaEnd = divIda ? parseFloat(divIda.getAttribute('data-cota')) : NaN;
+                        let divVuelta = filasVuelta[end].querySelector('.out-cota div[data-cota]');
+                        let cotaVueltaEnd = divVuelta ? parseFloat(divVuelta.getAttribute('data-cota')) : NaN;
+
+                        if(!isNaN(cotaIdaEnd) && !isNaN(cotaVueltaEnd)) {
+                            let errTramo = Math.abs(cotaIdaEnd - cotaVueltaEnd);
+                            let setups = end - start;
+                            let distTramo = setups * distPerSetup;
+                            let tolTramo = multiplicador * Math.sqrt(distTramo / 1000);
+
+                            let cumple = errTramo <= tolTramo;
+                            if(!cumple) todosCumplen = false;
+
+                            htmlSeg += `
+                                <div style="border: 2px solid ${cumple ? '#a5d6a7' : '#ef9a9a'}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? '#f1f8e9' : '#ffebee'};">
+                                    <div style="font-weight: 900; color: #111; margin-bottom: 5px;">📍 ${ptoStart} ➔ ${ptoEnd} <span style="float:right; font-size:0.8rem; color:#666;">(${setups} armadas)</span></div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #333;">
+                                        <span>Error: <strong>${errTramo.toFixed(4)} m</strong></span>
+                                        <span>Tol: <strong>±${tolTramo.toFixed(4)} m</strong></span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
+                document.getElementById('contenedorSegmentos').innerHTML = htmlSeg;
+
                 let distKm = distM / 1000;
-                let errorCierre = Math.abs(cotaActIda - cotaActVuelta); 
+                let errorCierreGlobal = Math.abs(cotaActIda - cotaActVuelta); 
                 let toleranciaGlobal = multiplicador * Math.sqrt(distKm);
 
-                document.getElementById('resError').innerText = errorCierre.toFixed(4) + " m";
+                document.getElementById('resError').innerText = errorCierreGlobal.toFixed(4) + " m";
                 document.getElementById('resTol').innerText = "±" + toleranciaGlobal.toFixed(4) + " m";
 
                 let estadoTag = document.getElementById('resEstado');
-                if(errorCierre <= toleranciaGlobal) {
-                    estadoTag.innerText = "✓ CUMPLE TOLERANCIA";
-                    estadoTag.className = "estado-cumple";
+                if(errorCierreGlobal <= toleranciaGlobal && todosCumplen) {
+                    estadoTag.innerText = "✓ CUMPLE ESPECIFICACIONES"; estadoTag.className = "estado-cumple";
                     document.getElementById('btnCompensar').style.display = 'block';
                 } else {
-                    estadoTag.innerText = "❌ RECHAZADO (SUPERA TOLERANCIA)";
-                    estadoTag.className = "estado-falla";
+                    estadoTag.innerText = "❌ RECHAZADO (REVISAR TRAMOS)"; estadoTag.className = "estado-falla";
                     document.getElementById('btnCompensar').style.display = 'none';
                 }
                 document.getElementById('panelResultados').style.display = 'block';
             } else {
                 document.getElementById('panelResultados').style.display = 'none';
             }
-            guardarLocal();
+            guardarBD();
         }
 
         function generarCompensadas() {
+            vibrar();
+            const cotaBM = parseFloat(document.getElementById('cotaBM').value);
             const filasIda = document.querySelectorAll('#cuerpoIda tr');
             const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
             const cuerpoCompensadas = document.getElementById('cuerpoCompensadas');
             cuerpoCompensadas.innerHTML = "";
 
-            let dictIda = {};
-            let listIdaOrden = [];
+            let dictIda = {}; let listIdaOrden = [];
 
             for(let i=0; i<filasIda.length; i++) {
+                if (filasIda[i].classList.contains('fila-inactiva')) continue;
+
                 let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase();
-                let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
-                if(pto && divCota) {
-                    let cota = parseFloat(divCota.getAttribute('data-cota'));
-                    dictIda[pto] = { cotaIda: cota };
-                    listIdaOrden.push(pto);
+                let cota;
+                if(i===0) cota = isNaN(cotaBM) ? NaN : cotaBM;
+                else {
+                    let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
+                    if(divCota) cota = parseFloat(divCota.getAttribute('data-cota'));
                 }
+                
+                if(pto && !isNaN(cota)) { dictIda[pto] = { cotaIda: cota }; listIdaOrden.push(pto); }
             }
 
             for(let i=0; i<filasVuelta.length; i++) {
+                if (filasVuelta[i].classList.contains('fila-inactiva')) continue;
+
                 let pto = filasVuelta[i].querySelector('.in-pto').value.toUpperCase();
                 let divCota = filasVuelta[i].querySelector('.out-cota div[data-cota]');
-                if(pto && divCota && dictIda[pto]) {
+                if(i===0 && dictIda[pto]) dictIda[pto].cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM;
+                else if(pto && divCota && dictIda[pto]) {
                     let cota = parseFloat(divCota.getAttribute('data-cota'));
                     dictIda[pto].cotaVuelta = cota;
                 }
             }
 
             listIdaOrden.forEach(pto => {
+                if(pto.startsWith("PC")) return; 
+                
                 let data = dictIda[pto];
                 if(data.cotaVuelta !== undefined) {
                     let promedio = (data.cotaIda + data.cotaVuelta) / 2;
                     let tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="color:var(--primary-color);">${pto}</td>
-                        <td>${data.cotaIda.toFixed(3)}</td>
-                        <td>${data.cotaVuelta.toFixed(3)}</td>
-                        <td style="color:#2e7d32;">${promedio.toFixed(3)}</td>
-                    `;
+                    tr.innerHTML = `<td style="color:var(--primary-color);">${pto}</td><td>${data.cotaIda.toFixed(3)}</td><td>${data.cotaVuelta.toFixed(3)}</td><td style="color:#2e7d32;">${promedio.toFixed(3)}</td>`;
                     cuerpoCompensadas.appendChild(tr);
                 }
             });
@@ -653,70 +1005,103 @@
             setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        function exportarExcel() {
+        function exportarExcelConEstilos() {
+            vibrar(); let p = obtenerProyectoActivo(); 
             let wb = XLSX.utils.book_new();
 
-            let datosIda = [["REPORTE DE NIVELACIÓN - IDA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
+            let colorIdaHeader = { rgb: "FF1565C0" };
+            let colorVueltaHeader = { rgb: "FFC62828" };
+            let colorDarkHeader = { rgb: "FF111111" };
+            let colorWhite = { rgb: "FFFFFFFF" };
+
+            let titleStyle = { font: { bold: true, sz: 14 } };
+            let headIda = { fill: { fgColor: colorIdaHeader }, font: { bold: true, color: colorWhite }, alignment: { horizontal: "center", vertical: "center" } };
+            let headVuelta = { fill: { fgColor: colorVueltaHeader }, font: { bold: true, color: colorWhite }, alignment: { horizontal: "center", vertical: "center" } };
+            let headComp = { fill: { fgColor: colorDarkHeader }, font: { bold: true, color: colorWhite }, alignment: { horizontal: "center", vertical: "center" } };
+            
+            let cellCenter = { alignment: { horizontal: "center", vertical: "center" } };
+            let cellBold = { font: { bold: true }, alignment: { horizontal: "center", vertical: "center" } };
+            let cellCota = { fill: { fgColor: { rgb: "FFF5F5F5" } }, font: { bold: true }, alignment: { horizontal: "center", vertical: "center" } };
+
+            let wsIdaData = [
+                [{v: `REPORTE IDA - ${p.nombre}`, s: titleStyle}, null, null, null],
+                [null, null, null, null],
+                [{v:"PTO", s:headIda}, {v:"V. ATRÁS (+)", s:headIda}, {v:"V. ADEL. (-)", s:headIda}, {v:"COTA", s:headIda}]
+            ];
             let filasIda = document.querySelectorAll('#cuerpoIda tr');
-            for(let i=0; i<filasIda.length; i++) {
-                let pto = filasIda[i].querySelector('.in-pto').value || "";
-                let va = filasIda[i].querySelector('.in-va').value || "";
-                let vd = filasIda[i].querySelector('.in-vd').value || "";
-                let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
-                let cota = divCota ? divCota.getAttribute('data-cota') : "";
-                datosIda.push([pto, va, vd, cota]);
-            }
-            let wsIda = XLSX.utils.aoa_to_sheet(datosIda);
-            wsIda['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+            filasIda.forEach((tr, i) => {
+                if (tr.classList.contains('fila-inactiva')) return;
+
+                let pto = tr.querySelector('.in-pto').value || "";
+                let va = parseFloat(tr.querySelector('.in-va').value);
+                let vd = parseFloat(tr.querySelector('.in-vd').value);
+                let cota = i===0 ? parseFloat(document.getElementById('cotaBM').value) : (tr.querySelector('.out-cota div[data-cota]') ? parseFloat(tr.querySelector('.out-cota div[data-cota]').getAttribute('data-cota')) : NaN);
+                
+                wsIdaData.push([
+                    {v: pto, s: cellBold}, 
+                    isNaN(va) ? {v: "", s: cellCenter} : {v: va, t: 'n', s: cellCenter}, 
+                    isNaN(vd) ? {v: "", s: cellCenter} : {v: vd, t: 'n', s: cellCenter}, 
+                    isNaN(cota) ? {v: "", s: cellCota} : {v: cota, t: 'n', z: "0.000", s: cellCota}
+                ]);
+            });
+            let wsIda = XLSX.utils.aoa_to_sheet(wsIdaData);
+            wsIda['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}];
             XLSX.utils.book_append_sheet(wb, wsIda, "Libreta IDA");
 
-            let datosVuelta = [["REPORTE DE NIVELACIÓN - VUELTA"], [], ["PTO", "V. ATRÁS (+)", "V. ADEL. (-)", "COTA"]];
+            let wsVueltaData = [
+                [{v: `REPORTE VUELTA - ${p.nombre}`, s: titleStyle}, null, null, null],
+                [null, null, null, null],
+                [{v:"PTO", s:headVuelta}, {v:"V. ATRÁS (+)", s:headVuelta}, {v:"V. ADEL. (-)", s:headVuelta}, {v:"COTA", s:headVuelta}]
+            ];
             let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
-            for(let i=0; i<filasVuelta.length; i++) {
-                let pto = filasVuelta[i].querySelector('.in-pto').value || "";
-                let va = filasVuelta[i].querySelector('.in-va').value || "";
-                let vd = filasVuelta[i].querySelector('.in-vd').value || "";
-                let divCota = filasVuelta[i].querySelector('.out-cota div[data-cota]');
-                let cota = divCota ? divCota.getAttribute('data-cota') : "";
-                datosVuelta.push([pto, va, vd, cota]);
-            }
-            let wsVuelta = XLSX.utils.aoa_to_sheet(datosVuelta);
-            wsVuelta['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+            filasVuelta.forEach((tr, i) => {
+                if (tr.classList.contains('fila-inactiva')) return;
+
+                let pto = tr.querySelector('.in-pto').value || "";
+                let va = parseFloat(tr.querySelector('.in-va').value);
+                let vd = parseFloat(tr.querySelector('.in-vd').value);
+                let cota = i===0 ? parseFloat(document.getElementById('cotaBM').value) : (tr.querySelector('.out-cota div[data-cota]') ? parseFloat(tr.querySelector('.out-cota div[data-cota]').getAttribute('data-cota')) : NaN);
+                
+                wsVueltaData.push([
+                    {v: pto, s: cellBold}, 
+                    isNaN(va) ? {v: "", s: cellCenter} : {v: va, t: 'n', s: cellCenter}, 
+                    isNaN(vd) ? {v: "", s: cellCenter} : {v: vd, t: 'n', s: cellCenter}, 
+                    isNaN(cota) ? {v: "", s: cellCota} : {v: cota, t: 'n', z: "0.000", s: cellCota}
+                ]);
+            });
+            let wsVuelta = XLSX.utils.aoa_to_sheet(wsVueltaData);
+            wsVuelta['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}];
             XLSX.utils.book_append_sheet(wb, wsVuelta, "Libreta VUELTA");
 
-            let tablaComp = document.getElementById("tablaCompensada");
-            if(tablaComp) {
-                let wsComp = XLSX.utils.table_to_sheet(tablaComp);
-                wsComp['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}];
+            let compRows = document.querySelectorAll('#cuerpoCompensadas tr');
+            if(compRows.length > 0) {
+                let wsCompData = [
+                    [{v: `COTAS COMPENSADAS - ${p.nombre}`, s: titleStyle}, null, null, null],
+                    [null, null, null, null],
+                    [{v:"PUNTO", s:headComp}, {v:"COTA IDA", s:headComp}, {v:"COTA VUELTA", s:headComp}, {v:"PROMEDIO", s:headComp}]
+                ];
+                compRows.forEach(tr => {
+                    let tds = tr.querySelectorAll('td');
+                    wsCompData.push([
+                        {v: tds[0].innerText, s: {font: {bold:true, color:{rgb:"FFFF6600"}}, alignment:{horizontal:"center"}}},
+                        {v: parseFloat(tds[1].innerText), t: 'n', z: "0.000", s: cellCenter},
+                        {v: parseFloat(tds[2].innerText), t: 'n', z: "0.000", s: cellCenter},
+                        {v: parseFloat(tds[3].innerText), t: 'n', z: "0.000", s: {fill: {fgColor:{rgb:"FFE8F5E9"}}, font: {bold:true, color:{rgb:"FF2E7D32"}}, alignment:{horizontal:"center"}}}
+                    ]);
+                });
+                let wsComp = XLSX.utils.aoa_to_sheet(wsCompData);
+                wsComp['!cols'] = [{wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}];
                 XLSX.utils.book_append_sheet(wb, wsComp, "Cotas Compensadas");
             }
 
-            XLSX.writeFile(wb, "Nivelacion_Simultanea_Cota100.xlsx");
+            XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Poligonal.xlsx`);
         }
 
-        // --- FUNCIONES DE LA CALCULADORA MEJORADAS ---
-        function toggleCalculadora() {
-            const modal = document.getElementById('calculadoraModal');
-            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-        }
-        function calcInput(val) { document.getElementById('calcDisplay').value += val; }
-        function calcClear() { document.getElementById('calcDisplay').value = ''; }
-        
-        function calcBackspace() {
-            const display = document.getElementById('calcDisplay');
-            display.value = display.value.slice(0, -1);
-        }
-        
-        function calcEval() {
-            const display = document.getElementById('calcDisplay');
-            try {
-                if (display.value.trim() === '') return; 
-                let res = new Function('return ' + display.value)();
-                display.value = (res % 1 !== 0) ? parseFloat(res.toFixed(3)) : res;
-            } catch (e) {
-                display.value = 'Error'; setTimeout(calcClear, 1200);
-            }
-        }
+        function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcIn(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
+        function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
+        function calcDel() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { vibrar(); try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
     </script>
 </body>
 </html>
