@@ -6,133 +6,176 @@
     <title>COTA100 SYSTEM - Atmósfera y PPM</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- ESTILOS UNIFICADOS COTA100 --- */
         :root {
             --bg-color: #ffffff; --text-color: #000000;
-            --primary-color: #FF6600; --input-bg: rgba(255,255,255,0.9);
-            --table-border: rgba(0,0,0,0.3); --error-color: #d32f2f;
-            --info-color: #0277bd; /* Azul ajustado para fondo blanco */
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
+            --table-header: #111; --success-color: #2e7d32; --error-color: #d32f2f;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 50px; 
-            /* MAPA SVG: Líneas Isobaras Atmosféricas */
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.1' stroke-width='1.5' fill='none'%3E%3Cpath d='M0,100 Q100,50 200,100 T400,100'/%3E%3Cpath d='M0,150 Q100,100 200,150 T400,150'/%3E%3Cpath d='M0,200 Q100,150 200,200 T400,200'/%3E%3Cpath d='M0,250 Q100,200 200,250 T400,250'/%3E%3Ctext x='50' y='95' fill='%23000' fill-opacity='0.15' font-family='monospace' font-size='12' font-weight='bold'%3E1013 hPa%3C/text%3E%3Ctext x='250' y='195' fill='%23000' fill-opacity='0.15' font-family='monospace' font-size='12' font-weight='bold'%3E1010 hPa%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' stroke-width='1.5' fill='none'%3E%3Cpath d='M0,100 Q100,50 200,100 T400,100'/%3E%3Cpath d='M0,150 Q100,100 200,150 T400,150'/%3E%3Cpath d='M0,200 Q100,150 200,200 T400,200'/%3E%3Cpath d='M0,250 Q100,200 200,250 T400,250'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
         }
 
-        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--table-border); padding-bottom: 10px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); position: sticky; top:0; z-index:100; margin: -15px -15px 15px -15px; padding: 15px;}
-        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; padding-right: 15px; line-height: 1;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
-        .top-bar-title span { color: var(--info-color); }
-
-        .seccion-modulo { border: 2px solid var(--table-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; background-color: rgba(255,255,255,0.85); border-left: 5px solid var(--info-color); backdrop-filter: blur(5px);}
-        .seccion-titulo { color: var(--info-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-transform: uppercase; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .input-group { display: flex; flex-direction: column; }
-        
-        label { margin-bottom: 5px; font-weight: 800; color: #111; font-size: 0.85rem; text-transform: uppercase; }
-        input { width: 100%; padding: 15px; font-size: 1.3rem; background-color: var(--input-bg); border: 2px solid var(--table-border); color: var(--text-color); border-radius: 8px; text-align: center; font-weight: 700; transition: 0.2s;}
-        input:focus { border-color: var(--info-color); outline: none; background-color: #fff; box-shadow: 0 0 10px rgba(2,119,189,0.2);}
-        
-        .helper-text { font-size: 0.8rem; color: #555; margin-top: 6px; line-height: 1.3; text-align: center; font-weight: 600;}
-
-        .btn-calc { width: 100%; padding: 18px; font-size: 1.3rem; background-color: var(--info-color); color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(2,119,189,0.3); transition: 0.2s;}
-        .btn-calc:active { transform: scale(0.98); }
-
-        .result-box { margin-top: 10px; padding: 15px; border: 3px solid #111; border-radius: 12px; background-color: #fff; display: none; text-align: center; }
-        
-        .res-destaque { background-color: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid var(--info-color);}
-        .res-titulo { color: #555; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800;}
-        .res-valor-gigante { font-size: 2.5rem; color: #000; font-weight: 900; font-family: monospace; letter-spacing: -1px;}
-        .res-unidad { font-size: 1.1rem; color: var(--info-color); font-weight: 700; letter-spacing: 0;}
-        
-        .btn-accion { padding: 15px; font-weight: 800; border-radius: 8px; cursor: pointer; border: none; font-size: 1.1rem; width: 100%; text-transform: uppercase;}
-        .btn-limpiar { background-color: rgba(255,255,255,0.9); color: var(--error-color); border: 2px solid var(--error-color); margin-top: 10px;}
-        
-        .info-box { background-color: #e3f2fd; border-left: 5px solid var(--info-color); padding: 15px; margin-top: 15px; font-size: 0.9rem; color: #000; line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
-        .info-box strong { color: var(--info-color); font-weight: 800;}
-    /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
         @media screen and (max-width: 480px) {
-            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1rem; }
+            html { font-size: 12px; } 
+            .btn-accion { padding: 9px; font-size: 0.95rem; }
+            input, select { padding: 6px; font-size: 1.05rem; border-width: 1px;}
             .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 8px 15px; height: 60px; }
-            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
-            .header h1 { font-size: 2.2rem; }
-            .grid-container { gap: 10px; padding: 10px; }
-            .card { min-height: 120px; padding: 10px; }
-            .icon-container { height: 45px; margin-bottom: 5px; }
-            .icon-container svg { width: 35px; height: 35px; }
-            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
-            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
-            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
-            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+            .top-bar { padding: 5px 10px; height: 50px; }
+            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
+            .modulo-container { padding: 10px; }
         }
+
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px;}
+        
+        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+        
+        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
+        }
+
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-block;}
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
+        .btn-limpiar { background: #fff; color: var(--error-color); border: 2px solid var(--error-color); margin-top: 10px;}
+
+        /* Panel de Resultados */
+        .panel-resultados { background: #fff; border: 3px solid #111; border-radius: 10px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; }
+        
+        .res-destaque { background-color: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid var(--primary-color);}
+        .res-titulo { color: #555; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800;}
+        .res-valor-gigante { font-size: 2.5rem; color: #000; font-weight: 900; font-family: monospace; letter-spacing: -1px;}
+        .res-unidad { font-size: 1rem; color: var(--primary-color); font-weight: 700; letter-spacing: 0;}
+        
+        .info-box { background-color: #fff3e0; border-left: 5px solid var(--primary-color); padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #000; line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
+        .info-box strong { color: var(--primary-color); font-weight: 800;}
+        .helper-text { font-size: 0.75rem; color: #666; font-weight: 600; margin-top: 4px; text-align: left;}
     </style>
 </head>
-<body>
+<body onload="vibrar()">
 
     <div class="top-bar">
         <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
-        <h2 class="top-bar-title">Presión y <span>Atmósfera</span></h2>
+        <h2 class="top-bar-title">ATMÓSFERA <span>Corrección PPM</span></h2>
+        <div style="width: 40px;"></div>
     </div>
 
-    <div class="info-box" style="margin-top: 0; margin-bottom: 20px;">
-        Calcula la Presión Absoluta Local (QFE) para calibrar el distanciómetro de tu Estación Total y evitar errores por altitud y temperatura.
-    </div>
+    <div class="modulo-container">
 
-    <div class="seccion-modulo">
-        <div class="seccion-titulo">1. CONDICIONES DE CAMPO</div>
-        <div class="form-grid">
+        <div class="info-box">
+            <strong>¿Qué es esto?</strong> Calcula la <strong>Presión Absoluta</strong> (fuerza real del aire en tu hito) y el <strong>PPM</strong> (corrección de velocidad del láser). Es vital en zonas de altura para que tus distancias no salgan "cortas" o "estiradas" en el Civil 3D.
+        </div>
+
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" style="color: #111;">⚙️ 1. Configuración de Marca</div>
             <div class="input-group">
-                <label style="color: var(--info-color);">ALTITUD DEL TERRENO (m.s.n.m)</label>
-                <input type="number" id="inAltitud" step="0.001" placeholder="Ej: 2850">
-                <div class="helper-text">Elevación exacta donde está armada la estación.</div>
+                <label>Fabricante del Equipo</label>
+                <select id="marcaEquipo" onchange="vibrar()">
+                    <option value="leica">Leica Geosystems</option>
+                    <option value="topcon">Topcon / Sokkia / South</option>
+                    <option value="trimble">Trimble</option>
+                    <option value="chcnav">CHCNAV / Kolida</option>
+                </select>
+                <div class="helper-text">Selecciona tu marca para aplicar la fórmula de refracción óptica exacta.</div>
             </div>
-            <div class="input-group" style="margin-top: 10px;">
-                <label style="color: var(--primary-color);">TEMPERATURA AMBIENTE (°C)</label>
-                <input type="number" id="inTemp" step="0.1" placeholder="Ej: 14.5">
-                <div class="helper-text">Temperatura real al momento de medir.</div>
+        </div>
+
+        <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
+            <div class="panel-titulo">📍 2. Datos del Terreno</div>
+            
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label style="color: var(--primary-color);">ALTITUD (m.s.n.m)</label>
+                <input type="number" id="inAltitud" step="0.001" placeholder="Ej: 2875">
+                <div class="helper-text">Elevación donde armarás la Estación Total. Define la presión.</div>
+            </div>
+            
+            <div class="input-group">
+                <label style="color: var(--error-color);">TEMPERATURA (°C)</label>
+                <input type="number" id="inTemp" step="0.1" placeholder="Ej: 19.5">
+                <div class="helper-text">Temperatura real del aire. Define la densidad y el PPM final.</div>
             </div>
         </div>
-    </div>
 
-    <button class="btn-calc" onclick="calcularAtmosfera()">Calcular Parámetros</button>
+        <button class="btn-accion" onclick="calcularAtmosfera(); vibrar();">Calcular Parámetros</button>
 
-    <div class="result-box" id="cajaResultado">
-        
-        <div class="res-destaque">
-            <div class="res-titulo" style="color: var(--info-color);">☁️ PRESIÓN ATMOSFÉRICA LOCAL (Para Estación)</div>
-            <div class="res-valor-gigante" id="resHpa">000.0 <span class="res-unidad">hPa / mbar</span></div>
-            <div style="width: 50%; height: 2px; background-color: rgba(0,0,0,0.1); margin: 15px auto;"></div>
-            <div class="res-valor-gigante" id="resMmhg" style="font-size: 2rem; color: #555;">000.0 <span class="res-unidad">mmHg</span></div>
+        <div class="panel-resultados" id="cajaResultado">
+            
+            <div class="res-destaque">
+                <div class="res-titulo" style="color: #111;">☁️ PRESIÓN LOCAL (QFE)</div>
+                <div class="res-valor-gigante" id="resHpa">000.0 <span class="res-unidad">hPa / mbar</span></div>
+                <div style="width: 50%; height: 2px; background-color: rgba(0,0,0,0.1); margin: 15px auto;"></div>
+                <div class="res-valor-gigante" id="resMmhg" style="font-size: 2rem; color: #555;">000.0 <span class="res-unidad">mmHg</span></div>
+                <div class="helper-text" style="text-align: center;">* Este es el valor que debes ingresar manualmente en el menú de atmósfera de tu equipo.</div>
+            </div>
+
+            <div class="res-destaque" style="background-color: #fff; border-color: #111; border-style: dashed;">
+                <div class="res-titulo">⚡ PPM PROYECTADO</div>
+                <div class="res-valor-gigante" id="resPpm" style="color: var(--primary-color);">0.0</div>
+                <div class="helper-text" style="margin-top: 10px; color:#111; text-align: center;">Si tu equipo está bien configurado con la presión y temperatura de arriba, debería mostrar este PPM automáticamente.</div>
+            </div>
+
+            <button class="btn-accion btn-limpiar" onclick="limpiarAtmosfera(); vibrar();">🗑️ Limpiar Datos</button>
         </div>
 
-        <div class="res-destaque" style="background-color: #fff; border-color: #111; border-style: dashed;">
-            <div class="res-titulo">⚡ PPM ATMOSFÉRICO TEÓRICO (Leica Std)</div>
-            <div class="res-valor-gigante" id="resPpm" style="color: var(--primary-color);">0.0</div>
-            <div class="helper-text" style="margin-top: 10px; color:#111;">* Ingresa la Presión y Temperatura en tu equipo. Usa este PPM solo como referencia auditiva.</div>
+        <div class="info-box" style="border-left-color: #success-color; background: #e8f5e9; margin-top: 15px;">
+            <strong>💡 Recomendaciones Pro:</strong><br>
+            • <strong>Aclimatación:</strong> Deja el equipo al aire libre 15 min antes de medir para que el sensor y los lentes se estabilicen.<br>
+            • <strong>Sensores:</strong> Si ingresas estos datos manuales, asegúrate de **apagar el sensor automático** en la configuración de la Estación.
         </div>
 
-        <button class="btn-accion btn-limpiar" onclick="limpiarAtmosfera()">🗑️ Limpiar Datos</button>
     </div>
 
     <script>
+        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+
         function calcularAtmosfera() {
             let h = parseFloat(document.getElementById('inAltitud').value);
             let t = parseFloat(document.getElementById('inTemp').value);
+            let marca = document.getElementById('marcaEquipo').value;
 
             if (isNaN(h) || isNaN(t)) {
-                alert("Por favor, ingresa la Altitud y la Temperatura.");
+                alert("Por favor, ingresa los datos de Altitud y Temperatura.");
                 return;
             }
             
+            // Fórmula Barométrica Estándar (Presión Absoluta Local)
             let p_hPa = 1013.25 * Math.pow((1 - 0.0000225577 * h), 5.25588);
             let p_mmHg = p_hPa * 0.750062;
-            let ppm = 286.34 - ( (0.29525 * p_hPa) / (1 + (t / 273.15)) );
+            
+            // Lógica de PPM por fabricante (Fórmulas de refracción de grupo de ondas)
+            let ppm = 0;
+            if (marca === 'leica') {
+                ppm = 286.34 - ((0.29525 * p_hPa) / (1 + (t / 273.15)));
+            } else if (marca === 'topcon') {
+                // Topcon, Sokkia y South usan la constante de refracción 279.67 para láseres de 0.68 micras
+                ppm = 279.67 - ((0.2904 * p_hPa) / (1 + 0.003661 * t));
+            } else if (marca === 'trimble') {
+                ppm = 275.0 - ((0.2900 * p_hPa) / (1 + 0.003661 * t));
+            } else if (marca === 'chcnav') {
+                // CHCNAV y marcas similares suelen usar una constante estándar de 281.8
+                ppm = 281.8 - ((0.29065 * p_hPa) / (1 + 0.003661 * t));
+            }
 
             document.getElementById('resHpa').innerHTML = p_hPa.toFixed(1) + ' <span class="res-unidad">hPa / mbar</span>';
             document.getElementById('resMmhg').innerHTML = p_mmHg.toFixed(1) + ' <span class="res-unidad">mmHg</span>';
@@ -146,7 +189,6 @@
             document.getElementById('inAltitud').value = '';
             document.getElementById('inTemp').value = '';
             document.getElementById('cajaResultado').style.display = 'none';
-            document.getElementById('inAltitud').focus();
         }
     </script>
 </body>

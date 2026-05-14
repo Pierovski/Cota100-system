@@ -6,148 +6,156 @@
     <title>COTA100 - Poligonal Cerrada</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- ESTILOS UNIFICADOS BASADOS EN NIV-SIMPLE Y POL-ABIERTA --- */
         :root {
             --bg-color: #ffffff; --text-color: #000000;
-            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.3); 
-            --table-header: #111; --success-color: #2e7d32; --error-color: #d32f2f;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
+            --table-header: #111; --success-color: #2e7d32; --error-color: #d32f2f; --danger-color: #d32f2f;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
-            /* MAPA GEOMÉTRICO RAW TECH */
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
             background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.10' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3Cline x1='150' y1='20' x2='250' y2='50' /%3E%3Cline x1='200' y1='100' x2='220' y2='150' /%3E%3Cline x1='120' y1='150' x2='180' y2='300' /%3E%3Cline x1='250' y1='250' x2='220' y2='150' /%3E%3Cline x1='250' y1='250' x2='180' y2='300' /%3E%3Ccircle cx='50' cy='50' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='150' cy='20' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='200' cy='100' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='120' cy='150' r='3' fill='%23000' fill-opacity='0.1' /%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
         }
 
-        .top-bar { 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; border-bottom: 2px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+        @media screen and (max-width: 480px) {
+            html { font-size: 12px; } 
+            .btn-accion { padding: 9px; font-size: 0.95rem; }
+            input, select { padding: 6px; font-size: 1.05rem; border-width: 1px;}
+            .panel-control { padding: 10px; margin-bottom: 10px;}
+            .top-bar { padding: 5px 10px; height: 50px; }
+            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
+            th { font-size: 0.75rem; padding: 6px 1px; }
+            td input { padding: 6px 2px; font-size: 1.15rem; } 
+            .modulo-container { padding: 10px; }
         }
-        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; line-height: 1; text-decoration: none;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
-        .top-bar-title span { color: var(--primary-color); }
+
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .toolbar-archivos { display: flex; gap: 8px; margin-bottom: 15px; }
-        .btn-tool { 
-            flex: 1; padding: 12px 5px; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; 
-            background: rgba(255,255,255,0.7); border: 2px solid var(--border-color); border-radius: 8px; 
-            cursor: pointer; color: #000; backdrop-filter: blur(5px); transition: 0.2s;
-        }
-        .btn-tool:active { background: var(--table-header); color: #fff; border-color: var(--table-header); }
-
-        .panel-control { 
-            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
-            margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-        }
-        .panel-titulo { 
-            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
-            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; 
-        }
+        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none;}
         
-        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-weight: 800; color: #111; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 3px; }
-        input { 
-            width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 700; text-align: center;
-            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
-            color: #000; transition: 0.2s;
+        .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
         }
-        input:focus { border-color: var(--primary-color); outline: none; background: #fff;}
 
-        .btn-accion { 
-            width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
-            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
-            margin-top: 5px; transition: 0.2s;
-        }
+        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
+        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-block;}
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
 
-        /* TABLA RAW TECH */
-        .table-container { 
-            width: 100%; overflow-x: auto; border: 2px solid var(--border-color); 
-            border-radius: 8px; background: rgba(255,255,255,0.95); margin-bottom: 10px;
-        }
-        table { width: 100%; min-width: 600px; border-collapse: collapse; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.85rem; border: 1px solid #444; text-transform: uppercase;}
-        td { border: 1px solid var(--border-color); padding: 0; position: relative; }
+        /* TABLA UNIFICADA */
+        .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
+        table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; position: sticky; top: 0; z-index: 10; }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
+        td:last-child { border-right: none; }
         
-        td input { 
-            border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.05rem; 
-            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 700;
-        }
-        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); z-index: 2;}
+        td input { border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1.15rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800;}
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
 
         /* Panel de Resultados */
-        .panel-resultados { 
-            background: #fff; border: 3px solid #111; border-radius: 12px; padding: 15px; 
-            text-align: center; display: none; margin-bottom: 15px;
-        }
-        .res-valor { font-size: 1.6rem; font-weight: 800; margin: 5px 0 15px; color: var(--primary-color); font-family: monospace;}
+        .panel-resultados { background: #fff; border: 3px solid #111; border-radius: 10px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; }
+        .res-valor { font-size: 1.4rem; font-weight: 800; margin: 2px 0 10px; color: var(--primary-color); font-family: monospace;}
         
         .tabla-resultados th { background-color: var(--primary-color); color: #000; }
-        .tabla-resultados td { font-family: monospace; font-size: 1.1rem; font-weight: 700; padding: 10px;}
-/* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
-        @media screen and (max-width: 480px) {
-            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1rem; }
-            .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 8px 15px; height: 60px; }
-            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
-            .header h1 { font-size: 2.2rem; }
-            .grid-container { gap: 10px; padding: 10px; }
-            .card { min-height: 120px; padding: 10px; }
-            .icon-container { height: 45px; margin-bottom: 5px; }
-            .icon-container svg { width: 35px; height: 35px; }
-            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
-            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
-            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
-            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
-        }
+        .tabla-resultados td { font-family: monospace; font-size: 1.1rem; font-weight: 700; padding: 5px;}
+        
+        .tol-tag { font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; color: #fff; display: inline-block; margin-bottom: 5px; }
+        .tol-pass { background-color: var(--success-color); }
+        .tol-fail { background-color: var(--error-color); }
     </style>
 </head>
-<body>
+<body onload="inicializarApp()">
 
     <div class="top-bar">
-        <a href="poligonales.html" class="btn-volver-mini">←</a>
+        <a href="poligonales.html" class="btn-volver-mini" onclick="vibrar()">←</a>
         <h2 class="top-bar-title">POLIGONAL <span>CERRADA</span></h2>
-        <div style="width: 25px;"></div>
+        <div style="width: 40px;"></div>
     </div>
 
     <div class="modulo-container">
         
-        <div class="toolbar-archivos">
-            <button class="btn-tool" onclick="guardarDatos()">💾 Guardar</button>
-            <button class="btn-tool">📂 Importar</button>
-            <button class="btn-tool" onclick="exportarTXT()">📤 Exportar</button>
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos / Proyectos</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelProyecto">
+                <div class="project-selector">
+                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()">🗑️</button>
+                </div>
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label>Nombre del Levantamiento</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Lote 1 Mz B" oninput="renombrarProyecto()">
+                </div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackup()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup()">
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="panel-control" style="border-left: 5px solid #FF6600;">
-            <div class="panel-titulo">📍 1. Orientación de Partida</div>
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" style="color: #111;">⚙️ Configuración del Equipo</div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Precisión Angular (Segundos)</label>
+                    <input type="number" id="precisionEquipo" value="5" step="1" placeholder="Ej: 5" oninput="guardarEstadoApp()">
+                </div>
+            </div>
+            <p style="font-size: 0.75rem; color: #666; margin-top: 5px; font-weight: 600; line-height: 1.2;">* Revisa la ficha técnica de tu Estación Total (Suele ser de 2", 3" o 5").</p>
+        </div>
+
+        <div class="panel-control" style="border-left: 4px solid #FF6600;">
+            <div class="panel-titulo" style="color: #FF6600;">📍 1. Orientación de Partida</div>
             
             <label style="color: #FF6600;">ESTACIÓN 1 (Vértice de inicio)</label>
             <div class="input-row">
-                <input type="number" id="eEstIni" step="0.001" placeholder="ESTE (X)">
-                <input type="number" id="nEstIni" step="0.001" placeholder="NORTE (Y)">
+                <input type="number" id="eEstIni" step="0.001" placeholder="ESTE (X)" oninput="guardarEstadoApp()">
+                <input type="number" id="nEstIni" step="0.001" placeholder="NORTE (Y)" oninput="guardarEstadoApp()">
             </div>
             
             <label style="color: #FF6600;">REFERENCIA (Vista Atrás / BM Cero)</label>
             <div class="input-row">
-                <input type="number" id="eRefIni" step="0.001" placeholder="ESTE (X)">
-                <input type="number" id="nRefIni" step="0.001" placeholder="NORTE (Y)">
+                <input type="number" id="eRefIni" step="0.001" placeholder="ESTE (X)" oninput="guardarEstadoApp()">
+                <input type="number" id="nRefIni" step="0.001" placeholder="NORTE (Y)" oninput="guardarEstadoApp()">
             </div>
         </div>
 
         <div class="panel-control" style="padding: 10px;">
             <div class="panel-titulo" style="padding-left: 5px;">📐 2. Ángulos y Distancias</div>
-            <p style="font-size: 0.8rem; font-weight: 700; color: #555; margin-bottom: 10px;">* Ingresa el ángulo observado en cada vértice hacia el siguiente punto, y la distancia que los separa.</p>
+            <p style="font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 10px;">* Ángulos horizontales medidos a la derecha en cada vértice hacia el siguiente punto.</p>
             
-            <div class="table-container">
+            <div class="table-wrapper">
                 <table id="tablaPoligonal">
                     <thead>
                         <tr>
@@ -155,75 +163,51 @@
                             <th style="width: 15%;">GRADOS</th>
                             <th style="width: 15%;">MIN.</th>
                             <th style="width: 20%;">SEG.</th>
-                            <th style="width: 35%;">DIST. ADELANTE (m)</th>
+                            <th style="width: 35%;">DIST. (m)</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoPoligonal">
-                        <tr>
-                            <td><input type="text" value="V-1" disabled style="color:var(--primary-color);"></td>
-                            <td><input type="number" class="ang-g" placeholder="°"></td>
-                            <td><input type="number" class="ang-m" placeholder="'"></td>
-                            <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                            <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-2"></td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="V-2" disabled style="color:var(--primary-color);"></td>
-                            <td><input type="number" class="ang-g" placeholder="°"></td>
-                            <td><input type="number" class="ang-m" placeholder="'"></td>
-                            <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                            <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-3"></td>
-                        </tr>
-                        <tr>
-                            <td><input type="text" value="V-3" disabled style="color:var(--primary-color);"></td>
-                            <td><input type="number" class="ang-g" placeholder="°"></td>
-                            <td><input type="number" class="ang-m" placeholder="'"></td>
-                            <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                            <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-1"></td>
-                        </tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
             <div class="input-row" style="margin-bottom: 0;">
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #000; color:#000;" onclick="agregarVertice()">+ Vértice</button>
-                <button class="btn-accion" style="background:rgba(255,255,255,0.9); border: 2px solid #d32f2f; color:#d32f2f;" onclick="quitarVertice()">- Vértice</button>
+                <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2;" onclick="agregarVertice(); vibrar();">➕ Vértice</button>
+                <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555;" onclick="quitarVertice(); vibrar();">➖ Borrar</button>
             </div>
         </div>
 
-        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.3rem; margin-bottom: 15px;" onclick="calcularPoligonal()">PROCESAR AJUSTE</button>
+        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; margin-bottom: 15px; padding: 15px;" onclick="calcularPoligonal(); vibrar();">PROCESAR AJUSTE</button>
 
         <div class="panel-resultados" id="panelResultados">
-            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">REPORTE DE COMPENSACIÓN</h3>
+            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.1rem;">REPORTE DE COMPENSACIÓN</h3>
             
-            <div style="font-size: 0.85rem; font-weight: 800; color: #1976d2; margin-top: 10px;" id="resTipoAngulo">DETECTADO: ÁNGULOS INTERNOS</div>
+            <div style="font-size: 0.75rem; font-weight: 800; color: #1976d2; margin-top: 10px;" id="resTipoAngulo">DETECTADO: ÁNGULOS INTERNOS</div>
+            <div id="tolBadge" class="tol-tag tol-pass" style="margin-top: 5px;">ESTADO: ACEPTABLE</div>
 
-            <div class="input-row" style="margin-top: 15px;">
+            <div class="input-row" style="margin-top: 10px;">
                 <div class="input-group">
-                    <span style="font-size: 0.85rem; font-weight: 800; color: #666;">ERROR ANGULAR</span>
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #666;">ERROR ANGULAR</span>
                     <div class="res-valor" id="resErrAng" style="color:#000;">00° 00' 00"</div>
+                    <span style="font-size: 0.75rem; color: #888;">Tolerancia: <span id="resTolAng"></span></span>
                 </div>
                 <div class="input-group">
-                    <span style="font-size: 0.85rem; font-weight: 800; color: #666;">ERROR LINEAL</span>
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #666;">ERROR LINEAL</span>
                     <div class="res-valor" id="resErrLin" style="color:#000;">0.000 m</div>
                 </div>
             </div>
-            <div class="input-group">
-                <span style="font-size: 0.85rem; font-weight: 800; color: #666;">PRECISIÓN RELATIVA</span>
-                <div class="res-valor" id="resPrecision" style="font-size: 2rem;">1 : 0</div>
+            <div class="input-group" style="margin-top: 5px;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #666;">PRECISIÓN RELATIVA</span>
+                <div class="res-valor" id="resPrecision" style="font-size: 1.8rem;">1 : 0</div>
             </div>
 
-            <h3 style="color: var(--primary-color); margin: 20px 0 10px; font-size: 1.1rem; text-align: left;">COORDENADAS AJUSTADAS</h3>
-            <div class="table-container">
+            <h3 style="color: var(--primary-color); margin: 15px 0 10px; font-size: 1rem; text-align: left;">COORDENADAS AJUSTADAS</h3>
+            <div class="table-wrapper" style="margin-bottom: 0;">
                 <table class="tabla-resultados">
                     <thead>
-                        <tr>
-                            <th>VÉRTICE</th>
-                            <th>ESTE (X)</th>
-                            <th>NORTE (Y)</th>
-                        </tr>
+                        <tr><th>VÉRTICE</th><th>ESTE (X)</th><th>NORTE (Y)</th></tr>
                     </thead>
-                    <tbody id="cuerpoResultados">
-                        </tbody>
+                    <tbody id="cuerpoResultados"></tbody>
                 </table>
             </div>
         </div>
@@ -231,186 +215,274 @@
     </div>
 
     <script>
-        // --- FUNCIONES MATEMÁTICAS ---
-        function calcularAzimut(E1, N1, E2, N2) {
-            let dE = E2 - E1;
-            let dN = N2 - N1;
-            let az = Math.atan2(dE, dN) * 180 / Math.PI;
-            if (az < 0) az += 360;
-            return az;
+        /* --- SISTEMA DE BASE DE DATOS Y ESTADO --- */
+        let appData = { activoId: 1, proyectos: [] };
+
+        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+        function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; }
+
+        function inicializarApp() {
+            let stored = localStorage.getItem('cota100_db_polcerrada_v1');
+            if (stored) { 
+                appData = JSON.parse(stored); 
+            } else { 
+                appData.proyectos.push(crearObjetoProyecto(1, "Poligonal Cerrada 1")); 
+                appData.activoId = 1; 
+            }
+            renderSelectProyectos(); 
+            cargarProyectoActivo();
         }
 
-        function gmsADecimal(g, m, s) {
-            let signo = (g < 0) ? -1 : 1;
-            return signo * (Math.abs(g) + (m / 60) + (s / 3600));
+        function crearObjetoProyecto(id, nombre) {
+            return {
+                id: id, nombre: nombre, precision: 5,
+                ctrl: { eEi:"", nEi:"", eRi:"", nRi:"" },
+                tabla: [
+                    { pto:"V-1", g:"", m:"", s:"", dist:"" },
+                    { pto:"V-2", g:"", m:"", s:"", dist:"" },
+                    { pto:"V-3", g:"", m:"", s:"", dist:"" }
+                ]
+            };
         }
 
+        function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
+        function guardarBD() { localStorage.setItem('cota100_db_polcerrada_v1', JSON.stringify(appData)); }
+
+        function renderSelectProyectos() {
+            const select = document.getElementById('selectProyecto');
+            select.innerHTML = "";
+            appData.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appData.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
+        }
+
+        function crearNuevoProyecto() {
+            vibrar(); let nuevoId = Date.now();
+            appData.proyectos.push(crearObjetoProyecto(nuevoId, "Nueva Cerrada"));
+            appData.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        function eliminarProyecto() {
+            vibrar();
+            if(appData.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
+                appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
+                appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+            }
+        }
+
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        function renombrarProyecto() { obtenerProyectoActivo().nombre = document.getElementById('proyectName').value; guardarBD(); renderSelectProyectos(); }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('proyectName').value = p.nombre;
+            document.getElementById('precisionEquipo').value = p.precision || 5;
+            
+            document.getElementById('eEstIni').value = p.ctrl.eEi || ""; document.getElementById('nEstIni').value = p.ctrl.nEi || "";
+            document.getElementById('eRefIni').value = p.ctrl.eRi || ""; document.getElementById('nRefIni').value = p.ctrl.nRi || "";
+
+            document.getElementById('panelResultados').style.display = 'none';
+
+            const tbody = document.getElementById('cuerpoPoligonal');
+            tbody.innerHTML = "";
+            if(!p.tabla || p.tabla.length < 3) p.tabla = crearObjetoProyecto(0,"").tabla;
+
+            p.tabla.forEach((fila, index) => {
+                const tr = document.createElement('tr');
+                let targetDist = (index === p.tabla.length - 1) ? 1 : index + 2;
+                tr.innerHTML = `
+                    <td><input type="text" value="${fila.pto}" disabled style="color:var(--primary-color);"></td>
+                    <td><input type="number" class="ang-g" placeholder="°" value="${fila.g}" oninput="guardarEstadoApp()"></td>
+                    <td><input type="number" class="ang-m" placeholder="'" value="${fila.m}" oninput="guardarEstadoApp()"></td>
+                    <td><input type="number" step="0.1" class="ang-s" placeholder="''" value="${fila.s}" oninput="guardarEstadoApp()"></td>
+                    <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-${targetDist}" value="${fila.dist}" oninput="guardarEstadoApp()"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function guardarEstadoApp() {
+            let p = obtenerProyectoActivo(); if(!p) return;
+            p.precision = parseFloat(document.getElementById('precisionEquipo').value) || 5;
+            p.ctrl = {
+                eEi: document.getElementById('eEstIni').value, nEi: document.getElementById('nEstIni').value,
+                eRi: document.getElementById('eRefIni').value, nRi: document.getElementById('nRefIni').value
+            };
+            
+            let filas = [];
+            document.querySelectorAll('#cuerpoPoligonal tr').forEach((tr) => {
+                filas.push({
+                    pto: tr.querySelector('td:first-child input').value,
+                    g: tr.querySelector('.ang-g').value, m: tr.querySelector('.ang-m').value, s: tr.querySelector('.ang-s').value,
+                    dist: tr.querySelector('.dist').value
+                });
+            });
+            p.tabla = filas;
+            guardarBD();
+        }
+
+        // --- BACKUP Y RESTAURACIÓN ---
+        function exportarBackup() {
+            vibrar(); const backup = JSON.parse(localStorage.getItem('cota100_db_polcerrada_v1'));
+            if(!backup || backup.proyectos.length === 0) return alert("No hay datos para exportar.");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchorNode = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `DB_PolCerrada_${fecha}.json`);
+            document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove();
+        }
+
+        function importarBackup() {
+            const fileInput = document.getElementById('importFile');
+            if (fileInput.files.length === 0) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if(backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_polcerrada_v1', JSON.stringify(backup));
+                        alert("✅ Base de datos restaurada con éxito."); window.location.reload();
+                    } else alert("❌ Archivo no válido.");
+                } catch(err) { alert("❌ Error al leer el archivo."); }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        // --- FUNCIONES MATEMÁTICAS GEODÉSICAS ---
+        function calcularAzimut(E1, N1, E2, N2) { let dE = E2 - E1; let dN = N2 - N1; let az = Math.atan2(dE, dN) * 180 / Math.PI; if (az < 0) az += 360; return az; }
+        function gmsADecimal(g, m, s) { let signo = (g < 0) ? -1 : 1; return signo * (Math.abs(g) + (m / 60) + (s / 3600)); }
         function decimalAGMSString(dec) {
-            let absoluto = Math.abs(dec);
-            let g = Math.floor(absoluto);
-            let mFloat = (absoluto - g) * 60;
-            let m = Math.floor(mFloat);
-            let s = (mFloat - m) * 60;
-            let signoStr = (dec < 0) ? "-" : "";
+            let absoluto = Math.abs(dec); let g = Math.floor(absoluto); let mFloat = (absoluto - g) * 60;
+            let m = Math.floor(mFloat); let s = (mFloat - m) * 60; let signoStr = (dec < 0) ? "-" : "";
             return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`;
         }
+        function normalizarAzimut(az) { while (az >= 360.0) az -= 360.0; while (az < 0.0) az += 360.0; return az; }
 
-        function normalizarAzimut(az) {
-            while (az >= 360.0) az -= 360.0;
-            while (az < 0.0) az += 360.0;
-            return az;
-        }
-
-        // --- GESTIÓN DE TABLA UI ---
         function agregarVertice() {
             const tbody = document.getElementById('cuerpoPoligonal');
             const numV = tbody.children.length + 1; 
             const tr = document.createElement('tr');
             
-            // Actualizar placeholder de la penúltima fila
             let filaAnterior = tbody.lastElementChild;
             filaAnterior.querySelector('.dist').placeholder = `Dist. a V-${numV}`;
             
             tr.innerHTML = `
                 <td><input type="text" value="V-${numV}" disabled style="color:var(--primary-color);"></td>
-                <td><input type="number" class="ang-g" placeholder="°"></td>
-                <td><input type="number" class="ang-m" placeholder="'"></td>
-                <td><input type="number" step="0.1" class="ang-s" placeholder="''"></td>
-                <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-1"></td>
+                <td><input type="number" class="ang-g" placeholder="°" oninput="guardarEstadoApp()"></td>
+                <td><input type="number" class="ang-m" placeholder="'" oninput="guardarEstadoApp()"></td>
+                <td><input type="number" step="0.1" class="ang-s" placeholder="''" oninput="guardarEstadoApp()"></td>
+                <td><input type="number" step="0.001" class="dist" placeholder="Dist. a V-1" oninput="guardarEstadoApp()"></td>
             `;
             tbody.appendChild(tr);
+            guardarEstadoApp();
         }
 
         function quitarVertice() {
             const tbody = document.getElementById('cuerpoPoligonal');
-            if (tbody.children.length > 3) { // Mínimo 3 lados para que cierre un polígono
+            if (tbody.children.length > 3) { 
                 tbody.removeChild(tbody.lastChild);
-                let numV = tbody.children.length;
                 let nuevaUltima = tbody.lastElementChild;
                 nuevaUltima.querySelector('.dist').placeholder = `Dist. a V-1`;
+                guardarEstadoApp();
             } else {
                 alert("Una poligonal cerrada requiere como mínimo 3 vértices (Triángulo).");
             }
         }
 
-        // --- MOTOR DE COMPENSACIÓN BOWDITCH ---
         function calcularPoligonal() {
-            let eEstIni = parseFloat(document.getElementById('eEstIni').value);
-            let nEstIni = parseFloat(document.getElementById('nEstIni').value);
-            let eRefIni = parseFloat(document.getElementById('eRefIni').value);
-            let nRefIni = parseFloat(document.getElementById('nRefIni').value);
+            let precisionEquipo = parseFloat(document.getElementById('precisionEquipo').value) || 5;
 
-            if(isNaN(eEstIni) || isNaN(eRefIni)) {
-                alert("Debes ingresar las coordenadas de la Estación 1 y su Referencia.");
-                return;
-            }
+            let eEstIni = parseFloat(document.getElementById('eEstIni').value); let nEstIni = parseFloat(document.getElementById('nEstIni').value);
+            let eRefIni = parseFloat(document.getElementById('eRefIni').value); let nRefIni = parseFloat(document.getElementById('nRefIni').value);
+
+            if(isNaN(eEstIni) || isNaN(eRefIni)) { alert("Debes ingresar las coordenadas de la Estación 1 y su Referencia."); return; }
 
             let azInicial = calcularAzimut(eEstIni, nEstIni, eRefIni, nRefIni);
 
             let filas = document.querySelectorAll('#cuerpoPoligonal tr');
             let nV = filas.length;
-            let angObs = [];
-            let distancias = [];
-            let perimetro = 0;
-            let sumAngObs = 0;
+            let angObs = []; let distancias = []; let perimetro = 0; let sumAngObs = 0;
 
             for (let i = 0; i < nV; i++) {
                 let g = parseFloat(filas[i].querySelector('.ang-g').value) || 0;
                 let m = parseFloat(filas[i].querySelector('.ang-m').value) || 0;
                 let s = parseFloat(filas[i].querySelector('.ang-s').value) || 0;
                 let angDec = gmsADecimal(g, m, s);
-                angObs.push(angDec);
-                sumAngObs += angDec;
+                angObs.push(angDec); sumAngObs += angDec;
 
                 let dist = parseFloat(filas[i].querySelector('.dist').value);
                 if (isNaN(dist)) { alert(`Falta la distancia en el Vértice ${i+1}`); return; }
-                distancias.push(dist);
-                perimetro += dist;
+                distancias.push(dist); perimetro += dist;
             }
 
-            // Detección automática de Ángulos Internos o Externos
-            let teoricoInt = 180 * (nV - 2);
-            let teoricoExt = 180 * (nV + 2);
-            let diffInt = Math.abs(sumAngObs - teoricoInt);
-            let diffExt = Math.abs(sumAngObs - teoricoExt);
+            let teoricoInt = 180 * (nV - 2); let teoricoExt = 180 * (nV + 2);
+            let diffInt = Math.abs(sumAngObs - teoricoInt); let diffExt = Math.abs(sumAngObs - teoricoExt);
             
             let esInterno = diffInt < diffExt;
             let sumTeorica = esInterno ? teoricoInt : teoricoExt;
-            let tipoAnguloMsj = esInterno ? "DETECTADO: ÁNGULOS INTERNOS" : "DETECTADO: ÁNGULOS EXTERNOS";
-            
-            document.getElementById('resTipoAngulo').innerText = tipoAnguloMsj;
+            document.getElementById('resTipoAngulo').innerText = esInterno ? "DETECTADO: ÁNGULOS INTERNOS" : "DETECTADO: ÁNGULOS EXTERNOS";
 
-            // Error y Compensación Angular
             let errorAngular = sumAngObs - sumTeorica;
-            let compensacionUnitaria = -errorAngular / nV;
-            
-            let angCompensados = [];
-            for (let i = 0; i < nV; i++) {
-                angCompensados.push(angObs[i] + compensacionUnitaria);
+
+            // --- LÓGICA DE TOLERANCIA ---
+            let errorSegundos = Math.abs(errorAngular * 3600);
+            let toleranciaSegundos = precisionEquipo * Math.sqrt(nV);
+            let pasaTolerancia = errorSegundos <= toleranciaSegundos;
+
+            document.getElementById('resTolAng').innerText = `± ${toleranciaSegundos.toFixed(1)}"`;
+            let badge = document.getElementById('tolBadge');
+            if(pasaTolerancia) {
+                badge.className = "tol-tag tol-pass"; badge.innerText = "✓ ESTADO: DENTRO DE TOLERANCIA";
+            } else {
+                badge.className = "tol-tag tol-fail"; badge.innerText = "⚠️ RECHAZADO: EXCEDE TOLERANCIA";
             }
 
-            // Propagación de Azimuts
-            // Azimut del lado V1-V2 = Azimut (V1->Ref) + Angulo en V1
+            let compensacionUnitaria = -errorAngular / nV;
+            let angCompensados = [];
+            for (let i = 0; i < nV; i++) angCompensados.push(angObs[i] + compensacionUnitaria);
+
+            // Propagación de Azimuts (A prueba de balas asumiendo giro a la derecha)
             let azCalculados = [];
             let azActual = normalizarAzimut(azInicial + angCompensados[0]);
             azCalculados.push(azActual);
 
             for (let i = 1; i < nV; i++) {
-                // Sentido estándar de propagación asumiendo recorrido horario
-                let sentido = esInterno ? 1 : -1; 
-                azActual = normalizarAzimut(azActual + 180 + (sentido * angCompensados[i]));
+                azActual = normalizarAzimut(azActual + 180 + angCompensados[i]);
                 azCalculados.push(azActual);
             }
 
-            // Proyecciones
-            let proyE = [];
-            let proyN = [];
-            let errorE = 0;
-            let errorN = 0;
-
+            let proyE = []; let proyN = []; let errorE = 0; let errorN = 0;
             for (let i = 0; i < nV; i++) {
                 let azRad = azCalculados[i] * Math.PI / 180.0;
-                let dE = distancias[i] * Math.sin(azRad);
-                let dN = distancias[i] * Math.cos(azRad);
-                
-                proyE.push(dE);
-                proyN.push(dN);
-                errorE += dE;
-                errorN += dN;
+                let dE = distancias[i] * Math.sin(azRad); let dN = distancias[i] * Math.cos(azRad);
+                proyE.push(dE); proyN.push(dN);
+                errorE += dE; errorN += dN;
             }
 
-            // Error Lineal
             let errorLineal = Math.sqrt(Math.pow(errorE, 2) + Math.pow(errorN, 2));
             let precisionRelativa = perimetro / errorLineal;
 
-            // Compensación Lineal (Bowditch)
-            let coordE = [eEstIni];
-            let coordN = [nEstIni];
-            let compAcumE = eEstIni;
-            let compAcumN = nEstIni;
+            let coordE = [eEstIni]; let coordN = [nEstIni];
+            let compAcumE = eEstIni; let compAcumN = nEstIni;
 
             for (let i = 0; i < nV; i++) {
                 let compE = -errorE * (distancias[i] / perimetro);
                 let compN = -errorN * (distancias[i] / perimetro);
-
                 compAcumE = compAcumE + proyE[i] + compE;
                 compAcumN = compAcumN + proyN[i] + compN;
                 
-                // No guardamos el último punto de cierre (porque es igual al de partida)
                 if(i < nV - 1) {
                     coordE.push(compAcumE);
                     coordN.push(compAcumN);
                 }
             }
 
-            // IMPRESIÓN DE RESULTADOS
             document.getElementById('resErrAng').innerText = decimalAGMSString(errorAngular);
             document.getElementById('resErrLin').innerText = errorLineal.toFixed(4) + " m";
             
             let resPrec = document.getElementById('resPrecision');
             if(precisionRelativa === Infinity || isNaN(precisionRelativa)) {
-                resPrec.innerText = "PERFECTO";
-                resPrec.style.color = "var(--success-color)";
+                resPrec.innerText = "PERFECTO"; resPrec.style.color = "var(--success-color)";
             } else {
                 resPrec.innerText = "1 : " + Math.round(precisionRelativa).toLocaleString();
                 resPrec.style.color = (precisionRelativa >= 10000) ? "var(--success-color)" : "var(--error-color)";
@@ -418,7 +490,6 @@
 
             const tbodyRes = document.getElementById('cuerpoResultados');
             tbodyRes.innerHTML = ""; 
-            
             for (let i = 0; i < coordE.length; i++) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -431,24 +502,6 @@
 
             document.getElementById('panelResultados').style.display = 'block';
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        // Función mock para Guardar visualmente
-        function guardarDatos() {
-            let btn = document.querySelector('.btn-tool');
-            btn.style.background = "var(--success-color)";
-            btn.style.color = "#fff";
-            btn.innerText = "GUARDADO ✔️";
-            setTimeout(() => {
-                btn.style.background = "rgba(255,255,255,0.7)";
-                btn.style.color = "#000";
-                btn.innerText = "💾 Guardar";
-            }, 1500);
-        }
-
-        function exportarTXT() {
-            // Lógica similar de exportación aquí
-            alert("Módulo de exportación listo para integrarse.");
         }
     </script>
 </body>

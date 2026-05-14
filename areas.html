@@ -3,190 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>COTA100 SYSTEM - Áreas</title>
+    <title>COTA100 SYSTEM - Áreas y Perímetros</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- ESTILOS UNIFICADOS COTA100 --- */
         :root {
             --bg-color: #ffffff; --text-color: #000000;
-            --primary-color: #FF6600; --input-bg: rgba(255,255,255,0.9);
-            --table-border: rgba(0,0,0,0.3); --error-color: #d32f2f;
-            --table-header: #111;
+            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
+            --table-header: #111; --success-color: #2e7d32; --error-color: #d32f2f; --danger-color: #d32f2f;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding: 15px; padding-bottom: 50px; 
-            /* MAPA SVG: Polígonos y Áreas */
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.1' stroke-width='1.5' fill='none'%3E%3Cpolygon points='50,50 350,100 300,350 100,300'/%3E%3Cpolygon points='100,100 250,150 200,250'/%3E%3Cline x1='50' y1='50' x2='350' y2='100' stroke-dasharray='5,5'/%3E%3Cline x1='100' y1='300' x2='300' y2='350' stroke-dasharray='5,5'/%3E%3Ccircle cx='50' cy='50' r='4' fill='%23000' fill-opacity='0.1'/%3E%3Ccircle cx='350' cy='100' r='4' fill='%23000' fill-opacity='0.1'/%3E%3Ccircle cx='300' cy='350' r='4' fill='%23000' fill-opacity='0.1'/%3E%3Ccircle cx='100' cy='300' r='4' fill='%23000' fill-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E");
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.10' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
         }
 
-        .top-bar { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--table-border); padding-bottom: 10px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); position: sticky; top:0; z-index:100; margin: -15px -15px 15px -15px; padding: 15px;}
-        .btn-volver-mini { background: transparent; border: none; color: var(--text-color); font-size: 2rem; font-weight: 800; cursor: pointer; padding-right: 15px; line-height: 1;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
-        .top-bar-title span { color: var(--primary-color); }
-
-        .seccion-modulo { border: 2px solid var(--table-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; background-color: rgba(255,255,255,0.85); backdrop-filter: blur(5px);}
-        .seccion-titulo { color: var(--primary-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-transform: uppercase;}
-        .helper-text { font-size: 0.8rem; color: #555; margin-bottom: 15px; line-height: 1.3; font-weight: 600;}
-
-        .table-container { width: 100%; overflow-x: auto; margin-bottom: 15px; border-radius: 8px; border: 2px solid var(--table-border); }
-        table { width: 100%; min-width: 400px; border-collapse: collapse; background-color: rgba(255,255,255,0.9); }
-        th, td { border: 1px solid var(--table-border); padding: 5px; text-align: center; }
-        th { background-color: var(--table-header); color: #fff; font-weight: 800; text-transform: uppercase; padding: 10px 5px; font-size: 0.9rem;}
-        td input { border: none; background: transparent; width: 100%; height: 100%; padding: 12px 5px; font-weight: 700; color: #000; text-align: center; font-size: 1.1rem; border-radius: 0;}
-        td input:focus { background-color: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index:2; position:relative;}
-
-        .btn-accion { width: 100%; padding: 15px; font-size: 1.1rem; background-color: var(--table-header); color: #fff; border: none; border-radius: 8px; font-weight: 800; margin-bottom: 10px; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
-        .btn-accion:active { background-color: var(--primary-color); transform: scale(0.98);}
-        .btn-calc { background-color: var(--primary-color); color: #fff; font-size: 1.3rem; margin-top: 5px; box-shadow: 0 4px 10px rgba(255,102,0,0.3);}
-
-        .result-box { margin-top: 20px; padding: 15px; border: 3px solid #111; border-radius: 12px; background-color: #fff; display: none; text-align: center; }
-        .res-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
-        .res-item { background-color: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--table-border);}
-        .res-titulo { color: #555; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 800;}
-        .res-valor { font-size: 2rem; color: var(--primary-color); font-weight: 800; font-family: monospace;}
-        .res-hectareas { font-size: 1.3rem; color: #2e7d32; margin-top: 5px; font-weight: 800; }
-   /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
         @media screen and (max-width: 480px) {
-            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1rem; }
+            html { font-size: 12px; } 
+            .btn-accion { padding: 9px; font-size: 0.95rem; }
+            input, select { padding: 6px; font-size: 1.05rem; border-width: 1px;}
             .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 8px 15px; height: 60px; }
-            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
-            .header h1 { font-size: 2.2rem; }
-            .grid-container { gap: 10px; padding: 10px; }
-            .card { min-height: 120px; padding: 10px; }
-            .icon-container { height: 45px; margin-bottom: 5px; }
-            .icon-container svg { width: 35px; height: 35px; }
-            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
-            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
-            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
-            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+            .top-bar { padding: 5px 10px; height: 50px; }
+            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
+            .modulo-container { padding: 10px; }
         }
-   </style>
+
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
+
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none;}
+        
+        .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
+            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
+        }
+
+        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-block;}
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
+
+        /* TABLA UNIFICADA */
+        .table-wrapper { width: 100%; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;}
+        table { width: 100%; min-width: 400px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #444; position: sticky; top: 0; z-index: 10; }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle; position: relative;}
+        td:last-child { border-right: none; }
+        
+        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800;}
+        td input:focus { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
+        
+        .info-box { background-color: #fff3e0; border-left: 5px solid var(--primary-color); padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #000; line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
+        .alerta-critica { background-color: #ffebee; border-left: 5px solid var(--error-color); padding: 12px; margin-bottom: 12px; font-size: 0.85rem; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
+        
+        .drop-zone { border: 2px dashed #111; border-radius: 8px; padding: 20px; text-align: center; background-color: rgba(255,255,255,0.7); margin-bottom: 15px; color: #111; font-weight: 800; text-transform: uppercase;}
+
+        /* Panel de Resultados */
+        .panel-resultados { background: #fff; border: 3px solid #111; border-radius: 10px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; }
+        .res-destaque { background-color: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--primary-color);}
+        .res-titulo { color: #555; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 800;}
+        .res-valor { font-size: 2.2rem; color: #111; font-weight: 900; font-family: monospace; letter-spacing: -1px;}
+        .res-hectareas { font-size: 1.4rem; color: var(--success-color); margin-top: 5px; font-weight: 800; }
+    </style>
 </head>
-<body>
+<body onload="inicializarApp()">
 
     <div class="top-bar">
-        <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
+        <a href="index.html" class="btn-volver-mini" onclick="vibrar()">←</a>
         <h2 class="top-bar-title">ÁREAS Y <span>PERÍMETROS</span></h2>
+        <div style="width: 40px;"></div>
     </div>
 
-    <div class="seccion-modulo" style="padding: 10px 5px;">
-        <div class="seccion-titulo" style="padding-left: 10px;">VÉRTICES DEL POLÍGONO</div>
-        <div class="helper-text" style="padding-left: 10px; padding-right: 10px;">* Ingresa las coordenadas en orden perimetral (horario o antihorario). El sistema cerrará la figura automáticamente.</div>
+    <div class="modulo-container">
         
-        <div class="table-container">
-            <table id="tablaAreas">
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">PT.</th>
-                        <th style="width: 40%;">ESTE (X)</th>
-                        <th style="width: 40%;">NORTE (Y)</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTablaAreas">
-                    <tr>
-                        <td style="color:var(--primary-color); font-weight:800; font-size:1.2rem;">1</td>
-                        <td><input type="number" class="coor-x" step="0.001" placeholder="Ej: 715000"></td>
-                        <td><input type="number" class="coor-y" step="0.001" placeholder="Ej: 9105000"></td>
-                    </tr>
-                    <tr>
-                        <td style="color:var(--primary-color); font-weight:800; font-size:1.2rem;">2</td>
-                        <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
-                        <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td style="color:var(--primary-color); font-weight:800; font-size:1.2rem;">3</td>
-                        <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
-                        <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="panel-control" style="border-left: 4px solid #111;">
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos / Lotes</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelProyecto">
+                <div class="project-selector">
+                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color);" onclick="eliminarProyecto()">🗑️</button>
+                </div>
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label>Nombre del Polígono</label>
+                    <input type="text" id="proyectName" placeholder="Ej: Lote 1 Mz B" oninput="renombrarProyecto()">
+                </div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackup()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup()">
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div style="display: flex; gap: 10px; padding: 0 5px;">
-            <button class="btn-accion" style="background:#fff; border: 2px solid #000; color:#000;" onclick="agregarPunto()">+ Punto</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid var(--error-color); color:var(--error-color);" onclick="quitarPunto()">- Punto</button>
+        <div class="panel-control" style="border-left: 4px solid #555;">
+            <div class="panel-titulo" style="color: #555;" onclick="togglePanel('panelImportacion')">
+                <span>📥 Importar Puntos (CSV/TXT)</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelImportacion" style="display: none;">
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label>Formato de Columnas</label>
+                    <select id="formatoColumnas">
+                        <option value="PEN">P, E, N (Punto, Este, Norte)</option>
+                        <option value="EN">E, N (Solo Este, Norte)</option>
+                    </select>
+                </div>
+                <div class="drop-zone" id="dropZone">
+                    <p style="margin:0; font-size:0.9rem;">CARGAR ARCHIVO DE COORDENADAS</p>
+                    <input type="file" id="fileCsvInput" accept=".csv, .txt" style="margin-top: 10px; font-size: 0.8rem; width:100%; border:none; padding:5px;">
+                </div>
+                <button class="btn-accion" style="background:#555; margin-bottom:0;" onclick="procesarArchivoCSV()">Procesar Archivo</button>
+            </div>
         </div>
-    </div>
 
-    <button class="btn-accion btn-calc" onclick="calcularArea()">Calcular Área</button>
+        <div class="alerta-critica">
+            <strong style="color: var(--error-color);">⚠️ ERROR POR CRUCE:</strong><br>
+            Ingresa los vértices siguiendo el contorno real del lote. Si el polígono se cruza (formando un "moño" o "8"), el área calculada será **errónea** ya que las áreas internas se restarán entre sí.
+        </div>
 
-    <div class="result-box" id="cajaResultado">
-        <div class="res-grid">
-            <div class="res-item" style="border: 2px solid var(--primary-color);">
-                <div class="res-titulo" style="color: var(--primary-color);">ÁREA TOTAL DEL LOTE</div>
-                <div class="res-valor" id="resAreaM2">0.00 m²</div>
+        <div class="panel-control" style="padding: 10px; border-left: 4px solid var(--primary-color);">
+            <div class="panel-titulo" style="padding-left: 5px;">📐 Vértices Registrados</div>
+            <p style="font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 10px;">* El sistema cierra la figura automáticamente uniendo el último punto con el primero.</p>
+            
+            <div class="table-wrapper">
+                <table id="tablaAreas">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">PT.</th>
+                            <th style="width: 42.5%;">ESTE (X)</th>
+                            <th style="width: 42.5%;">NORTE (Y)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaAreas">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="input-row" style="margin-bottom: 0;">
+                <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555;" onclick="agregarPunto(); vibrar();">➕ Punto</button>
+                <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555;" onclick="quitarPunto(); vibrar();">➖ Borrar</button>
+                <button class="btn-accion" style="background:#fff; border: 2px solid var(--danger-color); color:var(--danger-color);" onclick="limpiarTablaAreas(); vibrar();">🗑️ Vaciar</button>
+            </div>
+        </div>
+
+        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; margin-bottom: 15px; padding: 15px;" onclick="calcularArea(); vibrar();">CALCULAR ÁREA TOTAL</button>
+
+        <div class="panel-resultados" id="cajaResultado">
+            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.1rem;">REPORTE GEOMÉTRICO</h3>
+            
+            <div class="res-destaque" style="margin-top: 15px;">
+                <div class="res-titulo" style="color: var(--primary-color);">ÁREA DEL POLÍGONO</div>
+                <div class="res-valor" id="resAreaM2" style="color: #000;">0.00 m²</div>
                 <div class="res-hectareas" id="resAreaHa">0.0000 Ha</div>
             </div>
-            <div class="res-item">
+            
+            <div class="res-destaque" style="background: rgba(0,0,0,0.02); border-color: #111;">
                 <div class="res-titulo">PERÍMETRO TOTAL</div>
-                <div class="res-valor" id="resPerimetro" style="color: #111;">0.000 m</div>
+                <div class="res-valor" id="resPerimetro">0.000 m</div>
             </div>
         </div>
+
     </div>
 
     <script>
+        /* --- SISTEMA DE BASE DE DATOS Y ESTADO --- */
+        let appData = { activoId: 1, proyectos: [] };
+
+        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+        function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; }
+
+        function inicializarApp() {
+            let stored = localStorage.getItem('cota100_db_areas_v1');
+            if (stored) { appData = JSON.parse(stored); } 
+            else { appData.proyectos.push(crearObjetoProyecto(1, "Lote Nuevo")); appData.activoId = 1; }
+            renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        function crearObjetoProyecto(id, nombre) {
+            return { id: id, nombre: nombre, tabla: [ { e:"", n:"" }, { e:"", n:"" }, { e:"", n:"" } ] };
+        }
+
+        function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
+        function guardarBD() { localStorage.setItem('cota100_db_areas_v1', JSON.stringify(appData)); }
+
+        function renderSelectProyectos() {
+            const select = document.getElementById('selectProyecto');
+            select.innerHTML = "";
+            appData.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appData.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
+        }
+
+        function crearNuevoProyecto() {
+            vibrar(); let nuevoId = Date.now();
+            appData.proyectos.push(crearObjetoProyecto(nuevoId, "Nuevo Polígono"));
+            appData.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+        }
+
+        function eliminarProyecto() {
+            vibrar();
+            if(appData.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
+            let p = obtenerProyectoActivo();
+            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
+                appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
+                appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+            }
+        }
+
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        function renombrarProyecto() { obtenerProyectoActivo().nombre = document.getElementById('proyectName').value; guardarBD(); renderSelectProyectos(); }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('proyectName').value = p.nombre;
+            document.getElementById('cajaResultado').style.display = 'none';
+            const tbody = document.getElementById('cuerpoTablaAreas');
+            tbody.innerHTML = "";
+            if(!p.tabla || p.tabla.length < 3) p.tabla = crearObjetoProyecto(0,"").tabla;
+            p.tabla.forEach((fila, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:var(--primary-color); font-weight:800; font-size:1.1rem;">${index + 1}</td>
+                    <td><input type="number" class="coor-x" step="0.001" placeholder="X" value="${fila.e}" oninput="guardarEstadoApp()"></td>
+                    <td><input type="number" class="coor-y" step="0.001" placeholder="Y" value="${fila.n}" oninput="guardarEstadoApp()"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function guardarEstadoApp() {
+            let p = obtenerProyectoActivo(); if(!p) return;
+            let filas = [];
+            document.querySelectorAll('#cuerpoTablaAreas tr').forEach((tr) => {
+                filas.push({ e: tr.querySelector('.coor-x').value, n: tr.querySelector('.coor-y').value });
+            });
+            p.tabla = filas; guardarBD();
+        }
+
+        // --- BACKUP ---
+        function exportarBackup() {
+            vibrar(); const backup = JSON.parse(localStorage.getItem('cota100_db_areas_v1'));
+            if(!backup) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `DB_Areas_COTA100.json`); dl.click();
+        }
+
+        function importarBackup() {
+            const f = document.getElementById('importFile');
+            if (f.files.length === 0) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const b = JSON.parse(e.target.result);
+                    if(b.proyectos) { localStorage.setItem('cota100_db_areas_v1', JSON.stringify(b)); window.location.reload(); }
+                } catch(err) { alert("Archivo inválido."); }
+            };
+            reader.readAsText(f.files[0]);
+        }
+
+        // --- IMPORTACIÓN CSV ---
+        function procesarArchivoCSV() {
+            vibrar(); let input = document.getElementById('fileCsvInput');
+            let fmt = document.getElementById('formatoColumnas').value;
+            if (!input.files.length) { alert("Sube un archivo."); return; }
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                let lines = e.target.result.split(/\r?\n/);
+                let active = obtenerProyectoActivo();
+                let pts = [];
+                lines.forEach(line => {
+                    if (line.trim() === "") return;
+                    let sep = line.includes(';') ? ';' : (line.includes('\t') ? '\t' : ',');
+                    let cols = line.split(sep);
+                    let eCol = (fmt === "PEN") ? 1 : 0; let nCol = (fmt === "PEN") ? 2 : 1;
+                    if(cols.length > nCol) {
+                        let ev = parseFloat(cols[eCol]); let nv = parseFloat(cols[nCol]);
+                        if (!isNaN(ev) && !isNaN(nv)) pts.push({ e: ev.toFixed(3), n: nv.toFixed(3) });
+                    }
+                });
+                if (pts.length >= 3) {
+                    active.tabla = pts; guardarBD(); cargarProyectoActivo(); calcularArea();
+                    alert(`✅ ${pts.length} puntos importados.`);
+                    document.getElementById('panelImportacion').style.display = 'none';
+                } else alert("Archivo insuficiente (mínimo 3 puntos).");
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        // --- UI ---
         function agregarPunto() {
             const tbody = document.getElementById('cuerpoTablaAreas');
-            const num = tbody.children.length + 1;
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="color:var(--primary-color); font-weight:800; font-size:1.2rem;">${num}</td>
-                <td><input type="number" class="coor-x" step="0.001" placeholder="..."></td>
-                <td><input type="number" class="coor-y" step="0.001" placeholder="..."></td>
-            `;
-            tbody.appendChild(tr);
+            tr.innerHTML = `<td style="color:var(--primary-color); font-weight:800; font-size:1.1rem;">${tbody.children.length + 1}</td>
+                <td><input type="number" class="coor-x" step="0.001" placeholder="X" oninput="guardarEstadoApp()"></td>
+                <td><input type="number" class="coor-y" step="0.001" placeholder="Y" oninput="guardarEstadoApp()"></td>`;
+            tbody.appendChild(tr); guardarEstadoApp();
         }
 
         function quitarPunto() {
             const tbody = document.getElementById('cuerpoTablaAreas');
-            if (tbody.children.length > 3) {
-                tbody.removeChild(tbody.lastChild);
-            } else {
-                alert("Un polígono debe tener al menos 3 puntos para generar un área.");
-            }
+            if (tbody.children.length > 3) { tbody.removeChild(tbody.lastChild); guardarEstadoApp(); }
         }
 
+        function limpiarTablaAreas() { if(confirm("¿Vaciar tabla?")) { let p = obtenerProyectoActivo(); p.tabla = [ {e:"",n:""}, {e:"",n:""}, {e:"",n:""} ]; guardarBD(); cargarProyectoActivo(); } }
+
+        // --- CÁLCULO GAUSS ---
         function calcularArea() {
-            let filas = document.querySelectorAll('#cuerpoTablaAreas tr');
-            let X = [];
-            let Y = [];
-
-            for (let i = 0; i < filas.length; i++) {
-                let xVal = parseFloat(filas[i].querySelector('.coor-x').value);
-                let yVal = parseFloat(filas[i].querySelector('.coor-y').value);
-                
-                if (isNaN(xVal) || isNaN(yVal)) {
-                    alert(`Falta completar coordenadas en el Punto ${i+1}`);
-                    return;
-                }
-                X.push(xVal);
-                Y.push(yVal);
-            }
-
-            let area = 0;
-            let perimetro = 0;
-            let j = X.length - 1; 
-
+            let trs = document.querySelectorAll('#cuerpoTablaAreas tr');
+            let X = []; let Y = [];
+            trs.forEach((tr, i) => {
+                let xv = parseFloat(tr.querySelector('.coor-x').value);
+                let yv = parseFloat(tr.querySelector('.coor-y').value);
+                if (!isNaN(xv) && !isNaN(yv)) { X.push(xv); Y.push(yv); }
+            });
+            if (X.length < 3) { alert("Se requieren al menos 3 vértices."); return; }
+            let a = 0; let p = 0; let j = X.length - 1;
             for (let i = 0; i < X.length; i++) {
-                area += (X[j] + X[i]) * (Y[j] - Y[i]);
-                let dX = X[i] - X[j];
-                let dY = Y[i] - Y[j];
-                perimetro += Math.sqrt(dX*dX + dY*dY);
-                j = i; 
+                a += (X[j] + X[i]) * (Y[j] - Y[i]);
+                p += Math.sqrt(Math.pow(X[i]-X[j], 2) + Math.pow(Y[i]-Y[j], 2));
+                j = i;
             }
-
-            area = Math.abs(area / 2.0);
-            let hectareas = area / 10000.0;
-
-            document.getElementById('resAreaM2').innerText = area.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " m²";
-            document.getElementById('resAreaHa').innerText = hectareas.toLocaleString('en-US', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " Ha";
-            document.getElementById('resPerimetro').innerText = perimetro.toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + " m";
-
+            a = Math.abs(a / 2.0);
+            document.getElementById('resAreaM2').innerText = a.toLocaleString('en-US', {minimumFractionDigits: 2}) + " m²";
+            document.getElementById('resAreaHa').innerText = (a / 10000.0).toLocaleString('en-US', {minimumFractionDigits: 4}) + " Ha";
+            document.getElementById('resPerimetro').innerText = p.toLocaleString('en-US', {minimumFractionDigits: 3}) + " m";
             document.getElementById('cajaResultado').style.display = 'block';
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
