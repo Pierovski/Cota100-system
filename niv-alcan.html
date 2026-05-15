@@ -102,7 +102,7 @@
         <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </a>
-        <h2 class="top-bar-title">ALCANTARILLADO <span class="badge-v2">V2</span> <span>Control de Redes</span></h2>
+        <h2 class="top-bar-title">ALCANTARILLADO <span>Control de Redes</span></h2>
         <div style="width: 40px;"></div> 
     </div>
 
@@ -131,7 +131,18 @@
                     <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
-            </div>
+                
+                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupAlcan()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                            📥 Restaurar
+                            <input type="file" id="importAlcanFile" accept=".json" style="display: none;" onchange="importarBackupAlcan()">
+                        </label>
+                    </div>
+                </div>
+                </div>
         </div>
 
         <div class="panel-control" style="border-left: 4px solid #1976d2;">
@@ -239,6 +250,45 @@
 
         function obtenerProyectoActivo() { return appDataAlcan.proyectos.find(p => p.id === appDataAlcan.activoId); }
         function guardarBD() { localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(appDataAlcan)); }
+
+        // --- FUNCIONES AÑADIDAS: BACKUP DE BASE DE DATOS ---
+        function exportarBackupAlcan() {
+            vibrar();
+            const backup = JSON.parse(localStorage.getItem('cota100_db_alcan_v1'));
+            if(!backup || backup.proyectos.length === 0) return alert("No hay datos para exportar.");
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const downloadAnchorNode = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `DB_NivAlcan_${fecha}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importarBackupAlcan() {
+            const fileInput = document.getElementById('importAlcanFile');
+            if (fileInput.files.length === 0) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if(backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(backup));
+                        alert("✅ Base de datos restaurada con éxito. La página se recargará.");
+                        window.location.reload();
+                    } else {
+                        alert("❌ Archivo no válido. Asegúrate de que sea un backup de Nivelación de Alcantarillado.");
+                    }
+                } catch(err) {
+                    alert("❌ Error al leer el archivo de base de datos.");
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+        // --- FIN FUNCIONES AÑADIDAS: BACKUP ---
 
         // --- SOLUCIÓN TIPO "FOTOGRAFÍA" DE LA INTERFAZ ---
         function guardarEstadoAlcan() {
