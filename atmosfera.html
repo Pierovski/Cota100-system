@@ -11,6 +11,15 @@
             --bg-color: #ffffff; --text-color: #000000;
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
             --table-header: #111; --success-color: #2e7d32; --error-color: #d32f2f;
+            --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+            --card-bg: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212; --text-color: #e0e0e0;
+            --border-color: rgba(255, 255, 255, 0.15); 
+            --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
+            --table-header: #000; --card-bg: #1e1e1e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -19,6 +28,7 @@
             background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
             background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' stroke-width='1.5' fill='none'%3E%3Cpath d='M0,100 Q100,50 200,100 T400,100'/%3E%3Cpath d='M0,150 Q100,100 200,150 T400,150'/%3E%3Cpath d='M0,200 Q100,150 200,200 T400,200'/%3E%3Cpath d='M0,250 Q100,200 200,250 T400,250'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         @media screen and (max-width: 480px) {
@@ -29,25 +39,26 @@
             .top-bar { padding: 5px 10px; height: 50px; }
             .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
             .modulo-container { padding: 10px; }
+            .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px; left: 10px;}
+            .nav-modal { left: 10px; bottom: 65px; width: 200px;}
         }
 
-        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
-        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: var(--card-bg); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
-        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; max-width: 500px; margin: 0 auto; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px;}
+        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: var(--panel-bg); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 6px;}
         
-        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+        label { font-weight: 800; color: var(--text-color); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; opacity: 0.8; }
         
-        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 6px; color: var(--text-color); transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: var(--card-bg);}
         
         select {
             appearance: none; -webkit-appearance: none;
@@ -56,27 +67,43 @@
             padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
         }
 
-        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-block;}
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-block; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-limpiar { background: #fff; color: var(--error-color); border: 2px solid var(--error-color); margin-top: 10px;}
+        .btn-limpiar { background: var(--card-bg); color: var(--error-color); border: 2px solid var(--error-color); margin-top: 10px; box-shadow: none; }
 
         /* Panel de Resultados */
-        .panel-resultados { background: #fff; border: 3px solid #111; border-radius: 10px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; }
+        .panel-resultados { background: var(--card-bg); border: 3px solid var(--table-header); border-radius: 10px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; backdrop-filter: blur(8px); }
         
-        .res-destaque { background-color: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid var(--primary-color);}
-        .res-titulo { color: #555; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800;}
-        .res-valor-gigante { font-size: 2.5rem; color: #000; font-weight: 900; font-family: monospace; letter-spacing: -1px;}
+        .res-destaque { background-color: rgba(128,128,128,0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid var(--primary-color);}
+        .res-titulo { color: var(--text-color); opacity: 0.7; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; font-weight: 800;}
+        .res-valor-gigante { font-size: 2.5rem; color: var(--text-color); font-weight: 900; font-family: monospace; letter-spacing: -1px;}
         .res-unidad { font-size: 1rem; color: var(--primary-color); font-weight: 700; letter-spacing: 0;}
         
-        .info-box { background-color: #fff3e0; border-left: 5px solid var(--primary-color); padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #000; line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
+        .info-box { background-color: rgba(255, 102, 0, 0.1); border-left: 5px solid var(--primary-color); padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: var(--text-color); line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
         .info-box strong { color: var(--primary-color); font-weight: 800;}
-        .helper-text { font-size: 0.75rem; color: #666; font-weight: 600; margin-top: 4px; text-align: left;}
+        .helper-text { font-size: 0.75rem; color: var(--text-color); opacity: 0.6; font-weight: 600; margin-top: 4px; text-align: left;}
+
+        /* NAVEGACIÓN FLOTANTE */
+        .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
+        .btn-nav-flotante:active { transform: scale(0.9); }
+        .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--input-bg); padding: 10px 5px; border-radius: 8px; text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 0.75rem; border: 1px solid var(--border-color); text-transform: uppercase; transition: 0.2s; text-align: center;}
+        .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
     </style>
 </head>
-<body onload="vibrar()">
+<body onload="inicializarApp()">
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
 
     <div class="top-bar">
-        <button class="btn-volver-mini" onclick="window.location.href='index.html'">←</button>
+        <button class="btn-volver-mini" onclick="window.location.href='index.html'; vibrar();">←</button>
         <h2 class="top-bar-title">ATMÓSFERA <span>Corrección PPM</span></h2>
         <div style="width: 40px;"></div>
     </div>
@@ -87,8 +114,8 @@
             <strong>¿Qué es esto?</strong> Calcula la <strong>Presión Absoluta</strong> (fuerza real del aire en tu hito) y el <strong>PPM</strong> (corrección de velocidad del láser). Es vital en zonas de altura para que tus distancias no salgan "cortas" o "estiradas" en el Civil 3D.
         </div>
 
-        <div class="panel-control" style="border-left: 4px solid #111;">
-            <div class="panel-titulo" style="color: #111;">⚙️ 1. Configuración de Marca</div>
+        <div class="panel-control" style="border-left: 4px solid var(--text-color);">
+            <div class="panel-titulo" style="color: var(--text-color);">⚙️ 1. Configuración de Marca</div>
             <div class="input-group">
                 <label>Fabricante del Equipo</label>
                 <select id="marcaEquipo" onchange="vibrar()">
@@ -117,28 +144,28 @@
             </div>
         </div>
 
-        <button class="btn-accion" onclick="calcularAtmosfera(); vibrar();">Calcular Parámetros</button>
+        <button class="btn-accion" onclick="calcularAtmosfera();">Calcular Parámetros</button>
 
         <div class="panel-resultados" id="cajaResultado">
             
             <div class="res-destaque">
-                <div class="res-titulo" style="color: #111;">☁️ PRESIÓN LOCAL (QFE)</div>
+                <div class="res-titulo" style="color: var(--text-color);">☁️ PRESIÓN LOCAL (QFE)</div>
                 <div class="res-valor-gigante" id="resHpa">000.0 <span class="res-unidad">hPa / mbar</span></div>
-                <div style="width: 50%; height: 2px; background-color: rgba(0,0,0,0.1); margin: 15px auto;"></div>
-                <div class="res-valor-gigante" id="resMmhg" style="font-size: 2rem; color: #555;">000.0 <span class="res-unidad">mmHg</span></div>
+                <div style="width: 50%; height: 2px; background-color: var(--border-color); margin: 15px auto;"></div>
+                <div class="res-valor-gigante" id="resMmhg" style="font-size: 2rem; color: var(--text-color); opacity: 0.8;">000.0 <span class="res-unidad">mmHg</span></div>
                 <div class="helper-text" style="text-align: center;">* Este es el valor que debes ingresar manualmente en el menú de atmósfera de tu equipo.</div>
             </div>
 
-            <div class="res-destaque" style="background-color: #fff; border-color: #111; border-style: dashed;">
+            <div class="res-destaque" style="background-color: transparent; border-color: var(--text-color); border-style: dashed;">
                 <div class="res-titulo">⚡ PPM PROYECTADO</div>
                 <div class="res-valor-gigante" id="resPpm" style="color: var(--primary-color);">0.0</div>
-                <div class="helper-text" style="margin-top: 10px; color:#111; text-align: center;">Si tu equipo está bien configurado con la presión y temperatura de arriba, debería mostrar este PPM automáticamente.</div>
+                <div class="helper-text" style="margin-top: 10px; color: var(--text-color); text-align: center;">Si tu equipo está bien configurado con la presión y temperatura de arriba, debería mostrar este PPM automáticamente.</div>
             </div>
 
-            <button class="btn-accion btn-limpiar" onclick="limpiarAtmosfera(); vibrar();">🗑️ Limpiar Datos</button>
+            <button class="btn-accion btn-limpiar" onclick="limpiarAtmosfera();">🗑️ Limpiar Datos</button>
         </div>
 
-        <div class="info-box" style="border-left-color: #success-color; background: #e8f5e9; margin-top: 15px;">
+        <div class="info-box" style="border-left-color: var(--success-color); background: rgba(46, 125, 50, 0.1); margin-top: 15px;">
             <strong>💡 Recomendaciones Pro:</strong><br>
             • <strong>Aclimatación:</strong> Deja el equipo al aire libre 15 min antes de medir para que el sensor y los lentes se estabilicen.<br>
             • <strong>Sensores:</strong> Si ingresas estos datos manuales, asegúrate de **apagar el sensor automático** en la configuración de la Estación.
@@ -146,10 +173,38 @@
 
     </div>
 
+    <div class="btn-nav-flotante" onclick="toggleNav()">🧭</div>
+    <div class="nav-modal" id="navModal">
+        <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+            IR A MÓDULO <button onclick="toggleNav()" style="background:none; border:none; color:var(--error-color); font-weight:800; cursor:pointer; font-size: 1.2rem;">X</button>
+        </div>
+        <div class="nav-grid">
+            <a href="index.html" class="nav-item"><span>🏠</span> Inicio</a>
+            <a href="nivelacion.html" class="nav-item"><span>📏</span> Niveles</a>
+            <a href="poligonales.html" class="nav-item"><span>📐</span> Polígonos</a>
+            <a href="coordenadas.html" class="nav-item"><span>🌐</span> Coord.</a>
+            <a href="areas.html" class="nav-item"><span>⬛</span> Áreas</a>
+            <a href="ajustes.html" class="nav-item"><span>⚙️</span> Ajustes</a>
+        </div>
+    </div>
+
     <script>
-        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+        let usarVibracion = true;
+        function vibrar() { if (usarVibracion && navigator.vibrate) navigator.vibrate(30); }
+
+        function toggleNav() {
+            vibrar();
+            const m = document.getElementById('navModal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function inicializarApp() {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
+            usarVibracion = conf.vibracion !== false;
+        }
 
         function calcularAtmosfera() {
+            vibrar();
             let h = parseFloat(document.getElementById('inAltitud').value);
             let t = parseFloat(document.getElementById('inTemp').value);
             let marca = document.getElementById('marcaEquipo').value;
@@ -168,12 +223,10 @@
             if (marca === 'leica') {
                 ppm = 286.34 - ((0.29525 * p_hPa) / (1 + (t / 273.15)));
             } else if (marca === 'topcon') {
-                // Topcon, Sokkia y South usan la constante de refracción 279.67 para láseres de 0.68 micras
                 ppm = 279.67 - ((0.2904 * p_hPa) / (1 + 0.003661 * t));
             } else if (marca === 'trimble') {
                 ppm = 275.0 - ((0.2900 * p_hPa) / (1 + 0.003661 * t));
             } else if (marca === 'chcnav') {
-                // CHCNAV y marcas similares suelen usar una constante estándar de 281.8
                 ppm = 281.8 - ((0.29065 * p_hPa) / (1 + 0.003661 * t));
             }
 
@@ -186,6 +239,7 @@
         }
 
         function limpiarAtmosfera() {
+            vibrar();
             document.getElementById('inAltitud').value = '';
             document.getElementById('inTemp').value = '';
             document.getElementById('cajaResultado').style.display = 'none';

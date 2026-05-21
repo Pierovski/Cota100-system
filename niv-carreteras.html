@@ -9,54 +9,62 @@
         :root {
             --bg-color: #ffffff; --text-color: #000000;
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
-            --table-header: #111; 
+            --table-header: #111; --danger-color: #d32f2f;
+            --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+        }
+
+        body.dark-mode {
+            --bg-color: #121212; --text-color: #e0e0e0;
+            --border-color: rgba(255, 255, 255, 0.15); 
+            --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
+            --table-header: #000;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' fill='none'%3E%3Cpath d='M0,200 Q100,100 200,200 T400,200' stroke-width='4'/%3E%3Cline x1='0' y1='180' x2='400' y2='220' stroke-width='2' stroke-dasharray='10,10'/%3E%3C/g%3E%3C/svg%3E");
+            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23888888' stroke-opacity='0.05' fill='none'%3E%3Cpath d='M0,200 Q100,100 200,200 T400,200' stroke-width='4'/%3E%3Cline x1='0' y1='180' x2='400' y2='220' stroke-width='2' stroke-dasharray='10,10'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
             min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* --- CABECERA --- */
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; border-bottom: 2px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.95); 
+            background-color: var(--panel-bg); 
             position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 75px; 
         }
-        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
-        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95); }
+        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;}
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.9rem;}
 
-        /* AQUI ESTABA EL ERROR: ELIMINADO EL MAX-WIDTH */
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- PANELES DE CONTROL --- */
-        .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 12px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
-        .panel-titulo span { font-size: 0.8rem; color: #555; float: right; margin-top: 3px; }
+        .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 12px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 5px; }
+        .panel-titulo span { font-size: 0.8rem; color: var(--text-color); opacity: 0.7; float: right; margin-top: 3px; }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group { display: flex; flex-direction: column; }
         
-        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px; }
+        label { font-weight: 800; color: var(--text-color); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px; opacity: 0.8;}
         input { 
-            width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center;
-            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 8px; color: #000; 
+            width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; text-align: center;
+            background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s;
         }
         input:focus { border-color: var(--primary-color); outline: none; }
         input::placeholder { color: #bbb; font-weight: 600; }
 
-        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: #111; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 8px; border: 1px dashed #111; margin-top: 10px;}
+        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--text-color); background: rgba(128,128,128,0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--text-color); margin-top: 10px;}
         .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.4rem;}
         
-        .indicador-pendiente { text-align: center; font-size: 0.9rem; font-weight: 700; color: #111; margin-top: 10px; padding: 5px; background: #e3f2fd; border-radius: 6px; border: 1px solid #90caf9;}
+        .indicador-pendiente { text-align: center; font-size: 0.95rem; font-weight: 700; color: #1976d2; margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 8px; border: 1px solid #90caf9;}
+        body.dark-mode .indicador-pendiente { background: #0d2136; border-color: #1976d2; color: #e0e0e0; }
 
         /* --- PANEL EN CONSTRUCCIÓN --- */
         .panel-construccion {
@@ -73,47 +81,60 @@
         .panel-construccion h3 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
         .panel-construccion p { font-size: 0.9rem; color: #aaa; font-weight: 500; line-height: 1.4; }
 
-        /* MAGIA RESPONSIVA PARA PANTALLAS ANCHAS */
+        /* NAVEGACIÓN FLOTANTE */
+        .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
+        .btn-nav-flotante:active { transform: scale(0.9); }
+        .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--input-bg); padding: 10px 5px; border-radius: 8px; text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 0.75rem; border: 1px solid var(--border-color); text-transform: uppercase; transition: 0.2s; text-align: center;}
+        .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
+
+        /* CALCULADORA FLOTANTE */
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--bg-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--panel-bg); border: 2px solid var(--table-header); border-radius: 12px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: var(--text-color); font-size: 0.85rem;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color); cursor: pointer;}
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 10px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); cursor: pointer;}
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid var(--border-color); margin-bottom: 8px; padding: 4px; background: var(--input-bg); color: var(--text-color); }
+
         @media (min-width: 768px) {
-            .grid-desktop {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
+            .grid-desktop { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
             .panel-control { margin-bottom: 0; }
             .panel-construccion { grid-column: 1 / -1; }
         }
-        /* --- AJUSTE COMPACTO PARA PANTALLAS MÓVILES PEQUEÑAS --- */
         @media screen and (max-width: 480px) {
-            html { font-size: 13px; } /* Reduce todos los textos un 18% automáticamente */
-            .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1rem; }
-            .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 8px 15px; height: 60px; }
-            .btn-volver-mini { width: 35px; height: 35px; font-size: 1.5rem;}
-            .header h1 { font-size: 2.2rem; }
-            .grid-container { gap: 10px; padding: 10px; }
-            .card { min-height: 120px; padding: 10px; }
-            .icon-container { height: 45px; margin-bottom: 5px; }
-            .icon-container svg { width: 35px; height: 35px; }
-            .btn-calculadora-flotante, .btn-flotante { width: 50px; height: 50px; bottom: 15px; right: 15px;}
-            .calculadora-modal { right: 15px; bottom: 75px; width: 240px; padding: 10px;}
-            #calcDisplay { height: 40px; font-size: 1.4rem; padding: 5px;}
-            .calc-grid button { padding: 8px 0; font-size: 1.1rem; }
+            html { font-size: 13px; }
+            input { padding: 10px; font-size: 1.1rem; }
+            .panel-control { padding: 12px; margin-bottom: 12px;}
+            .top-bar { padding: 5px 15px; height: 60px; }
+            .btn-volver-mini { width: 38px; height: 38px; font-size: 1.3rem;}
+            .btn-calculadora-flotante, .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px;}
+            .btn-calculadora-flotante { right: 10px;}
+            .btn-nav-flotante { left: 10px;}
+            .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
+            .nav-modal { left: 10px; bottom: 65px; width: 200px;}
         }
     </style>
 </head>
-<body>
+<body onload="inicializarApp()">
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
         <h2 class="top-bar-title">CARRETERAS <span>Control Transversal</span></h2>
         <div style="width: 45px;"></div> 
     </div>
 
     <div class="modulo-container grid-desktop">
 
-        <!-- 1. ESTACIÓN (AI) -->
         <div class="panel-control" style="border-left: 5px solid var(--primary-color);">
             <div class="panel-titulo" style="color: var(--primary-color);">1. Estación de Control</div>
             <div class="form-grid">
@@ -123,9 +144,8 @@
             <div class="res-ai">AI Actual: <span id="txtAI">0.000</span></div>
         </div>
 
-        <!-- 2. ALINEAMIENTO LONGITUDINAL (SUBRASANTE) -->
         <div class="panel-control" style="border-left: 5px solid #111;">
-            <div class="panel-titulo" style="color: #111;">2. Eje Longitudinal <span>(Subrasante)</span></div>
+            <div class="panel-titulo" style="color: var(--text-color);">2. Eje Longitudinal <span>(Subrasante)</span></div>
             <div class="form-grid">
                 <div class="input-group"><label>Prog. Inicio</label><input type="number" id="progIni" step="0.001" placeholder="0+000" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
                 <div class="input-group"><label>Cota Inicio</label><input type="number" id="cotaIni" step="0.001" placeholder="Ej: 1500.000" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
@@ -135,7 +155,6 @@
             <div class="indicador-pendiente" id="txtPendiente">Pendiente del tramo: Esperando datos...</div>
         </div>
 
-        <!-- 3. SECCIÓN TÍPICA TRANSVERSAL -->
         <div class="panel-control" style="border-left: 5px solid #1976d2; grid-column: 1 / -1;">
             <div class="panel-titulo" style="color: #1976d2;">3. Sección Típica <span>(Estructura)</span></div>
             <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
@@ -144,12 +163,11 @@
                 <div class="input-group"><label>PQT. Estructural (m)</label><input type="number" id="espesorRasante" step="0.001" placeholder="Ej: 0.60" onchange="formatearDecimales(this)"></div>
                 <div class="input-group"><label>Esponjamiento (%)</label><input type="number" id="esponjamiento" step="0.1" placeholder="Ej: 20.0"></div>
             </div>
-            <p style="font-size: 0.7rem; color: #666; font-weight: 600; margin-top: 8px; text-align: center;">
+            <p style="font-size: 0.75rem; color: var(--text-color); opacity: 0.7; font-weight: 600; margin-top: 10px; text-align: center;">
                 *El "PQT. Estructural" es la suma de Base + Subbase + Asfalto. El bombeo negativo (-) cae hacia las cunetas.
             </p>
         </div>
 
-        <!-- MENSAJE DE EN DESARROLLO -->
         <div class="panel-construccion">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
@@ -160,16 +178,78 @@
 
     </div>
 
+    <div class="btn-nav-flotante" onclick="toggleNav()">🧭</div>
+    <div class="nav-modal" id="navModal">
+        <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+            IR A MÓDULO <button onclick="toggleNav()" style="background:none; border:none; color:var(--danger-color); font-weight:800; cursor:pointer; font-size: 1.2rem;">X</button>
+        </div>
+        <div class="nav-grid">
+            <a href="index.html" class="nav-item"><span>🏠</span> Inicio</a>
+            <a href="nivelacion.html" class="nav-item"><span>📏</span> Niveles</a>
+            <a href="poligonales.html" class="nav-item"><span>📐</span> Polígonos</a>
+            <a href="coordenadas.html" class="nav-item"><span>🌐</span> Coord.</a>
+            <a href="areas.html" class="nav-item"><span>⬛</span> Áreas</a>
+            <a href="ajustes.html" class="nav-item"><span>⚙️</span> Ajustes</a>
+        </div>
+    </div>
+
+    <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
+    <div class="calculadora-modal" id="calculadoraModal">
+        <div class="calc-header"><span>CÁLCULO RÁPIDO</span><button onclick="toggleCalculadora()">X</button></div>
+        <input type="text" id="calcDisplay" disabled>
+        <div class="calc-grid">
+            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">÷</button>
+            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">×</button>
+            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
+            <button onclick="calcClear()" style="color:var(--danger-color); border-color:var(--danger-color);">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
+            <button onclick="calcDel()" style="grid-column: span 2; background:rgba(128,128,128,0.1);">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
+        </div>
+    </div>
+
     <script>
-        function formatearDecimales(input) { if(input.value !== "") input.value = parseFloat(input.value).toFixed(3); }
+        let globalConfig = { darkMode: false, vibracion: true, decimales: "3", wakeLockEnabled: false };
+        let wakeLock = null;
+
+        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+
+        async function solicitarWakeLock() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); }
+                catch (err) {}
+            }
+        }
+
+        function toggleNav() {
+            vibrar();
+            const m = document.getElementById('navModal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function inicializarApp() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+                if(conf) {
+                    globalConfig = conf;
+                    if(globalConfig.darkMode) document.body.classList.add('dark-mode');
+                    if(globalConfig.wakeLockEnabled) solicitarWakeLock();
+                }
+            } catch(e) {}
+        }
+
+        function formatearDecimales(input) { 
+            let decs = parseInt(globalConfig.decimales) || 3;
+            if(input.value !== "") input.value = parseFloat(input.value).toFixed(decs); 
+        }
 
         function calcularAI() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let bm = parseFloat(document.getElementById('cotaBM').value);
             let va = parseFloat(document.getElementById('vistaAtras').value);
-            document.getElementById('txtAI').innerText = (!isNaN(bm) && !isNaN(va)) ? (bm + va).toFixed(3) : "0.000";
+            document.getElementById('txtAI').innerText = (!isNaN(bm) && !isNaN(va)) ? (bm + va).toFixed(decs) : "0.000";
         }
 
         function calcularPendiente() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let pi = parseFloat(document.getElementById('progIni').value);
             let ci = parseFloat(document.getElementById('cotaIni').value);
             let pf = parseFloat(document.getElementById('progFin').value);
@@ -180,17 +260,29 @@
                 let distancia = pf - pi;
                 if (distancia === 0) {
                     txtPte.innerText = "Error: Distancia cero";
-                    txtPte.style.background = "#ffebee"; txtPte.style.borderColor = "#ef9a9a";
+                    txtPte.style.background = document.body.classList.contains('dark-mode') ? "rgba(211,47,47,0.1)" : "#ffebee"; 
+                    txtPte.style.borderColor = "var(--danger-color)";
+                    txtPte.style.color = "var(--danger-color)";
                 } else {
                     let pte = ((cf - ci) / distancia) * 100;
-                    txtPte.innerText = "Pendiente Longitudinal: " + pte.toFixed(3) + "%";
-                    txtPte.style.background = "#e8f5e9"; txtPte.style.borderColor = "#a5d6a7";
+                    txtPte.innerText = "Pendiente Longitudinal: " + pte.toFixed(decs) + "%";
+                    txtPte.style.background = document.body.classList.contains('dark-mode') ? "rgba(46,125,50,0.1)" : "#e8f5e9"; 
+                    txtPte.style.borderColor = "var(--success-color)";
+                    txtPte.style.color = "var(--success-color)";
                 }
             } else {
                 txtPte.innerText = "Pendiente del tramo: Esperando datos...";
-                txtPte.style.background = "#e3f2fd"; txtPte.style.borderColor = "#90caf9";
+                txtPte.style.background = document.body.classList.contains('dark-mode') ? "#0d2136" : "#e3f2fd"; 
+                txtPte.style.borderColor = "#1976d2";
+                txtPte.style.color = "#1976d2";
             }
         }
+
+        function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcIn(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
+        function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
+        function calcDel() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() { vibrar(); try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
     </script>
 </body>
 </html>

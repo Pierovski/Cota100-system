@@ -17,7 +17,7 @@
         body { 
             background-color: var(--bg-color); color: var(--text-color); padding-bottom: 50px;
             /* Fondo de Polígonos con la opacidad corregida al 5% para coincidir con Nivelación */
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.05' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3Cline x1='150' y1='20' x2='250' y2='50' /%3E%3Cline x1='200' y1='100' x2='220' y2='150' /%3E%3Cline x1='120' y1='150' x2='180' y2='300' /%3E%3Cline x1='250' y1='250' x2='220' y2='150' /%3E%3Cline x1='250' y1='250' x2='180' y2='300' /%3E%3Ccircle cx='50' cy='50' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='150' cy='20' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='200' cy='100' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='120' cy='150' r='3' fill='%23000' fill-opacity='0.1' /%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.05' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3Cpath d='M150,20 L250,50 M200,100 L220,150 M120,150 L180,300 M250,250 L220,150 M250,250 L180,300' /%3E%3Ccircle cx='50' cy='50' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='150' cy='20' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='200' cy='100' r='3' fill='%23000' fill-opacity='0.1' /%3E%3Ccircle cx='120' cy='150' r='3' fill='%23000' fill-opacity='0.1' /%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
         }
 
@@ -35,6 +35,9 @@
         .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95); }
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
+        
+        /* Espacio reservado invisible a la derecha para mantener el título centrado */
+        .top-bar-spacer { width: 45px; height: 45px; }
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; display: flex; flex-direction: column; gap: 15px;}
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -65,20 +68,43 @@
             html { font-size: 13px; }
             .top-bar { padding: 10px 15px; height: 60px;}
             .btn-volver-mini { width: 35px; height: 35px;}
+            .top-bar-spacer { width: 35px; height: 35px; }
             .card-horizontal { padding: 15px 12px; }
             .icon-box { width: 50px; height: 50px; margin-right: 12px; }
             .icon-box svg { width: 28px; height: 28px; }
         }
+
+        /* --- SINCRONIZACIÓN DE MODO OSCURO --- */
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+        body.dark-mode .top-bar { background-color: rgba(30, 30, 30, 0.95); }
+        body.dark-mode .card-horizontal { background: rgba(30, 30, 30, 0.95); }
+        body.dark-mode .card-horizontal:active { background: #1a1a1a; }
+        body.dark-mode .text-box p { color: #aaa; }
+        body.dark-mode .btn-volver-mini { background: rgba(255, 255, 255, 0.05); }
+        body.dark-mode {
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.05' stroke-width='1.5'%3E%3Cpolygon points='50,50 150,20 200,100 120,150' /%3E%3Cpolygon points='250,250 350,200 380,300 280,350' /%3E%3Cpolygon points='50,250 20,350 150,380 180,300' /%3E%3Cpolygon points='250,50 380,80 320,180 220,150' /%3E%3Cpath d='M150,20 L250,50 M200,100 L220,150 M120,150 L180,300 M250,250 L220,150 M250,250 L180,300' /%3E%3Ccircle cx='50' cy='50' r='3' fill='%23fff' fill-opacity='0.05' /%3E%3Ccircle cx='150' cy='20' r='3' fill='%23fff' fill-opacity='0.05' /%3E%3Ccircle cx='200' cy='100' r='3' fill='%23fff' fill-opacity='0.05' /%3E%3Ccircle cx='120' cy='150' r='3' fill='%23fff' fill-opacity='0.05' /%3E%3C/g%3E%3C/svg%3E");
+        }
     </style>
 </head>
 <body>
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) { console.log("Error al cargar ajustes."); }
+    </script>
 
     <div class="top-bar">
         <a href="index.html" class="btn-volver-mini">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </a>
         <h2 class="top-bar-title">POLIGONALES <span>Módulos de Cálculo</span></h2>
-        <div style="width: 45px;"></div>
+        <div class="top-bar-spacer"></div>
     </div>
 
     <div class="modulo-container">

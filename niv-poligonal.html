@@ -12,22 +12,31 @@
             --bg-color: #ffffff; --text-color: #000000;
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.3); 
             --table-header: #111; --corte-color: #d32f2f; --success-color: #2e7d32; --excel-color: #1b5e20;
+            --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+        }
+
+        body.dark-mode {
+            --bg-color: #121212; --text-color: #e0e0e0;
+            --border-color: rgba(255, 255, 255, 0.15); 
+            --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
+            --table-header: #000;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
             background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
-            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.12'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='600' height='600' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23888888' stroke-opacity='0.05'%3E%3Cpath stroke-width='2.5' d='M0 150c100-20 150 50 250 40s150-80 300-60 200 100 250 80v-210H0z'/%3E%3Cpath stroke-width='2.5' d='M0 450c150 50 250-50 400 0s200 150 400 100'/%3E%3Cpath stroke-width='2.5' d='M250 250c30-40 80-20 100 20s-20 80-60 60-60-50-40-80z'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 600px 600px; background-attachment: fixed;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px 20px; border-bottom: 2px solid var(--border-color); height: 70px;
-            background-color: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+            background-color: var(--panel-bg); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
         }
-        .btn-volver-mini { background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;}
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
@@ -35,53 +44,56 @@
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .panel-control { 
-            border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; 
-            margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+            border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; 
+            margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px);
         }
         .panel-titulo { 
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; 
-            margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; 
+            color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            margin-bottom: 10px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 8px; 
         }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
-        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px;}
+        label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
         input, select { 
-            width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; 
-            background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; 
-            color: #000; transition: 0.2s; text-align: center; font-family: 'Rajdhani', sans-serif;
+            width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; 
+            background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; 
+            color: var(--text-color); transition: 0.2s; text-align: center; font-family: 'Rajdhani', sans-serif;
         }
         input.in-pto { text-transform: uppercase; }
         input.bm-selector { cursor: pointer; border: 2px solid var(--primary-color); background: #fff3e0;}
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
-        input:disabled, input[readonly] { background: rgba(0,0,0,0.05); cursor: not-allowed; border-style: dashed; color: #555; }
+        body.dark-mode input.bm-selector { background: rgba(255,102,0,0.1); }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; }
+        input:disabled, input[readonly] { background: rgba(128,128,128,0.1); cursor: not-allowed; border-style: dashed; color: #555; }
+        
         select {
             appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
-            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important;
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 20px auto;
+            padding-right: 40px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
         }
 
         .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
-        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
-        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
+        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.2); }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 1rem; color: #111; }
+        .bm-info strong { font-size: 1rem; color: var(--text-color); }
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
+        .btn-delete-bm { background: none; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer;}
 
-        .txt-ayuda { font-size: 0.8rem; font-weight: 700; color: #1976d2; margin-top: 5px; background: #e3f2fd; padding: 6px; border-radius: 4px; border: 1px solid #90caf9;}
+        .txt-ayuda { font-size: 0.85rem; font-weight: 700; color: #1976d2; margin-top: 5px; background: #e3f2fd; padding: 10px; border-radius: 8px; border: 1px solid #90caf9;}
+        body.dark-mode .txt-ayuda { background: #0d2136; border-color: #1976d2; color: #e0e0e0; }
 
         .btn-accion { 
             width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; 
-            background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; 
+            background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; 
             transition: 0.2s;
         }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.2rem;}
-        .btn-dual { display: flex; gap: 5px; margin-bottom: 15px;}
+        .btn-calc { background-color: var(--primary-color); margin-bottom: 10px; box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3); font-size: 1.2rem; padding: 15px;}
+        .btn-dual { display: flex; gap: 8px; margin-bottom: 15px;}
 
         .dos-columnas { display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px; margin-bottom: 10px;}
         .col-tabla { flex: 1; min-width: 350px; margin-bottom: 0; padding: 0 !important; overflow: visible;}
@@ -89,13 +101,11 @@
         .cabecera-ida { background: #1976d2; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
         .cabecera-vuelta { background: #d32f2f; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
 
-        .table-container { 
-            width: 100%; background: #fff; margin-bottom: 0; border-radius: 0 0 6px 6px;
-        }
+        .table-container { width: 100%; background: var(--bg-color); margin-bottom: 0; border-radius: 0 0 6px 6px;}
         table { width: 100%; border-collapse: collapse; }
         
         th { 
-            color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.85rem; border-bottom: 2px solid #444; 
+            color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.85rem; border-bottom: 2px solid rgba(128,128,128,0.2); 
             text-transform: uppercase; position: sticky; top: 70px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .tabla-ida th { background: #1565c0; }
@@ -105,98 +115,117 @@
         td:last-child { border-right: none; }
         
         td input { 
-            border: none; width: 100%; height: 100%; padding: 8px 2px; font-size: 1rem; 
-            text-align: center; background: transparent; border-radius: 0; color: #000; font-weight: 800; text-transform: uppercase;
+            border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1rem; 
+            text-align: center; background: transparent; border-radius: 0; color: var(--text-color); font-weight: 800; text-transform: uppercase;
         }
         td input:focus:not(:disabled):not([readonly]) { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
-        
-        .td-readonly { background: rgba(0,0,0,0.03); }
-        .out-cota { text-align: center; font-weight: 800; font-size: 1.05rem; color: #000; padding: 4px 2px; background: rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px;}
+        body.dark-mode td input:focus:not(:disabled):not([readonly]) { background: #261c14; }
+
+        .td-readonly { background: rgba(128,128,128,0.05); }
+        .out-cota { text-align: center; font-weight: 800; font-size: 1.05rem; color: var(--text-color); padding: 4px 2px; background: rgba(128,128,128,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px;}
         
         /* BOTÓN DE BORRADO ESPECÍFICO */
         .btn-del-fila { 
-            background: transparent; border: none; color: #d32f2f; font-size: 1.4rem; font-weight: 900; 
+            background: transparent; border: none; color: var(--corte-color); font-size: 1.4rem; font-weight: 900; 
             cursor: pointer; padding: 5px; width: 100%; height: 100%; display: flex; align-items: center; 
             justify-content: center; transition: 0.2s;
         }
-        .btn-del-fila:active { background: #ffebee; transform: scale(0.85); }
+        .btn-del-fila:active { background: rgba(211,47,47,0.1); transform: scale(0.85); }
 
         .modo-bloqueado input { pointer-events: none !important; }
         .modo-bloqueado .bm-selector { border-color: transparent !important; background: transparent !important; }
-        .fila-inactiva { opacity: 0.35; pointer-events: none; transition: opacity 0.3s; background-color: #f9f9f9; }
+        .fila-inactiva { opacity: 0.35; pointer-events: none; transition: opacity 0.3s; background-color: rgba(128,128,128,0.1); }
 
         .badge-tramo { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-top: 2px; font-weight: 800; }
-        .badge-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
-        .badge-error { background: #ffebee; color: #d32f2f; border: 1px solid #ef9a9a; animation: parpadeo 1s infinite;}
+        .badge-ok { background: rgba(46, 125, 50, 0.1); color: var(--success-color); border: 1px solid var(--success-color); }
+        .badge-error { background: rgba(211, 47, 47, 0.1); color: var(--corte-color); border: 1px solid var(--corte-color); animation: parpadeo 1s infinite;}
         .badge-oculto { visibility: hidden; }
 
         @keyframes parpadeo { 0% {opacity:1;} 50% {opacity:0.6;} 100% {opacity:1;} }
 
         .panel-resultados { 
-            background: #fff; border: 3px solid #111; border-radius: 12px; padding: 15px; 
-            text-align: center; display: none; margin-bottom: 15px;
+            background: var(--panel-bg); border: 3px solid var(--table-header); border-radius: 12px; padding: 15px; 
+            text-align: center; display: none; margin-bottom: 15px; backdrop-filter: blur(8px);
         }
-        .res-valor { font-size: 1.8rem; font-weight: 800; margin: 10px 0; }
-        .estado-cumple { color: var(--success-color); background: rgba(46, 125, 50, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800;}
-        .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800;}
+        .res-valor { font-size: 1.8rem; font-weight: 800; margin: 10px 0; color: var(--text-color); }
+        .estado-cumple { color: var(--success-color); background: rgba(46, 125, 50, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800; border: 2px solid var(--success-color);}
+        .estado-falla { color: var(--corte-color); background: rgba(211, 47, 47, 0.1); padding: 5px 15px; border-radius: 20px; font-size: 1.2rem; font-weight: 800; border: 2px solid var(--corte-color);}
 
-        .tabla-compensada { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #111;}
-        .tabla-compensada th { background: #111; color: #fff; font-size: 0.85rem; padding: 8px; text-transform: uppercase; position: static; box-shadow: none;}
-        .tabla-compensada td { border: 1px solid #ccc; padding: 8px; font-weight: 800; font-size: 1.1rem;}
+        .tabla-compensada { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 8px; overflow: hidden; border: 2px solid var(--table-header);}
+        .tabla-compensada th { background: var(--table-header); color: #fff; font-size: 0.85rem; padding: 10px; text-transform: uppercase; position: static; box-shadow: none;}
+        .tabla-compensada td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 10px; font-weight: 800; font-size: 1.1rem; text-align: center; color: var(--text-color);}
 
         .overlay-bm { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; }
         .overlay-bm.activo { opacity: 1; }
-        .modal-bm { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 4px solid var(--primary-color); border-radius: 20px 20px 0 0; padding: 20px; z-index: 1001; transform: translateY(100%); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 20px rgba(0,0,0,0.2); }
+        .modal-bm { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); border-top: 4px solid var(--primary-color); border-radius: 20px 20px 0 0; padding: 20px; z-index: 1001; transform: translateY(100%); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
         .modal-bm.abierto { transform: translateY(0); }
         .btn-bm-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
         .btn-bm-opcion:active { background: var(--primary-color); color: #fff;}
-        .btn-bm-opcion span.cota { color: #111; font-size: 0.95rem; font-weight: 700;}
+        .btn-bm-opcion span.cota { color: var(--text-color); font-size: 0.95rem; font-weight: 700;}
         .btn-bm-opcion:active span.cota { color: #fff; }
 
-        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
-        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
-        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer;}
+        /* NAVEGACIÓN FLOTANTE */
+        .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
+        .btn-nav-flotante:active { transform: scale(0.9); }
+        .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--input-bg); padding: 10px 5px; border-radius: 8px; text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 0.75rem; border: 1px solid var(--border-color); text-transform: uppercase; transition: 0.2s; text-align: center;}
+        .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
+
+        /* CALCULADORA FLOTANTE */
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--bg-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--panel-bg); border: 2px solid var(--table-header); border-radius: 12px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: var(--text-color); font-size: 0.85rem;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color); cursor: pointer;}
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; }
-        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
+        .calc-grid button { padding: 10px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); cursor: pointer;}
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid var(--border-color); margin-bottom: 8px; padding: 4px; background: var(--input-bg); color: var(--text-color); }
 
         @media screen and (max-width: 480px) {
-            html { font-size: 12px; } 
-            .btn-accion { padding: 9px; font-size: 0.95rem; }
-            input, select { padding: 6px; font-size: 1.05rem; border-width: 1px;}
-            .panel-control { padding: 10px; margin-bottom: 10px;}
-            .top-bar { padding: 5px 10px; height: 50px; }
-            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
-            th { top: 50px; font-size: 0.75rem; padding: 6px 1px; }
-            td input { padding: 6px 2px; font-size: 1.15rem; } 
-            .modulo-container { padding: 10px; }
+            html { font-size: 13px; } 
+            .btn-accion { padding: 10px; font-size: 0.95rem; }
+            input, select { padding: 10px; font-size: 1.05rem; }
+            .panel-control { padding: 12px; margin-bottom: 12px;}
+            .top-bar { padding: 5px 15px; height: 60px; }
+            .btn-volver-mini { width: 38px; height: 38px; font-size: 1.3rem;}
+            th { top: 60px; font-size: 0.75rem; padding: 6px 1px; }
+            td input { padding: 8px 2px; font-size: 1.15rem; } 
+            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px;}
+            .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px; left: 10px;}
+            .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
+            .nav-modal { left: 10px; bottom: 65px; width: 200px;}
         }
     </style>
 </head>
 <body onload="inicializarApp()">
 
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
+
     <div class="overlay-bm" id="overlayBM" onclick="cerrarSelectorBM()"></div>
     <div class="modal-bm" id="modalSelectorBM">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0; color:#111; font-weight:800; font-size:1.2rem;">📍 SELECCIONAR PTO BASE</h3>
-            <button onclick="cerrarSelectorBM()" style="background:none; border:none; font-size:1.5rem; color:#d32f2f; font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+            <h3 style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">📍 SELECCIONAR PTO BASE</h3>
+            <button onclick="cerrarSelectorBM()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
         </div>
         <div id="contenedorBotonesBM" style="max-height:250px; overflow-y:auto; margin-bottom:15px;"></div>
-        <button class="btn-accion" style="background:#111; color:#fff; font-size:1.1rem; padding:15px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>
+        <button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>
     </div>
 
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </a>
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
         <h2 class="top-bar-title">POLIGONAL ABIERTA <span>Doble Nivelación Simultánea</span></h2>
-        <div style="width: 40px;"></div>
+        <div style="width: 45px;"></div>
     </div>
 
     <div class="modulo-container">
         
-        <div class="panel-control" style="border-left: 4px solid #111;">
+        <div class="panel-control" style="border-left: 5px solid #111;">
             <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
                 <span>📁 Base de Datos y Parámetros</span>
                 <span>▼</span>
@@ -204,16 +233,16 @@
             <div id="panelProyecto" style="display: none;">
                 <div class="project-selector">
                     <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
-                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
-                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--corte-color);" onclick="eliminarProyecto()">🗑️</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color); margin-bottom: 0;" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--corte-color); margin-bottom: 0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
                 <div class="input-group full-width" style="margin-bottom: 12px;">
                     <label>Nombre de la Poligonal</label>
                     <input type="text" id="proyectName" placeholder="Ej: Eje Principal Mz A" oninput="renombrarProyecto()">
                 </div>
                 
-                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px; margin-bottom: 12px;">
-                    <label style="color: #111; font-size: 0.85rem; margin-bottom: 8px; display: block;">⚙️ Parámetros del Circuito</label>
+                <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 12px; margin-top: 12px; margin-bottom: 12px;">
+                    <label style="color: var(--text-color); font-size: 0.85rem; margin-bottom: 8px; display: block;">⚙️ Parámetros del Circuito</label>
                     <div class="form-grid">
                         <div class="input-group">
                             <label>Cota Inicial (BM)</label>
@@ -242,21 +271,21 @@
                     <div id="txtOrdenHelp" class="txt-ayuda">Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.</div>
                 </div>
 
-                <div style="border-top: 1px solid #eee; padding-top: 12px;">
-                    <label style="color: var(--primary-color);">+ Registrar BM</label>
+                <div style="border-top: 1px solid rgba(128,128,128,0.2); padding-top: 12px;">
+                    <label style="color: var(--primary-color);">+ Registrar BM Oficial</label>
                     <div class="form-grid" style="margin-top: 4px;">
                         <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
                         <input type="number" id="newBMCota" step="0.001" inputmode="decimal" placeholder="Cota (m)">
                     </div>
-                    <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
                 
-                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
-                    <label style="color: #111; font-size: 0.8rem;">💾 Respaldo de Base de Datos</label>
+                <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 12px; margin-top: 12px;">
+                    <label style="color: var(--text-color); font-size: 0.8rem;">💾 Respaldo de Base de Datos</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
                         <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupPoligonal()">📤 Backup DB</button>
-                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--text-color); border: 2px solid var(--border-color); text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
                             📥 Restaurar
                             <input type="file" id="importPoligFile" accept=".json" style="display: none;" onchange="importarBackupPoligonal()">
                         </label>
@@ -276,7 +305,7 @@
                     </table>
                 </div>
             </div>
-            <div class="panel-control col-tabla" style="border: 2px solid #d32f2f; border-radius: 8px;">
+            <div class="panel-control col-tabla" style="border: 2px solid var(--corte-color); border-radius: 8px;">
                 <div class="cabecera-vuelta">⬅️ NIVELACIÓN (VUELTA)</div>
                 <div class="table-container tabla-vuelta">
                     <table id="tablaVuelta">
@@ -288,71 +317,101 @@
         </div>
 
         <div class="btn-dual">
-            <button class="btn-accion" style="background:#fff; border: 2px solid #1976d2; color:#1976d2; padding: 10px 4px; font-size: 0.9rem;" onclick="agregarFila()">+ Fila</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid #555; color:#555; padding: 10px 4px; font-size: 0.9rem;" onclick="quitarFila()">- Borrar Última</button>
-            <button class="btn-accion" style="background:#fff; border: 2px solid var(--corte-color); color:var(--corte-color); padding: 10px 4px; font-size: 0.9rem;" onclick="limpiarTabla()">🗑️ Reset</button>
-            <button class="btn-accion" id="btnBloquear" style="background:#fff; border: 2px solid #fbc02d; color:#f57f17; padding: 10px 4px; font-size: 0.9rem;" onclick="toggleBloqueoTabla()">🔒 Bloq.</button>
+            <button class="btn-accion" style="background:transparent; border: 2px solid #1976d2; color:#1976d2; padding: 12px 4px; font-size: 0.95rem;" onclick="agregarFila()">+ Fila</button>
+            <button class="btn-accion" style="background:transparent; border: 2px solid var(--text-color); color:var(--text-color); padding: 12px 4px; font-size: 0.95rem;" onclick="quitarFila()">- Borrar Última</button>
+            <button class="btn-accion" style="background:transparent; border: 2px solid var(--corte-color); color:var(--corte-color); padding: 12px 4px; font-size: 0.95rem;" onclick="limpiarTabla()">🗑️ Reset</button>
+            <button class="btn-accion" id="btnBloquear" style="background:transparent; border: 2px solid #fbc02d; color:#f57f17; padding: 12px 4px; font-size: 0.95rem;" onclick="toggleBloqueoTabla()">🔒 Bloq.</button>
         </div>
 
         <button class="btn-accion btn-calc" onclick="verificarCierreFinal()">VERIFICAR CIERRE FINAL</button>
 
         <div class="panel-resultados" id="panelResultados">
-            <h3 style="text-transform: uppercase; color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px;">Auditoría del Circuito</h3>
+            <h3 style="text-transform: uppercase; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Auditoría del Circuito</h3>
             <div id="contenedorSegmentos" style="margin-top: 15px;"></div>
-            <div style="border-top: 2px solid #111; margin-top: 15px; padding-top: 15px;">
-                <h4 style="color: #666; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase;">Resumen Global</h4>
+            <div style="border-top: 2px solid var(--border-color); margin-top: 15px; padding-top: 15px;">
+                <h4 style="color: var(--text-color); opacity: 0.8; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase;">Resumen Global</h4>
                 <div style="display: flex; gap: 10px;">
                     <div class="input-group" style="flex: 1;">
-                        <span style="font-size: 0.8rem; font-weight: 800; color: #666;">ERROR TOTAL (E)</span>
-                        <div class="res-valor" id="resError" style="color: #111;">0.000 m</div>
+                        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-color); opacity: 0.8;">ERROR TOTAL (E)</span>
+                        <div class="res-valor" id="resError" style="color: var(--text-color);">0.000 m</div>
                     </div>
                     <div class="input-group" style="flex: 1;">
-                        <span style="font-size: 0.8rem; font-weight: 800; color: #666;">TOLERANCIA (T)</span>
-                        <div class="res-valor" id="resTol" style="color: #111;">0.000 m</div>
+                        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-color); opacity: 0.8;">TOLERANCIA (T)</span>
+                        <div class="res-valor" id="resTol" style="color: var(--text-color);">0.000 m</div>
                     </div>
                 </div>
                 <div id="resEstado" class="estado-cumple" style="margin-top: 10px;">CUMPLE ESPECIFICACIONES</div>
             </div>
             
-            <button class="btn-accion" style="background:#111; margin-top: 15px; font-size: 1rem;" onclick="generarCompensadas()" id="btnCompensar">Obtener Cotas Compensadas</button>
+            <button class="btn-accion" style="background:var(--table-header); margin-top: 15px; font-size: 1rem;" onclick="generarCompensadas()" id="btnCompensar">Obtener Cotas Compensadas</button>
             
             <div id="contenedorCompensadas" style="display: none;">
                 <table class="tabla-compensada" id="tablaCompensada">
                     <thead><tr><th>PUNTO</th><th>COTA IDA</th><th>COTA VUELTA</th><th>PROMEDIO</th></tr></thead>
                     <tbody id="cuerpoCompensadas"></tbody>
                 </table>
-                <button class="btn-accion" style="background:var(--excel-color); margin-top: 15px; font-size: 1rem;" onclick="exportarExcelConEstilos()" id="btnExcel">📥 Exportar a Excel (Con Colores)</button>
+                <button class="btn-accion" style="background:transparent; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; font-size: 1rem;" onclick="exportarExcelConEstilos()" id="btnExcel">📥 Exportar a Excel (Con Colores)</button>
             </div>
         </div>
 
     </div>
 
+    <div class="btn-nav-flotante" onclick="toggleNav()">🧭</div>
+    <div class="nav-modal" id="navModal">
+        <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+            IR A MÓDULO <button onclick="toggleNav()" style="background:none; border:none; color:var(--danger-color); font-weight:800; cursor:pointer; font-size: 1.2rem;">X</button>
+        </div>
+        <div class="nav-grid">
+            <a href="index.html" class="nav-item"><span>🏠</span> Inicio</a>
+            <a href="nivelacion.html" class="nav-item"><span>📏</span> Niveles</a>
+            <a href="poligonales.html" class="nav-item"><span>📐</span> Polígonos</a>
+            <a href="coordenadas.html" class="nav-item"><span>🌐</span> Coord.</a>
+            <a href="areas.html" class="nav-item"><span>⬛</span> Áreas</a>
+            <a href="ajustes.html" class="nav-item"><span>⚙️</span> Ajustes</a>
+        </div>
+    </div>
+
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
-        <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
+        <div class="calc-header"><span>CÁLCULO RÁPIDO</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
             <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">÷</button>
             <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">×</button>
             <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
-            <button onclick="calcClear()" style="color:#d32f2f; border-color:#ef9a9a;">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
-            <button onclick="calcDel()" style="grid-column: span 2; background:#eee;">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
+            <button onclick="calcClear()" style="color:var(--danger-color); border-color:var(--danger-color);">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
+            <button onclick="calcDel()" style="grid-column: span 2; background:rgba(128,128,128,0.1);">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
         let appData = { activoId: 1, proyectos: [] };
+        let globalConfig = { darkMode: false, vibracion: true, decimales: "3", wakeLockEnabled: false };
         let inputPtoActivo = null; 
         let tablaBloqueada = false;
+        let wakeLock = null;
 
-        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+
+        async function solicitarWakeLock() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); }
+                catch (err) {}
+            }
+        }
+
+        function toggleNav() {
+            vibrar();
+            const m = document.getElementById('navModal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
 
         function toggleBloqueoTabla() {
             vibrar(); tablaBloqueada = !tablaBloqueada;
             const btn = document.getElementById('btnBloquear');
             const tabla = document.getElementById('contenedorTablas');
             if (tablaBloqueada) {
-                btn.innerHTML = "🔓 Desbloq."; btn.style.color = "#d32f2f"; btn.style.borderColor = "#d32f2f";
+                btn.innerHTML = "🔓 Desbloq."; btn.style.color = "var(--danger-color)"; btn.style.borderColor = "var(--danger-color)";
                 tabla.classList.add('modo-bloqueado');
             } else {
                 btn.innerHTML = "🔒 Bloq."; btn.style.color = "#f57f17"; btn.style.borderColor = "#fbc02d";
@@ -361,6 +420,15 @@
         }
 
         function inicializarApp() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+                if(conf) {
+                    globalConfig = conf;
+                    if(globalConfig.darkMode) document.body.classList.add('dark-mode');
+                    if(globalConfig.wakeLockEnabled) solicitarWakeLock();
+                }
+            } catch(e) {}
+
             let stored = localStorage.getItem('cota100_db_poligonal_v9');
             if (stored) { appData = JSON.parse(stored); } 
             else { 
@@ -500,9 +568,7 @@
                     } else {
                         alert("❌ Archivo no válido para esta aplicación.");
                     }
-                } catch(err) {
-                    alert("❌ Error al leer el archivo.");
-                }
+                } catch(err) { alert("❌ Error al leer el archivo."); }
             };
             reader.readAsText(fileInput.files[0]);
         }
@@ -527,8 +593,9 @@
         }
 
         function renderBMs() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
-            p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; });
+            p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; });
         }
 
         function abrirSelectorBM(input) {
@@ -539,8 +606,9 @@
 
             if (p.bms.length === 0) { activarTecladoManual(); return; }
 
+            let decs = parseInt(globalConfig.decimales) || 3;
             const contenedor = document.getElementById('contenedorBotonesBM'); contenedor.innerHTML = "";
-            p.bms.forEach(bm => { contenedor.innerHTML += `<button class="btn-bm-opcion" onclick="seleccionarBMModal('${bm.nombre}')"><span>${bm.nombre}</span><span class="cota">Cota: ${bm.cota.toFixed(3)}</span></button>`; });
+            p.bms.forEach(bm => { contenedor.innerHTML += `<button class="btn-bm-opcion" onclick="seleccionarBMModal('${bm.nombre}')"><span>${bm.nombre}</span><span class="cota">Cota: ${bm.cota.toFixed(decs)}</span></button>`; });
 
             const overlay = document.getElementById('overlayBM'); const modal = document.getElementById('modalSelectorBM');
             overlay.style.display = 'block'; setTimeout(() => { overlay.classList.add('activo'); modal.classList.add('abierto'); }, 10);
@@ -567,6 +635,7 @@
 
         function verificarBM(input) {
             const val = input.value.toUpperCase(); input.value = val; 
+            let decs = parseInt(globalConfig.decimales) || 3;
             let p = obtenerProyectoActivo(); const bmEncontrado = p.bms.find(b => b.nombre === val);
             const tr = input.closest('tr'); const tbody = document.getElementById('cuerpoIda');
             let rowIndex = Array.from(tbody.children).indexOf(tr);
@@ -575,7 +644,7 @@
                 const inCotaBM = document.getElementById('cotaBM');
                 if (bmEncontrado) {
                     input.dataset.bmAsignado = val;
-                    inCotaBM.value = bmEncontrado.cota.toFixed(3);
+                    inCotaBM.value = bmEncontrado.cota.toFixed(decs);
                 } else {
                     input.dataset.bmAsignado = "";
                 }
@@ -669,7 +738,7 @@
             let idx = Array.from(tbodyIda.children).indexOf(trIda);
             let pto = trIda.querySelector('.in-pto').value.trim() || `Estación ${idx + 1}`;
             
-            if(confirm(`⚠️ ¿Estás seguro de eliminar permanentemente la lectura del punto: ${pto}? Se recalculará todo el circuito.`)) {
+            if(confirm(`⚠️ ¿Eliminar permanentemente la lectura del punto: ${pto}? Se recalculará todo el circuito.`)) {
                 let tbodyVuelta = document.getElementById('cuerpoVuelta');
                 
                 tbodyIda.removeChild(trIda);
@@ -695,13 +764,13 @@
                     <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
                     <td class="td-readonly"><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
                     <td class="out-cota" style="padding: 2px;">---</td>
-                    <td style="background: rgba(0,0,0,0.02);"></td>`;
+                    <td style="background: rgba(128,128,128,0.02);"></td>`;
             } else {
                 trIda.innerHTML = `<td><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();"></td>
                     <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
                     <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="syncBM(this); procesarDobleLiga();"></td>
                     <td class="out-cota">---</td>
-                    <td style="background: rgba(0,0,0,0.02);"><button class="btn-del-fila" onclick="borrarFilaEspecifica(this)">✖</button></td>`;
+                    <td style="background: rgba(128,128,128,0.02);"><button class="btn-del-fila" onclick="borrarFilaEspecifica(this)">✖</button></td>`;
             }
             
             const trVuelta = document.createElement('tr');
@@ -709,7 +778,7 @@
                 <td class="${idx===0?'td-readonly':''}"><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="syncBM(this); procesarDobleLiga();"></td>
                 <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
                 <td class="out-cota">---</td>
-                <td style="background: rgba(0,0,0,0.02);"></td>`;
+                <td style="background: rgba(128,128,128,0.02);"></td>`;
 
             tbodyIda.appendChild(trIda); tbodyVuelta.appendChild(trVuelta);
             if(!isAuto) guardarBD();
@@ -763,6 +832,7 @@
         }
 
         function procesarDobleLiga() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let cotaBM = parseFloat(document.getElementById('cotaBM').value);
             let distM = parseFloat(document.getElementById('distanciaM').value);
             let tolTramoMM = parseFloat(document.getElementById('tolTramo').value) || 2;
@@ -785,8 +855,8 @@
                 } else {
                     filasIda[i].classList.add('fila-inactiva');
                     filasVuelta[i].classList.add('fila-inactiva');
-                    filasIda[i].querySelector('.out-cota').innerHTML = `<div style="color:#aaa;">---</div>`;
-                    filasVuelta[i].querySelector('.out-cota').innerHTML = `<div style="color:#aaa;">---</div>`;
+                    filasIda[i].querySelector('.out-cota').innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
+                    filasVuelta[i].querySelector('.out-cota').innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
                     continue; 
                 }
 
@@ -805,21 +875,21 @@
                     if (!isNaN(cotaActIda)) {
                         if (!isNaN(vaIda)) {
                             aiIda = cotaActIda + vaIda;
-                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`;
                         } else {
-                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`;
                         }
-                    } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
+                    } else { celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`; }
                 } else {
                     if (!isNaN(vdIda)) {
                         cotaActIda = aiIda - vdIda;
                         if (!isNaN(vaIda)) {
                             aiIda = cotaActIda + vaIda;
-                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`;
                         } else {
-                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(3)}</div>${badgeInvisible}`;
+                            celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`;
                         }
-                    } else { celdaIda.innerHTML = `<div style="color:#aaa;">---</div>${badgeInvisible}`; }
+                    } else { celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`; }
                 }
 
                 // VUELTA
@@ -828,11 +898,11 @@
                     if (!isNaN(cotaActVuelta)) {
                         if (!isNaN(vdVuelta)) {
                             aiVuelta = cotaActVuelta + vdVuelta;
-                            celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                            celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiVuelta.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>`;
                         } else {
-                            celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`;
+                            celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>`;
                         }
-                    } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
+                    } else { celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`; }
                 } else {
                     if (!isNaN(vaVuelta)) {
                         cotaActVuelta = aiVuelta - vaVuelta;
@@ -842,17 +912,17 @@
                                 let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
                                 let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
                                 let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
-                                celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
-                            } else { celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:#d32f2f;">AI: ${aiVuelta.toFixed(3)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                                celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiVuelta.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiVuelta.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>`; }
                         } else {
                             if (!isNaN(vdIda)) {
                                 let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
                                 let badgeClase = errorMM <= tolTramoMM ? 'badge-ok' : 'badge-error';
                                 let badgeIcon = errorMM <= tolTramoMM ? '✓' : '⚠️';
-                                celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
-                            } else { celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(3)}</div>`; }
+                                celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div><div class="badge-tramo ${badgeClase}">${badgeIcon} ${errorMM.toFixed(1)} mm</div>`;
+                            } else { celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>`; }
                         }
-                    } else { celdaVuelta.innerHTML = `<div style="color:#aaa;">---</div>`; }
+                    } else { celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`; }
                 }
 
                 if (i === 0) {
@@ -913,10 +983,15 @@
                             let cumple = errTramo <= tolTramo;
                             if(!cumple) todosCumplen = false;
 
+                            let bgCumple = document.body.classList.contains('dark-mode') ? 'rgba(46,125,50,0.1)' : '#f1f8e9';
+                            let bgFalla = document.body.classList.contains('dark-mode') ? 'rgba(211,47,47,0.1)' : '#ffebee';
+                            let borderCumple = document.body.classList.contains('dark-mode') ? 'var(--success-color)' : '#a5d6a7';
+                            let borderFalla = document.body.classList.contains('dark-mode') ? 'var(--corte-color)' : '#ef9a9a';
+
                             htmlSeg += `
-                                <div style="border: 2px solid ${cumple ? '#a5d6a7' : '#ef9a9a'}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? '#f1f8e9' : '#ffebee'};">
-                                    <div style="font-weight: 900; color: #111; margin-bottom: 5px;">📍 ${ptoStart} ➔ ${ptoEnd} <span style="float:right; font-size:0.8rem; color:#666;">(${setups} armadas)</span></div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #333;">
+                                <div style="border: 2px solid ${cumple ? borderCumple : borderFalla}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? bgCumple : bgFalla};">
+                                    <div style="font-weight: 900; color: var(--text-color); margin-bottom: 5px;">📍 ${ptoStart} ➔ ${ptoEnd} <span style="float:right; font-size:0.8rem; opacity:0.8;">(${setups} armadas)</span></div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-color); opacity: 0.9;">
                                         <span>Error: <strong>${errTramo.toFixed(4)} m</strong></span>
                                         <span>Tol: <strong>±${tolTramo.toFixed(4)} m</strong></span>
                                     </div>
@@ -952,6 +1027,7 @@
 
         function generarCompensadas() {
             vibrar();
+            let decs = parseInt(globalConfig.decimales) || 3;
             const cotaBM = parseFloat(document.getElementById('cotaBM').value);
             const filasIda = document.querySelectorAll('#cuerpoIda tr');
             const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
@@ -993,7 +1069,7 @@
                 if(data.cotaVuelta !== undefined) {
                     let promedio = (data.cotaIda + data.cotaVuelta) / 2;
                     let tr = document.createElement('tr');
-                    tr.innerHTML = `<td style="color:var(--primary-color);">${pto}</td><td>${data.cotaIda.toFixed(3)}</td><td>${data.cotaVuelta.toFixed(3)}</td><td style="color:#2e7d32;">${promedio.toFixed(3)}</td>`;
+                    tr.innerHTML = `<td style="color:var(--primary-color);">${pto}</td><td>${data.cotaIda.toFixed(decs)}</td><td>${data.cotaVuelta.toFixed(decs)}</td><td style="color:var(--success-color);">${promedio.toFixed(decs)}</td>`;
                     cuerpoCompensadas.appendChild(tr);
                 }
             });
@@ -1004,6 +1080,7 @@
 
         function exportarExcelConEstilos() {
             vibrar(); let p = obtenerProyectoActivo(); 
+            let decs = parseInt(globalConfig.decimales) || 3;
             let wb = XLSX.utils.book_new();
 
             let colorIdaHeader = { rgb: "FF1565C0" };
@@ -1036,9 +1113,9 @@
                 
                 wsIdaData.push([
                     {v: pto, s: cellBold}, 
-                    isNaN(va) ? {v: "", s: cellCenter} : {v: va, t: 'n', s: cellCenter}, 
-                    isNaN(vd) ? {v: "", s: cellCenter} : {v: vd, t: 'n', s: cellCenter}, 
-                    isNaN(cota) ? {v: "", s: cellCota} : {v: cota, t: 'n', z: "0.000", s: cellCota}
+                    isNaN(va) ? {v: "", s: cellCenter} : {v: Number(va.toFixed(decs)), t: 'n', s: cellCenter}, 
+                    isNaN(vd) ? {v: "", s: cellCenter} : {v: Number(vd.toFixed(decs)), t: 'n', s: cellCenter}, 
+                    isNaN(cota) ? {v: "", s: cellCota} : {v: Number(cota.toFixed(decs)), t: 'n', z: "0.000", s: cellCota}
                 ]);
             });
             let wsIda = XLSX.utils.aoa_to_sheet(wsIdaData);
@@ -1061,9 +1138,9 @@
                 
                 wsVueltaData.push([
                     {v: pto, s: cellBold}, 
-                    isNaN(va) ? {v: "", s: cellCenter} : {v: va, t: 'n', s: cellCenter}, 
-                    isNaN(vd) ? {v: "", s: cellCenter} : {v: vd, t: 'n', s: cellCenter}, 
-                    isNaN(cota) ? {v: "", s: cellCota} : {v: cota, t: 'n', z: "0.000", s: cellCota}
+                    isNaN(va) ? {v: "", s: cellCenter} : {v: Number(va.toFixed(decs)), t: 'n', s: cellCenter}, 
+                    isNaN(vd) ? {v: "", s: cellCenter} : {v: Number(vd.toFixed(decs)), t: 'n', s: cellCenter}, 
+                    isNaN(cota) ? {v: "", s: cellCota} : {v: Number(cota.toFixed(decs)), t: 'n', z: "0.000", s: cellCota}
                 ]);
             });
             let wsVuelta = XLSX.utils.aoa_to_sheet(wsVueltaData);
@@ -1081,9 +1158,9 @@
                     let tds = tr.querySelectorAll('td');
                     wsCompData.push([
                         {v: tds[0].innerText, s: {font: {bold:true, color:{rgb:"FFFF6600"}}, alignment:{horizontal:"center"}}},
-                        {v: parseFloat(tds[1].innerText), t: 'n', z: "0.000", s: cellCenter},
-                        {v: parseFloat(tds[2].innerText), t: 'n', z: "0.000", s: cellCenter},
-                        {v: parseFloat(tds[3].innerText), t: 'n', z: "0.000", s: {fill: {fgColor:{rgb:"FFE8F5E9"}}, font: {bold:true, color:{rgb:"FF2E7D32"}}, alignment:{horizontal:"center"}}}
+                        {v: Number(parseFloat(tds[1].innerText).toFixed(decs)), t: 'n', z: "0.000", s: cellCenter},
+                        {v: Number(parseFloat(tds[2].innerText).toFixed(decs)), t: 'n', z: "0.000", s: cellCenter},
+                        {v: Number(parseFloat(tds[3].innerText).toFixed(decs)), t: 'n', z: "0.000", s: {fill: {fgColor:{rgb:"FFE8F5E9"}}, font: {bold:true, color:{rgb:"FF2E7D32"}}, alignment:{horizontal:"center"}}}
                     ]);
                 });
                 let wsComp = XLSX.utils.aoa_to_sheet(wsCompData);

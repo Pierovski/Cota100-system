@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>COTA100 SYSTEM - Ajustes</title>
+    <title>COTA100 SYSTEM - Ajustes Globales</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* --- ESTILOS UNIFICADOS COTA100 --- */
@@ -14,7 +14,6 @@
             --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
         }
 
-        /* CONFIGURACIÓN MODO OSCURO GLOBAL */
         body.dark-mode {
             --bg-color: #121212; --text-color: #e0e0e0;
             --border-color: rgba(255, 255, 255, 0.15); 
@@ -32,42 +31,44 @@
         }
 
         @media screen and (max-width: 480px) {
-            html { font-size: 12px; } 
-            .btn-accion { padding: 9px; font-size: 0.95rem; }
-            input, select { padding: 8px; font-size: 1.05rem;}
-            .panel-control { padding: 12px; margin-bottom: 10px;}
-            .top-bar { padding: 5px 10px; height: 50px; }
-            .btn-volver-mini { width: 32px; height: 32px; font-size: 1.2rem;}
-            .modulo-container { padding: 10px; }
+            html { font-size: 13px; } 
+            input, select { padding: 10px; font-size: 1.1rem;}
+            .panel-control { padding: 12px; margin-bottom: 12px;}
+            .top-bar { padding: 5px 15px; height: 60px; }
+            .btn-volver-mini { width: 38px; height: 38px; font-size: 1.3rem;}
         }
 
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: var(--panel-bg); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
-        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem; line-height: 1;}
+        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;}
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 12px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;}
+        .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none; transition: transform 0.3s;}
         
-        .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .panel-contenido { display: none; margin-top: 10px; animation: fadeIn 0.3s ease-out forwards;}
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .input-group { flex: 1; display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
         label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
         
-        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 6px; color: var(--text-color); transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 5px rgba(255,102,0,0.2);}
+        input, select { width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none; }
         
         select {
             appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto;
-            padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 20px auto;
+            padding-right: 40px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
         }
 
-        /* --- INTERRUPTOR (SWITCH) --- */
+        /* --- SWITCH --- */
         .switch-container { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(128,128,128,0.2); }
         .switch-container:last-child { border-bottom: none; }
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0;}
@@ -77,149 +78,240 @@
         input:checked + .slider { background-color: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        .btn-accion { width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center;}
+        .btn-accion { width: 100%; padding: 15px; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center; margin-bottom: 10px;}
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-guardar { background: var(--primary-color); font-size: 1.2rem; margin-top: 10px; box-shadow: 0 4px 10px rgba(255,102,0,0.3);}
+        .btn-guardar { background: var(--primary-color); font-size: 1.2rem; margin-top: 15px; box-shadow: 0 4px 10px rgba(255,102,0,0.3);}
 
         .notificacion {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #111; color: #fff; padding: 12px 25px; border-radius: 30px; font-weight: 800;
             opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; border: 2px solid var(--primary-color);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .notificacion.mostrar { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body onload="cargarAjustes()">
 
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
+
     <div class="top-bar">
-        <a href="index.html" class="btn-volver-mini" onclick="vibrar()">←</a>
-        <h2 class="top-bar-title">AJUSTES <span>Sistema Cota100</span></h2>
-        <div style="width: 40px;"></div>
+        <a href="index.html" class="btn-volver-mini" onclick="vibrarUI()">←</a>
+        <h2 class="top-bar-title">AJUSTES <span>Sistema Global</span></h2>
+        <div style="width: 45px;"></div>
     </div>
 
     <div class="modulo-container">
 
-        <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
-            <div class="panel-titulo">📝 1. Registros Personales</div>
-            <div class="input-group full-width" style="margin-bottom: 10px;">
-                <label>Proyecto Activo por Defecto</label>
-                <input type="text" id="ajusteProyecto" placeholder="EJ: CARRETERA VALLE SOL" oninput="this.value = this.value.toUpperCase()">
+        <div class="panel-control" style="border-left: 5px solid var(--primary-color);">
+            <div class="panel-titulo" onclick="togglePanel('panel1', this)">
+                <span>📦 1. Datos de Control de Obra</span>
+                <span class="btn-toggle-panel">▼</span>
             </div>
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Topógrafo</label>
-                    <input type="text" id="ajusteOperador" placeholder="EJ: PIERO C." oninput="this.value = this.value.toUpperCase()">
+            <div id="panel1" class="panel-contenido" style="display: block;">
+                <div class="input-group full-width" style="margin-bottom: 10px;">
+                    <label>Proyecto Activo por Defecto</label>
+                    <input type="text" id="ajusteProyecto" placeholder="EJ: REDES DE DRENAJE SECTOR 4" oninput="this.value = this.value.toUpperCase()">
                 </div>
-                <div class="input-group">
-                    <label>Equipo Base</label>
-                    <input type="text" id="ajusteEquipo" placeholder="EJ: TS06 LEICA" oninput="this.value = this.value.toUpperCase()">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Topógrafo / Operador</label>
+                        <input type="text" id="ajusteOperador" placeholder="EJ: PIERO C." oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                    <div class="input-group">
+                        <label>Estación / Equipo Base</label>
+                        <input type="text" id="ajusteEquipo" placeholder="EJ: TS06 LEICA" oninput="this.value = this.value.toUpperCase()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-control" style="border-left: 5px solid #1976d2;">
+            <div class="panel-titulo" style="color: #1976d2;" onclick="togglePanel('panel2', this)">
+                <span>🔋 2. Interfaz y Energía</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panel2" class="panel-contenido">
+                <div class="switch-container">
+                    <div style="padding-right: 15px;">
+                        <label style="display:block; margin:0; color: #1976d2;">Modo Oscuro</label>
+                        <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color);">Ahorra batería en pantallas AMOLED.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="checkDarkMode" onchange="toggleDarkMode(); vibrarUI();">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-container">
+                    <div style="padding-right: 15px;">
+                        <label style="display:block; margin:0; color: #1976d2;">Mantener Pantalla Activa</label>
+                        <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color);">Evita que el celular se bloquee.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="checkWakeLock" onchange="toggleWakeLock(); vibrarUI();">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-container">
+                    <div style="padding-right: 15px;">
+                        <label style="display:block; margin:0; color: #1976d2;">Vibración Táctil Global</label>
+                        <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color);">Desactívalo para máximo ahorro de energía.</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="checkVibracion" onchange="vibrarUI()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
         </div>
 
-        <div class="panel-control" style="border-left: 4px solid #1976d2;">
-            <div class="panel-titulo" style="color: #1976d2;">🔋 2. Interfaz y Energía</div>
-            
-            <div class="switch-container">
-                <div style="padding-right: 15px;">
-                    <label style="display:block; margin:0; color: #1976d2;">Modo Oscuro</label>
-                    <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color);">Reduce el brillo y ahorra batería en pantallas AMOLED en campo.</span>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="checkDarkMode" onchange="toggleDarkMode(); vibrar();">
-                    <span class="slider"></span>
-                </label>
+        <div class="panel-control" style="border-left: 5px solid var(--success-color);">
+            <div class="panel-titulo" style="color: var(--success-color);" onclick="togglePanel('panel3', this)">
+                <span>🧮 3. Preferencias de Cálculo</span>
+                <span class="btn-toggle-panel">▼</span>
             </div>
-
-            <div class="switch-container">
-                <div style="padding-right: 15px;">
-                    <label style="display:block; margin:0; color: #1976d2;">Mantener Pantalla Activa</label>
-                    <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color);">Evita que el celular se bloquee mientras tomas lectura en el equipo.</span>
+            <div id="panel3" class="panel-contenido">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Precisión de Decimales</label>
+                        <select id="ajusteDecimales">
+                            <option value="3">3 Decimales (Milímetro)</option>
+                            <option value="4">4 Decimales (Décima de mm)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Alerta de Lectura de Mira</label>
+                        <select id="ajusteAlertaMira">
+                            <option value="5">Máximo 5.00 m</option>
+                            <option value="4">Máximo 4.00 m</option>
+                        </select>
+                    </div>
                 </div>
-                <label class="switch">
-                    <input type="checkbox" id="checkWakeLock" onchange="toggleWakeLock(); vibrar();">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <div class="panel-control" style="border-left: 4px solid var(--success-color);">
-            <div class="panel-titulo" style="color: var(--success-color);">⚙️ 3. Preferencias de Cálculo</div>
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Precisión UTM / Cotas</label>
-                    <select id="ajusteDecimales">
-                        <option value="3">3 Decimales (mm)</option>
-                        <option value="4">4 Decimales (0.1mm)</option>
+                <div class="input-group full-width" style="margin-top: 5px;">
+                    <label>Unidad de Presión por Defecto</label>
+                    <select id="ajusteUnidadPresion">
+                        <option value="hpa">hPa / mbar (Estándar)</option>
+                        <option value="mmhg">mmHg (Topcon/South/CHCNAV)</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label>Límite Mira (Nivelación)</label>
-                    <select id="ajusteAlertaMira">
-                        <option value="5">5.00 m</option>
-                        <option value="4">4.00 m</option>
+            </div>
+        </div>
+
+        <div class="panel-control" style="border-left: 5px solid #8e24aa;">
+            <div class="panel-titulo" style="color: #8e24aa;" onclick="togglePanel('panel4', this)">
+                <span>📥 4. Formato de Importación</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panel4" class="panel-contenido">
+                <div class="input-group full-width">
+                    <label>Formato CSV/TXT Predeterminado</label>
+                    <select id="ajusteFormatoCSV">
+                        <option value="PEN">Punto, Este, Norte (P-E-N)</option>
+                        <option value="EN">Solo Este, Norte (E-N)</option>
                     </select>
+                    <span style="font-size:0.75rem; font-weight:600; opacity:0.7; color: var(--text-color); margin-top: 5px;">* Formato base para cargar coordenadas en Áreas y Poligonales.</span>
                 </div>
             </div>
         </div>
 
-        <div class="panel-control" style="border-left: 4px solid #111; background: rgba(128,128,128,0.05);">
-            <div class="panel-titulo" style="color: var(--text-color);">💾 COPIA DE SEGURIDAD GLOBAL</div>
-            <p style="font-size: 0.8rem; font-weight: 600; margin-bottom: 10px; color: var(--text-color); opacity: 0.8;">Exporta TODAS las bases de datos (Nivelación, Alcantarillado, Poligonales y Áreas) en un solo archivo.</p>
-            
-            <button class="btn-accion" style="background:#111; margin-bottom: 10px;" onclick="exportarBackupTotal(); vibrar();">📤 Exportar Todo (.json)</button>
-            
-            <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 10px;">
-                <label style="font-size: 0.75rem; display: block; margin-bottom: 5px;">Restaurar sistema completo:</label>
-                <label class="btn-accion" style="background:transparent; color:var(--text-color); border:2px solid var(--text-color); cursor: pointer;" onclick="vibrar()">
-                    📥 Importar Backup
+        <div class="panel-control" style="border-left: 5px solid #111; background: rgba(128,128,128,0.05);">
+            <div class="panel-titulo" style="color: var(--text-color);" onclick="togglePanel('panel5', this)">
+                <span>💾 5. Respaldo y Mantenimiento</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panel5" class="panel-contenido">
+                <button class="btn-accion" style="background:#111;" onclick="exportarBackupTotal(); vibrarUI();">📤 Exportar Backup Global (.json)</button>
+                
+                <label class="btn-accion" style="background:transparent; color:var(--text-color); border:2px solid var(--text-color); cursor: pointer; display: block;" onclick="vibrarUI()">
+                    📥 Restaurar Sistema Completo
                     <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackupTotal()">
                 </label>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <button class="btn-accion" style="background:transparent; color:var(--text-color); border: 2px solid var(--border-color); font-size: 0.9rem; margin:0;" onclick="forzarActualizacionPWA(); vibrarUI();">🔄 Vaciar Caché</button>
+                    <button class="btn-accion" style="background:var(--danger-color); font-size: 0.9rem; margin:0;" onclick="factoryReset(); vibrarUI();">🚨 Reset Factory</button>
+                </div>
             </div>
         </div>
 
-        <button class="btn-accion btn-guardar" onclick="guardarAjustes(); vibrar();">GUARDAR PREFERENCIAS</button>
-
-        <div class="panel-control" style="margin-top: 25px; border: 2px dashed var(--danger-color); background: rgba(211, 47, 47, 0.05);">
-            <div class="panel-titulo" style="color: var(--danger-color); border-bottom: none; margin-bottom: 0;">
-                MANTENIMIENTO
-                <span id="conexionStatus" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; border: 1px solid; font-weight: 800;">ONLINE</span>
-            </div>
-            
-            <div class="input-row" style="margin-top: 15px;">
-                <button class="btn-accion" style="background:transparent; color:var(--text-color); border: 2px solid var(--border-color); font-size: 0.9rem;" onclick="forzarActualizacionPWA(); vibrar();">🔄 Vaciar Caché</button>
-                <button class="btn-accion" style="background:var(--danger-color); font-size: 0.9rem;" onclick="factoryReset(); vibrar();">🚨 Restablecer App</button>
-            </div>
-        </div>
+        <button class="btn-accion btn-guardar" onclick="guardarAjustes(true); vibrarUI();">💾 GUARDAR PREFERENCIAS GLOBALES</button>
 
     </div>
 
-    <div id="toastMsg" class="notificacion">✓ Acción Exitosa</div>
+    <div id="toastMsg" class="notificacion">✓ Ajustes Guardados</div>
 
     <script>
         let wakeLock = null;
+        let usarVibracion = true;
 
-        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
+        // Función de vibración inteligente
+        function vibrarUI() {
+            if (usarVibracion && navigator.vibrate) navigator.vibrate(30);
+        }
+
+        function togglePanel(id, headerElement) {
+            vibrarUI();
+            const panel = document.getElementById(id);
+            const icon = headerElement.querySelector('.btn-toggle-panel');
+            if (panel.style.display === "none" || panel.style.display === "") {
+                panel.style.display = "block";
+                icon.style.transform = "rotate(-180deg)";
+            } else {
+                panel.style.display = "none";
+                icon.style.transform = "rotate(0deg)";
+            }
+        }
 
         function cargarAjustes() {
-            verificarConexion();
-            let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {
+                darkMode: false, wakeLockEnabled: false, vibracion: true,
+                decimales: "3", alertaMira: "5", unidadPresion: "hpa", formatoCSV: "PEN"
+            };
             
             document.getElementById('ajusteProyecto').value = conf.proyecto || "";
             document.getElementById('ajusteOperador').value = conf.operador || "";
             document.getElementById('ajusteEquipo').value = conf.equipo || "";
+            
+            document.getElementById('checkDarkMode').checked = !!conf.darkMode;
+            document.getElementById('checkWakeLock').checked = !!conf.wakeLockEnabled;
+            document.getElementById('checkVibracion').checked = conf.vibracion !== false; // true por defecto
+            
             document.getElementById('ajusteDecimales').value = conf.decimales || "3";
             document.getElementById('ajusteAlertaMira').value = conf.alertaMira || "5";
+            document.getElementById('ajusteUnidadPresion').value = conf.unidadPresion || "hpa";
+            document.getElementById('ajusteFormatoCSV').value = conf.formatoCSV || "PEN";
 
-            if(conf.darkMode) {
-                document.getElementById('checkDarkMode').checked = true;
-                document.body.classList.add('dark-mode');
-            }
+            usarVibracion = document.getElementById('checkVibracion').checked;
 
-            if(conf.wakeLockEnabled) {
-                document.getElementById('checkWakeLock').checked = true;
-                solicitarWakeLock();
+            if(conf.wakeLockEnabled) solicitarWakeLock();
+        }
+
+        function guardarAjustes(mostrarNotificacion = false) {
+            let conf = {
+                proyecto: document.getElementById('ajusteProyecto').value,
+                operador: document.getElementById('ajusteOperador').value,
+                equipo: document.getElementById('ajusteEquipo').value,
+                darkMode: document.getElementById('checkDarkMode').checked,
+                wakeLockEnabled: document.getElementById('checkWakeLock').checked,
+                vibracion: document.getElementById('checkVibracion').checked,
+                decimales: document.getElementById('ajusteDecimales').value,
+                alertaMira: document.getElementById('ajusteAlertaMira').value,
+                unidadPresion: document.getElementById('ajusteUnidadPresion').value,
+                formatoCSV: document.getElementById('ajusteFormatoCSV').value
+            };
+            
+            usarVibracion = conf.vibracion;
+            localStorage.setItem('cota100_ajustes', JSON.stringify(conf));
+            
+            if(mostrarNotificacion) {
+                mostrarToast("Preferencias actualizadas");
+                setTimeout(() => { window.location.href = "index.html"; }, 1000); // Regresa al menú tras guardar
             }
         }
 
@@ -227,7 +319,7 @@
             const isDark = document.getElementById('checkDarkMode').checked;
             if(isDark) document.body.classList.add('dark-mode');
             else document.body.classList.remove('dark-mode');
-            guardarAjustes(false); // Guardar sin mostrar toast para no ser molesto
+            guardarAjustes(false);
         }
 
         async function toggleWakeLock() {
@@ -239,50 +331,26 @@
 
         async function solicitarWakeLock() {
             if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log("Pantalla bloqueada (Activa)");
-                } catch (err) { console.error(`WakeLock Error: ${err.message}`); }
+                try { wakeLock = await navigator.wakeLock.request('screen'); } 
+                catch (err) { console.error(`WakeLock Error: ${err.message}`); }
             }
         }
 
         function liberarWakeLock() {
-            if (wakeLock !== null) {
-                wakeLock.release().then(() => { wakeLock = null; });
-            }
-        }
-
-        function guardarAjustes(mostrarNotificacion = true) {
-            let conf = {
-                proyecto: document.getElementById('ajusteProyecto').value,
-                operador: document.getElementById('ajusteOperador').value,
-                equipo: document.getElementById('ajusteEquipo').value,
-                decimales: document.getElementById('ajusteDecimales').value,
-                alertaMira: document.getElementById('ajusteAlertaMira').value,
-                darkMode: document.getElementById('checkDarkMode').checked,
-                wakeLockEnabled: document.getElementById('checkWakeLock').checked
-            };
-            localStorage.setItem('cota100_ajustes', JSON.stringify(conf));
-            if(mostrarNotificacion) mostrarToast("Ajustes Guardados Correctamente");
-        }
-
-        function verificarConexion() {
-            const status = document.getElementById('conexionStatus');
-            if (navigator.onLine) { status.textContent = "ONLINE"; status.style.color = "var(--success-color)"; status.style.borderColor = "var(--success-color)"; }
-            else { status.textContent = "OFFLINE"; status.style.color = "var(--danger-color)"; status.style.borderColor = "var(--danger-color)"; }
+            if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); }
         }
 
         function mostrarToast(msg) {
             let toast = document.getElementById('toastMsg');
             toast.textContent = msg;
             toast.classList.add('mostrar');
-            setTimeout(() => { toast.classList.remove('mostrar'); }, 2500);
+            setTimeout(() => { toast.classList.remove('mostrar'); }, 2000);
         }
 
-        // --- SISTEMA DE BACKUP TOTAL (ACTUALIZADO CON ALCANTARILLADO) ---
+        // --- SISTEMA DE BACKUP TOTAL ---
         function exportarBackupTotal() {
             const backup = {
-                version_export: "1.0",
+                version_export: "2.0",
                 fecha: new Date().toISOString(),
                 ajustes: JSON.parse(localStorage.getItem('cota100_ajustes')),
                 db_simple: JSON.parse(localStorage.getItem('cota100_db_simple_v3')),
@@ -325,31 +393,20 @@
         // --- MANTENIMIENTO ---
         function forzarActualizacionPWA() {
             if(confirm("¿Forzar actualización y limpiar caché visual? No se borrarán tus datos guardados.")) {
-                if ('caches' in window) {
-                    caches.keys().then(names => { for (let name of names) caches.delete(name); });
-                }
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(regs => { for(let reg of regs) reg.unregister(); });
-                }
+                if ('caches' in window) { caches.keys().then(names => { for (let name of names) caches.delete(name); }); }
+                if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(regs => { for(let reg of regs) reg.unregister(); }); }
                 setTimeout(() => { window.location.reload(true); }, 500);
             }
         }
 
         function factoryReset() {
-            if(confirm("🚨 ADVERTENCIA: Estás a punto de borrar TODAS las libretas, poligonales y áreas de la memoria de tu teléfono. Esta acción no se puede deshacer.\n\n¿Estás completamente seguro?")) {
-                let check = prompt("Para confirmar el borrado total, escribe la palabra BORRAR en mayúsculas:");
+            if(confirm("🚨 ADVERTENCIA: Estás a punto de borrar TODAS las libretas, poligonales y áreas de la memoria de tu teléfono.\n\n¿Estás seguro?")) {
+                let check = prompt("Escribe BORRAR en mayúsculas para confirmar:");
                 if(check === "BORRAR") {
-                    localStorage.removeItem('cota100_ajustes');
-                    localStorage.removeItem('cota100_db_simple_v3');
-                    localStorage.removeItem('cota100_db_alcan_v1');
-                    localStorage.removeItem('cota100_db_polabierta_v1');
-                    localStorage.removeItem('cota100_db_polcerrada_v1');
-                    localStorage.removeItem('cota100_db_areas_v1');
+                    localStorage.clear(); // Limpia absolutamente todo el dominio local
                     alert("La aplicación ha sido restablecida de fábrica.");
                     window.location.href = "index.html";
-                } else {
-                    alert("Acción cancelada.");
-                }
+                } else { alert("Acción cancelada."); }
             }
         }
     </script>

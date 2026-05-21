@@ -12,102 +12,133 @@
             --bg-color: #ffffff; --text-color: #000000;
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
             --table-header: #111; --danger-color: #d32f2f; --excel-color: #1b5e20;
+            --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+        }
+
+        body.dark-mode {
+            --bg-color: #121212; --text-color: #e0e0e0;
+            --border-color: rgba(255, 255, 255, 0.15); 
+            --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
+            --table-header: #000;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body { 
             background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000000' stroke-opacity='0.05' fill='none'%3E%3Cline x1='0' y1='150' x2='400' y2='250' stroke-width='10'/%3E%3Cline x1='0' y1='190' x2='400' y2='290' stroke-width='2' stroke-dasharray='10,10'/%3E%3Ccircle cx='100' cy='175' r='30' stroke-width='3'/%3E%3Ccircle cx='300' cy='225' r='30' stroke-width='3'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23888888' stroke-opacity='0.05' fill='none'%3E%3Cline x1='0' y1='150' x2='400' y2='250' stroke-width='10'/%3E%3Cline x1='0' y1='190' x2='400' y2='290' stroke-width='2' stroke-dasharray='10,10'/%3E%3Ccircle cx='100' cy='175' r='30' stroke-width='3'/%3E%3Ccircle cx='300' cy='225' r='30' stroke-width='3'/%3E%3C/g%3E%3C/svg%3E");
             background-size: 400px 400px; background-attachment: fixed;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .top-bar { 
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; border-bottom: 2px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.95); 
+            background-color: var(--panel-bg); 
             position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
             height: 70px; 
         }
         
         .btn-volver-mini { 
-            background: rgba(0,0,0,0.03); border: 2px solid var(--border-color); color: var(--text-color); 
-            width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; text-decoration: none; transition: 0.2s;
+            background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); 
+            width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;
         }
-        .btn-volver-mini:active { background: var(--text-color); color: var(--bg-color); transform: scale(0.95);}
 
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
-        .badge-v2 { display: inline-block; font-size: 0.6rem; background: #111; color: #fff; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-bottom: 2px; }
 
         .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .panel-control { border: 2px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none;}
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
 
-        label { font-weight: 800; color: #111; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
-        input, select { width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 800; text-align: center; background: rgba(255,255,255,0.9); border: 2px solid var(--border-color); border-radius: 6px; color: #000; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; background: #fff;}
-        select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px auto; padding-right: 35px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer; }
+        label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
+        input, select { width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; text-align: center; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary-color); outline: none;}
+        select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px auto; padding-right: 40px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer; }
 
-        .txt-ayuda { font-size: 0.8rem; font-weight: 600; color: #555; line-height: 1.2; margin-bottom: 8px;}
+        .txt-ayuda { font-size: 0.85rem; font-weight: 600; color: var(--text-color); opacity: 0.8; line-height: 1.2; margin-bottom: 8px;}
         .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
-        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
-        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; }
+        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
+        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.2); }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 1rem; color: #111; }
+        .bm-info strong { font-size: 1rem; color: var(--text-color); }
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: #ccc; font-size: 1.2rem; cursor: pointer;}
+        .btn-delete-bm { background: none; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer;}
 
-        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center;}
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
-        .btn-auto { background: #fff; color: #111; border: 2px dashed #111; margin-bottom: 10px;}
-        .btn-excel { background: #fff; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; display: none;}
+        .btn-auto { background: transparent; color: var(--text-color); border: 2px dashed var(--text-color); margin-bottom: 10px;}
+        .btn-excel { background: transparent; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; display: none;}
+        body.dark-mode .btn-excel { color: #81c784; border-color: #81c784; }
 
         .seccion-tabla { display: none; margin-top: 15px; }
-        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 2px solid var(--table-header); border-radius: 6px; background: #fff; }
+        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 2px solid var(--table-header); border-radius: 8px; background: var(--bg-color); }
         table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 8px 2px; font-size: 0.75rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
-        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 8px 2px; text-align: center; font-weight: 800; font-size: 1.15rem; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid rgba(128,128,128,0.2);}
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 10px 2px; text-align: center; font-weight: 800; font-size: 1.15rem; }
         
-        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: #111; margin: 15px 0; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 6px; border: 1px dashed #111;}
-        .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.3rem;}
+        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--text-color); margin: 15px 0; background: rgba(128,128,128,0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--text-color);}
+        .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.4rem;}
 
-        /* --- ESTILOS PARA FILAS COMPLETADAS (CHECKS) --- */
-        .fila-ok td { background-color: #e8f5e9 !important; color: #2e7d32 !important; transition: background-color 0.3s; }
+        .fila-ok td { background-color: rgba(46, 125, 50, 0.1) !important; color: var(--success-color) !important; transition: background-color 0.3s; }
         .fila-ok td:first-child::after { content: ' ✓'; font-weight: 900; }
         .celda-prog { cursor: pointer; } 
 
-        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: #fff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; }
-        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--table-header); border-radius: 10px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); }
-        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: #111;}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: #d32f2f; cursor: pointer;}
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 8px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); border-radius: 5px; background: #fff; }
-        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 8px; padding: 4px; background: #f5f5f5; }
+        /* NAVEGACIÓN FLOTANTE */
+        .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
+        .btn-nav-flotante:active { transform: scale(0.9); }
+        .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--input-bg); padding: 10px 5px; border-radius: 8px; text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 0.75rem; border: 1px solid var(--border-color); text-transform: uppercase; transition: 0.2s; text-align: center;}
+        .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
 
-        @media screen and (max-width: 480px) { html { font-size: 12px; } .btn-accion { padding: 9px; font-size: 0.95rem; } input, select { padding: 8px; font-size: 1.05rem; } .modulo-container { padding: 10px; } }
+        /* CALCULADORA FLOTANTE */
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--bg-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--panel-bg); border: 2px solid var(--table-header); border-radius: 12px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: var(--text-color); font-size: 0.85rem;}
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color); cursor: pointer;}
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-grid button { padding: 10px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); cursor: pointer;}
+        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid var(--border-color); margin-bottom: 8px; padding: 4px; background: var(--input-bg); color: var(--text-color); }
+
+        @media screen and (max-width: 480px) { 
+            html { font-size: 13px; } 
+            .btn-accion { padding: 10px; font-size: 0.95rem; } 
+            input, select { padding: 10px; font-size: 1.05rem; } 
+            .modulo-container { padding: 10px; } 
+            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px;}
+            .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px; left: 10px;}
+            .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
+            .nav-modal { left: 10px; bottom: 65px; width: 200px;}
+        }
     </style>
 </head>
 <body onload="inicializarApp()">
 
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
+
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </a>
+        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
         <h2 class="top-bar-title">ALCANTARILLADO <span>Control de Redes</span></h2>
-        <div style="width: 40px;"></div> 
+        <div style="width: 45px;"></div> 
     </div>
 
     <div class="modulo-container">
-        <div class="panel-control" style="border-left: 4px solid #111;">
+        <div class="panel-control" style="border-left: 5px solid #111;">
             <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
                 <span>📁 Base de Datos / Proyectos</span>
                 <span class="btn-toggle-panel">▼</span>
@@ -115,37 +146,37 @@
             <div id="panelProyecto">
                 <div class="project-selector">
                     <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
-                    <button class="btn-accion" style="width: auto; padding: 8px 10px; background: var(--primary-color);" onclick="crearNuevoProyecto()">+ NUEVO</button>
-                    <button class="btn-accion" style="width: auto; padding: 8px 10px; background: var(--danger-color);" onclick="eliminarProyecto()">🗑️</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color); margin-bottom: 0;" onclick="crearNuevoProyecto()">+ NUEVO</button>
+                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color); margin-bottom: 0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
                 <div class="input-group full-width" style="margin-bottom: 12px;">
                     <label>Nombre de la Red / Obra</label>
                     <input type="text" id="proyectName" placeholder="Ej: Red de Agua Sector 4" oninput="renombrarProyecto(); guardarEstadoAlcan();">
                 </div>
-                <div style="border-top: 1px solid #eee; padding-top: 8px;">
+                <div style="border-top: 1px solid rgba(128,128,128,0.2); padding-top: 10px;">
                     <label style="color: var(--primary-color);">+ Registrar BM</label>
                     <div class="form-grid" style="margin-top: 4px;">
                         <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
                         <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
                     </div>
-                    <button class="btn-accion" style="padding: 8px; font-size: 0.85rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
                 
-                <div style="border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
-                    <label style="color: #111; font-size: 0.75rem;">💾 Respaldo de Base de Datos</label>
+                <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 12px; margin-top: 12px;">
+                    <label style="color: var(--text-color); font-size: 0.8rem;">💾 Respaldo de Base de Datos</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
                         <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #111; margin: 0;" onclick="exportarBackupAlcan()">📤 Backup DB</button>
-                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: #fff; color: #111; border: 2px solid #111; text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--text-color); border: 2px solid var(--border-color); text-align: center; margin: 0; cursor: pointer;" onclick="vibrar()">
                             📥 Restaurar
                             <input type="file" id="importAlcanFile" accept=".json" style="display: none;" onchange="importarBackupAlcan()">
                         </label>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
 
-        <div class="panel-control" style="border-left: 4px solid #1976d2;">
+        <div class="panel-control" style="border-left: 5px solid #1976d2;">
             <div class="panel-titulo" onclick="togglePanel('panelParametros')">
                 <span>1. Parámetros de Diseño</span>
                 <span class="btn-toggle-panel">▼</span>
@@ -164,17 +195,17 @@
                     <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" oninput="desmarcarPerfil(); guardarEstadoAlcan();"></div>
                     <div class="input-group"><label>Pendiente (% al 100)</label><input type="number" id="pte" step="0.001" oninput="desmarcarPerfil(); guardarEstadoAlcan();"></div>
                 </div>
-                <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
-                    <label style="color: #111;">💾 Guardar este Tramo/Perfil en el proyecto</label>
+                <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 10px; margin-top: 10px;">
+                    <label style="color: var(--text-color);">💾 Guardar este Tramo/Perfil en el proyecto</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
-                        <input type="text" id="nombrePerfilNuevo" placeholder="Ej: BZ1 - BZ2" style="flex: 1; text-align: left; padding: 8px;" oninput="this.value = this.value.toUpperCase()">
-                        <button class="btn-accion" style="width: auto; padding: 8px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfil()">Guardar</button>
+                        <input type="text" id="nombrePerfilNuevo" placeholder="Ej: BZ1 - BZ2" style="flex: 1; text-align: left; padding: 10px;" oninput="this.value = this.value.toUpperCase()">
+                        <button class="btn-accion" style="width: auto; padding: 10px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfil()">Guardar</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel-control" style="border-left: 4px solid var(--primary-color);" id="panelEstacionWrapper">
+        <div class="panel-control" style="border-left: 5px solid var(--primary-color);" id="panelEstacionWrapper">
             <div class="panel-titulo" onclick="togglePanel('panelEstacion')">
                 <span>2. Estación y Tubería (Campo)</span>
                 <span class="btn-toggle-panel">▼</span>
@@ -191,7 +222,7 @@
                     <div class="input-group full-width">
                         <label>Vista Atrás (+)</label>
                         <input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="evaluarLimiteVA(); guardarEstadoAlcan();">
-                        <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800; font-size:0.8rem;"></div>
+                        <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800;"></div>
                     </div>
                     <div class="input-group"><label>Cama de Apoyo (m)</label><input type="number" id="camaApoyo" step="0.001" placeholder="Ej: 0.100" oninput="guardarEstadoAlcan();"></div>
                     <div class="input-group"><label>Altura de Tubo (m)</label><input type="number" id="alturaTubo" step="0.001" placeholder="Ej: 0.200" oninput="guardarEstadoAlcan();"></div>
@@ -222,26 +253,65 @@
         </div>
     </div>
 
+    <div class="btn-nav-flotante" onclick="toggleNav()">🧭</div>
+    <div class="nav-modal" id="navModal">
+        <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+            IR A MÓDULO <button onclick="toggleNav()" style="background:none; border:none; color:var(--danger-color); font-weight:800; cursor:pointer; font-size: 1.2rem;">X</button>
+        </div>
+        <div class="nav-grid">
+            <a href="index.html" class="nav-item"><span>🏠</span> Inicio</a>
+            <a href="nivelacion.html" class="nav-item"><span>📏</span> Niveles</a>
+            <a href="poligonales.html" class="nav-item"><span>📐</span> Polígonos</a>
+            <a href="coordenadas.html" class="nav-item"><span>🌐</span> Coord.</a>
+            <a href="areas.html" class="nav-item"><span>⬛</span> Áreas</a>
+            <a href="ajustes.html" class="nav-item"><span>⚙️</span> Ajustes</a>
+        </div>
+    </div>
+
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
-        <div class="calc-header"><span>CALC. RÁPIDA</span><button onclick="toggleCalculadora()">X</button></div>
+        <div class="calc-header"><span>CÁLCULO RÁPIDO</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
             <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcInput('/')">÷</button>
             <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcInput('*')">×</button>
             <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcInput('-')">-</button>
-            <button onclick="calcClear()" style="color:#d32f2f;">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
-            <button onclick="calcBackspace()" style="grid-column: span 2; background:#eee;">⌫ BORRAR</button>
+            <button onclick="calcClear()" style="color:var(--danger-color); border-color:var(--danger-color);">C</button><button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcInput('+')">+</button>
+            <button onclick="calcBackspace()" style="grid-column: span 2; background:rgba(128,128,128,0.1);">⌫</button>
             <button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
         </div>
     </div>
 
     <script>
-        function vibrar() { if (navigator.vibrate) navigator.vibrate(30); }
-
         let appDataAlcan = { activoId: 1, proyectos: [] };
+        let globalConfig = { darkMode: false, vibracion: true, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
+        let wakeLock = null;
+
+        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+
+        async function solicitarWakeLock() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); }
+                catch (err) {}
+            }
+        }
+
+        function toggleNav() {
+            vibrar();
+            const m = document.getElementById('navModal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
 
         function inicializarApp() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+                if(conf) {
+                    globalConfig = conf;
+                    if(globalConfig.darkMode) document.body.classList.add('dark-mode');
+                    if(globalConfig.wakeLockEnabled) solicitarWakeLock();
+                }
+            } catch(e) {}
+
             let stored = localStorage.getItem('cota100_db_alcan_v1');
             if (stored) { appDataAlcan = JSON.parse(stored); } 
             else { appDataAlcan.proyectos.push({ id: 1, nombre: "Proyecto Alcantarillado 1", bms: [], perfiles: [] }); appDataAlcan.activoId = 1; }
@@ -251,7 +321,6 @@
         function obtenerProyectoActivo() { return appDataAlcan.proyectos.find(p => p.id === appDataAlcan.activoId); }
         function guardarBD() { localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(appDataAlcan)); }
 
-        // --- FUNCIONES AÑADIDAS: BACKUP DE BASE DE DATOS ---
         function exportarBackupAlcan() {
             vibrar();
             const backup = JSON.parse(localStorage.getItem('cota100_db_alcan_v1'));
@@ -280,37 +349,26 @@
                         alert("✅ Base de datos restaurada con éxito. La página se recargará.");
                         window.location.reload();
                     } else {
-                        alert("❌ Archivo no válido. Asegúrate de que sea un backup de Nivelación de Alcantarillado.");
+                        alert("❌ Archivo no válido.");
                     }
-                } catch(err) {
-                    alert("❌ Error al leer el archivo de base de datos.");
-                }
+                } catch(err) { alert("❌ Error al leer el archivo."); }
             };
             reader.readAsText(fileInput.files[0]);
         }
-        // --- FIN FUNCIONES AÑADIDAS: BACKUP ---
 
-        // --- SOLUCIÓN TIPO "FOTOGRAFÍA" DE LA INTERFAZ ---
         function guardarEstadoAlcan() {
             let p = obtenerProyectoActivo();
             if(!p) return;
             p.estadoActivo = {
-                cotaIni: document.getElementById('cotaIni').value,
-                cotaFin: document.getElementById('cotaFin').value,
-                distTotal: document.getElementById('distTotal').value,
-                pte: document.getElementById('pte').value,
-                cotaBM: document.getElementById('cotaBM').value,
-                vistaAtras: document.getElementById('vistaAtras').value,
-                camaApoyo: document.getElementById('camaApoyo').value,
-                alturaTubo: document.getElementById('alturaTubo').value,
-                intervalo: document.getElementById('intervalo').value,
-                perfilSeleccionado: document.getElementById('selectPerfil').value,
-                bmSeleccionado: document.getElementById('selectBMProyecto').value,
-                tablaHTML: document.getElementById('cuerpoTabla').innerHTML,
+                cotaIni: document.getElementById('cotaIni').value, cotaFin: document.getElementById('cotaFin').value,
+                distTotal: document.getElementById('distTotal').value, pte: document.getElementById('pte').value,
+                cotaBM: document.getElementById('cotaBM').value, vistaAtras: document.getElementById('vistaAtras').value,
+                camaApoyo: document.getElementById('camaApoyo').value, alturaTubo: document.getElementById('alturaTubo').value,
+                intervalo: document.getElementById('intervalo').value, perfilSeleccionado: document.getElementById('selectPerfil').value,
+                bmSeleccionado: document.getElementById('selectBMProyecto').value, tablaHTML: document.getElementById('cuerpoTabla').innerHTML,
                 tablaVisible: document.getElementById('seccionTabla').style.display === 'block',
                 panelOculto: document.getElementById('panelEstacion').style.display === 'none',
-                aiTexto: document.getElementById('txtAI').innerText,
-                tuboTexto: document.getElementById('infoTubo').innerText
+                aiTexto: document.getElementById('txtAI').innerText, tuboTexto: document.getElementById('infoTubo').innerText
             };
             guardarBD();
         }
@@ -318,37 +376,26 @@
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
             document.getElementById('proyectName').value = p.nombre;
-            renderBMs();
-            renderPerfiles();
+            renderBMs(); renderPerfiles();
 
             if(p.estadoActivo) {
-                document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || "";
-                document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
-                document.getElementById('distTotal').value = p.estadoActivo.distTotal || "";
-                document.getElementById('pte').value = p.estadoActivo.pte || "";
-                document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || "";
-                document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
-                document.getElementById('camaApoyo').value = p.estadoActivo.camaApoyo || "";
-                document.getElementById('alturaTubo').value = p.estadoActivo.alturaTubo || "";
+                document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || ""; document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
+                document.getElementById('distTotal').value = p.estadoActivo.distTotal || ""; document.getElementById('pte').value = p.estadoActivo.pte || "";
+                document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || ""; document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
+                document.getElementById('camaApoyo').value = p.estadoActivo.camaApoyo || ""; document.getElementById('alturaTubo').value = p.estadoActivo.alturaTubo || "";
                 document.getElementById('intervalo').value = p.estadoActivo.intervalo || "10.000";
-                
-                document.getElementById('selectPerfil').value = p.estadoActivo.perfilSeleccionado || "";
-                document.getElementById('selectBMProyecto').value = p.estadoActivo.bmSeleccionado || "";
+                document.getElementById('selectPerfil').value = p.estadoActivo.perfilSeleccionado || ""; document.getElementById('selectBMProyecto').value = p.estadoActivo.bmSeleccionado || "";
 
                 evaluarLimiteVA();
 
-                // Pegar la fotografía exacta de la tabla sin tener que recalcularla
                 if (p.estadoActivo.tablaVisible) {
                     document.getElementById('cuerpoTabla').innerHTML = p.estadoActivo.tablaHTML || "";
                     document.getElementById('txtAI').innerText = p.estadoActivo.aiTexto || "0.000";
                     document.getElementById('infoTubo').innerText = p.estadoActivo.tuboTexto || "Tubo + Cama";
-                    
-                    document.getElementById('seccionTabla').style.display = 'block';
-                    document.getElementById('btnExcel').style.display = 'block';
+                    document.getElementById('seccionTabla').style.display = 'block'; document.getElementById('btnExcel').style.display = 'block';
                     document.getElementById('panelEstacion').style.display = p.estadoActivo.panelOculto ? 'none' : 'block';
                 } else {
-                    document.getElementById('seccionTabla').style.display = 'none';
-                    document.getElementById('btnExcel').style.display = 'none';
+                    document.getElementById('seccionTabla').style.display = 'none'; document.getElementById('btnExcel').style.display = 'none';
                     document.getElementById('panelEstacion').style.display = 'block';
                 }
             }
@@ -362,8 +409,15 @@
 
         function addBM() { vibrar(); const name = document.getElementById('newBMName').value.toUpperCase(); const cota = parseFloat(document.getElementById('newBMCota').value); if(!name || isNaN(cota)) return alert("Datos inválidos."); let p = obtenerProyectoActivo(); if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre."); p.bms.push({ nombre: name, cota: cota }); document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; guardarBD(); renderBMs(); }
         function deleteBM(i) { vibrar(); let p = obtenerProyectoActivo(); if(confirm(`⚠️ ¿Eliminar el BM "${p.bms[i].nombre}"?`)) { p.bms.splice(i, 1); guardarBD(); renderBMs(); } }
-        function renderBMs() { let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); const select = document.getElementById('selectBMProyecto'); list.innerHTML = ""; select.innerHTML = '<option value="">-- ELEGIR BM --</option>'; p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(3)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; select.innerHTML += `<option value="${bm.cota}">${bm.nombre}</option>`; }); }
-        function seleccionarBM(cota) { if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(3); evaluarLimiteVA(); guardarEstadoAlcan(); }
+        function renderBMs() { 
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); const select = document.getElementById('selectBMProyecto'); list.innerHTML = ""; select.innerHTML = '<option value="">-- ELEGIR BM --</option>'; p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; select.innerHTML += `<option value="${bm.cota}">${bm.nombre}</option>`; }); 
+        }
+        function seleccionarBM(cota) { 
+            let decs = parseInt(globalConfig.decimales) || 3;
+            if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(decs); 
+            evaluarLimiteVA(); guardarEstadoAlcan(); 
+        }
 
         function guardarPerfil() { vibrar(); let p = obtenerProyectoActivo(); let nom = document.getElementById('nombrePerfilNuevo').value.trim(); let ci = document.getElementById('cotaIni').value; let cf = document.getElementById('cotaFin').value; let dist = document.getElementById('distTotal').value; let pte = document.getElementById('pte').value; if(!nom || ci==="" || cf==="" || dist==="" || pte==="") return alert("⚠️ Calcula y llena todos los datos de diseño antes de guardar el tramo."); if(!p.perfiles) p.perfiles = []; let idx = p.perfiles.findIndex(per => per.nombre === nom); if(idx >= 0) { if(confirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?")) p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; else return; } else { p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); } guardarBD(); document.getElementById('nombrePerfilNuevo').value = ""; renderPerfiles(); alert("✅ Tramo guardado en el proyecto."); guardarEstadoAlcan(); }
         function renderPerfiles() { let p = obtenerProyectoActivo(); const select = document.getElementById('selectPerfil'); select.innerHTML = '<option value="">-- INGRESO MANUAL --</option>'; if(p.perfiles) { p.perfiles.forEach((per, i) => { select.innerHTML += `<option value="${i}">${per.nombre}</option>`; }); } }
@@ -373,20 +427,31 @@
         function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoAlcan(); }
 
         function autocalcularTramo() {
-            vibrar(); let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
+            vibrar(); 
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
             if (nulos !== 1) return alert("Deja exactamente UNA casilla vacía.");
-            if (isNaN(p)) document.getElementById('pte').value = (((cf - ci) / d) * 100).toFixed(3); else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci + ((p / 100) * d)).toFixed(3); else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(3); else if (isNaN(d)) document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(3);
+            if (isNaN(p)) document.getElementById('pte').value = (((cf - ci) / d) * 100).toFixed(decs); else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci + ((p / 100) * d)).toFixed(decs); else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(decs); else if (isNaN(d)) document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(decs);
             evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();
         }
 
         function evaluarLimiteVA() {
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
             let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let bm = parseFloat(document.getElementById('cotaBM').value); let alerta = document.getElementById('txtAlertaVA');
-            if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) { let cotaMinima = Math.min(ci, cf); let limiteVA = 5.000 - bm + cotaMinima; if (limiteVA < 0) { alerta.style.color = "var(--danger-color)"; alerta.innerText = "⚠️ BM muy alto para regla de 5m."; } else { alerta.style.color = "var(--primary-color)"; alerta.innerText = "Lectura máxima: " + limiteVA.toFixed(3) + " m"; } } else { alerta.innerText = ""; }
+            if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) { 
+                let cotaMinima = Math.min(ci, cf); let limiteVA = limiteMira - bm + cotaMinima; 
+                if (limiteVA < 0) { alerta.style.color = "var(--danger-color)"; alerta.innerText = `⚠️ BM muy alto para regla de ${limiteMira}m.`; } 
+                else { alerta.style.color = "var(--primary-color)"; alerta.innerText = "Lectura máxima: " + limiteVA.toFixed(decs) + " m"; } 
+            } else { alerta.innerText = ""; }
         }
 
         function generarLibreta() {
             vibrar();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
+
             let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             if(isNaN(ci) || isNaN(d) || isNaN(p)) return alert("Faltan datos de Diseño.");
             let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
@@ -397,7 +462,7 @@
             document.getElementById('panelEstacion').style.display = 'none';
             document.getElementById('infoTubo').innerText = `(Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)})`;
             let ai = bm + va;
-            document.getElementById('txtAI').innerText = ai.toFixed(3);
+            document.getElementById('txtAI').innerText = ai.toFixed(decs);
             let tbody = document.getElementById('cuerpoTabla');
             tbody.innerHTML = "";
 
@@ -406,16 +471,16 @@
                 let cotaLomo = cotaZanja + cama + altura;
                 let leerZanja = ai - cotaZanja;
                 let leerLomo = ai - cotaLomo;
-                let styleZanja = (leerZanja >= 5 || leerZanja <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
-                let styleLomo = (leerLomo >= 5 || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+                
+                let styleZanja = (leerZanja >= limiteMira || leerZanja <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+                let styleLomo = (leerLomo >= limiteMira || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
 
-                // El onclick de cada fila ahora dispara guardarEstadoAlcan para fotografiar el nuevo color
                 tbody.innerHTML += `<tr>
                     <td class="celda-prog" onclick="this.parentElement.classList.toggle('fila-ok'); vibrar(); guardarEstadoAlcan();">0+${i.toString().padStart(3,'0')}</td>
-                    <td style="${styleZanja}">${leerZanja.toFixed(3)}</td>
-                    <td style="${styleLomo}">${leerLomo.toFixed(3)}</td>
-                    <td>${cotaZanja.toFixed(3)}</td>
-                    <td>${cotaLomo.toFixed(3)}</td>
+                    <td style="${styleZanja}">${leerZanja.toFixed(decs)}</td>
+                    <td style="${styleLomo}">${leerLomo.toFixed(decs)}</td>
+                    <td>${cotaZanja.toFixed(decs)}</td>
+                    <td>${cotaLomo.toFixed(decs)}</td>
                 </tr>`;
             }
             document.getElementById('seccionTabla').style.display = 'block';
