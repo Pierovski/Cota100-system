@@ -57,7 +57,8 @@
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
         label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
-        input, select { 
+        
+        input { 
             width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; 
             background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; 
             color: var(--text-color); transition: 0.2s; text-align: center; font-family: 'Rajdhani', sans-serif;
@@ -65,23 +66,30 @@
         input.in-pto { text-transform: uppercase; }
         input.bm-selector { cursor: pointer; border: 2px solid var(--primary-color); background: #fff3e0;}
         body.dark-mode input.bm-selector { background: rgba(255,102,0,0.1); }
-        input:focus, select:focus { border-color: var(--primary-color); outline: none; }
+        input:focus { border-color: var(--primary-color); outline: none; }
         input:disabled, input[readonly] { background: rgba(128,128,128,0.1); cursor: not-allowed; border-style: dashed; color: #555; }
         
-        select {
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 20px auto;
-            padding-right: 40px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer;
-        }
+        /* CUSTOM SELECT BUTTONS */
+        .custom-select { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; text-align: left; }
+        .custom-select:active { border-color: var(--primary-color); background: rgba(255, 102, 0, 0.05); }
+        .custom-select .arrow { color: var(--primary-color); font-size: 0.9rem; }
+        .custom-select span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
 
         .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
-        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
-        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+        
+        /* ESTILOS PREMIUM PARA LISTA BM */
+        .bm-list { margin-top: 8px; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
+        .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid rgba(128,128,128,0.2); cursor: pointer; }
+        .bm-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 1rem; color: var(--text-color); }
+        .bm-info strong { font-size: 0.95rem; color: var(--text-color); }
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer;}
+        
+        .bm-actions { display: flex; gap: 2px; }
+        .bm-actions button { background: none; border: none; border-radius: 4px; padding: 4px 6px; font-size: 0.9rem; cursor: pointer; opacity: 0.4; transition: 0.2s; filter: grayscale(100%); }
+        .bm-actions button:hover, .bm-actions button:active { opacity: 1; filter: grayscale(0%); background: rgba(128,128,128,0.1); }
+        .bm-obs { display: none; font-size: 0.8rem; color: #666; margin-top: 6px; text-align: left; background: rgba(128,128,128,0.1); padding: 6px; border-radius: 4px; border-left: 3px solid var(--primary-color); }
+        body.dark-mode .bm-obs { color: #bbb; }
 
         .txt-ayuda { font-size: 0.85rem; font-weight: 700; color: #1976d2; margin-top: 5px; background: #e3f2fd; padding: 10px; border-radius: 8px; border: 1px solid #90caf9;}
         body.dark-mode .txt-ayuda { background: #0d2136; border-color: #1976d2; color: #e0e0e0; }
@@ -98,15 +106,17 @@
         .dos-columnas { display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 5px; margin-bottom: 10px;}
         .col-tabla { flex: 1; min-width: 350px; margin-bottom: 0; padding: 0 !important; overflow: visible;}
 
-        .cabecera-ida { background: #1976d2; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
-        .cabecera-vuelta { background: #d32f2f; color: #fff; font-weight: 900; font-size: 1.3rem; text-align: center; padding: 12px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
+        /* ENCABEZADOS AÚN MÁS OPTIMIZADOS */
+        .cabecera-ida { background: #1976d2; color: #fff; font-weight: 900; font-size: 1.1rem; text-align: center; padding: 8px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
+        .cabecera-vuelta { background: #d32f2f; color: #fff; font-weight: 900; font-size: 1.1rem; text-align: center; padding: 8px; border-radius: 6px 6px 0 0; letter-spacing: 1px;}
 
         .table-container { width: 100%; background: var(--bg-color); margin-bottom: 0; border-radius: 0 0 6px 6px;}
-        table { width: 100%; border-collapse: collapse; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
         
         th { 
             color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.85rem; border-bottom: 2px solid rgba(128,128,128,0.2); 
-            text-transform: uppercase; position: sticky; top: 70px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-transform: uppercase; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .tabla-ida th { background: #1565c0; }
         .tabla-vuelta th { background: #c62828; }
@@ -115,7 +125,7 @@
         td:last-child { border-right: none; }
         
         td input { 
-            border: none; width: 100%; height: 100%; padding: 10px 2px; font-size: 1rem; 
+            border: none; width: 100%; padding: 10px 2px; font-size: 1rem; 
             text-align: center; background: transparent; border-radius: 0; color: var(--text-color); font-weight: 800; text-transform: uppercase;
         }
         td input:focus:not(:disabled):not([readonly]) { background: #fff3e0; outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
@@ -124,7 +134,6 @@
         .td-readonly { background: rgba(128,128,128,0.05); }
         .out-cota { text-align: center; font-weight: 800; font-size: 1.05rem; color: var(--text-color); padding: 4px 2px; background: rgba(128,128,128,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 50px;}
         
-        /* BOTÓN DE BORRADO ESPECÍFICO */
         .btn-del-fila { 
             background: transparent; border: none; color: var(--corte-color); font-size: 1.4rem; font-weight: 900; 
             cursor: pointer; padding: 5px; width: 100%; height: 100%; display: flex; align-items: center; 
@@ -155,14 +164,37 @@
         .tabla-compensada th { background: var(--table-header); color: #fff; font-size: 0.85rem; padding: 10px; text-transform: uppercase; position: static; box-shadow: none;}
         .tabla-compensada td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 10px; font-weight: 800; font-size: 1.1rem; text-align: center; color: var(--text-color);}
 
-        .overlay-bm { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; }
-        .overlay-bm.activo { opacity: 1; }
-        .modal-bm { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); border-top: 4px solid var(--primary-color); border-radius: 20px 20px 0 0; padding: 20px; z-index: 1001; transform: translateY(100%); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        .modal-bm.abierto { transform: translateY(0); }
-        .btn-bm-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
-        .btn-bm-opcion:active { background: var(--primary-color); color: #fff;}
-        .btn-bm-opcion span.cota { color: var(--text-color); font-size: 0.95rem; font-weight: 700;}
-        .btn-bm-opcion:active span.cota { color: #fff; }
+        /* --- TOAST NOTIFICATIONS --- */
+        #toast-container { position: fixed; top: 85px; bottom: auto; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; width: 90%; max-width: 350px;}
+        .toast { background: var(--panel-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards; backdrop-filter: blur(10px); text-align: center; border-right: 1px solid var(--border-color); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.success { border-left-color: #00C851; }
+        .toast.warning { border-left-color: #fbc02d; }
+        .toast.fade-out { animation: fadeOutToast 0.3s ease-in forwards; }
+        @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+
+        /* --- CUSTOM CONFIRM MODAL --- */
+        .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.2s; backdrop-filter: blur(2px);}
+        .confirm-overlay.activo { opacity: 1; visibility: visible; }
+        .confirm-box { background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 25px 20px; width: 90%; max-width: 320px; text-align: center; transform: scale(0.9); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.4);}
+        .confirm-overlay.activo .confirm-box { transform: scale(1); }
+        .confirm-msg { color: var(--text-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3;}
+        .confirm-btns { display: flex; gap: 10px; }
+        .confirm-btn { flex: 1; padding: 12px; font-weight: 800; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
+        .confirm-btn:active { transform: scale(0.95); }
+        .confirm-btn-cancel { background: rgba(128,128,128,0.2); color: var(--text-color); }
+        .confirm-btn-ok { background: var(--primary-color); color: #fff; }
+
+        /* --- MODAL SELECTOR GENÉRICO (CENTRADO) --- */
+        .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(2px); }
+        .overlay-select.activo { opacity: 1; }
+        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 320px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
+        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.95rem; font-weight: 700;}
+        .btn-opcion:active span.cota { color: #fff !important; }
 
         /* NAVEGACIÓN FLOTANTE */
         .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
@@ -185,11 +217,11 @@
         @media screen and (max-width: 480px) {
             html { font-size: 13px; } 
             .btn-accion { padding: 10px; font-size: 0.95rem; }
-            input, select { padding: 10px; font-size: 1.05rem; }
+            input { padding: 10px; font-size: 1.05rem; }
             .panel-control { padding: 12px; margin-bottom: 12px;}
             .top-bar { padding: 5px 15px; height: 60px; }
             .btn-volver-mini { width: 38px; height: 38px; font-size: 1.3rem;}
-            th { top: 60px; font-size: 0.75rem; padding: 6px 1px; }
+            th { top: 0; font-size: 0.75rem; padding: 6px 1px; }
             td input { padding: 8px 2px; font-size: 1.15rem; } 
             .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px;}
             .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px; left: 10px;}
@@ -207,15 +239,32 @@
         } catch(e) {}
     </script>
 
-    <div class="overlay-bm" id="overlayBM" onclick="cerrarSelectorBM()"></div>
-    <div class="modal-bm" id="modalSelectorBM">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">📍 SELECCIONAR PTO BASE</h3>
-            <button onclick="cerrarSelectorBM()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+    <!-- TOAST & CONFIRM MODALS -->
+    <div id="toast-container"></div>
+
+    <div class="confirm-overlay" id="customConfirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-msg" id="customConfirmMsg">¿Estás seguro?</div>
+            <div class="confirm-btns">
+                <button class="confirm-btn confirm-btn-cancel" id="btnConfirmCancel">Cancelar</button>
+                <button class="confirm-btn confirm-btn-ok" id="btnConfirmOk">Aceptar</button>
+            </div>
         </div>
-        <div id="contenedorBotonesBM" style="max-height:250px; overflow-y:auto; margin-bottom:15px;"></div>
-        <button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>
     </div>
+
+    <!-- MODAL DE SELECCIÓN GENÉRICO -->
+    <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
+    <div class="modal-select" id="modalSelect">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">SELECCIONAR</h3>
+            <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+        </div>
+        <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
+        <div id="modalSelectExtra"></div>
+    </div>
+
+    <!-- VARIABLES OCULTAS -->
+    <input type="hidden" id="ordenNiv" value="0.020">
 
     <div class="top-bar">
         <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
@@ -232,13 +281,16 @@
             </div>
             <div id="panelProyecto" style="display: none;">
                 <div class="project-selector">
-                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')">
+                        <span id="txtSelectProyecto">Cargando...</span>
+                        <span class="arrow">▼</span>
+                    </div>
                     <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color); margin-bottom: 0;" onclick="crearNuevoProyecto()">+ NUEVO</button>
                     <button class="btn-accion" style="width: auto; padding: 10px; background: var(--corte-color); margin-bottom: 0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
                 <div class="input-group full-width" style="margin-bottom: 12px;">
                     <label>Nombre de la Poligonal</label>
-                    <input type="text" id="proyectName" placeholder="Ej: Eje Principal Mz A" oninput="renombrarProyecto()">
+                    <input type="text" id="proyectName" placeholder="Ej: Eje Principal Mz A" onchange="renombrarProyecto()">
                 </div>
                 
                 <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 12px; margin-top: 12px; margin-bottom: 12px;">
@@ -246,26 +298,24 @@
                     <div class="form-grid">
                         <div class="input-group">
                             <label>Cota Inicial (BM)</label>
-                            <input type="number" id="cotaBM" step="0.001" inputmode="decimal" placeholder="Ej: 100.000" oninput="guardarBD(); procesarDobleLiga();">
+                            <input type="text" id="cotaBM" inputmode="decimal" placeholder="Ej: 100.000" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();">
                         </div>
                         <div class="input-group">
                             <label>Orden Niv.</label>
-                            <select id="ordenNiv" onchange="actualizarOrdenTxt(); guardarBD(); procesarDobleLiga();">
-                                <option value="0.004">Orden I (4mm √K)</option>
-                                <option value="0.008">Orden II (8mm √K)</option>
-                                <option value="0.012">Orden III (12mm √K)</option>
-                                <option value="0.020" selected>Orden IV (20mm √K)</option>
-                            </select>
+                            <div class="custom-select" onclick="abrirModalSelect('orden')">
+                                <span id="txtSelectOrden">Orden IV (20mm √K)</span>
+                                <span class="arrow">▼</span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-grid" style="margin-top: 5px; margin-bottom: 5px;">
                         <div class="input-group">
                             <label>Dist. Total (m)</label>
-                            <input type="number" id="distanciaM" step="1" inputmode="decimal" placeholder="Ej: 1500" oninput="guardarBD(); procesarDobleLiga();">
+                            <input type="text" id="distanciaM" inputmode="decimal" placeholder="Ej: 1500" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();">
                         </div>
                         <div class="input-group">
                             <label>Tol. Armada (mm)</label>
-                            <input type="number" id="tolTramo" step="1" inputmode="decimal" value="2" placeholder="Ej: 2" oninput="guardarBD(); procesarDobleLiga();">
+                            <input type="text" id="tolTramo" inputmode="decimal" value="2" placeholder="Ej: 2" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();">
                         </div>
                     </div>
                     <div id="txtOrdenHelp" class="txt-ayuda">Orden IV: Trabajos estándar de obra, movimiento de tierras y perfiles generales.</div>
@@ -275,9 +325,10 @@
                     <label style="color: var(--primary-color);">+ Registrar BM Oficial</label>
                     <div class="form-grid" style="margin-top: 4px;">
                         <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
-                        <input type="number" id="newBMCota" step="0.001" inputmode="decimal" placeholder="Cota (m)">
+                        <input type="text" id="newBMCota" inputmode="decimal" placeholder="Cota (m)" oninput="formatDecimal(this)">
+                        <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
                 
@@ -316,9 +367,10 @@
             </div>
         </div>
 
+        <!-- BOTONES ENGORDADOS NUEVAMENTE (PADDING 12px 4px) -->
         <div class="btn-dual">
             <button class="btn-accion" style="background:transparent; border: 2px solid #1976d2; color:#1976d2; padding: 12px 4px; font-size: 0.95rem;" onclick="agregarFila()">+ Fila</button>
-            <button class="btn-accion" style="background:transparent; border: 2px solid var(--text-color); color:var(--text-color); padding: 12px 4px; font-size: 0.95rem;" onclick="quitarFila()">- Borrar Última</button>
+            <button class="btn-accion" style="background:transparent; border: 2px solid var(--text-color); color:var(--text-color); padding: 12px 4px; font-size: 0.95rem;" onclick="quitarFila()">- Borrar</button>
             <button class="btn-accion" style="background:transparent; border: 2px solid var(--corte-color); color:var(--corte-color); padding: 12px 4px; font-size: 0.95rem;" onclick="limpiarTabla()">🗑️ Reset</button>
             <button class="btn-accion" id="btnBloquear" style="background:transparent; border: 2px solid #fbc02d; color:#f57f17; padding: 12px 4px; font-size: 0.95rem;" onclick="toggleBloqueoTabla()">🔒 Bloq.</button>
         </div>
@@ -385,11 +437,134 @@
     </div>
 
     <script>
+        /* --- UI: TOAST Y CONFIRM --- */
+        function showToast(message, type = "default") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            vibrar();
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        }
+
+        let confirmOkCallback = null;
+        let confirmCancelCallback = null;
+
+        function showConfirm(message, onOk, onCancel = null) {
+            vibrar();
+            const overlay = document.getElementById('customConfirmOverlay');
+            document.getElementById('customConfirmMsg').innerText = message;
+            confirmOkCallback = onOk;
+            confirmCancelCallback = onCancel;
+            overlay.classList.add('activo');
+        }
+
+        document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            if (confirmCancelCallback) confirmCancelCallback();
+        });
+
+        document.getElementById('btnConfirmOk').addEventListener('click', () => {
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            if (confirmOkCallback) confirmOkCallback();
+        });
+
+        /* --- UI: MODAL SELECTOR GENÉRICO --- */
+        let tipoModalActual = "";
+        
+        function abrirModalSelect(tipo) {
+            vibrar();
+            tipoModalActual = tipo;
+            const titulo = document.getElementById('modalSelectTitle');
+            const contenido = document.getElementById('modalSelectContent');
+            const extra = document.getElementById('modalSelectExtra');
+            contenido.innerHTML = ""; extra.innerHTML = "";
+            
+            let p = obtenerProyectoActivo();
+
+            if(tipo === 'proyecto') {
+                titulo.innerText = "📁 SELECCIONAR PROYECTO";
+                appData.proyectos.forEach(proj => {
+                    let isActivo = proj.id === appData.activoId;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+                });
+            } else if(tipo === 'orden') {
+                titulo.innerText = "⚙️ ORDEN DE NIVELACIÓN";
+                let opciones = [
+                    {val: "0.004", txt: "Orden I (4mm √K)"},
+                    {val: "0.008", txt: "Orden II (8mm √K)"},
+                    {val: "0.012", txt: "Orden III (12mm √K)"},
+                    {val: "0.020", txt: "Orden IV (20mm √K)"}
+                ];
+                let actual = document.getElementById('ordenNiv').value;
+                opciones.forEach(opt => {
+                    let isActivo = opt.val === actual;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`;
+                });
+            } else if(tipo === 'bm-tabla') {
+                titulo.innerText = "📍 SELECCIONAR PTO BASE";
+                let decs = parseInt(globalConfig.decimales) || 3;
+                p.bms.forEach(bm => {
+                    contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('${bm.nombre}', '')">
+                        <span>${bm.nombre}</span>
+                        <span class="cota">Cota: ${bm.cota.toFixed(decs)}</span>
+                    </button>`;
+                });
+                extra.innerHTML = `<button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px; margin-top:10px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>`;
+            }
+
+            document.getElementById('overlaySelect').style.display = 'block';
+            setTimeout(() => { document.getElementById('overlaySelect').classList.add('activo'); document.getElementById('modalSelect').classList.add('abierto'); }, 10);
+        }
+
+        function cerrarModalSelect() {
+            vibrar();
+            document.getElementById('overlaySelect').classList.remove('activo');
+            document.getElementById('modalSelect').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
+        }
+
+        function seleccionarOpcionModal(valor, textoExtra) {
+            cerrarModalSelect();
+            if(tipoModalActual === 'proyecto') {
+                cambiarProyectoActivo(valor);
+            } else if(tipoModalActual === 'orden') {
+                document.getElementById('ordenNiv').value = valor;
+                document.getElementById('txtSelectOrden').innerText = textoExtra;
+                actualizarOrdenTxt();
+                guardarBD();
+                procesarDobleLiga();
+            } else if(tipoModalActual === 'bm-tabla') {
+                if(inputPtoActivo) {
+                    inputPtoActivo.value = valor;
+                    verificarBM(inputPtoActivo);
+                    syncBM(inputPtoActivo);
+                    guardarBD();
+                }
+            }
+        }
+
+        /* --- SISTEMA PRINCIPAL --- */
         let appData = { activoId: 1, proyectos: [] };
         let globalConfig = { darkMode: false, vibracion: true, decimales: "3", wakeLockEnabled: false };
         let inputPtoActivo = null; 
         let tablaBloqueada = false;
         let wakeLock = null;
+        let editandoBMIndex = -1;
+
+        function formatDecimal(input) {
+            let val = input.value.replace(/,/g, '.');
+            val = val.replace(/[^0-9.-]/g, ''); 
+            let parts = val.split('.');
+            if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+            if(input.value !== val) input.value = val;
+        }
 
         function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
 
@@ -413,9 +588,11 @@
             if (tablaBloqueada) {
                 btn.innerHTML = "🔓 Desbloq."; btn.style.color = "var(--danger-color)"; btn.style.borderColor = "var(--danger-color)";
                 tabla.classList.add('modo-bloqueado');
+                showToast("Tablas bloqueadas", "warning");
             } else {
                 btn.innerHTML = "🔒 Bloq."; btn.style.color = "#f57f17"; btn.style.borderColor = "#fbc02d";
                 tabla.classList.remove('modo-bloqueado');
+                showToast("Tablas desbloqueadas", "success");
             }
         }
 
@@ -429,7 +606,7 @@
                 }
             } catch(e) {}
 
-            let stored = localStorage.getItem('cota100_db_poligonal_v9');
+            let stored = localStorage.getItem('cota100_db_poligonal_v10');
             if (stored) { appData = JSON.parse(stored); } 
             else { 
                 appData.proyectos.push({ id: 1, nombre: "Nuevo Proyecto 1", bms: [], tablaIda: [], tablaVuelta: [], params: { cotaBM: "", orden: "0.020", dist: "", tol: "2" } }); 
@@ -466,13 +643,12 @@
                     vd: filasVuelta[i].querySelector('.in-vd').value
                 });
             }
-            localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(appData)); 
+            localStorage.setItem('cota100_db_poligonal_v10', JSON.stringify(appData)); 
         }
 
         function renderSelectProyectos() {
-            const select = document.getElementById('selectProyecto');
-            select.innerHTML = "";
-            appData.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appData.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; });
+            let p = obtenerProyectoActivo();
+            document.getElementById('txtSelectProyecto').innerText = p ? p.nombre : "Sin Nombre";
         }
 
         function crearNuevoProyecto() {
@@ -483,30 +659,52 @@
             
             appData.proyectos.push({ id: nuevoId, nombre: `Nuevo Proyecto ${n}`, bms: [], tablaIda: [], tablaVuelta: [], params: { cotaBM: "", orden: "0.020", dist: "", tol: "2" } });
             appData.activoId = nuevoId; 
-            localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(appData));
+            localStorage.setItem('cota100_db_poligonal_v10', JSON.stringify(appData));
             
             renderSelectProyectos(); 
             cargarProyectoActivo();
+            showToast("Proyecto creado", "success");
         }
 
         function eliminarProyecto() {
             vibrar();
-            if(appData.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último.");
+            if(appData.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning");
             let p = obtenerProyectoActivo();
-            if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) {
+            
+            showConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
                 appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
-                appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
-            }
+                appData.activoId = appData.proyectos[0].id; 
+                guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
+                showToast("Proyecto eliminado", "success");
+            });
         }
 
-        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); cargarProyectoActivo(); }
-        function renombrarProyecto() { guardarBD(); renderSelectProyectos(); }
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); renderSelectProyectos(); cargarProyectoActivo(); }
+        
+        function renombrarProyecto() { 
+            let p = obtenerProyectoActivo();
+            let newName = document.getElementById('proyectName').value.trim();
+            if(newName !== p.nombre && appData.proyectos.some(proj => proj.nombre === newName)) {
+                showToast(`⚠️ El proyecto "${newName}" ya existe.`, "warning");
+                document.getElementById('proyectName').value = p.nombre;
+                return;
+            }
+            p.nombre = newName; 
+            guardarBD(); renderSelectProyectos(); 
+        }
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
             document.getElementById('proyectName').value = p.nombre;
             document.getElementById('cotaBM').value = p.params.cotaBM || "";
             document.getElementById('ordenNiv').value = p.params.orden;
+            
+            let ordenTxt = "Orden IV (20mm √K)";
+            if(p.params.orden === "0.004") ordenTxt = "Orden I (4mm √K)";
+            if(p.params.orden === "0.008") ordenTxt = "Orden II (8mm √K)";
+            if(p.params.orden === "0.012") ordenTxt = "Orden III (12mm √K)";
+            document.getElementById('txtSelectOrden').innerText = ordenTxt;
+
             document.getElementById('distanciaM').value = p.params.dist;
             document.getElementById('tolTramo').value = p.params.tol;
             actualizarOrdenTxt(); renderBMs(); 
@@ -540,8 +738,8 @@
 
         function exportarBackupPoligonal() {
             vibrar();
-            const backup = JSON.parse(localStorage.getItem('cota100_db_poligonal_v9'));
-            if(!backup || backup.proyectos.length === 0) return alert("No hay datos guardados para exportar.");
+            const backup = JSON.parse(localStorage.getItem('cota100_db_poligonal_v10'));
+            if(!backup || backup.proyectos.length === 0) return showToast("No hay datos guardados para exportar.", "warning");
             
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
             const downloadAnchorNode = document.createElement('a');
@@ -551,6 +749,7 @@
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
+            showToast("Backup exportado con éxito", "success");
         }
 
         function importarBackupPoligonal() {
@@ -562,13 +761,13 @@
                 try {
                     const backup = JSON.parse(e.target.result);
                     if(backup && backup.proyectos) {
-                        localStorage.setItem('cota100_db_poligonal_v9', JSON.stringify(backup));
-                        alert("✅ Base de datos restaurada con éxito.");
-                        window.location.reload();
+                        localStorage.setItem('cota100_db_poligonal_v10', JSON.stringify(backup));
+                        showToast("✅ Base de datos restaurada. Recargando...", "success");
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        alert("❌ Archivo no válido para esta aplicación.");
+                        showToast("❌ Archivo no válido para esta aplicación.", "error");
                     }
-                } catch(err) { alert("❌ Error al leer el archivo."); }
+                } catch(err) { showToast("❌ Error al leer el archivo.", "error"); }
             };
             reader.readAsText(fileInput.files[0]);
         }
@@ -577,25 +776,116 @@
 
         function addBM() {
             vibrar();
-            const name = document.getElementById('newBMName').value.toUpperCase();
-            const cota = parseFloat(document.getElementById('newBMCota').value);
-            if(!name || isNaN(cota)) return alert("Datos inválidos.");
+            const name = document.getElementById('newBMName').value.toUpperCase().trim();
+            const cotaInput = document.getElementById('newBMCota').value.replace(',', '.');
+            const cota = parseFloat(cotaInput);
+            const obs = document.getElementById('newBMObs').value.trim();
+
+            if(!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
+            
             let p = obtenerProyectoActivo();
-            if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre.");
-            p.bms.push({ nombre: name, cota: cota });
-            document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = "";
+            
+            const finalizarGuardado = () => {
+                document.getElementById('newBMName').value = ""; 
+                document.getElementById('newBMCota').value = "";
+                document.getElementById('newBMObs').value = "";
+                guardarBD(); renderBMs();
+                showToast("BM guardado", "success");
+            };
+
+            if(editandoBMIndex > -1) {
+                showConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
+                    let oldName = p.bms[editandoBMIndex].nombre;
+
+                    if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) {
+                        return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
+                    }
+                    
+                    p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
+
+                    let trIda0 = document.getElementById('cuerpoIda').children[0];
+                    if (trIda0) {
+                        let inPto = trIda0.querySelector('.in-pto');
+                        if (inPto.dataset.bmAsignado === oldName) {
+                            inPto.dataset.bmAsignado = name;
+                            inPto.value = name;
+                            document.getElementById('cotaBM').value = cota.toFixed(parseInt(globalConfig.decimales) || 3);
+                            procesarDobleLiga();
+                        }
+                    }
+
+                    editandoBMIndex = -1;
+                    let btn = document.getElementById('btnGuardarBM');
+                    btn.innerText = "Guardar BM en Proyecto";
+                    btn.style.background = "var(--table-header)";
+                    
+                    finalizarGuardado();
+                });
+            } else {
+                if(p.bms.some(bm => bm.nombre === name)) return showToast("Ya existe un BM con ese nombre.", "warning");
+                p.bms.push({ nombre: name, cota: cota, obs: obs });
+                finalizarGuardado();
+            }
+        }
+
+        function cargarEditBM(i) {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            let bm = p.bms[i];
+            document.getElementById('newBMName').value = bm.nombre;
+            document.getElementById('newBMCota').value = bm.cota;
+            document.getElementById('newBMObs').value = bm.obs || "";
+            editandoBMIndex = i;
+            let btn = document.getElementById('btnGuardarBM');
+            btn.innerText = "Actualizar BM";
+            btn.style.background = "var(--primary-color)";
+        }
+
+        function moverBM(index, dir) {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            if(index + dir < 0 || index + dir >= p.bms.length) return;
+            let temp = p.bms[index];
+            p.bms[index] = p.bms[index + dir];
+            p.bms[index + dir] = temp;
             guardarBD(); renderBMs();
         }
 
         function deleteBM(i) { 
             vibrar(); let p = obtenerProyectoActivo();
-            if(confirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`)) { p.bms.splice(i, 1); guardarBD(); renderBMs(); }
+            showConfirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`, () => {
+                p.bms.splice(i, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success");
+            });
+        }
+
+        function toggleObsBM(i) {
+            let obsDiv = document.getElementById(`obs-bm-${i}`);
+            if(obsDiv) {
+                obsDiv.style.display = obsDiv.style.display === "none" ? "block" : "none";
+            }
         }
 
         function renderBMs() {
             let decs = parseInt(globalConfig.decimales) || 3;
-            let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
-            p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; });
+            let p = obtenerProyectoActivo(); 
+            const list = document.getElementById('listaBMs'); 
+            list.innerHTML = ""; 
+            
+            p.bms.forEach((bm, i) => { 
+                list.innerHTML += `
+                <div class="bm-item" onclick="toggleObsBM(${i})">
+                    <div class="bm-item-header">
+                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                        <div class="bm-actions" onclick="event.stopPropagation()">
+                            <button onclick="moverBM(${i}, -1)">⬆️</button>
+                            <button onclick="moverBM(${i}, 1)">⬇️</button>
+                            <button onclick="cargarEditBM(${i})">✏️</button>
+                            <button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button>
+                        </div>
+                    </div>
+                    <div id="obs-bm-${i}" class="bm-obs">${bm.obs || 'Sin observaciones'}</div>
+                </div>`;
+            });
         }
 
         function abrirSelectorBM(input) {
@@ -605,32 +895,15 @@
             if (tr.parentNode !== tbodyIda || Array.from(tbodyIda.children).indexOf(tr) !== 0) return; 
 
             if (p.bms.length === 0) { activarTecladoManual(); return; }
-
-            let decs = parseInt(globalConfig.decimales) || 3;
-            const contenedor = document.getElementById('contenedorBotonesBM'); contenedor.innerHTML = "";
-            p.bms.forEach(bm => { contenedor.innerHTML += `<button class="btn-bm-opcion" onclick="seleccionarBMModal('${bm.nombre}')"><span>${bm.nombre}</span><span class="cota">Cota: ${bm.cota.toFixed(decs)}</span></button>`; });
-
-            const overlay = document.getElementById('overlayBM'); const modal = document.getElementById('modalSelectorBM');
-            overlay.style.display = 'block'; setTimeout(() => { overlay.classList.add('activo'); modal.classList.add('abierto'); }, 10);
-        }
-
-        function cerrarSelectorBM() {
-            vibrar(); const overlay = document.getElementById('overlayBM'); const modal = document.getElementById('modalSelectorBM');
-            overlay.classList.remove('activo'); modal.classList.remove('abierto');
-            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            abrirModalSelect('bm-tabla');
         }
 
         function activarTecladoManual() {
-            cerrarSelectorBM();
+            cerrarModalSelect();
             if(inputPtoActivo) {
                 inputPtoActivo.removeAttribute('readonly'); inputPtoActivo.focus();
                 inputPtoActivo.addEventListener('blur', function() { verificarBM(this); syncBM(this); guardarBD(); }, {once: true}); 
             }
-        }
-
-        function seleccionarBMModal(nombreBM) {
-            vibrar(); cerrarSelectorBM();
-            if(inputPtoActivo) { inputPtoActivo.value = nombreBM; verificarBM(inputPtoActivo); syncBM(inputPtoActivo); guardarBD(); }
         }
 
         function verificarBM(input) {
@@ -738,7 +1011,7 @@
             let idx = Array.from(tbodyIda.children).indexOf(trIda);
             let pto = trIda.querySelector('.in-pto').value.trim() || `Estación ${idx + 1}`;
             
-            if(confirm(`⚠️ ¿Eliminar permanentemente la lectura del punto: ${pto}? Se recalculará todo el circuito.`)) {
+            showConfirm(`⚠️ ¿Eliminar la lectura del punto: ${pto}? Se recalculará todo el circuito.`, () => {
                 let tbodyVuelta = document.getElementById('cuerpoVuelta');
                 
                 tbodyIda.removeChild(trIda);
@@ -747,7 +1020,8 @@
                 reconstruirSincronizacion();
                 procesarDobleLiga();
                 guardarBD();
-            }
+                showToast("Lectura eliminada", "success");
+            });
         }
 
         function agregarFila(isAuto = false) {
@@ -761,22 +1035,22 @@
             const trIda = document.createElement('tr');
             if (idx === 0) {
                 trIda.innerHTML = `<td><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)"></td>
-                    <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
-                    <td class="td-readonly"><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
+                    <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();"></td>
+                    <td class="td-readonly"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
                     <td class="out-cota" style="padding: 2px;">---</td>
                     <td style="background: rgba(128,128,128,0.02);"></td>`;
             } else {
                 trIda.innerHTML = `<td><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();"></td>
-                    <td><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
-                    <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="syncBM(this); procesarDobleLiga();"></td>
+                    <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();"></td>
+                    <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();"></td>
                     <td class="out-cota">---</td>
                     <td style="background: rgba(128,128,128,0.02);"><button class="btn-del-fila" onclick="borrarFilaEspecifica(this)">✖</button></td>`;
             }
             
             const trVuelta = document.createElement('tr');
             trVuelta.innerHTML = `<td><input type="text" class="in-pto" placeholder="..." readonly></td>
-                <td class="${idx===0?'td-readonly':''}"><input type="number" step="0.001" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="syncBM(this); procesarDobleLiga();"></td>
-                <td><input type="number" step="0.001" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="syncBM(this); procesarDobleLiga();"></td>
+                <td class="${idx===0?'td-readonly':''}"><input type="text" inputmode="decimal" class="in-va" placeholder="[-]" ${disVAVuelta} oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();"></td>
+                <td><input type="text" inputmode="decimal" class="in-vd" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();"></td>
                 <td class="out-cota">---</td>
                 <td style="background: rgba(128,128,128,0.02);"></td>`;
 
@@ -799,12 +1073,13 @@
 
         function limpiarTabla() {
             vibrar();
-            if(confirm("🚨 ¿Borrar todas las lecturas de este circuito?")) { 
+            showConfirm("🚨 ¿Borrar todas las lecturas de este circuito?", () => {
                 document.getElementById('cuerpoIda').innerHTML = ""; document.getElementById('cuerpoVuelta').innerHTML = "";
                 for(let i = 0; i < 8; i++) agregarFila(true);
                 document.getElementById('panelResultados').style.display = 'none';
                 guardarBD();
-            } 
+                showToast("Circuito reseteado", "success");
+            });
         }
 
         function actualizarOrdenTxt() {
@@ -820,14 +1095,15 @@
             let cotaBM = parseFloat(document.getElementById('cotaBM').value);
             let distM = parseFloat(document.getElementById('distanciaM').value);
             
-            if(isNaN(cotaBM)) return alert("⚠️ Atención: Debes ingresar tu Cota Inicial (BM) en la parte superior para calcular.");
-            if(isNaN(distM) || distM <= 0) return alert("⚠️ Atención: Debes ingresar la Distancia Total del circuito en metros para hallar la tolerancia.");
+            if(isNaN(cotaBM)) return showToast("⚠️ Debes ingresar tu Cota Inicial (BM) para calcular.", "warning");
+            if(isNaN(distM) || distM <= 0) return showToast("⚠️ Debes ingresar la Distancia Total en metros.", "warning");
             
             procesarDobleLiga(); 
             
             let panel = document.getElementById('panelResultados');
             if(panel.style.display === 'block') {
                 panel.scrollIntoView({ behavior: 'smooth' });
+                showToast("Cierre verificado", "success");
             }
         }
 
@@ -1026,57 +1302,98 @@
         }
 
         function generarCompensadas() {
-            vibrar();
-            let decs = parseInt(globalConfig.decimales) || 3;
-            const cotaBM = parseFloat(document.getElementById('cotaBM').value);
-            const filasIda = document.querySelectorAll('#cuerpoIda tr');
-            const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
-            const cuerpoCompensadas = document.getElementById('cuerpoCompensadas');
-            cuerpoCompensadas.innerHTML = "";
+    vibrar();
+    let decs = parseInt(globalConfig.decimales) || 3;
+    const cotaBM = parseFloat(document.getElementById('cotaBM').value);
+    const filasIda = document.querySelectorAll('#cuerpoIda tr');
+    const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+    const cuerpoCompensadas = document.getElementById('cuerpoCompensadas');
+    cuerpoCompensadas.innerHTML = "";
 
-            let dictIda = {}; let listIdaOrden = [];
+    let datosEstaciones = [];
 
-            for(let i=0; i<filasIda.length; i++) {
-                if (filasIda[i].classList.contains('fila-inactiva')) continue;
+    // 1. Extraer todas las cotas en orden de armado, incluyendo Puntos de Cambio (PC)
+    // Es vital contar las armadas totales para que la proporción matemática sea exacta.
+    for(let i = 0; i < filasIda.length; i++) {
+        if (filasIda[i].classList.contains('fila-inactiva')) continue;
 
-                let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase();
-                let cota;
-                if(i===0) cota = isNaN(cotaBM) ? NaN : cotaBM;
-                else {
-                    let divCota = filasIda[i].querySelector('.out-cota div[data-cota]');
-                    if(divCota) cota = parseFloat(divCota.getAttribute('data-cota'));
-                }
-                
-                if(pto && !isNaN(cota)) { dictIda[pto] = { cotaIda: cota }; listIdaOrden.push(pto); }
-            }
+        let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim();
+        if (!pto) continue;
 
-            for(let i=0; i<filasVuelta.length; i++) {
-                if (filasVuelta[i].classList.contains('fila-inactiva')) continue;
-
-                let pto = filasVuelta[i].querySelector('.in-pto').value.toUpperCase();
-                let divCota = filasVuelta[i].querySelector('.out-cota div[data-cota]');
-                if(i===0 && dictIda[pto]) dictIda[pto].cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM;
-                else if(pto && divCota && dictIda[pto]) {
-                    let cota = parseFloat(divCota.getAttribute('data-cota'));
-                    dictIda[pto].cotaVuelta = cota;
-                }
-            }
-
-            listIdaOrden.forEach(pto => {
-                if(pto.startsWith("PC")) return; 
-                
-                let data = dictIda[pto];
-                if(data.cotaVuelta !== undefined) {
-                    let promedio = (data.cotaIda + data.cotaVuelta) / 2;
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = `<td style="color:var(--primary-color);">${pto}</td><td>${data.cotaIda.toFixed(decs)}</td><td>${data.cotaVuelta.toFixed(decs)}</td><td style="color:var(--success-color);">${promedio.toFixed(decs)}</td>`;
-                    cuerpoCompensadas.appendChild(tr);
-                }
-            });
-
-            document.getElementById('contenedorCompensadas').style.display = 'block';
-            setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
+        let cotaIda = NaN, cotaVuelta = NaN;
+        
+        if (i === 0) {
+            cotaIda = isNaN(cotaBM) ? NaN : cotaBM;
+            cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM;
+        } else {
+            let divCotaIda = filasIda[i].querySelector('.out-cota div[data-cota]');
+            if (divCotaIda) cotaIda = parseFloat(divCotaIda.getAttribute('data-cota'));
+            
+            let divCotaVuelta = filasVuelta[i].querySelector('.out-cota div[data-cota]');
+            if (divCotaVuelta) cotaVuelta = parseFloat(divCotaVuelta.getAttribute('data-cota'));
         }
+
+        if (!isNaN(cotaIda) && !isNaN(cotaVuelta)) {
+            datosEstaciones.push({ 
+                pto: pto, 
+                cotaIda: cotaIda, 
+                cotaVuelta: cotaVuelta, 
+                esPC: pto.startsWith("PC") 
+            });
+        }
+    }
+
+    if (datosEstaciones.length < 2) return;
+
+    let N = datosEstaciones.length - 1; // Total de tramos / armadas de instrumento
+    
+    // Determinamos inteligentemente si el circuito cierra en el mismo BM inicial
+    let esCerrada = (datosEstaciones[0].pto === datosEstaciones[N].pto);
+
+    // 2. Cálculo del Error y Compensación Proporcional
+    let errorCierreIda = esCerrada ? (datosEstaciones[N].cotaIda - datosEstaciones[0].cotaIda) : 0;
+    let errorCierreVuelta = esCerrada ? (datosEstaciones[N].cotaVuelta - datosEstaciones[0].cotaVuelta) : 0;
+    let divergenciaAbierta = !esCerrada ? (datosEstaciones[N].cotaIda - datosEstaciones[N].cotaVuelta) : 0;
+
+    for (let i = 0; i <= N; i++) {
+        let data = datosEstaciones[i];
+        let cotaIdaComp = data.cotaIda;
+        let cotaVueltaComp = data.cotaVuelta;
+        let factorProporcional = i / N; 
+
+        if (esCerrada) {
+            // Ajuste para poligonal cerrada: el error se distribuye acumulativamente
+            cotaIdaComp += (-errorCierreIda * factorProporcional);
+            cotaVueltaComp += (-errorCierreVuelta * factorProporcional);
+        } else {
+            // Ajuste para poligonal abierta: se distribuye la divergencia total 
+            // para que Ida y Vuelta converjan al mismo valor probabilístico sin alterar el origen
+            let ajusteMedia = divergenciaAbierta / 2;
+            cotaIdaComp += (-ajusteMedia * factorProporcional);
+            cotaVueltaComp += (ajusteMedia * factorProporcional);
+        }
+
+        let promedioCompensado = (cotaIdaComp + cotaVueltaComp) / 2;
+
+        // 3. Renderizado de la tabla final
+        // Filtramos los Puntos de Cambio de la vista final, pero su peso matemático ya se aplicó.
+        if (!data.esPC) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:var(--primary-color); font-weight: 900;">${data.pto}</td>
+                <td>${cotaIdaComp.toFixed(decs)}</td>
+                <td>${cotaVueltaComp.toFixed(decs)}</td>
+                <td style="color:var(--success-color); font-weight: 900; background: rgba(46,125,50,0.05);">${promedioCompensado.toFixed(decs)}</td>
+            `;
+            cuerpoCompensadas.appendChild(tr);
+        }
+    }
+
+    document.getElementById('contenedorCompensadas').style.display = 'block';
+    setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
+    showToast("Cotas compensadas rigurosamente", "success");
+}
+
 
         function exportarExcelConEstilos() {
             vibrar(); let p = obtenerProyectoActivo(); 
@@ -1169,6 +1486,7 @@
             }
 
             XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Poligonal.xlsx`);
+            showToast("Reporte descargado", "success");
         }
 
         function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }

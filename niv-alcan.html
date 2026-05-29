@@ -13,6 +13,7 @@
             --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
             --table-header: #111; --danger-color: #d32f2f; --excel-color: #1b5e20;
             --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+            --success-bg: rgba(46, 204, 113, 0.3); --success-text: #007E33;
         }
 
         body.dark-mode {
@@ -20,6 +21,7 @@
             --border-color: rgba(255, 255, 255, 0.15); 
             --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
             --table-header: #000;
+            --success-bg: rgba(0, 200, 81, 0.25); --success-text: #00C851;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -31,24 +33,12 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .top-bar { 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; border-bottom: 2px solid var(--border-color);
-            background-color: var(--panel-bg); 
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-            height: 70px; 
-        }
-        
-        .btn-volver-mini { 
-            background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); 
-            width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;
-        }
-
+        .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--border-color); background-color: var(--panel-bg); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 70px; }
+        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;}
         .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
-        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; overflow-x: hidden; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
@@ -60,18 +50,29 @@
         .full-width { grid-column: 1 / -1; }
 
         label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
-        input, select { width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; text-align: center; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary-color); outline: none;}
-        select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FF6600%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px auto; padding-right: 40px !important; text-align: left !important; padding-left: 12px !important; cursor: pointer; }
+        input { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; text-align: center; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; }
+        input:focus { border-color: var(--primary-color); outline: none;}
+        
+        /* CUSTOM SELECT BUTTONS */
+        .custom-select { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; text-align: left; }
+        .custom-select:active { border-color: var(--primary-color); background: rgba(255, 102, 0, 0.05); }
+        .custom-select .arrow { color: var(--primary-color); font-size: 0.9rem; }
+        .custom-select span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
 
-        .txt-ayuda { font-size: 0.85rem; font-weight: 600; color: var(--text-color); opacity: 0.8; line-height: 1.2; margin-bottom: 8px;}
         .project-selector { display: flex; gap: 8px; margin-bottom: 10px; }
-        .bm-list { margin-top: 8px; max-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
-        .bm-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+        
+        .bm-list { margin-top: 8px; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); }
+        .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid rgba(128,128,128,0.2); cursor: pointer; }
+        .bm-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 1rem; color: var(--text-color); }
+        .bm-info strong { font-size: 0.95rem; color: var(--text-color); }
         .bm-info span { font-size: 0.85rem; color: var(--primary-color); font-weight: 700; }
-        .btn-delete-bm { background: none; border: none; color: var(--danger-color); font-size: 1.2rem; cursor: pointer;}
+        
+        .bm-actions { display: flex; gap: 2px; }
+        .bm-actions button { background: none; border: none; border-radius: 4px; padding: 4px 6px; font-size: 0.9rem; cursor: pointer; opacity: 0.4; transition: 0.2s; filter: grayscale(100%); }
+        .bm-actions button:hover, .bm-actions button:active { opacity: 1; filter: grayscale(0%); background: rgba(128,128,128,0.1); }
+        .bm-obs { display: none; font-size: 0.8rem; color: #666; margin-top: 6px; text-align: left; background: rgba(128,128,128,0.1); padding: 6px; border-radius: 4px; border-left: 3px solid var(--primary-color); }
+        body.dark-mode .bm-obs { color: #bbb; }
 
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center;}
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
@@ -80,19 +81,21 @@
         body.dark-mode .btn-excel { color: #81c784; border-color: #81c784; }
 
         .seccion-tabla { display: none; margin-top: 15px; }
-        .table-wrapper { width: 100%; max-height: 55vh; overflow: auto; border: 2px solid var(--table-header); border-radius: 8px; background: var(--bg-color); }
-        table { width: 100%; min-width: 500px; border-collapse: separate; border-spacing: 0; }
-        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid rgba(128,128,128,0.2);}
-        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 10px 2px; text-align: center; font-weight: 800; font-size: 1.15rem; }
+        /* AHORA SCROLL HORIZONTAL ACTIVADO */
+        .table-wrapper { width: 100%; max-height: 55vh; overflow-y: auto; overflow-x: auto; border: 2px solid var(--table-header); border-radius: 8px; background: var(--bg-color); }
+        table { width: 100%; min-width: 650px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid rgba(128,128,128,0.2);}
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 10px 4px; text-align: center; font-weight: 800; font-size: 1.1rem; }
+        td:last-child { border-right: none; }
         
         .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--text-color); margin: 15px 0; background: rgba(128,128,128,0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--text-color);}
         .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.4rem;}
 
-        .fila-ok td { background-color: rgba(46, 125, 50, 0.1) !important; color: var(--success-color) !important; transition: background-color 0.3s; }
+        /* VERDE BRILLANTE PARA FILA MARCADA */
+        .fila-ok td { background-color: var(--success-bg) !important; color: var(--success-text) !important; transition: background-color 0.2s, color 0.2s; }
         .fila-ok td:first-child::after { content: ' ✓'; font-weight: 900; }
         .celda-prog { cursor: pointer; } 
 
-        /* NAVEGACIÓN FLOTANTE */
         .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
         .btn-nav-flotante:active { transform: scale(0.9); }
         .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -101,7 +104,6 @@
         .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
         .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
 
-        /* CALCULADORA FLOTANTE */
         .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--bg-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; }
         .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--panel-bg); border: 2px solid var(--table-header); border-radius: 12px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: var(--text-color); font-size: 0.85rem;}
@@ -110,15 +112,47 @@
         .calc-grid button { padding: 10px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); cursor: pointer;}
         #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid var(--border-color); margin-bottom: 8px; padding: 4px; background: var(--input-bg); color: var(--text-color); }
 
+        #toast-container { position: fixed; top: 85px; bottom: auto; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; width: 90%; max-width: 350px;}
+        .toast { background: var(--panel-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards; backdrop-filter: blur(10px); text-align: center; border-right: 1px solid var(--border-color); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.success { border-left-color: #00C851; }
+        .toast.warning { border-left-color: #fbc02d; }
+        .toast.fade-out { animation: fadeOutToast 0.3s ease-in forwards; }
+        @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+
+        .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.2s; backdrop-filter: blur(2px);}
+        .confirm-overlay.activo { opacity: 1; visibility: visible; }
+        .confirm-box { background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 25px 20px; width: 90%; max-width: 320px; text-align: center; transform: scale(0.9); transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.4);}
+        .confirm-overlay.activo .confirm-box { transform: scale(1); }
+        .confirm-msg { color: var(--text-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3;}
+        .confirm-btns { display: flex; gap: 10px; }
+        .confirm-btn { flex: 1; padding: 12px; font-weight: 800; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
+        .confirm-btn:active { transform: scale(0.95); }
+        .confirm-btn-cancel { background: rgba(128,128,128,0.2); color: var(--text-color); }
+        .confirm-btn-ok { background: var(--primary-color); color: #fff; }
+
+        /* MODAL SELECTOR GENÉRICO */
+        .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(2px); }
+        .overlay-select.activo { opacity: 1; }
+        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 320px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+.modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
+
+        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid var(--primary-color); background: rgba(255,102,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.95rem; font-weight: 700;}
+        .btn-opcion:active span.cota { color: #fff !important; }
+
         @media screen and (max-width: 480px) { 
             html { font-size: 13px; } 
             .btn-accion { padding: 10px; font-size: 0.95rem; } 
-            input, select { padding: 10px; font-size: 1.05rem; } 
+            input { padding: 10px; font-size: 1.05rem; } 
             .modulo-container { padding: 10px; } 
             .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px;}
             .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px; left: 10px;}
             .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
             .nav-modal { left: 10px; bottom: 65px; width: 200px;}
+            td { font-size: 1rem; }
         }
     </style>
 </head>
@@ -130,6 +164,33 @@
             if (conf && conf.darkMode) document.body.classList.add('dark-mode');
         } catch(e) {}
     </script>
+
+    <!-- TOAST & CONFIRM MODALS -->
+    <div id="toast-container"></div>
+
+    <div class="confirm-overlay" id="customConfirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-msg" id="customConfirmMsg">¿Estás seguro?</div>
+            <div class="confirm-btns">
+                <button class="confirm-btn confirm-btn-cancel" id="btnConfirmCancel">Cancelar</button>
+                <button class="confirm-btn confirm-btn-ok" id="btnConfirmOk">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SELECCIÓN GENÉRICO (PROYECTO, BM, PERFIL) -->
+    <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
+    <div class="modal-select" id="modalSelect">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">SELECCIONAR</h3>
+            <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+        </div>
+        <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
+    </div>
+
+    <!-- VARIABLES OCULTAS PARA GUARDAR ESTADOS DE LOS CUSTOM SELECTS -->
+    <input type="hidden" id="hdnSelectPerfil" value="">
+    <input type="hidden" id="hdnSelectBM" value="">
 
     <div class="top-bar">
         <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
@@ -145,7 +206,10 @@
             </div>
             <div id="panelProyecto">
                 <div class="project-selector">
-                    <select id="selectProyecto" onchange="cambiarProyectoActivo(this.value); vibrar();" style="flex: 1;"></select>
+                    <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')">
+                        <span id="txtSelectProyecto">Cargando...</span>
+                        <span class="arrow">▼</span>
+                    </div>
                     <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color); margin-bottom: 0;" onclick="crearNuevoProyecto()">+ NUEVO</button>
                     <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color); margin-bottom: 0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
@@ -156,10 +220,11 @@
                 <div style="border-top: 1px solid rgba(128,128,128,0.2); padding-top: 10px;">
                     <label style="color: var(--primary-color);">+ Registrar BM</label>
                     <div class="form-grid" style="margin-top: 4px;">
-                        <input type="text" id="newBMName" placeholder="Nombre" oninput="this.value = this.value.toUpperCase()">
-                        <input type="number" id="newBMCota" step="0.001" placeholder="Cota (m)">
+                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-1)" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)">
+                        <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
                 </div>
                 <div class="bm-list" id="listaBMs"></div>
                 
@@ -184,16 +249,17 @@
             <div id="panelParametros">
                 <div class="input-group full-width" style="margin-bottom: 10px;">
                     <label style="color: #1976d2;">Cargar Perfil/Tramo Guardado</label>
-                    <select id="selectPerfil" onchange="cargarPerfil(this.value); vibrar(); guardarEstadoAlcan();">
-                        <option value="">-- INGRESO MANUAL --</option>
-                    </select>
+                    <div class="custom-select" onclick="abrirModalSelect('perfil')">
+                        <span id="txtSelectPerfil">-- INGRESO MANUAL --</span>
+                        <span class="arrow">▼</span>
+                    </div>
                 </div>
                 <button class="btn-accion btn-auto" onclick="autocalcularTramo()">🪄 Deducir Dato Faltante</button>
                 <div class="form-grid">
-                    <div class="input-group"><label>Cota Fondo Inicial</label><input type="number" id="cotaIni" step="0.001" oninput="evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();"></div>
-                    <div class="input-group"><label>Cota Fondo Final</label><input type="number" id="cotaFin" step="0.001" oninput="evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();"></div>
-                    <div class="input-group"><label>Distancia Total (m)</label><input type="number" id="distTotal" step="0.001" oninput="desmarcarPerfil(); guardarEstadoAlcan();"></div>
-                    <div class="input-group"><label>Pendiente (% al 100)</label><input type="number" id="pte" step="0.001" oninput="desmarcarPerfil(); guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Cota Fondo Inicial</label><input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Cota Fondo Final</label><input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Distancia Total (m)</label><input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Pendiente (% al 100)</label><input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoAlcan();"></div>
                 </div>
                 <div style="border-top: 1px dashed rgba(128,128,128,0.3); padding-top: 10px; margin-top: 10px;">
                     <label style="color: var(--text-color);">💾 Guardar este Tramo/Perfil en el proyecto</label>
@@ -215,23 +281,28 @@
                     <div class="input-group full-width">
                         <label>BM de Referencia</label>
                         <div style="display: flex; gap: 8px;">
-                            <select id="selectBMProyecto" onchange="seleccionarBM(this.value); vibrar(); guardarEstadoAlcan();" style="flex: 60%;"><option value="">-- ELEGIR BM --</option></select>
-                            <input type="number" id="cotaBM" step="0.001" placeholder="Cota..." style="flex: 40%;" oninput="evaluarLimiteVA(); guardarEstadoAlcan();">
+                            <div class="custom-select" style="flex: 60%;" onclick="abrirModalSelect('bm')">
+                                <span id="txtSelectBM">-- ELEGIR BM --</span>
+                                <span class="arrow">▼</span>
+                            </div>
+                            <input type="text" inputmode="decimal" id="cotaBM" placeholder="Cota..." style="flex: 40%;" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();">
                         </div>
                     </div>
                     <div class="input-group full-width">
                         <label>Vista Atrás (+)</label>
-                        <input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.250" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();">
                         <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800;"></div>
                     </div>
-                    <div class="input-group"><label>Cama de Apoyo (m)</label><input type="number" id="camaApoyo" step="0.001" placeholder="Ej: 0.100" oninput="guardarEstadoAlcan();"></div>
-                    <div class="input-group"><label>Altura de Tubo (m)</label><input type="number" id="alturaTubo" step="0.001" placeholder="Ej: 0.200" oninput="guardarEstadoAlcan();"></div>
-                    <div class="input-group full-width"><label>Progresivas cada (m)</label><input type="number" id="intervalo" step="0.01" value="10.000" placeholder="Ej: 5.000" oninput="guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Cama de Apoyo (m)</label><input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); guardarEstadoAlcan();"></div>
+                    <div class="input-group"><label>Altura de Tubo (m)</label><input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); guardarEstadoAlcan();"></div>
+                    <div class="input-group full-width"><label>Progresivas cada (m)</label><input type="text" inputmode="decimal" id="intervalo" value="10.000" placeholder="Ej: 5.000" oninput="formatDecimal(this); guardarEstadoAlcan();"></div>
                 </div>
             </div>
         </div>
 
-        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; padding: 15px;" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.05rem; padding: 12px; width: 85%; margin: 0 auto; display: block;" onclick="generarLibreta()">⚙️ GENERAR LIBRETA DE CAMPO</button>
+        </div>
 
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento): <span id="txtAI">0.000</span></div>
@@ -239,11 +310,11 @@
                 <table id="tablaAlcantarillado">
                     <thead>
                         <tr>
-                            <th style="width: 15%;">PROG.</th>
-                            <th style="width: 25%;">LEER ZANJA<br><span style="font-size:0.6rem; opacity:0.8;">(Excavación)</span></th>
-                            <th style="width: 25%;">LEER LOMO<br><span style="font-size:0.6rem; opacity:0.8;" id="infoTubo">Tubo + Cama</span></th>
-                            <th style="width: 17.5%; color: #aaa;">Cota Zanja</th>
-                            <th style="width: 17.5%; color: #aaa;">Cota Lomo</th>
+                            <th style="width: 17%;">PROG.</th>
+                            <th style="width: 21%;">L. ZANJA</th>
+                            <th style="width: 21%;">L. LOMO<br><span style="font-size:0.6rem; opacity:0.8;" id="infoTubo">Tubo+Cama</span></th>
+                            <th style="width: 20.5%; color: #aaa;">C. Zanja</th>
+                            <th style="width: 20.5%; color: #aaa;">C. Lomo</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla"></tbody>
@@ -283,9 +354,118 @@
     </div>
 
     <script>
+        /* --- UI: TOAST Y CONFIRM --- */
+        function showToast(message, type = "default") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            vibrar();
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        }
+
+        let confirmOkCallback = null;
+        let confirmCancelCallback = null;
+
+        function showConfirm(message, onOk, onCancel = null) {
+            vibrar();
+            const overlay = document.getElementById('customConfirmOverlay');
+            document.getElementById('customConfirmMsg').innerText = message;
+            confirmOkCallback = onOk;
+            confirmCancelCallback = onCancel;
+            overlay.classList.add('activo');
+        }
+
+        document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            if (confirmCancelCallback) confirmCancelCallback();
+        });
+
+        document.getElementById('btnConfirmOk').addEventListener('click', () => {
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            if (confirmOkCallback) confirmOkCallback();
+        });
+
+        /* --- UI: MODAL SELECTOR GENÉRICO --- */
+        let tipoModalActual = "";
+        function abrirModalSelect(tipo) {
+            vibrar();
+            tipoModalActual = tipo;
+            const titulo = document.getElementById('modalSelectTitle');
+            const contenido = document.getElementById('modalSelectContent');
+            contenido.innerHTML = "";
+            let p = obtenerProyectoActivo();
+            let decs = parseInt(globalConfig.decimales) || 3;
+
+            if(tipo === 'proyecto') {
+                titulo.innerText = "📁 SELECCIONAR PROYECTO";
+                appDataAlcan.proyectos.forEach(proj => {
+                    let isActivo = proj.id === appDataAlcan.activoId;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+                });
+            } else if(tipo === 'perfil') {
+                titulo.innerText = "📐 SELECCIONAR PERFIL";
+                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- INGRESO MANUAL --')"><span>-- INGRESO MANUAL --</span></button>`;
+                if(p.perfiles) {
+                    p.perfiles.forEach((per, i) => {
+                        let isActivo = document.getElementById('hdnSelectPerfil').value == i.toString();
+                        contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${i}', '${per.nombre}')"><span>${per.nombre}</span></button>`;
+                    });
+                }
+            } else if(tipo === 'bm') {
+                titulo.innerText = "📍 SELECCIONAR BM";
+                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- ELEGIR BM --')"><span>-- ELEGIR BM --</span></button>`;
+                p.bms.forEach(bm => {
+                    let isActivo = document.getElementById('hdnSelectBM').value === bm.cota.toString();
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${bm.cota}', '${bm.nombre}')"><span>${bm.nombre}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
+                });
+            }
+
+            document.getElementById('overlaySelect').style.display = 'block';
+            setTimeout(() => { document.getElementById('overlaySelect').classList.add('activo'); document.getElementById('modalSelect').classList.add('abierto'); }, 10);
+        }
+
+        function cerrarModalSelect() {
+            vibrar();
+            document.getElementById('overlaySelect').classList.remove('activo');
+            document.getElementById('modalSelect').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
+        }
+
+        function seleccionarOpcionModal(valor, textoExtra) {
+            cerrarModalSelect();
+            if(tipoModalActual === 'proyecto') {
+                cambiarProyectoActivo(valor);
+            } else if(tipoModalActual === 'perfil') {
+                document.getElementById('hdnSelectPerfil').value = valor;
+                document.getElementById('txtSelectPerfil').innerText = textoExtra;
+                cargarPerfil(valor);
+            } else if(tipoModalActual === 'bm') {
+                document.getElementById('hdnSelectBM').value = valor;
+                document.getElementById('txtSelectBM').innerText = textoExtra;
+                seleccionarBM(valor);
+            }
+        }
+
+        /* --- SISTEMA PRINCIPAL --- */
         let appDataAlcan = { activoId: 1, proyectos: [] };
         let globalConfig = { darkMode: false, vibracion: true, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
         let wakeLock = null;
+        let editandoBMIndex = -1;
+
+        function formatDecimal(input) {
+            let val = input.value.replace(/,/g, '.');
+            val = val.replace(/[^0-9.-]/g, ''); 
+            let parts = val.split('.');
+            if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+            if(input.value !== val) input.value = val;
+        }
 
         function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
 
@@ -312,19 +492,20 @@
                 }
             } catch(e) {}
 
-            let stored = localStorage.getItem('cota100_db_alcan_v1');
+            let stored = localStorage.getItem('cota100_db_alcan_v3');
             if (stored) { appDataAlcan = JSON.parse(stored); } 
-            else { appDataAlcan.proyectos.push({ id: 1, nombre: "Proyecto Alcantarillado 1", bms: [], perfiles: [] }); appDataAlcan.activoId = 1; }
-            renderSelectProyectos(); cargarProyectoActivo();
+            else { appDataAlcan.proyectos.push({ id: 1, nombre: "Nueva Obra 1", bms: [], perfiles: [] }); appDataAlcan.activoId = 1; }
+            
+            cargarProyectoActivo();
         }
 
         function obtenerProyectoActivo() { return appDataAlcan.proyectos.find(p => p.id === appDataAlcan.activoId); }
-        function guardarBD() { localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(appDataAlcan)); }
+        function guardarBD() { localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(appDataAlcan)); }
 
         function exportarBackupAlcan() {
             vibrar();
-            const backup = JSON.parse(localStorage.getItem('cota100_db_alcan_v1'));
-            if(!backup || backup.proyectos.length === 0) return alert("No hay datos para exportar.");
+            const backup = JSON.parse(localStorage.getItem('cota100_db_alcan_v3'));
+            if(!backup || backup.proyectos.length === 0) return showToast("No hay datos para exportar.", "warning");
             
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
             const downloadAnchorNode = document.createElement('a');
@@ -334,6 +515,7 @@
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
+            showToast("Backup exportado con éxito", "success");
         }
 
         function importarBackupAlcan() {
@@ -345,13 +527,13 @@
                 try {
                     const backup = JSON.parse(e.target.result);
                     if(backup && backup.proyectos) {
-                        localStorage.setItem('cota100_db_alcan_v1', JSON.stringify(backup));
-                        alert("✅ Base de datos restaurada con éxito. La página se recargará.");
-                        window.location.reload();
+                        localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(backup));
+                        showToast("✅ Base de datos restaurada. Recargando...", "success");
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        alert("❌ Archivo no válido.");
+                        showToast("❌ Archivo no válido para esta versión.", "error");
                     }
-                } catch(err) { alert("❌ Error al leer el archivo."); }
+                } catch(err) { showToast("❌ Error al leer el archivo.", "error"); }
             };
             reader.readAsText(fileInput.files[0]);
         }
@@ -364,8 +546,8 @@
                 distTotal: document.getElementById('distTotal').value, pte: document.getElementById('pte').value,
                 cotaBM: document.getElementById('cotaBM').value, vistaAtras: document.getElementById('vistaAtras').value,
                 camaApoyo: document.getElementById('camaApoyo').value, alturaTubo: document.getElementById('alturaTubo').value,
-                intervalo: document.getElementById('intervalo').value, perfilSeleccionado: document.getElementById('selectPerfil').value,
-                bmSeleccionado: document.getElementById('selectBMProyecto').value, tablaHTML: document.getElementById('cuerpoTabla').innerHTML,
+                intervalo: document.getElementById('intervalo').value, perfilSeleccionado: document.getElementById('hdnSelectPerfil').value,
+                bmSeleccionado: document.getElementById('hdnSelectBM').value, tablaHTML: document.getElementById('cuerpoTabla').innerHTML,
                 tablaVisible: document.getElementById('seccionTabla').style.display === 'block',
                 panelOculto: document.getElementById('panelEstacion').style.display === 'none',
                 aiTexto: document.getElementById('txtAI').innerText, tuboTexto: document.getElementById('infoTubo').innerText
@@ -376,15 +558,16 @@
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
             document.getElementById('proyectName').value = p.nombre;
-            renderBMs(); renderPerfiles();
-
+            
             if(p.estadoActivo) {
                 document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || ""; document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
                 document.getElementById('distTotal').value = p.estadoActivo.distTotal || ""; document.getElementById('pte').value = p.estadoActivo.pte || "";
                 document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || ""; document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
                 document.getElementById('camaApoyo').value = p.estadoActivo.camaApoyo || ""; document.getElementById('alturaTubo').value = p.estadoActivo.alturaTubo || "";
                 document.getElementById('intervalo').value = p.estadoActivo.intervalo || "10.000";
-                document.getElementById('selectPerfil').value = p.estadoActivo.perfilSeleccionado || ""; document.getElementById('selectBMProyecto').value = p.estadoActivo.bmSeleccionado || "";
+                
+                document.getElementById('hdnSelectPerfil').value = p.estadoActivo.perfilSeleccionado || ""; 
+                document.getElementById('hdnSelectBM').value = p.estadoActivo.bmSeleccionado || "";
 
                 evaluarLimiteVA();
 
@@ -398,31 +581,248 @@
                     document.getElementById('seccionTabla').style.display = 'none'; document.getElementById('btnExcel').style.display = 'none';
                     document.getElementById('panelEstacion').style.display = 'block';
                 }
+            } else {
+                document.getElementById('hdnSelectPerfil').value = ""; 
+                document.getElementById('hdnSelectBM').value = "";
+            }
+
+            renderSelectProyectos();
+            renderBMs(); 
+            renderPerfiles();
+        }
+
+        function renderSelectProyectos() { 
+            let p = obtenerProyectoActivo();
+            document.getElementById('txtSelectProyecto').innerText = p ? p.nombre : "Sin Nombre";
+        }
+        
+        function crearNuevoProyecto() { 
+            vibrar(); 
+            let num = 1;
+            while(appDataAlcan.proyectos.some(p => p.nombre === `Nueva Obra ${num}`)) { num++; }
+            let nuevoId = Date.now(); 
+            appDataAlcan.proyectos.push({ id: nuevoId, nombre: `Nueva Obra ${num}`, bms: [], perfiles: [] }); 
+            appDataAlcan.activoId = nuevoId; 
+            guardarBD(); cargarProyectoActivo(); 
+            showToast("Proyecto creado", "success");
+        }
+        
+        function eliminarProyecto() { 
+            vibrar(); 
+            if(appDataAlcan.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning"); 
+            let p = obtenerProyectoActivo(); 
+            showConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
+                appDataAlcan.proyectos = appDataAlcan.proyectos.filter(proj => proj.id !== p.id); 
+                appDataAlcan.activoId = appDataAlcan.proyectos[0].id; 
+                guardarBD(); cargarProyectoActivo(); 
+                showToast("Proyecto eliminado", "success");
+            });
+        }
+        
+        function cambiarProyectoActivo(idStr) { appDataAlcan.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        
+        function renombrarProyecto() { 
+            let p = obtenerProyectoActivo();
+            let newName = document.getElementById('proyectName').value.trim();
+            if(newName !== p.nombre && appDataAlcan.proyectos.some(proj => proj.nombre === newName)) {
+                showToast(`⚠️ La obra "${newName}" ya existe.`, "warning");
+                document.getElementById('proyectName').value = p.nombre;
+                return;
+            }
+            p.nombre = newName; 
+            guardarBD(); renderSelectProyectos(); 
+        }
+
+        function addBM() {
+            vibrar();
+            const name = document.getElementById('newBMName').value.toUpperCase().trim();
+            const cotaInput = document.getElementById('newBMCota').value.replace(',', '.');
+            const cota = parseFloat(cotaInput);
+            const obs = document.getElementById('newBMObs').value.trim();
+            
+            if(!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
+            let p = obtenerProyectoActivo();
+            
+            const finalizarGuardado = () => {
+                document.getElementById('newBMName').value = ""; 
+                document.getElementById('newBMCota').value = "";
+                document.getElementById('newBMObs').value = "";
+                guardarBD(); renderBMs();
+                showToast("BM guardado", "success");
+            };
+
+            if(editandoBMIndex > -1) {
+                showConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
+                    if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) {
+                        return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
+                    }
+                    
+                    p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
+
+                    editandoBMIndex = -1;
+                    let btn = document.getElementById('btnGuardarBM');
+                    btn.innerText = "Guardar BM en Proyecto";
+                    btn.style.background = "var(--table-header)";
+                    
+                    finalizarGuardado();
+                    
+                    let currentSelect = document.getElementById('hdnSelectBM').value;
+                    if(currentSelect && parseFloat(currentSelect) !== cota) {
+                        document.getElementById('hdnSelectBM').value = cota;
+                        seleccionarBM(cota); 
+                    }
+                });
+            } else {
+                if(p.bms.some(bm => bm.nombre === name)) return showToast("⚠️ Ya existe un BM con ese nombre.", "warning");
+                p.bms.push({ nombre: name, cota: cota, obs: obs });
+                finalizarGuardado();
             }
         }
 
-        function renderSelectProyectos() { const select = document.getElementById('selectProyecto'); select.innerHTML = ""; appDataAlcan.proyectos.forEach(p => { select.innerHTML += `<option value="${p.id}" ${p.id === appDataAlcan.activoId ? "selected" : ""}>${p.nombre || "Sin Nombre"}</option>`; }); }
-        function crearNuevoProyecto() { vibrar(); let nuevoId = Date.now(); appDataAlcan.proyectos.push({ id: nuevoId, nombre: "Nueva Obra", bms: [], perfiles: [] }); appDataAlcan.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); }
-        function eliminarProyecto() { vibrar(); if(appDataAlcan.proyectos.length === 1) return alert("Crea otro proyecto antes de borrar el último."); let p = obtenerProyectoActivo(); if(confirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`)) { appDataAlcan.proyectos = appDataAlcan.proyectos.filter(proj => proj.id !== p.id); appDataAlcan.activoId = appDataAlcan.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); } }
-        function cambiarProyectoActivo(idStr) { appDataAlcan.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
-        function renombrarProyecto() { obtenerProyectoActivo().nombre = document.getElementById('proyectName').value; guardarBD(); renderSelectProyectos(); }
+        function cargarEditBM(i) {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            let bm = p.bms[i];
+            document.getElementById('newBMName').value = bm.nombre;
+            document.getElementById('newBMCota').value = bm.cota;
+            document.getElementById('newBMObs').value = bm.obs || "";
+            editandoBMIndex = i;
+            let btn = document.getElementById('btnGuardarBM');
+            btn.innerText = "Actualizar BM";
+            btn.style.background = "var(--primary-color)";
+        }
 
-        function addBM() { vibrar(); const name = document.getElementById('newBMName').value.toUpperCase(); const cota = parseFloat(document.getElementById('newBMCota').value); if(!name || isNaN(cota)) return alert("Datos inválidos."); let p = obtenerProyectoActivo(); if(p.bms.some(bm => bm.nombre === name)) return alert("Ya existe un BM con ese nombre."); p.bms.push({ nombre: name, cota: cota }); document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; guardarBD(); renderBMs(); }
-        function deleteBM(i) { vibrar(); let p = obtenerProyectoActivo(); if(confirm(`⚠️ ¿Eliminar el BM "${p.bms[i].nombre}"?`)) { p.bms.splice(i, 1); guardarBD(); renderBMs(); } }
+        function moverBM(index, dir) {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            if(index + dir < 0 || index + dir >= p.bms.length) return;
+            let temp = p.bms[index];
+            p.bms[index] = p.bms[index + dir];
+            p.bms[index + dir] = temp;
+            guardarBD(); renderBMs();
+        }
+
+        function deleteBM(i) { 
+            vibrar(); 
+            let p = obtenerProyectoActivo(); 
+            showConfirm(`⚠️ ¿Eliminar el BM "${p.bms[i].nombre}"?`, () => {
+                p.bms.splice(i, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success");
+            }); 
+        }
+
+        function toggleObsBM(i) {
+            let obsDiv = document.getElementById(`obs-bm-${i}`);
+            if(obsDiv) {
+                obsDiv.style.display = obsDiv.style.display === "none" ? "block" : "none";
+            }
+        }
+
         function renderBMs() { 
             let decs = parseInt(globalConfig.decimales) || 3;
-            let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); const select = document.getElementById('selectBMProyecto'); list.innerHTML = ""; select.innerHTML = '<option value="">-- ELEGIR BM --</option>'; p.bms.forEach((bm, i) => { list.innerHTML += `<div class="bm-item"><div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div><button class="btn-delete-bm" onclick="deleteBM(${i})">🗑️</button></div>`; select.innerHTML += `<option value="${bm.cota}">${bm.nombre}</option>`; }); 
+            let p = obtenerProyectoActivo(); 
+            const list = document.getElementById('listaBMs'); 
+            
+            let currentSelection = document.getElementById('hdnSelectBM').value;
+            let txt = "-- ELEGIR BM --";
+
+            list.innerHTML = ""; 
+
+            p.bms.forEach((bm, i) => { 
+                list.innerHTML += `
+                <div class="bm-item" onclick="toggleObsBM(${i})">
+                    <div class="bm-item-header">
+                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                        <div class="bm-actions" onclick="event.stopPropagation()">
+                            <button onclick="moverBM(${i}, -1)">⬆️</button>
+                            <button onclick="moverBM(${i}, 1)">⬇️</button>
+                            <button onclick="cargarEditBM(${i})">✏️</button>
+                            <button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button>
+                        </div>
+                    </div>
+                    <div id="obs-bm-${i}" class="bm-obs">${bm.obs || 'Sin observaciones'}</div>
+                </div>`;
+                
+                if (currentSelection && parseFloat(currentSelection) === bm.cota) {
+                    txt = bm.nombre;
+                }
+            });
+
+            document.getElementById('txtSelectBM').innerText = txt;
         }
+
         function seleccionarBM(cota) { 
             let decs = parseInt(globalConfig.decimales) || 3;
             if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(decs); 
+            else document.getElementById('cotaBM').value = "";
             evaluarLimiteVA(); guardarEstadoAlcan(); 
         }
 
-        function guardarPerfil() { vibrar(); let p = obtenerProyectoActivo(); let nom = document.getElementById('nombrePerfilNuevo').value.trim(); let ci = document.getElementById('cotaIni').value; let cf = document.getElementById('cotaFin').value; let dist = document.getElementById('distTotal').value; let pte = document.getElementById('pte').value; if(!nom || ci==="" || cf==="" || dist==="" || pte==="") return alert("⚠️ Calcula y llena todos los datos de diseño antes de guardar el tramo."); if(!p.perfiles) p.perfiles = []; let idx = p.perfiles.findIndex(per => per.nombre === nom); if(idx >= 0) { if(confirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?")) p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; else return; } else { p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); } guardarBD(); document.getElementById('nombrePerfilNuevo').value = ""; renderPerfiles(); alert("✅ Tramo guardado en el proyecto."); guardarEstadoAlcan(); }
-        function renderPerfiles() { let p = obtenerProyectoActivo(); const select = document.getElementById('selectPerfil'); select.innerHTML = '<option value="">-- INGRESO MANUAL --</option>'; if(p.perfiles) { p.perfiles.forEach((per, i) => { select.innerHTML += `<option value="${i}">${per.nombre}</option>`; }); } }
-        function cargarPerfil(indexStr) { if(indexStr === "") return; let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)]; if(per) { document.getElementById('cotaIni').value = per.ci; document.getElementById('cotaFin').value = per.cf; document.getElementById('distTotal').value = per.dist; document.getElementById('pte').value = per.pte; evaluarLimiteVA(); guardarEstadoAlcan(); } }
-        function desmarcarPerfil() { document.getElementById('selectPerfil').value = ""; }
+        function guardarPerfil() { 
+            vibrar(); 
+            let p = obtenerProyectoActivo(); 
+            let nom = document.getElementById('nombrePerfilNuevo').value.trim(); 
+            let ci = document.getElementById('cotaIni').value; 
+            let cf = document.getElementById('cotaFin').value; 
+            let dist = document.getElementById('distTotal').value; 
+            let pte = document.getElementById('pte').value; 
+            
+            if(!nom || ci==="" || cf==="" || dist==="" || pte==="") return showToast("⚠️ Llena todos los datos de diseño antes de guardar.", "warning"); 
+            
+            if(!p.perfiles) p.perfiles = []; 
+            let idx = p.perfiles.findIndex(per => per.nombre === nom); 
+            
+            if(idx >= 0) { 
+                showConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => {
+                    p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte};
+                    finalizarGuardarPerfil();
+                });
+            } else { 
+                p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); 
+                finalizarGuardarPerfil();
+            } 
+        }
+
+        function finalizarGuardarPerfil() {
+            guardarBD(); 
+            document.getElementById('nombrePerfilNuevo').value = ""; 
+            renderPerfiles(); 
+            showToast("✅ Tramo guardado en el proyecto.", "success"); 
+            guardarEstadoAlcan(); 
+        }
+
+        function renderPerfiles() { 
+            let p = obtenerProyectoActivo(); 
+            let txt = "-- INGRESO MANUAL --";
+            let currentSelection = document.getElementById('hdnSelectPerfil').value;
+
+            if(p.perfiles && currentSelection !== "") { 
+                let per = p.perfiles[parseInt(currentSelection)];
+                if(per) txt = per.nombre;
+            } 
+            document.getElementById('txtSelectPerfil').innerText = txt;
+        }
+        
+        function cargarPerfil(indexStr) { 
+            if(indexStr === "") {
+                document.getElementById('cotaIni').value = ""; document.getElementById('cotaFin').value = "";
+                document.getElementById('distTotal').value = ""; document.getElementById('pte').value = "";
+                evaluarLimiteVA(); guardarEstadoAlcan();
+                return;
+            }
+            let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)]; 
+            if(per) { 
+                document.getElementById('cotaIni').value = per.ci; 
+                document.getElementById('cotaFin').value = per.cf; 
+                document.getElementById('distTotal').value = per.dist; 
+                document.getElementById('pte').value = per.pte; 
+                evaluarLimiteVA(); guardarEstadoAlcan(); 
+            } 
+        }
+        
+        function desmarcarPerfil() { 
+            document.getElementById('hdnSelectPerfil').value = ""; 
+            document.getElementById('txtSelectPerfil').innerText = "-- INGRESO MANUAL --";
+        }
 
         function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoAlcan(); }
 
@@ -431,8 +831,15 @@
             let decs = parseInt(globalConfig.decimales) || 3;
             let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
-            if (nulos !== 1) return alert("Deja exactamente UNA casilla vacía.");
-            if (isNaN(p)) document.getElementById('pte').value = (((cf - ci) / d) * 100).toFixed(decs); else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci + ((p / 100) * d)).toFixed(decs); else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(decs); else if (isNaN(d)) document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(decs);
+            
+            if (nulos !== 1) return showToast("⚠️ Deja exactamente UNA casilla vacía para deducir el dato.", "warning");
+            
+            if (isNaN(p)) document.getElementById('pte').value = (((cf - ci) / d) * 100).toFixed(decs); 
+            else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci + ((p / 100) * d)).toFixed(decs); 
+            else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf - ((p / 100) * d)).toFixed(decs); 
+            else if (isNaN(d)) document.getElementById('distTotal').value = Math.abs(((cf - ci) / p) * 100).toFixed(decs);
+            
+            showToast("✨ Dato deducido con éxito.", "success");
             evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();
         }
 
@@ -453,14 +860,15 @@
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
 
             let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
-            if(isNaN(ci) || isNaN(d) || isNaN(p)) return alert("Faltan datos de Diseño.");
+            if(isNaN(ci) || isNaN(d) || isNaN(p)) return showToast("⚠️ Faltan datos de Diseño.", "warning");
+            
             let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
             let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
             let intervalo = parseFloat(document.getElementById('intervalo').value);
-            if(isNaN(bm) || isNaN(va)) return alert("Faltan datos de Campo.");
+            if(isNaN(bm) || isNaN(va)) return showToast("⚠️ Faltan datos de Campo.", "warning");
 
             document.getElementById('panelEstacion').style.display = 'none';
-            document.getElementById('infoTubo').innerText = `(Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)})`;
+            document.getElementById('infoTubo').innerText = `Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)}`;
             let ai = bm + va;
             document.getElementById('txtAI').innerText = ai.toFixed(decs);
             let tbody = document.getElementById('cuerpoTabla');
@@ -486,9 +894,10 @@
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
             guardarEstadoAlcan();
+            showToast("✅ Libreta Generada", "success");
         }
 
-        function exportarXLSX() { vibrar(); let wb = XLSX.utils.table_to_book(document.getElementById("tablaAlcantarillado")); XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx"); }
+        function exportarXLSX() { vibrar(); let wb = XLSX.utils.table_to_book(document.getElementById("tablaAlcantarillado")); XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx"); showToast("Reporte descargado", "success");}
         function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function calcInput(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
         function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
