@@ -120,9 +120,9 @@
         .custom-select { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; text-align: left; }
         .custom-select:active { border-color: var(--primary-color); background: rgba(255, 85, 0, 0.05); }
 
-        /* LISTA BM DRAG AND DROP OPTIMIZADO */
+        /* LISTA BM Y PERFILES DRAG AND DROP OPTIMIZADO */
         .bm-list { margin-top: 8px; max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; padding-bottom: 5px;}
-        .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid var(--border-color); background: var(--card-bg); transition: transform 0.1s; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y;}
+        .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid var(--border-color); background: var(--card-bg); transition: transform 0.1s, background-color 0.2s; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y;}
         .bm-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; pointer-events: none; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
         .bm-info strong { font-size: 0.95rem; color: var(--text-color); }
@@ -264,7 +264,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELECCIÓN GENÉRICO (PROYECTO, BM, PERFIL) -->
+    <!-- MODAL DE SELECCIÓN GENÉRICO (PROYECTO, BM) -->
     <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
     <div class="modal-select" id="modalSelect">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -356,13 +356,18 @@
                 <span class="btn-toggle-panel">▼</span>
             </div>
             <div id="panelParametros">
-                <div class="input-group full-width" style="margin-bottom: 10px;">
-                    <label style="color: #1976d2;">Cargar Perfil/Tramo Guardado</label>
-                    <div class="custom-select" onclick="abrirModalSelect('perfil')">
-                        <span id="txtSelectPerfil">-- INGRESO MANUAL --</span>
-                        <span class="arrow">▼</span>
+                
+                <!-- NUEVO SISTEMA DE TRAMOS INTERACTIVOS -->
+                <div class="input-group full-width" style="margin-bottom: 15px;">
+                    <label style="color: #1976d2; display: flex; justify-content: space-between;">
+                        Tramos Guardados (Perfiles)
+                        <span style="font-size: 0.8rem; cursor: pointer; font-weight:800; color: var(--primary-color);" onclick="limpiarCamposPerfil()">[ + NUEVO MANUAL ]</span>
+                    </label>
+                    <div class="bm-list" id="listaPerfiles" style="max-height: 200px; margin-top: 5px;">
+                        <!-- Aquí se inyectarán los perfiles desde JS -->
                     </div>
                 </div>
+
                 <div style="display: flex; gap:8px;">
                     <button class="btn-accion btn-auto" style="flex:1;" onclick="autocalcularTramo()">🪄 Deducir Dato</button>
                     <button class="btn-accion btn-auto" style="flex:1;" onclick="toggleCroquis()">👁️ Ver Croquis</button>
@@ -403,7 +408,7 @@
                     </div>
                 </div>
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px;">
-                    <label style="color: var(--text-color);">💾 Guardar este Tramo/Perfil en el proyecto</label>
+                    <label style="color: var(--text-color);">💾 Guardar este Tramo en el proyecto</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
                         <input type="text" id="nombrePerfilNuevo" placeholder="Ej: BZ1 - BZ2" style="flex: 1; text-align: left; padding: 10px; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; font-weight:800; color:var(--text-color);" oninput="this.value = this.value.toUpperCase()">
                         <button class="btn-accion" style="width: auto; padding: 10px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfil()">Guardar</button>
@@ -469,12 +474,22 @@
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento Inicial): <br><span id="txtAI">0.000</span></div>
             
-            <!-- BOTONES DE PL Y EXTRAS -->
+                      <!-- BOTONES DE PL Y EXTRAS -->
             <div style="display: flex; gap:8px; margin-bottom: 10px;">
-                <button class="btn-accion btn-auto" style="flex:1; margin:0;" onclick="gestionarPL()">📍 Añadir PL</button>
-                <button class="btn-accion btn-auto" style="flex:1; margin:0;" onclick="interpolarProg()">🔍 Interpolar</button>
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
+                    📍 Añadir PL 
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando ya no logras leer la mira y necesitas cambiar el nivel de posición. Ingresa la progresiva del cambio, la cota de tu punto de apoyo y la nueva Vista Atrás (+).', 'AÑADIR PL')">ℹ️</span>
+                </button>
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="interpolarProg()">
+                    🔍 Interpolar 
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>CÁLCULO EXACTO:</strong><br>Halla la Cota teórica y Lectura de mira exacta para cualquier progresiva intermedia que no aparezca en tu tabla principal (Ej: una conexión domiciliaria o un cruce de tubería).', 'INTERPOLAR')">ℹ️</span>
+                </button>
             </div>
-            <button class="btn-accion btn-auto" style="width:100%; margin-bottom:15px; color:var(--danger-color); border-color:var(--danger-color);" onclick="limpiarPLs()">🗑️ Reset PLs de esta Libreta</button>
+            <button class="btn-accion btn-auto" style="width:100%; margin-bottom:15px; color:var(--danger-color); border-color:var(--danger-color); display:flex; justify-content:center; align-items:center; gap:5px;" onclick="limpiarPLs()">
+                🗑️ Reset PLs de esta Libreta 
+                <span class="info-icon" style="margin:0; background:rgba(211,47,47,0.1); color:var(--danger-color);" onclick="event.stopPropagation(); showCustomAlert('<strong>BORRAR CAMBIOS:</strong><br>Elimina todos los Puntos de Liga (PL) ingresados en este tramo específico para recalcular toda la libreta desde cero.', 'RESET PLs')">ℹ️</span>
+            </button>
+
 
             <div class="table-wrapper">
                 <table id="tablaAlcantarillado" style="user-select:none; -webkit-user-select:none;">
@@ -601,7 +616,7 @@
             cerrarCustomPrompt(); if (promptOkCallback) promptOkCallback(val);
         }
 
-        /* --- UI: MODAL SELECTOR GENÉRICO --- */
+        /* --- UI: MODAL SELECTOR GENÉRICO (ACTUALIZADO SIN PERFIL) --- */
         let tipoModalActual = "";
         function abrirModalSelect(tipo) {
             tipoModalActual = tipo;
@@ -616,15 +631,6 @@
                     let isActivo = proj.id === appDataAlcan.activoId;
                     contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
                 });
-            } else if(tipo === 'perfil') {
-                titulo.innerText = "📐 SELECCIONAR PERFIL";
-                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- INGRESO MANUAL --')"><span>-- INGRESO MANUAL --</span></button>`;
-                if(p.perfiles) {
-                    p.perfiles.forEach((per, i) => {
-                        let isActivo = document.getElementById('hdnSelectPerfil').value == i.toString();
-                        contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${i}', '${per.nombre}')"><span>${per.nombre}</span></button>`;
-                    });
-                }
             } else if(tipo === 'bm') {
                 titulo.innerText = "📍 SELECCIONAR BM";
                 let decs = parseInt(globalConfig.decimales) || 3;
@@ -648,11 +654,7 @@
         function seleccionarOpcionModal(valor, textoExtra) {
             cerrarModalSelect();
             if(tipoModalActual === 'proyecto') { cambiarProyectoActivo(valor); } 
-            else if(tipoModalActual === 'perfil') {
-                document.getElementById('hdnSelectPerfil').value = valor;
-                document.getElementById('txtSelectPerfil').innerText = textoExtra;
-                cargarPerfil(valor);
-            } else if(tipoModalActual === 'bm') {
+            else if(tipoModalActual === 'bm') {
                 document.getElementById('hdnSelectBM').value = valor;
                 document.getElementById('txtSelectBM').innerText = textoExtra;
                 seleccionarBM(valor);
@@ -933,39 +935,111 @@
             evaluarLimiteVA(); guardarEstadoAlcan(); 
         }
 
+        /* --- SISTEMA DE GESTIÓN DE PERFILES / TRAMOS --- */
         function guardarPerfil() { 
             let p = obtenerProyectoActivo(); let nom = document.getElementById('nombrePerfilNuevo').value.trim(); 
             let ci = document.getElementById('cotaIni').value; let cf = document.getElementById('cotaFin').value; let dist = document.getElementById('distTotal').value; let pte = document.getElementById('pte').value; 
             if(!nom || ci==="" || cf==="" || dist==="" || pte==="") return showToast("⚠️ Llena todos los datos de diseño.", "warning"); 
             if(!p.perfiles) p.perfiles = []; let idx = p.perfiles.findIndex(per => per.nombre === nom); 
             if(idx >= 0) { 
-                showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => { p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; finalizarGuardarPerfil(); });
-            } else { p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); finalizarGuardarPerfil(); } 
+                showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => { 
+                    p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; 
+                    // Si sobreescribimos, dejamos ese como seleccionado visualmente
+                    document.getElementById('hdnSelectPerfil').value = idx.toString();
+                    finalizarGuardarPerfil(); 
+                });
+            } else { 
+                p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); 
+                document.getElementById('hdnSelectPerfil').value = (p.perfiles.length - 1).toString();
+                finalizarGuardarPerfil(); 
+            } 
         }
 
         function finalizarGuardarPerfil() {
-            guardarBD(); document.getElementById('nombrePerfilNuevo').value = ""; renderPerfiles(); showToast("✅ Tramo guardado", "success"); guardarEstadoAlcan(); 
+            guardarBD(); 
+            document.getElementById('nombrePerfilNuevo').value = ""; 
+            renderPerfiles(); 
+            showToast("✅ Tramo guardado", "success"); 
+            guardarEstadoAlcan(); 
         }
 
         function renderPerfiles() { 
-            let p = obtenerProyectoActivo(); let txt = "-- INGRESO MANUAL --"; let currentSelection = document.getElementById('hdnSelectPerfil').value;
-            if(p.perfiles && currentSelection !== "") { let per = p.perfiles[parseInt(currentSelection)]; if(per) txt = per.nombre; } 
-            document.getElementById('txtSelectPerfil').innerText = txt;
+            let p = obtenerProyectoActivo(); 
+            const list = document.getElementById('listaPerfiles');
+            let currentSelection = document.getElementById('hdnSelectPerfil').value;
+            list.innerHTML = "";
+            
+            if (!p.perfiles || p.perfiles.length === 0) {
+                list.innerHTML = `<div style="padding: 15px; font-size: 0.9rem; color: var(--text-color); opacity: 0.5; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px;">No hay tramos guardados</div>`;
+                return;
+            }
+
+            p.perfiles.forEach((per, index) => {
+                let isActivo = currentSelection === index.toString();
+                let bgStyle = isActivo ? "background: rgba(25, 118, 210, 0.1); border-left: 3px solid #1976d2;" : "";
+                
+                list.innerHTML += `
+                <div class="bm-item" style="${bgStyle}" onclick="cargarPerfil('${index}')">
+                    <div class="bm-item-header">
+                        <div class="bm-info">
+                            <strong style="${isActivo ? 'color: #1976d2;' : ''}">${per.nombre}</strong>
+                            <span>L: ${parseFloat(per.dist).toFixed(2)}m | S: ${parseFloat(per.pte).toFixed(2)}%</span>
+                        </div>
+                        <div class="bm-actions" onclick="event.stopPropagation()">
+                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index}, '${per.nombre}')">🗑️</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
         }
         
         function cargarPerfil(indexStr) { 
-            if(indexStr === "") {
-                document.getElementById('cotaIni').value = ""; document.getElementById('cotaFin').value = ""; document.getElementById('distTotal').value = ""; document.getElementById('pte').value = "";
-                evaluarLimiteVA(); guardarEstadoAlcan(); return;
-            }
             let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)]; 
             if(per) { 
-                document.getElementById('cotaIni').value = per.ci; document.getElementById('cotaFin').value = per.cf; document.getElementById('distTotal').value = per.dist; document.getElementById('pte').value = per.pte; 
+                document.getElementById('hdnSelectPerfil').value = indexStr;
+                document.getElementById('cotaIni').value = per.ci; 
+                document.getElementById('cotaFin').value = per.cf; 
+                document.getElementById('distTotal').value = per.dist; 
+                document.getElementById('pte').value = per.pte; 
                 evaluarLimiteVA(); evaluarNormativa(document.getElementById('pte')); guardarEstadoAlcan(); 
+                renderPerfiles();
             } 
         }
+
+        function deletePerfil(index, nombre) {
+            let p = obtenerProyectoActivo();
+            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${nombre}"?`, () => {
+                p.perfiles.splice(index, 1);
+                let currentSelection = document.getElementById('hdnSelectPerfil').value;
+                if(currentSelection === index.toString()) {
+                    desmarcarPerfil(); // Si se borró el activo, solo desvinculamos, no borramos inputs por si el topógrafo los necesita.
+                } else if (currentSelection !== "" && parseInt(currentSelection) > index) {
+                    document.getElementById('hdnSelectPerfil').value = (parseInt(currentSelection) - 1).toString();
+                }
+                guardarBD();
+                renderPerfiles();
+                showToast("Tramo eliminado", "success");
+            });
+        }
         
-        function desmarcarPerfil() { document.getElementById('hdnSelectPerfil').value = ""; document.getElementById('txtSelectPerfil').innerText = "-- INGRESO MANUAL --"; }
+        function desmarcarPerfil() { 
+            if(document.getElementById('hdnSelectPerfil').value !== "") {
+                document.getElementById('hdnSelectPerfil').value = ""; 
+                renderPerfiles(); // Refresca para quitar el borde/fondo de la lista
+            }
+        }
+
+        function limpiarCamposPerfil() {
+            desmarcarPerfil();
+            document.getElementById('cotaIni').value = ""; 
+            document.getElementById('cotaFin').value = ""; 
+            document.getElementById('distTotal').value = ""; 
+            document.getElementById('pte').value = "";
+            evaluarLimiteVA();
+            guardarEstadoAlcan();
+            showToast("Campos listos para nuevo ingreso", "default");
+        }
+        
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoAlcan(); }
 
         /* --- F2: ALERTA NORMATIVA PENDIENTE --- */

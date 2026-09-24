@@ -148,7 +148,7 @@
 
         td input { border: none; width: 100%; height: 100%; padding: 12px 2px; text-align: center; background: transparent; border-radius: 0; color: var(--text-color); font-weight: 800; text-transform: uppercase;}
         td input:focus { background: rgba(255, 85, 0, 0.05); outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
-        td input.in-pto { font-size: 1.05rem; padding-right: 25px; } 
+        td input.in-pto { font-size: 1.05rem; padding-right: 55px; } /* Ajustado para 2 botones */
         td input.in-va, td input.in-vd { font-size: 1.15rem; }
 
         .celda-combinada { display: flex; flex-direction: column; background: rgba(128,128,128,0.02); padding: 2px; height: 100%;}
@@ -168,8 +168,12 @@
         
         .trend-icon { width: 15px; text-align: center; display: inline-block; font-size: 1.2rem; font-weight: 900; cursor: pointer; user-select: none;}
         .trend-icon:active { transform: scale(1.2); }
-        .btn-pin { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; opacity: 0.7; z-index: 3;}
+        
+        /* NUEVOS ICONOS FLOTANTES (BM Y PIN) */
+        .btn-pin { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; opacity: 0.7; z-index: 3; padding: 5px;}
         .btn-pin:active { opacity: 1; transform: translateY(-50%) scale(1.1); }
+        .btn-save-bm { position: absolute; right: 28px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; opacity: 0.8; z-index: 3; display: none; padding: 5px; filter: drop-shadow(0 0 2px var(--primary-glow));}
+        .btn-save-bm:active { opacity: 1; transform: translateY(-50%) scale(1.1); }
 
         .btn-dual { display: flex; gap: 8px; margin-bottom: 15px;}
         .btn-excel { background: transparent; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 5px;}
@@ -834,6 +838,7 @@
 
         function abrirSelectorBM(btn) {
             let input = btn.previousElementSibling;
+            if(input && input.classList.contains('btn-save-bm')) input = input.previousElementSibling;
             let p = obtenerProyectoActivo(); inputPtoActivo = input;
             if (p.bms.length === 0) { showToast("No tienes BMs registrados.", "warning"); return; }
             abrirModalSelect('bm-tabla');
@@ -848,6 +853,7 @@
             const bmEncontrado = p.bms.find(b => b.nombre === val);
             const tr = input.closest('tr'); 
             const inCota = tr.querySelector('.in-cota'); 
+            const btnSaveBM = tr.querySelector('.btn-save-bm');
 
             const aplicarBMFijo = () => {
                 input.dataset.bmAsignado = val; 
@@ -855,6 +861,7 @@
                 inCota.dataset.fijo = "true"; 
                 inCota.classList.add('fijo'); 
                 inCota.classList.remove('editable-activa');
+                if(btnSaveBM) btnSaveBM.style.display = 'none';
                 procesarTabla(); 
             };
             
@@ -863,6 +870,7 @@
                 inCota.dataset.fijo = "false"; 
                 inCota.classList.remove('fijo');
                 inCota.classList.remove('editable-activa');
+                if(btnSaveBM) btnSaveBM.style.display = 'none';
                 procesarTabla(); 
             };
 
@@ -875,15 +883,69 @@
             };
 
             if (bmEncontrado) {
+                if(btnSaveBM) btnSaveBM.style.display = 'none';
                 if (prevBm !== val) {
                     showCustomConfirm(`📍 <strong>BM [${val}] DETECTADO</strong><br><br>¿Quieres usar este punto como Control (Fijar Cota) o verificar tu Cierre?`, aplicarBMFijo, aplicarBMCierre, "FIJAR COTA", "VER CIERRE");
                 } else {
                     procesarTabla();
                 }
-            } else if (prevBm !== "" && val !== prevBm) {
-                desvincularBM();
-            } else { 
+            } else if (val !== "") {
+                if (prevBm !== "" && val !== prevBm) {
+                    desvincularBM();
+                } else { 
+                    procesarTabla(); 
+                }
+                // Si hay texto y no es BM, mostramos el botón fantasma
+                if(btnSaveBM) btnSaveBM.style.display = 'inline-block';
+            } else {
+                if(btnSaveBM) btnSaveBM.style.display = 'none';
+                if (prevBm !== "") desvincularBM();
+                else procesarTabla();
+            }
+        }
+
+        function guardarBMFantasma(btnSpan) {
+            if (tablaBloqueada) return;
+            let tr = btnSpan.closest('tr');
+            let inputPto = tr.querySelector('.in-pto');
+            let inputCota = tr.querySelector('.in-cota');
+            let nombre = inputPto.value.toUpperCase().trim();
+            let cotaVal = parseFloat(inputCota.value);
+            let decs = parseInt(globalConfig.decimales) || 3; 
+
+            if (!nombre) return;
+
+            let p = obtenerProyectoActivo();
+            if (p.bms.some(b => b.nombre === nombre)) {
+                showToast("El BM ya existe.", "warning");
+                btnSpan.style.display = 'none';
+                return;
+            }
+
+            const procesarGuardado = (cotaFinal) => {
+                p.bms.push({ nombre: nombre, cota: cotaFinal, obs: "BM On-the-Fly" });
+                guardarBD();
+                renderBMs();
+                showToast(`BM [${nombre}] guardado`, "success");
+                btnSpan.style.display = 'none';
+                inputPto.dataset.bmAsignado = nombre;
                 procesarTabla(); 
+            };
+
+            if (!isNaN(cotaVal)) {
+                showCustomConfirm(`¿Guardar <strong>${nombre}</strong> con cota <strong>${cotaVal.toFixed(decs)}</strong> como nuevo BM?`, () => {
+                    procesarGuardado(cotaVal);
+                });
+            } else {
+                showCustomPrompt(`INGRESE COTA PARA NUEVO BM [${nombre}]`, "", (val) => {
+                    let parsed = parseFloat(val.replace(',', '.'));
+                    if (!isNaN(parsed)) {
+                        inputCota.value = parsed.toFixed(decs);
+                        procesarGuardado(parsed);
+                    } else {
+                        showToast("Cota inválida.", "error");
+                    }
+                });
             }
         }
 
@@ -1139,6 +1201,7 @@
             tr.innerHTML = `
                 <td style="position:relative;">
                     <input type="text" class="in-pto" placeholder="..." oninput="this.value = this.value.toUpperCase();" onchange="verificarBM(this)">
+                    <span class="btn-save-bm" onclick="guardarBMFantasma(this)" title="Guardar como BM">💾</span>
                     <span class="btn-pin" onclick="abrirSelectorBM(this)">📍</span>
                 </td>
                 <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); procesarTabla()"></td>
@@ -1178,15 +1241,22 @@
                 for(let i = 0; i < 8; i++) agregarFila(true);
                 guardarEstadoTabla(); return;
             }
+            let p = obtenerProyectoActivo();
             filas.forEach((f, i) => {
                 const tr = document.createElement('tr');
                 tr.dataset.locked = f.locked || "false";
                 let lockIcon = (f.locked === "true") ? "🔒" : "🔓";
                 let disAttr = (f.locked === "true") ? "readonly" : "";
                 
+                let btnSaveStyle = "display:none;";
+                if(f.pto.trim() !== "" && !p.bms.some(b => b.nombre === f.pto.trim())) {
+                    btnSaveStyle = "display:inline-block;";
+                }
+
                 tr.innerHTML = `
                     <td style="position:relative;">
                         <input type="text" class="in-pto" placeholder="..." value="${f.pto}" data-bm-asignado="${f.bmAsignado}" oninput="this.value = this.value.toUpperCase();" onchange="verificarBM(this)">
+                        <span class="btn-save-bm" style="${btnSaveStyle}" onclick="guardarBMFantasma(this)" title="Guardar como BM">💾</span>
                         <span class="btn-pin" onclick="abrirSelectorBM(this)">📍</span>
                     </td>
                     <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" value="${f.va}" ${disAttr} oninput="formatDecimal(this); procesarTabla()"></td>

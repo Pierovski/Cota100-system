@@ -319,14 +319,13 @@ function toggleBloqueoTabla(forceLock = false) {
         if(btnAdd) { btnAdd.style.opacity = "0.4"; btnAdd.style.pointerEvents = "none"; }
         if(btnDel) { btnDel.style.opacity = "0.4"; btnDel.style.pointerEvents = "none"; }
         if(btnReset) { btnReset.style.opacity = "0.4"; btnReset.style.pointerEvents = "none"; }
-        showToast("Tablas protegidas contra modificaciones", "warning");
     } else {
         btn.innerHTML = "🔒 Bloq."; btn.style.color = "#f57f17"; btn.style.borderColor = "#fbc02d";
         tabla.classList.remove('modo-bloqueado');
         if(btnAdd) { btnAdd.style.opacity = "1"; btnAdd.style.pointerEvents = "auto"; }
         if(btnDel) { btnDel.style.opacity = "1"; btnDel.style.pointerEvents = "auto"; }
         if(btnReset) { btnReset.style.opacity = "1"; btnReset.style.pointerEvents = "auto"; }
-        showToast("Tablas desbloqueadas", "success");
+        if(!forceLock) showToast("Tablas desbloqueadas", "success");
     }
 }
 
@@ -746,9 +745,21 @@ function verificarCierreFinal() {
     let cotaBM = parseFloat(document.getElementById('cotaBM').value); let distM = parseFloat(document.getElementById('distanciaM').value);
     if(isNaN(cotaBM)) return showToast("⚠️ Debes ingresar tu Cota Inicial (BM) para calcular.", "warning");
     if(isNaN(distM) || distM <= 0) return showToast("⚠️ Debes ingresar la Distancia Total en metros.", "warning");
+    
     procesarDobleLiga(); 
+    
     let panel = document.getElementById('panelResultados');
-    if(panel.style.display === 'block') { panel.scrollIntoView({ behavior: 'smooth' }); showToast("Cierre verificado", "success"); }
+    if(panel.style.display === 'block') { 
+        panel.scrollIntoView({ behavior: 'smooth' }); 
+        
+        let estadoTag = document.getElementById('resEstado');
+        if(estadoTag.classList.contains('estado-cumple')) {
+            toggleBloqueoTabla(true);
+            showToast("Cierre verificado. Tabla bloqueada por seguridad.", "success");
+        } else {
+            showToast("El cierre calculado presenta errores.", "warning");
+        }
+    }
 }
 
 function getErrorHUDStyles(pct) {
@@ -944,7 +955,6 @@ function procesarDobleLiga() {
         if(errorCierreGlobal <= toleranciaGlobal && todosCumplen) {
             estadoTag.innerText = "✓ CUMPLE ESPECIFICACIONES"; estadoTag.className = "estado-cumple";
             document.getElementById('btnCompensar').style.display = 'block';
-            toggleBloqueoTabla(true); // Bloqueo Post-Cierre (Seguro Dedo Gordo)
         } else {
             estadoTag.innerText = "❌ RECHAZADO (REVISAR TRAMOS)"; estadoTag.className = "estado-falla";
             document.getElementById('btnCompensar').style.display = 'none';
@@ -955,13 +965,21 @@ function procesarDobleLiga() {
     }
 }
 
+// NUEVA COMPENSACIÓN (5 COLUMNAS VISUALES)
 function generarCompensadas() {
     let decs = parseInt(globalConfig.decimales) || 3;
     const cotaBM = parseFloat(document.getElementById('cotaBM').value);
     const cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
     
-    const filasIda = document.querySelectorAll('#cuerpoIda tr'); const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
-    const cuerpoCompensadas = document.getElementById('cuerpoCompensadas'); cuerpoCompensadas.innerHTML = "";
+    const filasIda = document.querySelectorAll('#cuerpoIda tr'); 
+    const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+    
+    // Inyectamos las 5 cabeceras para garantizar la visibilidad total
+    const tablaCompensada = document.getElementById('tablaCompensada');
+    tablaCompensada.querySelector('thead').innerHTML = `<tr><th>PUNTO</th><th>COTA L1</th><th>COTA L2</th><th>PROMEDIO</th><th>COMPENSADA</th></tr>`;
+    
+    const cuerpoCompensadas = document.getElementById('cuerpoCompensadas'); 
+    cuerpoCompensadas.innerHTML = "";
 
     let datosEstaciones = [];
     for(let i = 0; i < filasIda.length; i++) {
@@ -969,8 +987,10 @@ function generarCompensadas() {
         let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim(); if (!pto) continue;
         let cotaIda = NaN, cotaVuelta = NaN;
         
-        if (i === 0) { cotaIda = isNaN(cotaBM) ? NaN : cotaBM; cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM; } 
-        else {
+        if (i === 0) { 
+            cotaIda = isNaN(cotaBM) ? NaN : cotaBM; 
+            cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM; 
+        } else {
             let divCotaIda = filasIda[i].querySelector('.out-cota div[data-cota]'); if (divCotaIda) cotaIda = parseFloat(divCotaIda.getAttribute('data-cota'));
             let divCotaVuelta = filasVuelta[i].querySelector('.out-cota div[data-cota]'); if (divCotaVuelta) cotaVuelta = parseFloat(divCotaVuelta.getAttribute('data-cota'));
         }
@@ -981,36 +1001,41 @@ function generarCompensadas() {
     if (datosEstaciones.length < 2) return;
     let N = datosEstaciones.length - 1; 
     
-    let esCerrada = isNaN(cotaLlegadaInput) || (datosEstaciones[0].pto === datosEstaciones[N].pto);
-    
-    let errorCierreIda = esCerrada ? (datosEstaciones[N].cotaIda - datosEstaciones[0].cotaIda) : 0; 
-    let errorCierreVuelta = esCerrada ? (datosEstaciones[N].cotaVuelta - datosEstaciones[0].cotaVuelta) : 0;
-    let divergenciaAbierta = !esCerrada ? (datosEstaciones[N].cotaIda - datosEstaciones[N].cotaVuelta) : 0;
+    let esCircuitoCerrado = (datosEstaciones[0].pto === datosEstaciones[N].pto);
+    let tieneCotaLlegada = !isNaN(cotaLlegadaInput);
+    let cotaReferenciaFinal = NaN;
 
-    let errorContraFijo = !isNaN(cotaLlegadaInput) && !esCerrada ? (((datosEstaciones[N].cotaIda + datosEstaciones[N].cotaVuelta)/2) - cotaLlegadaInput) : 0;
+    if (esCircuitoCerrado) {
+        cotaReferenciaFinal = datosEstaciones[0].cotaIda;
+    } else if (tieneCotaLlegada) {
+        cotaReferenciaFinal = cotaLlegadaInput;
+    }
+
+    let errorCierreOficial = 0;
+    if (!isNaN(cotaReferenciaFinal)) {
+        let promedioFinalCrudo = (datosEstaciones[N].cotaIda + datosEstaciones[N].cotaVuelta) / 2;
+        errorCierreOficial = promedioFinalCrudo - cotaReferenciaFinal;
+    }
 
     for (let i = 0; i <= N; i++) {
-        let data = datosEstaciones[i]; let cotaIdaComp = data.cotaIda; let cotaVueltaComp = data.cotaVuelta; let factorProporcional = i / N; 
+        let data = datosEstaciones[i]; 
+        let factorProporcional = i / N; 
+        
+        let promedioCrudo = (data.cotaIda + data.cotaVuelta) / 2;
+        let cotaCompensadaFinal = promedioCrudo;
 
-        if (esCerrada) { 
-            cotaIdaComp += (-errorCierreIda * factorProporcional); cotaVueltaComp += (-errorCierreVuelta * factorProporcional); 
-        } else { 
-            let ajusteMedia = divergenciaAbierta / 2; 
-            cotaIdaComp += (-ajusteMedia * factorProporcional); cotaVueltaComp += (ajusteMedia * factorProporcional); 
-            
-            cotaIdaComp += (-errorContraFijo * factorProporcional);
-            cotaVueltaComp += (-errorContraFijo * factorProporcional);
+        if (!isNaN(cotaReferenciaFinal)) {
+            cotaCompensadaFinal = promedioCrudo - (errorCierreOficial * factorProporcional);
         }
-
-        let promedioCompensado = (cotaIdaComp + cotaVueltaComp) / 2;
 
         if (!data.esPC) {
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="color:var(--primary-color); font-weight: 900;">${data.pto}</td>
-                <td>${cotaIdaComp.toFixed(decs)}</td>
-                <td>${cotaVueltaComp.toFixed(decs)}</td>
-                <td style="color:var(--success-text); font-weight: 900; background: rgba(46,125,50,0.05);">${promedioCompensado.toFixed(decs)}</td>
+                <td>${data.cotaIda.toFixed(decs)}</td>
+                <td>${data.cotaVuelta.toFixed(decs)}</td>
+                <td style="color:#1976d2; font-weight: 700;">${promedioCrudo.toFixed(decs)}</td>
+                <td style="color:var(--success-text); font-weight: 900; background: rgba(46,125,50,0.05);">${cotaCompensadaFinal.toFixed(decs)}</td>
             `;
             cuerpoCompensadas.appendChild(tr);
         }
@@ -1033,8 +1058,8 @@ function exportarCSVparaCivil3D() {
     compRows.forEach(tr => {
         let tds = tr.querySelectorAll('td');
         let ptoStr = tds[0].innerText.trim();
-        let elevStr = parseFloat(tds[3].innerText).toFixed(decs);
-        // Formato PNEZD estándar: Asumimos N=1000, E=1000 ficticios si no hay coordenadas, Civil 3D requiere números.
+        // Extracción desde la 5ta columna (Compensada) que es el índice 4
+        let elevStr = parseFloat(tds[4].innerText).toFixed(decs);
         csvContent += `${ptoCount},1000.000,1000.000,${elevStr},${ptoStr}\n`;
         ptoCount++;
     });
