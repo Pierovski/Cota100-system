@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cota100-v8.5';
+const CACHE_NAME = 'cota100-v8.6';
 
 const urlsToCache = [
   './',
@@ -12,6 +12,7 @@ const urlsToCache = [
   './niv-alcan.html',
   './niv-poligonal.html',
   './poligonales.html',
+  './poligonal.js',
   './manifest.json',
   './icono.png'
 ];
