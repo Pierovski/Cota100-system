@@ -93,6 +93,7 @@
         .input-row { display: flex; gap: 12px; margin-bottom: 12px; }
         .input-group { flex: 1; display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
         label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-weight: 800; color: var(--text-color); opacity: 0.8; font-size: 0.8rem; text-transform: uppercase; }
         .info-icon { background: rgba(128,128,128,0.1); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; transition: 0.2s; margin-left: 5px; color: var(--primary-color);}
@@ -364,16 +365,16 @@
             </div>
             <div id="panel5" class="panel-contenido">
                 
-                <!-- Gestor Visual de Almacenamiento -->
+                <!-- Gestor Visual de Almacenamiento y Estado de Blindaje -->
                 <div class="storage-container">
                     <div class="storage-header">
-                        <span>USO DE MEMORIA (CACHÉ)</span>
+                        <span id="persistStatusLabel">USO DE MEMORIA</span>
                         <span id="storageTxt">0%</span>
                     </div>
                     <div class="storage-track">
                         <div class="storage-fill" id="storageFill"></div>
                     </div>
-                    <div class="helper-text" style="text-align: center; margin-top: 8px;">Capacidad máxima estimada del navegador: 5 MB</div>
+                    <div class="helper-text" id="persistHelperTxt" style="text-align: center; margin-top: 8px;">Capacidad máxima estimada del navegador: 5 MB</div>
                 </div>
 
                 <!-- Botones de Limpieza Selectiva -->
@@ -525,6 +526,19 @@
             }
         }
 
+        async function verificarBlindajePersistente() {
+            if (navigator.storage && navigator.storage.persist) {
+                try {
+                    let persisted = await navigator.storage.persisted();
+                    if (!persisted) persisted = await navigator.storage.persist();
+                    if (persisted) {
+                        document.getElementById('persistStatusLabel').innerHTML = `MEMORIA LOCAL <span style="color:var(--success-color);">🛡️ BLINDADA</span>`;
+                        document.getElementById('persistHelperTxt').innerText = "Protección activa contra limpieza automática del sistema operativo.";
+                    }
+                } catch(e) {}
+            }
+        }
+
         function cargarAjustes() {
             let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {
                 darkMode: false, wakeLockEnabled: false, sonido: false,
@@ -569,6 +583,7 @@
             }
 
             calcularAlmacenamiento();
+            verificarBlindajePersistente();
         }
 
         function guardarAjustes(mostrarNotificacion = false) {
@@ -579,7 +594,7 @@
                 equipo: document.getElementById('ajusteEquipo').value,
                 darkMode: document.getElementById('checkDarkMode').checked,
                 wakeLockEnabled: document.getElementById('checkWakeLock').checked,
-                vibracion: false, // Forzamos apagado de vibración internamente
+                vibracion: false,
                 sonido: document.getElementById('checkSonido').checked,
                 zonaDefecto: document.getElementById('ajusteZona').value,
                 decimales: document.getElementById('ajusteDecimales').value,
@@ -622,7 +637,7 @@
         async function solicitarWakeLock() {
             if ('wakeLock' in navigator) {
                 try { wakeLock = await navigator.wakeLock.request('screen'); } 
-                catch (err) { console.error(`WakeLock Error: ${err.message}`); }
+                catch (err) {}
             }
         }
 
@@ -640,8 +655,8 @@
         // --- GESTOR DE ALMACENAMIENTO ---
         function calcularAlmacenamiento() {
             let totalStr = JSON.stringify(localStorage);
-            let bytes = totalStr.length * 2; // Aproximación (UTF-16 son 2 bytes por char)
-            let maxBytes = 5 * 1024 * 1024; // 5 MB estimado para navegadores
+            let bytes = totalStr.length * 2;
+            let maxBytes = 5 * 1024 * 1024;
             let percentage = (bytes / maxBytes) * 100;
             if(percentage > 100) percentage = 100;
 
@@ -659,7 +674,7 @@
         function limpiarDB(modulo) {
             feedbackUI();
             let msg = "";
-            if(modulo === 'nivelacion') msg = "Nivelación Simple y Alcantarillado";
+            if(modulo === 'nivelacion') msg = "Nivelación Simple, Simultánea y Alcantarillado";
             else if(modulo === 'poligonales') msg = "Poligonales Abiertas y Cerradas";
             else if(modulo === 'areas') msg = "Áreas, Lotes y Perímetros";
 
@@ -667,6 +682,7 @@
                 if(modulo === 'nivelacion') { 
                     localStorage.removeItem('cota100_db_simple_v4'); 
                     localStorage.removeItem('cota100_db_alcan_v3'); 
+                    localStorage.removeItem('cota100_db_poligonal_v11');
                 }
                 if(modulo === 'poligonales') { 
                     localStorage.removeItem('cota100_db_polabierta_v5'); 
@@ -680,15 +696,16 @@
             }
         }
 
-        // --- SISTEMA DE BACKUP TOTAL Y WEB SHARE API ---
+        // --- SISTEMA DE BACKUP TOTAL Y WEB SHARE API (INCLUYE POLIGONAL V11) ---
         function exportarBackupTotal() {
             feedbackUI();
             const backup = {
-                version_export: "6.0",
+                version_export: "7.0",
                 fecha: new Date().toISOString(),
                 ajustes: JSON.parse(localStorage.getItem('cota100_ajustes')),
                 db_simple: JSON.parse(localStorage.getItem('cota100_db_simple_v4')),
                 db_alcan: JSON.parse(localStorage.getItem('cota100_db_alcan_v3')),
+                db_poligonal: JSON.parse(localStorage.getItem('cota100_db_poligonal_v11')),
                 db_polabierta: JSON.parse(localStorage.getItem('cota100_db_polabierta_v5')),
                 db_polcerrada: JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4')),
                 db_areas: JSON.parse(localStorage.getItem('cota100_db_areas_v2'))
@@ -698,12 +715,10 @@
             const fileName = `COTA100_BACKUP_TOTAL_${new Date().toISOString().split('T')[0]}.json`;
             const file = new File([jsonStr], fileName, { type: "application/json" });
 
-            // Generar fecha legible y guardar
             let fechaStr = new Date().toLocaleString('es-PE', { hour12: true });
             localStorage.setItem('cota100_last_backup', fechaStr);
             document.getElementById('lblLastBackup').innerHTML = `Último respaldo: <span style="color:var(--primary-color);">${fechaStr}</span>`;
 
-            // Uso de Web Share API
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 navigator.share({
                     title: 'Backup COTA100',
@@ -711,13 +726,10 @@
                     files: [file]
                 }).then(() => {
                     mostrarToast("Backup compartido con éxito");
-                }).catch((err) => {
-                    // Si el usuario cancela o hay error, fallamos a la descarga clásica
-                    console.log("Error al compartir: ", err);
+                }).catch(() => {
                     descargarArchivoFallback(jsonStr, fileName);
                 });
             } else {
-                // Descarga clásica si Web Share API no está disponible
                 descargarArchivoFallback(jsonStr, fileName);
             }
         }
@@ -745,6 +757,7 @@
                     if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
                     if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
                     if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
+                    if(b.db_poligonal) localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b.db_poligonal));
                     if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
                     if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
                     if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));

@@ -155,15 +155,10 @@
         .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.4rem;}
 
         .fila-ok td { background-color: var(--success-bg) !important; color: var(--success-text) !important; transition: background-color 0.2s, color 0.2s; border-bottom-color: rgba(46, 204, 113, 0.4);}
+        .fila-cierre-bz td { border-top: 2px solid var(--primary-color); background: rgba(255, 85, 0, 0.04); }
         .celda-prog { cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px;} 
         .icono-terr { display: inline-block; font-size: 0.9rem; padding: 2px 4px; background: rgba(128,128,128,0.2); border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer; opacity: 0.8; }
         .icono-terr:active { transform: scale(0.9); }
-
-        /* LEYENDA Y AYUDA */
-        .leyenda-box { background: rgba(255, 85, 0, 0.05); border-left: 4px solid var(--primary-color); padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 15px;}
-        .leyenda-item { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 0.85rem; line-height: 1.3;}
-        .leyenda-item:last-child { margin-bottom: 0; }
-        .leyenda-icon { font-size: 1.1rem; margin-right: 8px; min-width: 20px; text-align: center;}
 
         /* F7: TARJETA GIGANTE */
         #tarjetaGigante {
@@ -203,7 +198,7 @@
         /* MODALES DE CONFIRMACIÓN Y ALERTA (GLASSMORPHISM) */
         .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
         .overlay-select.activo { opacity: 1; }
-        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 320px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
+        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
         .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
         
         .confirm-msg { color: var(--text-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3;}
@@ -211,8 +206,9 @@
         .confirm-btn { flex: 1; padding: 12px; font-weight: 800; border-radius: 8px; border: none; font-size: 0.95rem; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
         .confirm-btn:active { transform: scale(0.95); }
 
-        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;}
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.9rem; font-weight: 700;}
     </style>
 </head>
 <body onload="inicializarApp()">
@@ -222,6 +218,13 @@
         <div class="fire-wave delay"></div>
         <div class="fire-wave"></div>
     </div>
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
 
     <!-- TARJETA GIGANTE FLOTANTE -->
     <div id="tarjetaGigante" onclick="this.style.display='none'">
@@ -264,11 +267,11 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELECCIÓN GENÉRICO (PROYECTO, BM) -->
+    <!-- MODAL DE SELECCIÓN GENÉRICO (PROYECTO, BM, IMPORTAR BM) -->
     <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
     <div class="modal-select" id="modalSelect">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">SELECCIONAR</h3>
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.15rem;">SELECCIONAR</h3>
             <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
         </div>
         <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
@@ -295,7 +298,6 @@
         </div>
         <h2 class="top-bar-title">ALCANTARILLADO <span>Control de Redes</span></h2>
         
-        <!-- ICONO DE GUÍA SUTIL -->
         <div style="width: 90px; display: flex; justify-content: flex-end;">
             <button class="btn-volver-mini" onclick="mostrarLeyenda()" title="Guía de Funciones" style="width: 45px; height: 45px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -329,10 +331,13 @@
                     <label style="color: var(--primary-color);">+ Registrar BM</label>
                     <div class="form-grid" style="margin-top: 4px;">
                         <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-1)" oninput="this.value = this.value.toUpperCase()">
-                        <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)">
+                        <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)" onblur="completarCerosInput(this)">
                         <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar BM</button>
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar-bm')">🔗 Importar BMs</button>
+                    </div>
                 </div>
                 
                 <label style="margin-top: 10px; display: block; font-size:0.75rem; opacity:0.7;">Mantén presionado para reordenar</label>
@@ -357,15 +362,12 @@
             </div>
             <div id="panelParametros">
                 
-                <!-- NUEVO SISTEMA DE TRAMOS INTERACTIVOS -->
                 <div class="input-group full-width" style="margin-bottom: 15px;">
                     <label style="color: #1976d2; display: flex; justify-content: space-between;">
                         Tramos Guardados (Perfiles)
                         <span style="font-size: 0.8rem; cursor: pointer; font-weight:800; color: var(--primary-color);" onclick="limpiarCamposPerfil()">[ + NUEVO MANUAL ]</span>
                     </label>
-                    <div class="bm-list" id="listaPerfiles" style="max-height: 200px; margin-top: 5px;">
-                        <!-- Aquí se inyectarán los perfiles desde JS -->
-                    </div>
+                    <div class="bm-list" id="listaPerfiles" style="max-height: 200px; margin-top: 5px;"></div>
                 </div>
 
                 <div style="display: flex; gap:8px;">
@@ -373,7 +375,6 @@
                     <button class="btn-accion btn-auto" style="flex:1;" onclick="toggleCroquis()">👁️ Ver Croquis</button>
                 </div>
                 
-                <!-- CANVAS MEJORADO -->
                 <canvas id="croquisCanvas" width="300" height="150" style="display:none; width:100%; border:1px solid var(--border-color); border-radius:8px; margin-bottom:10px; background: var(--card-bg);"></canvas>
 
                 <div class="form-grid">
@@ -382,28 +383,28 @@
                             Cota F. Inicial 
                             <span class="info-icon" onclick="showCustomAlert('Cota de fondo del buzón de inicio del tramo (Aguas arriba).', 'COTA INICIAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota F. Final 
                             <span class="info-icon" onclick="showCustomAlert('Cota de fondo del buzón de llegada (Aguas abajo).', 'COTA FINAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Distancia (m)
-                            <span class="info-icon" onclick="showCustomAlert('Longitud horizontal total del tramo de tubería a nivelar.', 'DISTANCIA TOTAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showCustomAlert('Longitud horizontal total del tramo de tubería a nivelar. Si no es múltiplo del intervalo, el sistema incluirá automáticamente la progresiva exacta del buzón final.', 'DISTANCIA TOTAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pendiente (%)
                             <span class="info-icon" onclick="showCustomAlert('Caída porcentual del tubo. Si no la tienes, deja la casilla en blanco y presiona <strong>🪄 Deducir Dato</strong> para que se calcule sola.', 'PENDIENTE')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(this); desmarcarPerfil(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(this); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                         <span id="alertaNorma" style="color:var(--danger-color); font-size:0.75rem; font-weight:800; display:none;">⚠️ Pend. Mínima</span>
                     </div>
                 </div>
@@ -431,7 +432,7 @@
                                 <span id="txtSelectBM">-- ELEGIR BM --</span>
                                 <span class="arrow">▼</span>
                             </div>
-                            <input type="text" inputmode="decimal" id="cotaBM" placeholder="Cota..." style="flex: 40%;" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();">
+                            <input type="text" inputmode="decimal" id="cotaBM" placeholder="Cota..." style="flex: 40%;" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                         </div>
                     </div>
                     <div class="input-group full-width">
@@ -439,7 +440,7 @@
                             Vista Atrás (+)
                             <span class="info-icon" onclick="showCustomAlert('Lectura actual de la mira o wincha sobre tu BM de referencia.', 'VISTA ATRÁS')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.250" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.250" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                         <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800; font-size:0.85rem;"></div>
                     </div>
                     <div class="input-group">
@@ -447,21 +448,21 @@
                             Cama (m)
                             <span class="info-icon" onclick="showCustomAlert('Grosor de la arena o material de apoyo debajo de la tubería.', 'CAMA DE APOYO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Tubo (m)
                             <span class="info-icon" onclick="showCustomAlert('Diámetro exterior de la tubería para calcular la cota del lomo (corona).', 'ALTURA DE TUBO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group full-width">
                         <label>
                             Progresivas cada (m)
                             <span class="info-icon" onclick="showCustomAlert('Indica a cada cuántos metros quieres que se genere el cálculo de las cotas en la libreta. (Ej: cada 5m, 10m).', 'INTERVALO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="intervalo" value="10.000" placeholder="Ej: 5.000" oninput="formatDecimal(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="intervalo" value="10.000" placeholder="Ej: 5.000" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                 </div>
             </div>
@@ -474,7 +475,6 @@
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">AI (Altura Instrumento Inicial): <br><span id="txtAI">0.000</span></div>
             
-                      <!-- BOTONES DE PL Y EXTRAS -->
             <div style="display: flex; gap:8px; margin-bottom: 10px;">
                 <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
                     📍 Añadir PL 
@@ -489,7 +489,6 @@
                 🗑️ Reset PLs de esta Libreta 
                 <span class="info-icon" style="margin:0; background:rgba(211,47,47,0.1); color:var(--danger-color);" onclick="event.stopPropagation(); showCustomAlert('<strong>BORRAR CAMBIOS:</strong><br>Elimina todos los Puntos de Liga (PL) ingresados en este tramo específico para recalcular toda la libreta desde cero.', 'RESET PLs')">ℹ️</span>
             </button>
-
 
             <div class="table-wrapper">
                 <table id="tablaAlcantarillado" style="user-select:none; -webkit-user-select:none;">
@@ -565,21 +564,25 @@
 
         function mostrarLeyenda() {
             let html = `
-                <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <span style="font-size:1.2rem; margin-right:10px;">🔗</span> 
+                    <div><strong style="color:var(--primary-color);">Puente de BMs:</strong> Importa BMs desde Nivelación Simultánea o Simple sin volver a digitarlos.</div>
+                </div>
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">🪄</span> 
-                    <div><strong style="color:var(--primary-color);">Deducir Dato:</strong> Si te falta la pendiente, la distancia o una cota final, deja ESA casilla en blanco y presiona este botón. El sistema la calculará automáticamente.</div>
+                    <div><strong style="color:var(--primary-color);">Deducir Dato:</strong> Deja en blanco la pendiente, la distancia o una cota y presiona este botón para calcularla sola.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">👁️</span> 
-                    <div><strong style="color:var(--primary-color);">Ver Croquis:</strong> Genera un gráfico del tramo para asegurar visualmente que la tubería va en la dirección correcta.</div>
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <span style="font-size:1.2rem; margin-right:10px;">🏁</span> 
+                    <div><strong style="color:var(--primary-color);">Buzón Final Exacto:</strong> Si el tramo mide 46.80m y vas cada 10m, el sistema cerrará siempre con la fila exacta 0+046.80.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">👆</span> 
-                    <div><strong style="color:var(--primary-color);">Check de Progreso:</strong> Toca CUALQUIER FILA de la libreta una vez para pintarla de verde. Úsalo para saber qué tuberías ya colocaste.</div>
+                    <div><strong style="color:var(--primary-color);">Check de Progreso:</strong> Toca cualquier fila una vez para pintarla de verde y congelar su lectura.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start;">
                     <span style="font-size:1.2rem; margin-right:10px;">▶</span> 
-                    <div><strong style="color:var(--primary-color);">Doble Toque:</strong> Toca DOS VECES RÁPIDAS cualquier fila para abrir la <strong>TARJETA GIGANTE</strong>, ideal para leerla de lejos bajo el sol.</div>
+                    <div><strong style="color:var(--primary-color);">Doble Toque:</strong> Toca dos veces rápidas cualquier fila para abrir la <strong>TARJETA GIGANTE</strong> de lectura a distancia.</div>
                 </div>
             `;
             showCustomAlert(html, "GUÍA DE FUNCIONES");
@@ -616,14 +619,94 @@
             cerrarCustomPrompt(); if (promptOkCallback) promptOkCallback(val);
         }
 
-        /* --- UI: MODAL SELECTOR GENÉRICO (ACTUALIZADO SIN PERFIL) --- */
+        /* --- UI: MODAL SELECTOR GENÉRICO Y PUENTE DE BMs --- */
         let tipoModalActual = "";
+        let bmsExternosCache = [];
+
+        function recopilarBMsExternos() {
+            let lista = [];
+            let pActual = obtenerProyectoActivo();
+            let nombresActuales = pActual ? pActual.bms.map(b => b.nombre) : [];
+
+            // 1. Otros proyectos de Alcantarillado
+            appDataAlcan.proyectos.forEach(proj => {
+                if (proj.id !== appDataAlcan.activoId && proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Alcantarillado (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+
+            // 2. Nivelación Simultánea (Doble Liga)
+            try {
+                let dbPol = JSON.parse(localStorage.getItem('cota100_db_poligonal_v11'));
+                if (dbPol && dbPol.proyectos) {
+                    dbPol.proyectos.forEach(proj => {
+                        if (proj.bms) {
+                            proj.bms.forEach(bm => {
+                                if (!nombresActuales.includes(bm.nombre)) {
+                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simultánea: ${proj.nombre}`, origen: `Simultánea (${proj.nombre})` });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            // 3. Nivelación Simple
+            try {
+                let dbSim = JSON.parse(localStorage.getItem('cota100_db_simple_v4'));
+                if (dbSim && dbSim.proyectos) {
+                    dbSim.proyectos.forEach(proj => {
+                        if (proj.bms) {
+                            proj.bms.forEach(bm => {
+                                if (!nombresActuales.includes(bm.nombre)) {
+                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simple: ${proj.nombre}`, origen: `Niv. Simple (${proj.nombre})` });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            return lista;
+        }
+
+        function importarBMExterno(idx) {
+            let bm = bmsExternosCache[idx];
+            if (!bm) return;
+            let p = obtenerProyectoActivo();
+            if (p.bms.some(b => b.nombre === bm.nombre)) {
+                showToast("Ese BM ya está en este proyecto", "warning");
+                return;
+            }
+            p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`BM [${bm.nombre}] importado`, "success");
+        }
+
+        function importarTodosBMsExternos() {
+            let p = obtenerProyectoActivo();
+            let count = 0;
+            bmsExternosCache.forEach(bm => {
+                if (!p.bms.some(b => b.nombre === bm.nombre)) {
+                    p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+                    count++;
+                }
+            });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`${count} BMs importados con éxito`, "success");
+        }
+
         function abrirModalSelect(tipo) {
             tipoModalActual = tipo;
             const titulo = document.getElementById('modalSelectTitle');
             const contenido = document.getElementById('modalSelectContent');
             contenido.innerHTML = "";
             let p = obtenerProyectoActivo();
+            let decs = parseInt(globalConfig.decimales) || 3;
 
             if(tipo === 'proyecto') {
                 titulo.innerText = "📁 SELECCIONAR PROYECTO";
@@ -633,12 +716,25 @@
                 });
             } else if(tipo === 'bm') {
                 titulo.innerText = "📍 SELECCIONAR BM";
-                let decs = parseInt(globalConfig.decimales) || 3;
                 contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- ELEGIR BM --')"><span>-- ELEGIR BM --</span></button>`;
                 p.bms.forEach(bm => {
                     let isActivo = document.getElementById('hdnSelectBM').value === bm.cota.toString();
                     contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${bm.cota}', '${bm.nombre}')"><span>${bm.nombre}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
                 });
+            } else if(tipo === 'importar-bm') {
+                titulo.innerText = "🔗 PUENTE DE BMs";
+                bmsExternosCache = recopilarBMsExternos();
+                if (bmsExternosCache.length === 0) {
+                    contenido.innerHTML = `<div style="padding:15px; text-align:center; font-weight:700; opacity:0.7;">No se encontraron BMs nuevos en otros módulos o proyectos.</div>`;
+                } else {
+                    contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternos()">📥 IMPORTAR TODOS (${bmsExternosCache.length})</button>`;
+                    bmsExternosCache.forEach((bm, idx) => {
+                        contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExterno(${idx})">
+                            <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                            <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
+                        </button>`;
+                    });
+                }
             }
 
             document.getElementById('overlaySelect').style.display = 'block';
@@ -669,12 +765,34 @@
         const iconosTerr = ['➖', '🪨', '💧'];
 
         function formatDecimal(input) {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let val = input.value.replace(/,/g, '.');
             val = val.replace(/[^0-9.-]/g, ''); 
-            if (val.indexOf('-') > 0) val = val.replace('-', '');
+            if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
+            if ((val.match(/-/g) || []).length > 1) val = '-' + val.replace(/-/g, '');
             let parts = val.split('.');
             if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+            if (parts.length === 2 && parts[1].length > decs) {
+                val = parts[0] + '.' + parts[1].substring(0, decs);
+            }
             if(input.value !== val) input.value = val;
+        }
+
+        function completarCerosInput(input) {
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let val = input.value.trim();
+            if (val !== "" && val !== "-" && val !== ".") {
+                let floatVal = parseFloat(val);
+                if (!isNaN(floatVal)) input.value = floatVal.toFixed(decs);
+            }
+        }
+
+        function formatearProg(p) {
+            let km = Math.floor(p / 1000);
+            let resto = Number((p % 1000).toFixed(3));
+            let esEntero = Math.abs(resto - Math.round(resto)) < 0.001;
+            let restoStr = esEntero ? Math.round(resto).toString().padStart(3, '0') : resto.toFixed(2).padStart(6, '0');
+            return `${km}+${restoStr}`;
         }
 
         async function solicitarWakeLock() { if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} } }
@@ -884,7 +1002,7 @@
                 showCustomConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
                     p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
-                    editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM en Proyecto"; btn.style.background = "var(--table-header)";
+                    editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
                     finalizarGuardado();
                     let currentSelect = document.getElementById('hdnSelectBM').value;
                     if(currentSelect && parseFloat(currentSelect) !== cota) { document.getElementById('hdnSelectBM').value = cota; seleccionarBM(cota); }
@@ -898,7 +1016,7 @@
         function cargarEditBM(nombreBM) {
             let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if(idx === -1) return; let bm = p.bms[idx];
             document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
-            editandoBMIndex = idx; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar BM"; btn.style.background = "var(--primary-color)";
+            editandoBMIndex = idx; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar"; btn.style.background = "var(--primary-color)";
         }
 
         function deleteBM(nombreBM) { 
@@ -944,7 +1062,6 @@
             if(idx >= 0) { 
                 showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => { 
                     p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; 
-                    // Si sobreescribimos, dejamos ese como seleccionado visualmente
                     document.getElementById('hdnSelectPerfil').value = idx.toString();
                     finalizarGuardarPerfil(); 
                 });
@@ -1012,7 +1129,7 @@
                 p.perfiles.splice(index, 1);
                 let currentSelection = document.getElementById('hdnSelectPerfil').value;
                 if(currentSelection === index.toString()) {
-                    desmarcarPerfil(); // Si se borró el activo, solo desvinculamos, no borramos inputs por si el topógrafo los necesita.
+                    desmarcarPerfil();
                 } else if (currentSelection !== "" && parseInt(currentSelection) > index) {
                     document.getElementById('hdnSelectPerfil').value = (parseInt(currentSelection) - 1).toString();
                 }
@@ -1025,7 +1142,7 @@
         function desmarcarPerfil() { 
             if(document.getElementById('hdnSelectPerfil').value !== "") {
                 document.getElementById('hdnSelectPerfil').value = ""; 
-                renderPerfiles(); // Refresca para quitar el borde/fondo de la lista
+                renderPerfiles();
             }
         }
 
@@ -1050,7 +1167,7 @@
             else { input.style.borderColor = "var(--border-color)"; alerta.style.display = "none"; }
         }
 
-        /* --- F3: MINI CROQUIS DE PERFIL OPTIMIZADO --- */
+        /* --- F3: MINI CROQUIS DE PERFIL CON SOPORTE MODO OSCURO --- */
         function toggleCroquis() {
             let cv = document.getElementById('croquisCanvas');
             if(cv.style.display === 'block') { cv.style.display = 'none'; return; }
@@ -1060,34 +1177,31 @@
             
             cv.style.display = 'block';
             let ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height);
+            let isDark = document.body.classList.contains('dark-mode');
+            let txtColor = isDark ? '#ffffff' : '#1a1e23';
+            let dashColor = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
             
-            // Fondo con degradado
             let grd = ctx.createLinearGradient(0, 0, 0, 150);
             grd.addColorStop(0, "rgba(25, 118, 210, 0.05)");
             grd.addColorStop(1, "rgba(255, 85, 0, 0.1)");
             ctx.fillStyle = grd; ctx.fillRect(0,0,300,150);
 
-            // Calcular proporciones
             let isBaja = ci >= cf;
             let y1 = isBaja ? 40 : 110;
             let y2 = isBaja ? 110 : 40;
             if(ci === cf) { y1 = 75; y2 = 75; }
 
-            // Dibujar línea de terreno/referencia (punteada)
-            ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = dashColor;
             ctx.moveTo(30, y1); ctx.lineTo(270, y1); ctx.stroke();
-            ctx.setLineDash([]); // Reset dash
+            ctx.setLineDash([]);
 
-            // Dibujar Tubería
             ctx.beginPath(); ctx.strokeStyle = '#FF5500'; ctx.lineWidth = 6;
             ctx.moveTo(30, y1); ctx.lineTo(270, y2); ctx.stroke();
 
-            // Nodos (Buzones)
-            ctx.beginPath(); ctx.arc(30, y1, 6, 0, 2*Math.PI); ctx.fillStyle = '#1a1e23'; ctx.fill();
+            ctx.beginPath(); ctx.arc(30, y1, 6, 0, 2*Math.PI); ctx.fillStyle = txtColor; ctx.fill();
             ctx.beginPath(); ctx.arc(270, y2, 6, 0, 2*Math.PI); ctx.fill();
 
-            // Textos informativos
-            ctx.fillStyle = '#1a1e23'; ctx.font = 'bold 13px Rajdhani'; 
+            ctx.fillStyle = txtColor; ctx.font = 'bold 13px Rajdhani'; 
             ctx.textAlign = 'left'; ctx.fillText(`C.I: ${ci.toFixed(3)}`, 10, y1 - 15);
             ctx.textAlign = 'right'; ctx.fillText(`C.F: ${cf.toFixed(3)}`, 290, y2 + 20);
             ctx.textAlign = 'center';
@@ -1109,15 +1223,21 @@
             showCustomPrompt("PROGRESIVA A INTERPOLAR (Ej: 12.50)", "", (val) => {
                 let prog = parseFloat(val.replace(',', '.')); if(isNaN(prog)) return;
                 
-                // Gravedad estándar: Cota va bajando
+                // Buscamos si existe un PL activo antes de esta progresiva
+                let proj = obtenerProyectoActivo();
+                let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
+                let activePLProg = -1;
+                Object.keys(pls).forEach(k => { let pk = parseFloat(k); if(pk <= prog && pk > activePLProg) activePLProg = pk; });
+                let aiEfectivo = activePLProg !== -1 ? (pls[activePLProg].bm + pls[activePLProg].va) : ai;
+
                 let cotaZ = ci - ((p / 100) * prog);
                 let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
                 let cotaL = cotaZ + cama + altura;
                 
-                let lZanja = ai - cotaZ;
-                let lLomo = ai - cotaL;
+                let lZanja = aiEfectivo - cotaZ;
+                let lLomo = aiEfectivo - cotaL;
 
-                showCustomAlert(`🎯 <strong>INTERPOLACIÓN 0+${prog.toFixed(2)}</strong><br><br>
+                showCustomAlert(`🎯 <strong>INTERPOLACIÓN ${formatearProg(prog)}</strong><br><br>
                 Cota Zanja: <strong>${cotaZ.toFixed(decs)}</strong><br>
                 Lectura Zanja: <strong style="color:var(--success-text)">${lZanja.toFixed(decs)}</strong><br><br>
                 Cota Lomo: <strong>${cotaL.toFixed(decs)}</strong><br>
@@ -1131,8 +1251,6 @@
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
             if (nulos !== 1) return showToast("⚠️ Deja exactamente UNA casilla vacía para deducir el dato.", "warning");
             
-            // Asumiendo saneamiento estándar (Flujo hacia abajo)
-            // Drop = CotaIni - CotaFin
             if (isNaN(p)) { let pteCalc = ((ci - cf) / d) * 100; document.getElementById('pte').value = pteCalc.toFixed(decs); evaluarNormativa(document.getElementById('pte')); }
             else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci - ((p / 100) * d)).toFixed(decs); 
             else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf + ((p / 100) * d)).toFixed(decs); 
@@ -1181,7 +1299,7 @@
             let act = span.innerText; let nxt = iconosTerr[(iconosTerr.indexOf(act) + 1) % iconosTerr.length];
             span.innerText = nxt;
             let tr = span.closest('tr');
-            if(tr.classList.contains('fila-ok')) { // update lock
+            if(tr.classList.contains('fila-ok')) {
                 let p = obtenerProyectoActivo(); let prog = parseFloat(tr.dataset.prog);
                 if(p.estadoActivo.lockedRows[prog]) p.estadoActivo.lockedRows[prog].terr = nxt; guardarBD();
             }
@@ -1192,12 +1310,12 @@
             let currentTime = new Date().getTime(); let tapLength = currentTime - (tr.dataset.lastTap || 0);
             tr.dataset.lastTap = currentTime;
             
-            if(tapLength < 350 && tapLength > 0) { // Doble tap (F7: Tarjeta Gigante)
+            if(tapLength < 350 && tapLength > 0) {
                 clearTimeout(tr.tapTimer);
-                document.getElementById('tgProg').innerText = `0+${prog.toString().padStart(3,'0')}`;
+                document.getElementById('tgProg').innerText = formatearProg(prog);
                 document.getElementById('tgZanja').innerText = zanjaStr;
                 document.getElementById('tarjetaGigante').style.display = "flex";
-            } else { // Single tap (F5: Check & Lock)
+            } else {
                 tr.tapTimer = setTimeout(() => {
                     tr.classList.toggle('fila-ok');
                     let isLocked = tr.classList.contains('fila-ok');
@@ -1210,20 +1328,21 @@
             }
         }
 
+        /* --- GENERADOR DE LIBRETA CON INYECCIÓN EXACTA DEL BUZÓN DE LLEGADA --- */
         function generarLibreta() {
             let decs = parseInt(globalConfig.decimales) || 3;
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
 
             let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let pte = parseFloat(document.getElementById('pte').value);
-            if(isNaN(ci) || isNaN(d) || isNaN(pte)) return showToast("⚠️ Faltan datos de Diseño.", "warning");
+            if(isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) return showToast("⚠️ Faltan datos válidos de Diseño.", "warning");
             
             let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
             let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
             let intervalo = parseFloat(document.getElementById('intervalo').value);
+            if(isNaN(intervalo) || intervalo <= 0) intervalo = 10.0;
             if(isNaN(bm) || isNaN(va)) return showToast("⚠️ Faltan datos de Campo.", "warning");
 
-            // Sentido gravitacional estándar: CotaZanja = CotaIni - (pte% * dist)
-            let baseAI = bm + va;
+            let baseAI = Number((bm + va).toFixed(decs));
             document.getElementById('txtAI').innerText = baseAI.toFixed(decs);
             document.getElementById('panelEstacion').style.display = 'none';
             document.getElementById('infoTubo').innerText = `Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)}`;
@@ -1232,27 +1351,45 @@
             let proj = obtenerProyectoActivo(); let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
 
-            let currentAI = baseAI;
+            // Construcción limpia de progresivas + Buzón de Llegada exacto
+            let estaciones = [];
+            let pasos = Math.floor(d / intervalo);
+            for (let k = 0; k <= pasos; k++) {
+                let pVal = Number((k * intervalo).toFixed(3));
+                if (pVal <= d) estaciones.push(pVal);
+            }
+            if (estaciones.length === 0 || Math.abs(estaciones[estaciones.length - 1] - d) > 0.001) {
+                estaciones.push(Number(d.toFixed(3)));
+            }
 
-            for(let i=0; i <= d; i += intervalo) {
-                // Check if PL exists here or before
+            let currentAI = baseAI;
+            let prevActivePLProg = -1;
+
+            estaciones.forEach((i, idx) => {
                 let activePLProg = -1;
                 Object.keys(pls).forEach(k => { let pk = parseFloat(k); if(pk <= i && pk > activePLProg) activePLProg = pk; });
-                if(activePLProg !== -1) currentAI = pls[activePLProg].bm + pls[activePLProg].va;
+                if(activePLProg !== -1) currentAI = Number((pls[activePLProg].bm + pls[activePLProg].va).toFixed(decs));
                 else currentAI = baseAI;
 
-                let cotaZanja = ci - ((pte / 100) * i);
-                let cotaLomo = cotaZanja + cama + altura;
+                if (activePLProg !== -1 && activePLProg !== prevActivePLProg) {
+                    tbody.innerHTML += `<tr><td colspan="5" style="background:rgba(25, 118, 210, 0.12); color:#1976d2; font-size:0.8rem; padding:5px; font-weight:900;">📍 NUEVO PL EN ${formatearProg(activePLProg)} (Nueva AI: ${currentAI.toFixed(decs)} m)</td></tr>`;
+                    prevActivePLProg = activePLProg;
+                }
+
+                let cotaZanja = Number((ci - ((pte / 100) * i)).toFixed(decs));
+                let cotaLomo = Number((cotaZanja + cama + altura).toFixed(decs));
                 
                 let leerZanja, leerLomo, czStr, clStr, terrIcon = '➖', cssRow = '';
+                let esBuzonFinal = (idx === estaciones.length - 1 && Math.abs(i - d) < 0.001 && (d % intervalo !== 0));
+                if (esBuzonFinal) cssRow += ' fila-cierre-bz';
 
-                // F5: Check & Lock override
                 if(locked[i]) {
                     leerZanja = parseFloat(locked[i].lz); leerLomo = parseFloat(locked[i].ll);
                     czStr = parseFloat(locked[i].cz).toFixed(decs); clStr = parseFloat(locked[i].cl).toFixed(decs);
-                    terrIcon = locked[i].terr || '➖'; cssRow = 'fila-ok';
+                    terrIcon = locked[i].terr || '➖'; cssRow += ' fila-ok';
                 } else {
-                    leerZanja = currentAI - cotaZanja; leerLomo = currentAI - cotaLomo;
+                    leerZanja = Number((currentAI - cotaZanja).toFixed(decs)); 
+                    leerLomo = Number((currentAI - cotaLomo).toFixed(decs));
                     czStr = cotaZanja.toFixed(decs); clStr = cotaLomo.toFixed(decs);
                 }
 
@@ -1260,27 +1397,26 @@
                 let styleLomo = (leerLomo >= limiteMira || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
                 
                 let lzStr = leerZanja.toFixed(decs); let llStr = leerLomo.toFixed(decs);
+                let progTexto = formatearProg(i);
 
-                tbody.innerHTML += `<tr class="${cssRow}" data-prog="${i}" data-lz="${lzStr}" data-ll="${llStr}" data-cz="${czStr}" data-cl="${clStr}" onclick="manejarRowTap(this, event, ${i}, '${lzStr}')">
-                    <td class="celda-prog"><span class="icono-terr" onclick="cicloTerreno(this, event)">${terrIcon}</span> 0+${i.toString().padStart(3,'0')}</td>
+                tbody.innerHTML += `<tr class="${cssRow.trim()}" data-prog="${i}" data-lz="${lzStr}" data-ll="${llStr}" data-cz="${czStr}" data-cl="${clStr}" onclick="manejarRowTap(this, event, ${i}, '${lzStr}')">
+                    <td class="celda-prog"><span class="icono-terr" onclick="cicloTerreno(this, event)">${terrIcon}</span> ${progTexto}</td>
                     <td style="${styleZanja}">${lzStr}</td>
                     <td style="${styleLomo}">${llStr}</td>
                     <td>${czStr}</td>
                     <td>${clStr}</td>
                 </tr>`;
+            });
 
-                // Render PL info banner
-                if(pls[i]) {
-                    tbody.innerHTML += `<tr><td colspan="5" style="background:rgba(25, 118, 210, 0.1); color:#1976d2; font-size:0.8rem; padding:4px;">📍 NUEVO PL DESDE AQUÍ (AI: ${currentAI.toFixed(decs)})</td></tr>`;
-                }
-            }
             document.getElementById('seccionTabla').style.display = 'block'; document.getElementById('btnExcel').style.display = 'block';
             guardarEstadoAlcan(); showToast("✅ Libreta Generada", "success");
         }
 
         function exportarXLSX() { 
+            let p = obtenerProyectoActivo();
             let wb = XLSX.utils.table_to_book(document.getElementById("tablaAlcantarillado")); 
-            XLSX.writeFile(wb, "Libreta_Alcantarillado.xlsx"); 
+            let nombreArchivo = p ? `${p.nombre.replace(/\s+/g, '_')}_Alcantarillado.xlsx` : "Libreta_Alcantarillado.xlsx";
+            XLSX.writeFile(wb, nombreArchivo); 
             showToast("Reporte descargado", "success");
         }
         function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }

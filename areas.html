@@ -27,8 +27,8 @@
         @keyframes waveFire { 0% { transform: translateX(0); } 100% { transform: translateX(-50vw); } }
 
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); height: 70px; }
-        .nav-buttons-left { display: flex; gap: 8px; }
-        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .nav-buttons-left { display: flex; gap: 8px; width: 45px; }
+        .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; filter: drop-shadow(0 0 5px var(--primary-glow)); }
         .btn-volver-mini:active { transform: scale(0.92); }
         .top-bar-title { color: var(--text-color); font-weight: 900; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem; letter-spacing: 1px;}
@@ -78,13 +78,17 @@
         /* MODALES Y TOASTS */
         .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(2px); }
         .overlay-select.activo { opacity: 1; }
-        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 320px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); }
+        .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); }
         .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
-        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.85rem; font-weight: 700;}
         
-        #toast-container { position: fixed; top: 85px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none;}
-        .toast { background: var(--card-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards;}
+        #toast-container { position: fixed; top: 85px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; width: 90%; max-width: 350px;}
+        .toast { background: var(--card-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards; text-align: center;}
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.warning { border-left-color: #fbc02d; }
         .toast.fade-out { animation: fadeOutToast 0.3s forwards; }
         @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutToast { to { opacity: 0; transform: translateY(-20px); } }
@@ -103,13 +107,21 @@
 <body onload="inicializarApp()">
 
     <div class="fire-base"><div class="fire-wave delay"></div><div class="fire-wave"></div></div>
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
+
     <div id="toast-container"></div>
 
     <!-- MODALES GENÉRICOS -->
     <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
     <div class="modal-select" id="modalSelect">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem;">SELECCIONAR</h3>
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.15rem;">SELECCIONAR</h3>
             <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
         </div>
         <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
@@ -137,6 +149,18 @@
         </div>
     </div>
 
+    <!-- MODAL RENOMBRAR LOTE -->
+    <div class="overlay-select" id="customPromptOverlay">
+        <div class="modal-select" id="customPromptModal">
+            <h3 id="customPromptTitle" style="color:var(--text-color); margin-bottom:10px; font-weight:900; text-transform:uppercase; font-size: 1.1rem;">INGRESO</h3>
+            <input type="text" id="customPromptInput" style="margin-bottom:15px; background:var(--input-bg); border:1px solid var(--primary-color); width:100%; padding:10px; font-weight:bold; border-radius:8px; color:var(--text-color);" onfocus="this.select()">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-accion" style="background:var(--danger-color); color:#fff; flex:1;" onclick="document.getElementById('customPromptInput').value=''; document.getElementById('customPromptInput').focus();">BORRAR</button>
+                <button class="btn-accion" style="background:var(--primary-color); color:#fff; flex:1;" onclick="btnPromptOkClick()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL AJUSTE ÁREA -->
     <div class="overlay-select" id="promptAreaOverlay"></div>
     <div class="modal-select" id="promptAreaModal">
@@ -151,11 +175,15 @@
 
     <div class="top-bar">
         <div class="nav-buttons-left">
-            <a href="index.html" class="btn-volver-mini" onclick="vibrar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a>
-            <a href="index.html" class="btn-volver-mini" onclick="vibrar()"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
+            <a href="index.html" class="btn-volver-mini" onclick="vibrar()">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </a>
         </div>
         <h2 class="top-bar-title">ÁREAS Y<br><span>PERÍMETROS</span></h2>
-        <div style="width: 90px; display: flex; justify-content: flex-end;">
+        <div style="width: 45px; display: flex; justify-content: flex-end;">
             <button class="btn-volver-mini" onclick="mostrarLeyendaArea()" title="Guía de Funciones" style="width: 45px; height: 45px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
             </button>
@@ -167,14 +195,15 @@
         <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
             <div class="panel-titulo" onclick="togglePanel('panelProyecto')"><span>📁 Base de Datos / Lotes</span><span>▼</span></div>
             <div id="panelProyecto" class="panel-contenido">
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
                     <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')"><span id="txtSelectProyecto">Cargando...</span><span class="arrow">▼</span></div>
-                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--primary-color); margin-bottom:0;" onclick="crearNuevoProyecto()">+ NUEVO</button>
-                    <button class="btn-accion" style="width: auto; padding: 10px; background: var(--danger-color); margin-bottom:0;" onclick="eliminarProyecto()">🗑️</button>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--table-header); margin:0;" onclick="editarNombreProyecto()">✏️</button>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--primary-color); margin:0;" onclick="crearNuevoProyecto()">➕</button>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--danger-color); margin:0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
-                <input type="text" id="proyectName" placeholder="Nombre del Lote" oninput="renombrarProyecto()" style="margin-bottom:10px;">
+                <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); margin-bottom: 10px;" onclick="abrirModalSelect('importar_poligonal')">🔗 Traer Vértices desde Poligonales</button>
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; display:flex; gap:8px;">
-                    <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: var(--table-header); margin: 0;" onclick="exportarBackup()">📤 Backup</button>
+                    <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: var(--table-header); margin: 0;" onclick="exportarBackup()">📤 Backup DB</button>
                     <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--text-color); border: 1px solid var(--border-color); margin: 0; cursor: pointer;">
                         📥 Restaurar <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importarBackup()">
                     </label>
@@ -184,7 +213,7 @@
 
         <div class="panel-control" style="border-left: 4px solid #555;">
             <div class="panel-titulo" style="color: var(--text-color);" onclick="togglePanel('panelImportacion')">
-                <span>📥 Importar (CSV / TXT / KML)</span><span class="btn-toggle-panel">▼</span>
+                <span>📥 Importar Archivo (CSV / TXT / KML)</span><span class="btn-toggle-panel">▼</span>
             </div>
             <div id="panelImportacion" class="panel-contenido" style="display: none;">
                 <div class="form-grid">
@@ -210,8 +239,8 @@
             </div>
         </div>
 
-        <div class="alerta-critica">
-            <strong style="color: var(--danger-color);">⚠️ GEOMETRÍA:</strong> Los vértices deben ser ingresados en orden secuencial por el contorno. Si el polígono dibuja un "moño" (se cruza), el área será incorrecta.
+        <div class="alerta-critica" id="alertaGeometria">
+            <strong style="color: var(--danger-color);">⚠️ GEOMETRÍA:</strong> Ingresa los vértices en orden secuencial siguiendo el lindero. El sistema detectará automáticamente si dos lados se cruzan ("moño").
         </div>
 
         <div class="panel-control" style="padding: 10px; border-left: 4px solid var(--primary-color);">
@@ -222,7 +251,7 @@
             
             <div class="table-wrapper">
                 <table id="tablaAreas">
-                    <thead><tr><th style="width: 15%;">PT.</th><th style="width: 35%;">ESTE (X)</th><th style="width: 35%;">NORTE (Y)</th><th style="width: 15%;">ANG. INT</th></tr></thead>
+                    <thead><tr><th style="width: 12%;">PT.</th><th style="width: 33%;">ESTE (X)</th><th style="width: 33%;">NORTE (Y)</th><th style="width: 22%;">ANG. INT</th></tr></thead>
                     <tbody id="cuerpoTablaAreas"></tbody>
                 </table>
             </div>
@@ -250,7 +279,7 @@
                 <div class="res-titulo" style="color: var(--primary-color);">ÁREA DEL POLÍGONO</div>
                 <div class="res-valor" id="resAreaM2">0.00 m²</div>
                 <div class="res-hectareas" id="resAreaHa">0.0000 Ha</div>
-                <div style="font-size: 0.85rem; color: var(--text-color); opacity: 0.8; margin-top:5px; font-weight:700;"><span id="resAcres">0.00</span> Acres | <span id="resTareas">0.00</span> Tareas (Agrícolas)</div>
+                <div style="font-size: 0.85rem; color: var(--text-color); opacity: 0.8; margin-top:5px; font-weight:700;"><span id="resAcres">0.00</span> Acres | <span id="resTareas">0.00</span> Tareas | ∑ Áng: <span id="resSumaAng">--</span></div>
             </div>
             
             <div class="form-grid">
@@ -281,6 +310,8 @@
         function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display==="none"?"block":"none"; }
         
         let confirmOkCallback = null;
+        let promptOkCallback = null;
+
         document.getElementById('btnConfirmCancel').addEventListener('click', () => { 
             vibrar(); 
             document.getElementById('customConfirmOverlay').classList.remove('activo');
@@ -306,6 +337,32 @@
                 document.getElementById('customConfirmModal').classList.add('abierto');
             }, 10);
         }
+
+        function showCustomPrompt(title, defaultVal, onOk) {
+            vibrar();
+            document.getElementById('customPromptTitle').innerText = title;
+            let inp = document.getElementById('customPromptInput');
+            inp.value = defaultVal;
+            promptOkCallback = onOk;
+            document.getElementById('customPromptOverlay').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('customPromptOverlay').classList.add('activo');
+                document.getElementById('customPromptModal').classList.add('abierto');
+                inp.focus();
+            }, 10);
+        }
+
+        function cerrarCustomPrompt() {
+            document.getElementById('customPromptOverlay').classList.remove('activo');
+            document.getElementById('customPromptModal').classList.remove('abierto');
+            setTimeout(() => document.getElementById('customPromptOverlay').style.display = 'none', 300);
+        }
+
+        function btnPromptOkClick() {
+            let val = document.getElementById('customPromptInput').value;
+            cerrarCustomPrompt();
+            if (promptOkCallback) promptOkCallback(val);
+        }
         
         function showInfoAlert(htmlMsg) { 
             vibrar(); 
@@ -327,40 +384,125 @@
         function mostrarLeyendaArea() {
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
+                    <strong style="color:var(--primary-color);">🔗 Traer de Poligonal:</strong><br>
+                    Importa directamente los vértices de control registrados en tus proyectos de Poligonal Cerrada o Abierta.<br><br>
                     <strong style="color:var(--primary-color);">📥 Importar (KML/CSV):</strong><br>
-                    Puedes dibujar un polígono en Google Earth, guardarlo como KML e importarlo aquí directamente para ver su área exacta.<br><br>
+                    Puedes dibujar un polígono en Google Earth, guardarlo como KML e importarlo aquí directamente para calcular su área UTM.<br><br>
                     <strong style="color:var(--primary-color);">⚙️ Ajuste Registral (Homotecia):</strong><br>
-                    Si un plano antiguo dice que el terreno tiene 1000m² pero tu levantamiento dio 1025m², puedes usar el botón de Ajuste. El sistema redimensionará todas tus coordenadas proporcionalmente desde el centroide para que el área encaje exactamente con el título de propiedad.
+                    Si una partida registral indica 1000.00 m² pero tu levantamiento dio 1025.00 m², este botón redimensiona las coordenadas proporcionalmente desde el centroide para cuadrar con el área oficial.
                 </div>
             `;
             showInfoAlert(html);
         }
 
-        let appData = { activoId: 1, proyectos: [] };
-        let globalConfig = { darkMode: false, vibracion: true, decimales: "3", formatoCSV: "PEN" };
-        let currentCentroid = {x:0, y:0};
+        let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
+        let globalConfig = { darkMode: false, vibracion: false, decimales: "3", formatoCSV: "PEN", delimitadorCSV: ";" };
+        let currentCentroid = {x:0, y:0, a:0};
         let canvasHitBoxes = [];
+        let lotesPoligonalesCache = [];
 
         function inicializarApp() {
             localStorage.setItem('cota100_last_name', 'ÁREAS Y PERÍMETROS'); localStorage.setItem('cota100_last_url', 'areas.html');
-            try { let conf = JSON.parse(localStorage.getItem('cota100_ajustes')); if(conf) { globalConfig = conf; if(conf.darkMode) document.body.classList.add('dark-mode'); document.getElementById('formatoColumnas').value = conf.formatoCSV||"PEN"; document.getElementById('txtFormato').innerText = (conf.formatoCSV==="PEN")?"P-E-N":"E-N"; } } catch(e) {}
+            try { 
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes')); 
+                if(conf) { 
+                    globalConfig = conf; 
+                    if(conf.darkMode) document.body.classList.add('dark-mode'); 
+                    document.getElementById('formatoColumnas').value = conf.formatoCSV || "PEN"; 
+                    document.getElementById('txtFormato').innerText = (conf.formatoCSV === "EN") ? "E-N" : "P-E-N"; 
+                } 
+            } catch(e) {}
             let stored = localStorage.getItem('cota100_db_areas_v2');
             if (stored) { appData = JSON.parse(stored); if(!appData.contadorProyectos) appData.contadorProyectos = appData.proyectos.length; } 
-            else { appData.contadorProyectos = 1; appData.proyectos.push({id: 1, nombre: "Polígono 1", tabla: [{e:"",n:""},{e:"",n:""},{e:"",n:""}]}); appData.activoId = 1; }
+            else { 
+                appData.contadorProyectos = 1; 
+                let prefijo = globalConfig.proyecto || "POLÍGONO";
+                appData.proyectos.push({id: 1, nombre: `${prefijo} 1`, tabla: [{e:"",n:""},{e:"",n:""},{e:"",n:""}]}); 
+                appData.activoId = 1; 
+            }
             renderSelectProyectos(); cargarProyectoActivo(); initCanvasEvents();
         }
 
         function obtenerProyectoActivo() { return appData.proyectos.find(p => p.id === appData.activoId); }
         function guardarBD() { localStorage.setItem('cota100_db_areas_v2', JSON.stringify(appData)); }
 
+        /* --- PUENTE PARA TRAER VÉRTICES DESDE POLIGONALES --- */
+        function recopilarPoligonalesExternas() {
+            let lista = [];
+            try {
+                let dbCerr = JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4'));
+                if (dbCerr && dbCerr.proyectos) {
+                    dbCerr.proyectos.forEach(proj => {
+                        if (proj.bms && proj.bms.length >= 3) {
+                            lista.push({
+                                nombre: proj.nombre,
+                                origen: "Poligonal Cerrada (Vértices DB)",
+                                pts: proj.bms.map(b => ({ e: Number(b.este).toFixed(3), n: Number(b.norte).toFixed(3) }))
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            try {
+                let dbAb = JSON.parse(localStorage.getItem('cota100_db_polabierta_v5'));
+                if (dbAb && dbAb.proyectos) {
+                    dbAb.proyectos.forEach(proj => {
+                        if (proj.bms && proj.bms.length >= 3) {
+                            lista.push({
+                                nombre: proj.nombre,
+                                origen: "Poligonal Abierta (Vértices DB)",
+                                pts: proj.bms.map(b => ({ e: Number(b.este).toFixed(3), n: Number(b.norte).toFixed(3) }))
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+            return lista;
+        }
+
+        function inyectarPoligonalExterna(idx) {
+            let item = lotesPoligonalesCache[idx];
+            if (!item) return;
+            obtenerProyectoActivo().tabla = item.pts;
+            guardarBD();
+            cerrarModalSelect();
+            cargarProyectoActivo();
+            calcularArea();
+            showToast(`✅ ${item.pts.length} vértices cargados de ${item.nombre}`, "success");
+        }
+
         let tipoModalActual = "";
         function abrirModalSelect(tipo) {
             vibrar(); tipoModalActual = tipo; const titulo = document.getElementById('modalSelectTitle'); const contenido = document.getElementById('modalSelectContent'); contenido.innerHTML = "";
             let opciones = []; let actual = "";
-            if (tipo === 'proyecto') { titulo.innerText = "📁 SELECCIONAR LOTE"; actual = appData.activoId; appData.proyectos.forEach(p => { opciones.push({val:p.id, txt:p.nombre}); }); } 
-            else if (tipo === 'formato') { titulo.innerText = "📥 FORMATO CSV"; actual = document.getElementById('formatoColumnas').value; opciones = [{val:'PEN', txt:'Punto, Este, Norte (P-E-N)'}, {val:'EN', txt:'Solo Este, Norte (E-N)'}]; }
-            else if (tipo === 'zonaUtm') { titulo.innerText = "🌍 ZONA (KML)"; actual = document.getElementById('zonaUtm').value; opciones = [{val:'17', txt:'17 Sur'}, {val:'18', txt:'18 Sur'}, {val:'19', txt:'19 Sur'}]; }
-            opciones.forEach(opt => { let isActivo = opt.val == actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo?'background:var(--primary-color); color:#fff;':''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; });
+            if (tipo === 'proyecto') { 
+                titulo.innerText = "📁 SELECCIONAR LOTE"; actual = appData.activoId; 
+                appData.proyectos.forEach(p => { opciones.push({val:p.id, txt:p.nombre}); }); 
+            } else if (tipo === 'formato') { 
+                titulo.innerText = "📥 FORMATO CSV"; actual = document.getElementById('formatoColumnas').value; 
+                opciones = [{val:'PEN', txt:'Punto, Este, Norte (P-E-N)'}, {val:'EN', txt:'Solo Este, Norte (E-N)'}]; 
+            } else if (tipo === 'zonaUtm') { 
+                titulo.innerText = "🌍 ZONA (KML)"; actual = document.getElementById('zonaUtm').value; 
+                opciones = [{val:'17', txt:'17 Sur'}, {val:'18', txt:'18 Sur'}, {val:'19', txt:'19 Sur'}]; 
+            } else if (tipo === 'importar_poligonal') {
+                titulo.innerText = "🔗 TRAER DE POLIGONAL";
+                lotesPoligonalesCache = recopilarPoligonalesExternas();
+                if (lotesPoligonalesCache.length === 0) {
+                    contenido.innerHTML = `<div style="padding:15px; text-align:center; font-weight:700; opacity:0.7;">No se encontraron proyectos con al menos 3 vértices guardados en Poligonal Cerrada o Abierta.</div>`;
+                } else {
+                    lotesPoligonalesCache.forEach((item, idx) => {
+                        contenido.innerHTML += `<button class="btn-opcion" onclick="inyectarPoligonalExterna(${idx})">
+                            <div><strong>${item.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${item.origen}</span></div>
+                            <span class="cota">${item.pts.length} Pts</span>
+                        </button>`;
+                    });
+                }
+            }
+
+            if (tipo !== 'importar_poligonal') {
+                opciones.forEach(opt => { let isActivo = opt.val == actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo?'background:var(--primary-color); color:#fff;':''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; });
+            }
             
             document.getElementById('overlaySelect').style.display = 'block'; 
             setTimeout(() => {
@@ -378,26 +520,74 @@
 
         function seleccionarOpcionModal(val, txt) { 
             cerrarModalSelect(); 
-            if(tipoModalActual === 'proyecto') { appData.activoId = parseInt(val); guardarBD(); cargarProyectoActivo(); } 
+            if(tipoModalActual === 'proyecto') { appData.activoId = parseInt(val); guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); } 
             else if (tipoModalActual === 'formato') { document.getElementById('formatoColumnas').value = val; document.getElementById('txtFormato').innerText = txt; } 
             else if(tipoModalActual === 'zonaUtm') { document.getElementById('zonaUtm').value = val; document.getElementById('txtZonaUtm').innerText = txt; } 
         }
 
         function renderSelectProyectos() { let p = obtenerProyectoActivo(); document.getElementById('txtSelectProyecto').innerText = p ? p.nombre : "Sin Nombre"; }
-        function crearNuevoProyecto() { vibrar(); appData.contadorProyectos++; let nId = Date.now(); appData.proyectos.push({id: nId, nombre: `Polígono ${appData.contadorProyectos}`, tabla: [{e:"",n:""},{e:"",n:""},{e:"",n:""}]}); appData.activoId = nId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); showToast("Proyecto creado", "success"); }
-        function eliminarProyecto() { vibrar(); if(appData.proyectos.length===1) return showToast("No puedes borrar el último.", "warning"); showConfirm(`¿Borrar "${obtenerProyectoActivo().nombre}"?`, () => { appData.proyectos = appData.proyectos.filter(p => p.id !== appData.activoId); appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); }); }
-        function renombrarProyecto() { let p = obtenerProyectoActivo(); p.nombre = document.getElementById('proyectName').value.trim(); guardarBD(); renderSelectProyectos(); }
+        
+        function crearNuevoProyecto() { 
+            vibrar(); 
+            appData.contadorProyectos = (appData.contadorProyectos || appData.proyectos.length) + 1; 
+            let prefijo = globalConfig.proyecto || "POLÍGONO";
+            let nId = Date.now(); 
+            appData.proyectos.push({id: nId, nombre: `${prefijo} ${appData.contadorProyectos}`, tabla: [{e:"",n:""},{e:"",n:""},{e:"",n:""}]}); 
+            appData.activoId = nId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); showToast("Lote creado", "success"); 
+        }
+        
+        function eliminarProyecto() { 
+            vibrar(); if(appData.proyectos.length===1) return showToast("No puedes borrar el último.", "warning"); 
+            showConfirm(`¿Borrar "${obtenerProyectoActivo().nombre}"?`, () => { 
+                appData.proyectos = appData.proyectos.filter(p => p.id !== appData.activoId); 
+                appData.activoId = appData.proyectos[0].id; 
+                guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); 
+                showToast("Lote eliminado", "success");
+            }); 
+        }
+        
+        function editarNombreProyecto() { 
+            let p = obtenerProyectoActivo();
+            showCustomPrompt("EDITAR NOMBRE DEL LOTE", p.nombre, (newName) => {
+                if (newName && newName.trim() !== "") {
+                    p.nombre = newName.trim().toUpperCase();
+                    guardarBD();
+                    renderSelectProyectos();
+                    showToast("Nombre actualizado", "success");
+                }
+            });
+        }
+
+        /* --- MODO RÁFAGA: SALTO CON ENTER Y AUTO-FILA --- */
+        function manejarEnterAreas(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                let tr = input.closest('tr');
+                let tbody = document.getElementById('cuerpoTablaAreas');
+                if (input.classList.contains('coor-x')) {
+                    tr.querySelector('.coor-y').focus();
+                } else if (input.classList.contains('coor-y')) {
+                    let nextTr = tr.nextElementSibling;
+                    if (!nextTr && input.value.trim() !== "") {
+                        agregarPunto();
+                        nextTr = tr.nextElementSibling;
+                    }
+                    if (nextTr) nextTr.querySelector('.coor-x').focus();
+                }
+            }
+        }
 
         function cargarProyectoActivo() {
-            let p = obtenerProyectoActivo(); document.getElementById('proyectName').value = p.nombre; document.getElementById('cajaResultado').style.display = 'none';
+            let p = obtenerProyectoActivo(); 
+            document.getElementById('cajaResultado').style.display = 'none';
             const tbody = document.getElementById('cuerpoTablaAreas'); tbody.innerHTML = "";
             if(!p.tabla || p.tabla.length < 3) p.tabla = [{e:"",n:""},{e:"",n:""},{e:"",n:""}];
             p.tabla.forEach((f, i) => {
                 const tr = document.createElement('tr'); tr.id = `row-${i}`;
                 tr.innerHTML = `<td style="color:var(--primary-color); font-weight:800;">${i + 1}</td>
-                    <td><input type="number" class="coor-x" step="0.001" placeholder="X" value="${f.e}" oninput="guardarEstadoApp(); redibujarCroquis();"></td>
-                    <td><input type="number" class="coor-y" step="0.001" placeholder="Y" value="${f.n}" oninput="guardarEstadoApp(); redibujarCroquis();"></td>
-                    <td class="ang-int" style="font-weight:700; opacity:0.6; font-size:0.8rem;">--</td>`;
+                    <td><input type="number" class="coor-x" step="0.001" placeholder="X" value="${f.e}" oninput="guardarEstadoApp(); redibujarCroquis();" onkeydown="manejarEnterAreas(event, this)"></td>
+                    <td><input type="number" class="coor-y" step="0.001" placeholder="Y" value="${f.n}" oninput="guardarEstadoApp(); redibujarCroquis();" onkeydown="manejarEnterAreas(event, this)"></td>
+                    <td class="ang-int" style="font-weight:700; opacity:0.85; font-size:0.75rem;">--</td>`;
                 tbody.appendChild(tr);
             });
             setTimeout(redibujarCroquis, 50); 
@@ -405,16 +595,73 @@
 
         function guardarEstadoApp() { let p = obtenerProyectoActivo(); if(!p) return; let filas = []; document.querySelectorAll('#cuerpoTablaAreas tr').forEach((tr) => { filas.push({ e: tr.querySelector('.coor-x').value, n: tr.querySelector('.coor-y').value }); }); p.tabla = filas; guardarBD(); }
 
-        function agregarPunto() { const tbody = document.getElementById('cuerpoTablaAreas'); const i = tbody.children.length; const tr = document.createElement('tr'); tr.id = `row-${i}`; tr.innerHTML = `<td style="color:var(--primary-color); font-weight:800;">${i + 1}</td><td><input type="number" class="coor-x" step="0.001" oninput="guardarEstadoApp(); redibujarCroquis();"></td><td><input type="number" class="coor-y" step="0.001" oninput="guardarEstadoApp(); redibujarCroquis();"></td><td class="ang-int" style="font-weight:700; opacity:0.6; font-size:0.8rem;">--</td>`; tbody.appendChild(tr); guardarEstadoApp(); redibujarCroquis(); }
+        function agregarPunto() { 
+            const tbody = document.getElementById('cuerpoTablaAreas'); const i = tbody.children.length; const tr = document.createElement('tr'); tr.id = `row-${i}`; 
+            tr.innerHTML = `<td style="color:var(--primary-color); font-weight:800;">${i + 1}</td>
+                <td><input type="number" class="coor-x" step="0.001" placeholder="X" oninput="guardarEstadoApp(); redibujarCroquis();" onkeydown="manejarEnterAreas(event, this)"></td>
+                <td><input type="number" class="coor-y" step="0.001" placeholder="Y" oninput="guardarEstadoApp(); redibujarCroquis();" onkeydown="manejarEnterAreas(event, this)"></td>
+                <td class="ang-int" style="font-weight:700; opacity:0.85; font-size:0.75rem;">--</td>`; 
+            tbody.appendChild(tr); guardarEstadoApp(); redibujarCroquis(); 
+        }
         function quitarPunto() { const tbody = document.getElementById('cuerpoTablaAreas'); if (tbody.children.length > 3) { tbody.removeChild(tbody.lastChild); guardarEstadoApp(); redibujarCroquis(); } else showToast("Mínimo 3 vértices.", "warning"); }
         function limpiarTablaAreas() { showConfirm("¿Vaciar toda la tabla?", () => { obtenerProyectoActivo().tabla = [{e:"",n:""},{e:"",n:""},{e:"",n:""}]; guardarBD(); cargarProyectoActivo(); showToast("Tabla vaciada", "success"); }); }
 
-        // --- CÁLCULO CORE (GAUSS, CENTROIDE, ÁNGULOS) ---
+        function degToDMS_Compact(deg) {
+            let d = Math.floor(deg);
+            let mFloat = (deg - d) * 60;
+            let m = Math.floor(mFloat);
+            let s = Math.round((mFloat - m) * 60);
+            if (s === 60) { s = 0; m++; }
+            if (m === 60) { m = 0; d++; }
+            return `${d}°${m.toString().padStart(2,'0')}'${s.toString().padStart(2,'0')}"`;
+        }
+
+        /* --- DETECTOR GEOMÉTRICO DE CRUCE DE LINDEROS ("MOÑO") --- */
+        function orientacionCCW(ax, ay, bx, by, cx, cy) {
+            return (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
+        }
+
+        function segmentosSeCruzan(ax, ay, bx, by, cx, cy, dx, dy) {
+            return (orientacionCCW(ax, ay, cx, cy, dx, dy) !== orientacionCCW(bx, by, cx, cy, dx, dy)) &&
+                   (orientacionCCW(ax, ay, bx, by, cx, cy) !== orientacionCCW(ax, ay, bx, by, dx, dy));
+        }
+
+        function verificarCrucePoligono(X, Y) {
+            let n = X.length;
+            if (n < 4) return null;
+            for (let i = 0; i < n; i++) {
+                let iNext = (i + 1) % n;
+                for (let j = i + 2; j < n; j++) {
+                    if (i === 0 && j === n - 1) continue; // Lados adyacentes comparten vértice
+                    let jNext = (j + 1) % n;
+                    if (segmentosSeCruzan(X[i], Y[i], X[iNext], Y[iNext], X[j], Y[j], X[jNext], Y[jNext])) {
+                        return { lado1: `${i+1}-${iNext+1}`, lado2: `${j+1}-${jNext+1}` };
+                    }
+                }
+            }
+            return null;
+        }
+
+        // --- CÁLCULO CORE (GAUSS, CENTROIDE, ÁNGULOS DMS Y CRUCE) ---
         function calcularArea() {
-            vibrar(); let trs = document.querySelectorAll('#cuerpoTablaAreas tr'); let X = []; let Y = []; let decs = parseInt(globalConfig.decimales) || 3;
-            trs.forEach((tr) => { let xv = parseFloat(tr.querySelector('.coor-x').value); let yv = parseFloat(tr.querySelector('.coor-y').value); if (!isNaN(xv) && !isNaN(yv)) { X.push(xv); Y.push(yv); } });
+            vibrar(); let trs = document.querySelectorAll('#cuerpoTablaAreas tr'); let X = []; let Y = []; let filasValidas = []; let decs = parseInt(globalConfig.decimales) || 3;
+            trs.forEach((tr) => { 
+                let xv = parseFloat(tr.querySelector('.coor-x').value); 
+                let yv = parseFloat(tr.querySelector('.coor-y').value); 
+                if (!isNaN(xv) && !isNaN(yv)) { X.push(xv); Y.push(yv); filasValidas.push(tr); } 
+                else { tr.querySelector('.ang-int').innerText = "--"; }
+            });
             let n = X.length; if (n < 3) { showToast("Requiere al menos 3 vértices completados.", "warning"); return; }
             
+            let cruce = verificarCrucePoligono(X, Y);
+            let alertaBox = document.getElementById('alertaGeometria');
+            if (cruce) {
+                alertaBox.innerHTML = `<strong style="color: var(--danger-color);">🚨 POLÍGONO CRUZADO ("MOÑO") DETECTADO:</strong> El lado <strong>${cruce.lado1}</strong> se cruza con el lado <strong>${cruce.lado2}</strong>. Corrige el orden de tus vértices porque el área mostrada es inválida.`;
+                showToast(`⚠️ Cruce detectado entre lados ${cruce.lado1} y ${cruce.lado2}`, "error");
+            } else {
+                alertaBox.innerHTML = `<strong style="color: var(--success-color);">✓ GEOMETRÍA LIMPIA:</strong> Contorno cerrado sin cruces de linderos (${n} vértices verificados).`;
+            }
+
             let areaConSigno = 0; let p = 0; let cx = 0; let cy = 0;
             for (let i = 0; i < n; i++) {
                 let j = (i + 1) % n;
@@ -430,36 +677,43 @@
             cx = cx / (6.0 * areaConSigno); cy = cy / (6.0 * areaConSigno);
             currentCentroid = {x: cx, y: cy, a: areaAbs};
 
-            // Ángulos Internos
+            // Ángulos Internos en Grados, Minutos y Segundos
+            let sumaGrados = 0;
             for(let i = 0; i < n; i++) {
                 let prev = (i - 1 + n) % n; let next = (i + 1) % n;
                 let ax = X[prev] - X[i]; let ay = Y[prev] - Y[i];
                 let bx = X[next] - X[i]; let by = Y[next] - Y[i];
                 let angRad = Math.atan2(ax*by - ay*bx, ax*bx + ay*by);
-                if(!isCCW) angRad = -angRad; // Invertir si es horario
+                if(!isCCW) angRad = -angRad;
                 if(angRad < 0) angRad += 2 * Math.PI;
                 let deg = angRad * 180 / Math.PI;
-                trs[i].querySelector('.ang-int').innerText = Math.round(deg) + "°";
+                sumaGrados += deg;
+                filasValidas[i].querySelector('.ang-int').innerText = degToDMS_Compact(deg);
             }
             
             document.getElementById('resAreaM2').innerText = areaAbs.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " m²";
             document.getElementById('resAreaHa').innerText = (areaAbs / 10000.0).toLocaleString('en-US', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " Ha";
-            document.getElementById('resAcres').innerText = (areaAbs / 4046.856).toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('resTareas').innerText = (areaAbs / 1000.0).toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('resAcres').innerText = (areaAbs / 4046.856).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('resTareas').innerText = (areaAbs / 1000.0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('resSumaAng').innerText = Math.round(sumaGrados) + "°";
             document.getElementById('resPerimetro').innerText = p.toLocaleString('en-US', {minimumFractionDigits: decs, maximumFractionDigits: decs}) + " m";
             document.getElementById('resCentroide').innerHTML = `X: ${cx.toFixed(decs)}<br>Y: ${cy.toFixed(decs)}`;
             
             document.getElementById('cajaResultado').style.display = 'block';
             redibujarCroquis();
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            showToast("Área calculada exitosamente", "success");
+            if (!cruce) showToast("Área calculada exitosamente", "success");
         }
 
         // --- CROQUIS Y CANVAS INTERACTIVO ---
         function redibujarCroquis() {
             const canvas = document.getElementById('canvasCroquis'); const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); canvasHitBoxes = [];
-            let X = []; let Y = [];
-            document.querySelectorAll('#cuerpoTablaAreas tr').forEach(tr => { let xv = parseFloat(tr.querySelector('.coor-x').value); let yv = parseFloat(tr.querySelector('.coor-y').value); if (!isNaN(xv) && !isNaN(yv)) { X.push(xv); Y.push(yv); } });
+            let X = []; let Y = []; let rowIndices = [];
+            document.querySelectorAll('#cuerpoTablaAreas tr').forEach((tr, idx) => { 
+                let xv = parseFloat(tr.querySelector('.coor-x').value); 
+                let yv = parseFloat(tr.querySelector('.coor-y').value); 
+                if (!isNaN(xv) && !isNaN(yv)) { X.push(xv); Y.push(yv); rowIndices.push(idx); } 
+            });
             if (X.length < 2) return;
 
             let minX = Math.min(...X); let maxX = Math.max(...X); let minY = Math.min(...Y); let maxY = Math.max(...Y);
@@ -468,7 +722,11 @@
             let scale = Math.min(drawW / rangeX, drawH / rangeY);
             let offsetX = pad + (drawW - rangeX * scale) / 2; let offsetY = pad + (drawH - rangeY * scale) / 2;
 
-            ctx.strokeStyle = '#FF6600'; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(255, 102, 0, 0.08)'; ctx.beginPath();
+            let cruce = verificarCrucePoligono(X, Y);
+            ctx.strokeStyle = cruce ? '#d32f2f' : '#FF6600'; 
+            ctx.lineWidth = 2; 
+            ctx.fillStyle = cruce ? 'rgba(211, 47, 47, 0.12)' : 'rgba(255, 102, 0, 0.08)'; 
+            ctx.beginPath();
             for (let i = 0; i < X.length; i++) {
                 let cx = offsetX + (X[i] - minX) * scale; let cy = canvas.height - (offsetY + (Y[i] - minY) * scale);
                 if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
@@ -479,8 +737,8 @@
             for (let i = 0; i < X.length; i++) {
                 let cx = offsetX + (X[i] - minX) * scale; let cy = canvas.height - (offsetY + (Y[i] - minY) * scale);
                 ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.font = 'bold 12px Rajdhani'; ctx.fillText(i + 1, cx + 8, cy - 5);
-                canvasHitBoxes.push({ x: cx, y: cy, idx: i });
+                ctx.font = 'bold 12px Rajdhani'; ctx.fillText(rowIndices[i] + 1, cx + 8, cy - 5);
+                canvasHitBoxes.push({ x: cx, y: cy, idx: rowIndices[i] });
             }
         }
 
@@ -501,8 +759,10 @@
                 if(clickedIdx !== -1) {
                     vibrar();
                     let targetRow = document.getElementById(`row-${clickedIdx}`);
-                    targetRow.classList.add('row-highlight');
-                    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (targetRow) {
+                        targetRow.classList.add('row-highlight');
+                        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             });
         }
@@ -527,15 +787,18 @@
         }
 
         function ejecutarAjusteArea() {
-            vibrar(); let tArea = parseFloat(document.getElementById('inputTargetArea').value);
+            vibrar(); let decs = parseInt(globalConfig.decimales) || 3;
+            let tArea = parseFloat(document.getElementById('inputTargetArea').value);
             if(isNaN(tArea) || tArea <= 0) return showToast("Ingresa un área válida", "error");
             
             let k = Math.sqrt(tArea / currentCentroid.a);
             let trs = document.querySelectorAll('#cuerpoTablaAreas tr');
             trs.forEach(tr => {
                 let xi = parseFloat(tr.querySelector('.coor-x').value); let yi = parseFloat(tr.querySelector('.coor-y').value);
-                tr.querySelector('.coor-x').value = (currentCentroid.x + (xi - currentCentroid.x) * k).toFixed(3);
-                tr.querySelector('.coor-y').value = (currentCentroid.y + (yi - currentCentroid.y) * k).toFixed(3);
+                if (!isNaN(xi) && !isNaN(yi)) {
+                    tr.querySelector('.coor-x').value = (currentCentroid.x + (xi - currentCentroid.x) * k).toFixed(decs);
+                    tr.querySelector('.coor-y').value = (currentCentroid.y + (yi - currentCentroid.y) * k).toFixed(decs);
+                }
             });
             
             cerrarPromptArea();
@@ -557,6 +820,7 @@
 
         function procesarArchivoImportacion() {
             vibrar(); let input = document.getElementById('fileCsvInput'); let fmt = document.getElementById('formatoColumnas').value;
+            let decs = parseInt(globalConfig.decimales) || 3;
             if (!input.files.length) { showToast("Sube un archivo primero.", "warning"); return; }
             let file = input.files[0]; let reader = new FileReader();
             
@@ -572,10 +836,14 @@
                             let lon = parseFloat(c[0]); let lat = parseFloat(c[1]);
                             if(!isNaN(lat) && !isNaN(lon)) {
                                 let utm = latLonToUtmCompact(lat, lon, zone, true);
-                                pts.push({ e: utm.e.toFixed(3), n: utm.n.toFixed(3) });
+                                pts.push({ e: utm.e.toFixed(decs), n: utm.n.toFixed(decs) });
                             }
                         }
                     });
+                    // Si el KML repite el primer punto al final para cerrar el polígono, removemos el duplicado
+                    if (pts.length > 3 && pts[0].e === pts[pts.length - 1].e && pts[0].n === pts[pts.length - 1].n) {
+                        pts.pop();
+                    }
                 } else {
                     let lines = text.split(/\r?\n/);
                     lines.forEach(line => {
@@ -584,7 +852,7 @@
                         let eCol = (fmt === "PEN") ? 1 : 0; let nCol = (fmt === "PEN") ? 2 : 1;
                         if(cols.length > nCol) {
                             let ev = parseFloat(cols[eCol]); let nv = parseFloat(cols[nCol]);
-                            if (!isNaN(ev) && !isNaN(nv)) pts.push({ e: ev.toFixed(3), n: nv.toFixed(3) });
+                            if (!isNaN(ev) && !isNaN(nv)) pts.push({ e: ev.toFixed(decs), n: nv.toFixed(decs) });
                         }
                     });
                 }
@@ -598,18 +866,19 @@
             reader.readAsText(file);
         }
 
-        // --- EXPORTAR REPLANTEO ---
+        // --- EXPORTAR REPLANTEO RESPETANDO DELIMITADOR GLOBAL ---
         function exportarCSV_Replant() {
             vibrar(); let p = obtenerProyectoActivo(); if(!p.tabla || p.tabla.length < 3) return;
-            let csv = "Punto,Este,Norte,Elevacion,Descripcion\n";
-            p.tabla.forEach((f, i) => { if(f.e && f.n) csv += `V-${i+1},${f.e},${f.n},0.000,Vértice Lote\n`; });
-            // Cerrar el polígono repitiendo el primero para el replanteo visual
-            if(p.tabla[0].e) csv += `V-1_Cierre,${p.tabla[0].e},${p.tabla[0].n},0.000,Cierre Lote\n`;
+            let delim = globalConfig.delimitadorCSV || ",";
+            let csv = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
+            p.tabla.forEach((f, i) => { if(f.e && f.n) csv += `V-${i+1}${delim}${f.e}${delim}${f.n}${delim}0.000${delim}Vertice_Lote\n`; });
+            if(p.tabla[0].e) csv += `V-1_Cierre${delim}${p.tabla[0].e}${delim}${p.tabla[0].n}${delim}0.000${delim}Cierre_Lote\n`;
             let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Lote_${p.nombre.replace(/\s+/g,'_')}.csv`; link.click();
+            showToast("CSV de replanteo descargado", "success");
         }
 
-        function exportarBackup() { vibrar(); const b = JSON.parse(localStorage.getItem('cota100_db_areas_v2')); if(!b || b.proyectos.length===0) return; const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(b))); dl.setAttribute("download", `DB_Areas.json`); dl.click(); showToast("Backup exportado", "success"); }
+        function exportarBackup() { vibrar(); const b = JSON.parse(localStorage.getItem('cota100_db_areas_v2')); if(!b || b.proyectos.length===0) return; const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(b))); dl.setAttribute("download", `DB_Areas_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup exportado", "success"); }
         function importarBackup() { const f = document.getElementById('importFile'); if (f.files.length === 0) return; const reader = new FileReader(); reader.onload = (e) => { try { const b = JSON.parse(e.target.result); if(b.proyectos) { localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b)); showToast("✅ DB restaurada...", "success"); setTimeout(()=>window.location.reload(),1500); } else showToast("❌ Archivo no válido", "error"); } catch(err) { showToast("❌ Error al leer", "error"); } }; reader.readAsText(f.files[0]); }
     </script>
 </body>

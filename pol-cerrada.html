@@ -107,7 +107,7 @@
         th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--border-color); position: sticky; top: 0; z-index: 10; }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle;}
         td:last-child { border-right: none; }
-        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; font-weight: 800; background: transparent; color: var(--text-color); text-align: center;}
+        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; font-weight: 800; background: transparent; color: var(--text-color); text-align: center; text-transform: uppercase;}
         td input:focus { background: rgba(255, 85, 0, 0.05); outline: 2px solid var(--primary-color); outline-offset: -2px;}
         .td-readonly { background: rgba(128,128,128,0.05); }
 
@@ -126,8 +126,9 @@
         .overlay-select.activo { opacity: 1; }
         .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
         .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
-        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;}
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.85rem; font-weight: 700;}
         
         #toast-container { position: fixed; top: 85px; bottom: auto; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none;}
         .toast { background: var(--card-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards;}
@@ -166,13 +167,21 @@
 <body onload="inicializarApp()">
 
     <div class="fire-base"><div class="fire-wave delay"></div><div class="fire-wave"></div></div>
+
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
+
     <div id="toast-container"></div>
 
     <!-- MODALES GENÉRICOS -->
     <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
     <div class="modal-select" id="modalSelect">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem; text-transform:uppercase;">SELECCIONAR</h3>
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.15rem; text-transform:uppercase;">SELECCIONAR</h3>
             <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
         </div>
         <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
@@ -220,7 +229,7 @@
             <input type="number" id="promptEste" step="0.001" placeholder="ESTE (X)" style="margin-bottom:10px;">
             <input type="number" id="promptNorte" step="0.001" placeholder="NORTE (Y)" style="margin-bottom:15px;">
             <div style="display:flex; gap:10px;">
-                <button class="btn-accion" style="background:var(--danger-color); flex:1;" onclick="document.getElementById('customPromptTranslacionOverlay').style.display='none'">CANCELAR</button>
+                <button class="btn-accion" style="background:var(--danger-color); flex:1;" onclick="cerrarPromptTraslacion()">CANCELAR</button>
                 <button class="btn-accion" style="background:var(--primary-color); flex:1;" onclick="ejecutarTraslacion()">APLICAR</button>
             </div>
         </div>
@@ -264,9 +273,12 @@
                         <input type="number" id="newBMNorte" step="0.001" placeholder="Norte (Y)">
                         <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; margin-bottom: 10px;" onclick="addBM()">Guardar Vértice en Proyecto</button>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar Vértice</button>
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar_bm')">🔗 Importar</button>
+                    </div>
                 </div>
-                <label style="display: block; font-size:0.75rem; opacity:0.7;">Vértices de Control Guardados:</label>
+                <label style="display: block; font-size:0.75rem; opacity:0.7;">Vértices de Control Guardados (Mantén presionado para ordenar):</label>
                 <div class="bm-list" id="listaBMs"></div>
                 
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top:10px;">
@@ -322,7 +334,7 @@
             </div>
             
             <label style="color: var(--primary-color); display:flex; align-items:center; justify-content:space-between;">
-                <div style="display:flex; align-items:center;">REFERENCIA (Vista Atrás) <span class="info-icon" onclick="showCustomAlert('El punto inicial contra el cual pusiste tu Estación Total en 0° 00\\' 00\".', 'VISTA ATRÁS INICIAL')">ℹ️</span></div>
+                <div style="display:flex; align-items:center;">REFERENCIA (Vista Atrás) <span class="info-icon" onclick="showCustomAlert('El punto inicial contra el cual pusiste tu Estación Total en 0° 00\' 00\".', 'VISTA ATRÁS INICIAL')">ℹ️</span></div>
                 <button style="background:transparent; border:1px solid var(--text-color); color:var(--text-color); border-radius:4px; padding:2px 8px; font-weight:800; font-size:0.75rem; cursor:pointer;" onclick="seleccionarPuntoControl('ref')">📍 Cargar</button>
             </label>
             <div class="form-grid" style="margin-top:5px;">
@@ -429,12 +441,14 @@
 
         document.getElementById('btnConfirmCancel').addEventListener('click', () => {
             vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
+            document.getElementById('customConfirmModal').classList.remove('abierto');
             setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
             if (confirmCancelCallback) confirmCancelCallback();
         });
 
         document.getElementById('btnConfirmOk').addEventListener('click', () => {
             vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
+            document.getElementById('customConfirmModal').classList.remove('abierto');
             setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
             if (confirmOkCallback) confirmOkCallback();
         });
@@ -443,7 +457,10 @@
             vibrar(); document.getElementById('customConfirmMsg').innerText = message;
             confirmOkCallback = onOk; confirmCancelCallback = onCancel;
             document.getElementById('customConfirmOverlay').style.display = 'block';
-            setTimeout(() => document.getElementById('customConfirmOverlay').classList.add('activo'), 10);
+            setTimeout(() => {
+                document.getElementById('customConfirmOverlay').classList.add('activo');
+                document.getElementById('customConfirmModal').classList.add('abierto');
+            }, 10);
         }
 
         function showCustomAlert(message, title = "INFORMACIÓN") {
@@ -465,12 +482,12 @@
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
                     <strong style="color:var(--primary-color);">📍 Puntos de Control:</strong><br>
                     Ingresa las coordenadas de tu Estación 1 y Vista Atrás. Puedes usar "Trasladar a UTM" para mover todo el polígono a una coordenada oficial sin perder la geometría que ya calculaste.<br><br>
-                    <strong style="color:var(--primary-color);">📐 Tipo de Ángulo:</strong><br>
-                    El sistema compensará automáticamente los errores angulares según si mediste Ángulos Internos, Externos o de Deflexión.<br><br>
+                    <strong style="color:var(--primary-color);">🔗 Puente de Vértices:</strong><br>
+                    Usa el botón Importar para traer vértices desde Poligonal Abierta o desde otros proyectos sin volver a digitarlos.<br><br>
                     <strong style="color:var(--primary-color);">⚙️ Método de Ajuste:</strong><br>
                     Puedes elegir la regla de la Brújula (Bowditch) si ángulos y distancias tienen igual precisión, o la regla del Tránsito.<br><br>
                     <strong style="color:var(--primary-color);">📉 Auditoría y Compensación:</strong><br>
-                    Al procesar, te mostrará la precisión relativa. Si cumple, podrás generar las coordenadas compensadas PNEZD y ver el gráfico del polígono.
+                    Al procesar, te mostrará la precisión relativa y resaltará en rojo el tramo sospechoso si hay un error lineal alto.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: POLIGONAL CERRADA");
@@ -533,7 +550,7 @@
         function crearNuevoProyecto() { appData.contadorProyectos = (appData.contadorProyectos || appData.proyectos.length) + 1; let nuevoId = Date.now(); appData.proyectos.push(crearObjetoProyecto(nuevoId, `Polígono ${appData.contadorProyectos}`)); appData.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); showToast("Proyecto creado", "success"); }
         function eliminarProyecto() { if(appData.proyectos.length === 1) return showToast("No puedes borrar el último.", "warning"); let p = obtenerProyectoActivo(); showConfirm(`¿Borrar "${p.nombre}"?`, () => { appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id); appData.activoId = appData.proyectos[0].id; guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); showToast("Proyecto eliminado", "success"); }); }
         function editarNombreProyecto() { let p = obtenerProyectoActivo(); showCustomPrompt("EDITAR NOMBRE DEL PROYECTO", p.nombre, (newName) => { if(newName && newName.trim() !== "") { p.nombre = newName.trim().toUpperCase(); guardarBD(); renderSelectProyectos(); showToast("Nombre actualizado", "success"); } }); }
-        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+        function cambiarProyectoActivo(idStr) { appData.activoId = parseInt(idStr); guardarBD(); renderSelectProyectos(); cargarProyectoActivo(); }
 
         /* GESTIÓN DE BMS EN BD DRAG AND DROP */
         let draggingItemBM = null; let dragTimer = null;
@@ -581,7 +598,7 @@
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("Ya existe otro con ese nombre.", "warning");
                     p.bms[editandoBMIndex] = { nombre: name, este: eIn, norte: nIn, obs: obs };
                     editandoBMIndex = -1; 
-                    document.getElementById('btnGuardarBM').innerText = "Guardar Vértice en Proyecto"; 
+                    document.getElementById('btnGuardarBM').innerText = "Guardar Vértice"; 
                     document.getElementById('btnGuardarBM').style.background = "var(--table-header)";
                     finalizarGuardadoBM();
                 });
@@ -600,7 +617,7 @@
         function cargarEditBM(i) {
             vibrar(); let p = obtenerProyectoActivo(); let bm = p.bms[i];
             document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMEste').value = bm.este; document.getElementById('newBMNorte').value = bm.norte; document.getElementById('newBMObs').value = bm.obs || "";
-            editandoBMIndex = i; document.getElementById('btnGuardarBM').innerText = "Actualizar Vértice"; document.getElementById('btnGuardarBM').style.background = "var(--primary-color)";
+            editandoBMIndex = i; document.getElementById('btnGuardarBM').innerText = "Actualizar"; document.getElementById('btnGuardarBM').style.background = "var(--primary-color)";
         }
 
         function deleteBM(i) {
@@ -615,7 +632,7 @@
                 list.innerHTML += `
                 <div class="bm-item" onclick="clickEnBM(this, event)">
                     <div class="bm-item-header">
-                        <div class="bm-info"><strong>${bm.nombre}</strong><span>E: ${bm.este.toFixed(decs)} | N: ${bm.norte.toFixed(decs)}</span></div>
+                        <div class="bm-info"><strong>${bm.nombre}</strong><span>E: ${Number(bm.este).toFixed(decs)} | N: ${Number(bm.norte).toFixed(decs)}</span></div>
                         <div class="bm-actions" onclick="event.stopPropagation()">
                             <button onclick="cargarEditBM(${i})">✏️</button>
                             <button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button>
@@ -624,6 +641,68 @@
                     <div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div>
                 </div>`;
             });
+        }
+
+        /* --- PUENTE DE VÉRTICES ENTRE MÓDULOS --- */
+        let verticesExternosCache = [];
+        function recopilarVerticesExternos() {
+            let lista = [];
+            let pActual = obtenerProyectoActivo();
+            let nombresActuales = (pActual && pActual.bms) ? pActual.bms.map(b => b.nombre) : [];
+
+            // 1. Otros proyectos de Poligonal Cerrada
+            appData.proyectos.forEach(proj => {
+                if (proj.id !== appData.activoId && proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, obs: bm.obs || `De: ${proj.nombre}`, origen: `Pol. Cerrada (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+
+            // 2. Proyectos de Poligonal Abierta
+            try {
+                let dbAb = JSON.parse(localStorage.getItem('cota100_db_polabierta_v5'));
+                if (dbAb && dbAb.proyectos) {
+                    dbAb.proyectos.forEach(proj => {
+                        if (proj.bms) {
+                            proj.bms.forEach(bm => {
+                                if (!nombresActuales.includes(bm.nombre)) {
+                                    lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, obs: bm.obs || `De Abierta: ${proj.nombre}`, origen: `Pol. Abierta (${proj.nombre})` });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            return lista;
+        }
+
+        function importarVerticeExterno(idx) {
+            let v = verticesExternosCache[idx];
+            if (!v) return;
+            let p = obtenerProyectoActivo();
+            if (!p.bms) p.bms = [];
+            if (p.bms.some(b => b.nombre === v.nombre)) return showToast("Ya existe en este proyecto", "warning");
+            p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), obs: v.obs });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`Vértice [${v.nombre}] importado`, "success");
+        }
+
+        function importarTodosVerticesExternos() {
+            let p = obtenerProyectoActivo();
+            if (!p.bms) p.bms = [];
+            let count = 0;
+            verticesExternosCache.forEach(v => {
+                if (!p.bms.some(b => b.nombre === v.nombre)) {
+                    p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), obs: v.obs });
+                    count++;
+                }
+            });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`${count} vértices importados`, "success");
         }
 
         /* MODAL SELECTOR GENÉRICO */
@@ -652,13 +731,27 @@
                 } else {
                     p.bms.forEach(bm => {
                         contenido.innerHTML += `<button class="btn-opcion" onclick="aplicarPuntoControl('${bm.este}', '${bm.norte}')">
-                            <span>${bm.nombre}</span><span class="cota">E:${bm.este.toFixed(3)} N:${bm.norte.toFixed(3)}</span>
+                            <span>${bm.nombre}</span><span class="cota">E:${Number(bm.este).toFixed(3)} N:${Number(bm.norte).toFixed(3)}</span>
+                        </button>`;
+                    });
+                }
+            } else if (tipo === 'importar_bm') {
+                titulo.innerText = "🔗 IMPORTAR VÉRTICES";
+                verticesExternosCache = recopilarVerticesExternos();
+                if (verticesExternosCache.length === 0) {
+                    contenido.innerHTML = "<p style='text-align:center; opacity:0.6; padding:15px; font-weight:800;'>No se encontraron vértices nuevos en Poligonal Abierta ni en otros proyectos.</p>";
+                } else {
+                    contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosVerticesExternos()">📥 IMPORTAR TODOS (${verticesExternosCache.length})</button>`;
+                    verticesExternosCache.forEach((v, idx) => {
+                        contenido.innerHTML += `<button class="btn-opcion" onclick="importarVerticeExterno(${idx})">
+                            <div><strong>${v.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${v.origen}</span></div>
+                            <span class="cota">E:${Number(v.este).toFixed(1)}<br>N:${Number(v.norte).toFixed(1)}</span>
                         </button>`;
                     });
                 }
             }
 
-            if(tipo !== 'bm_control') {
+            if(tipo !== 'bm_control' && tipo !== 'importar_bm') {
                 opciones.forEach(opt => { let isActivo = opt.val == actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; });
             }
 
@@ -696,7 +789,17 @@
             vibrar(); let e1 = document.getElementById('eEstIni').value; let n1 = document.getElementById('nEstIni').value;
             if(!e1 || !n1) return showToast("La Estación 1 está vacía.", "warning");
             document.getElementById('promptEste').value = e1; document.getElementById('promptNorte').value = n1;
-            document.getElementById('customPromptTranslacionOverlay').style.display = 'block'; setTimeout(() => { document.getElementById('customPromptTranslacionOverlay').classList.add('activo'); document.getElementById('customPromptTranslacionModal').classList.add('abierto'); }, 10);
+            document.getElementById('customPromptTranslacionOverlay').style.display = 'block'; 
+            setTimeout(() => { 
+                document.getElementById('customPromptTranslacionOverlay').classList.add('activo'); 
+                document.getElementById('customPromptTranslacionModal').classList.add('abierto'); 
+            }, 10);
+        }
+
+        function cerrarPromptTraslacion() {
+            document.getElementById('customPromptTranslacionOverlay').classList.remove('activo'); 
+            document.getElementById('customPromptTranslacionModal').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('customPromptTranslacionOverlay').style.display = 'none'; }, 300);
         }
 
         function ejecutarTraslacion() {
@@ -709,18 +812,37 @@
             let eR = parseFloat(document.getElementById('eRefIni').value); let nR = parseFloat(document.getElementById('nRefIni').value);
             if(!isNaN(eR) && !isNaN(nR)) { document.getElementById('eRefIni').value = (eR + dE).toFixed(3); document.getElementById('nRefIni').value = (nR + dN).toFixed(3); }
             
-            document.getElementById('customPromptTranslacionOverlay').classList.remove('activo'); document.getElementById('customPromptTranslacionModal').classList.remove('abierto');
-            setTimeout(() => { document.getElementById('customPromptTranslacionOverlay').style.display = 'none'; }, 300);
-            
+            cerrarPromptTraslacion();
             guardarEstadoApp(); showToast("Coordenadas Trasladadas", "success");
             if(document.getElementById('panelResultados').style.display === 'block') calcularPoligonal();
+        }
+
+        /* --- MODO RÁFAGA: SALTO CON ENTER EN TABLA --- */
+        function manejarEnterPol(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                let tr = input.closest('tr');
+                let inputsFila = Array.from(tr.querySelectorAll('input:not([disabled])'));
+                let idx = inputsFila.indexOf(input);
+                if (idx > -1 && idx < inputsFila.length - 1) {
+                    inputsFila[idx + 1].focus();
+                } else {
+                    let nextTr = tr.nextElementSibling;
+                    if (nextTr) {
+                        let firstInput = nextTr.querySelector('input:not([disabled])');
+                        if (firstInput) firstInput.focus();
+                    } else {
+                        input.blur();
+                    }
+                }
+            }
         }
 
         function invertirSentido() {
             vibrar(); let filas = Array.from(document.querySelectorAll('#cuerpoPoligonal tr')); if(filas.length < 3) return;
             let nV = filas.length; let newFilasData = [];
             for (let i = 0; i < nV; i++) {
-                let current = filas[i]; let nextIdx = (i + 1) % nV; let prevIdx = (i - 1 + nV) % nV;
+                let current = filas[i]; let prevIdx = (i - 1 + nV) % nV;
                 newFilasData.unshift({
                     pto: current.querySelector('.in-pto').value,
                     g: current.querySelector('.ang-g').value, m: current.querySelector('.ang-m').value, s: current.querySelector('.ang-s').value,
@@ -731,11 +853,11 @@
             const tbody = document.getElementById('cuerpoPoligonal'); tbody.innerHTML = "";
             newFilasData.forEach((fila) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><input type="text" class="in-pto" value="${fila.pto}" style="color:var(--primary-color);" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" class="ang-g" value="${fila.g}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" class="ang-m" value="${fila.m}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" step="0.1" class="ang-s" value="${fila.s}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" step="0.001" class="dist" value="${fila.dist}" oninput="guardarEstadoApp()"></td>`;
+                tr.innerHTML = `<td><input type="text" class="in-pto" value="${fila.pto}" style="color:var(--primary-color);" oninput="this.value=this.value.toUpperCase(); guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-g" value="${fila.g}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-m" value="${fila.m}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" step="0.1" class="ang-s" value="${fila.s}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" step="0.001" class="dist" value="${fila.dist}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>`;
                 tbody.appendChild(tr);
             });
             guardarEstadoApp(); showToast("Sentido Invertido 🔄", "success");
@@ -743,7 +865,7 @@
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
-            document.getElementById('proyectName').value = p.nombre;
+            if(!p) return;
             document.getElementById('precisionEquipo').value = p.precision || 5;
             document.getElementById('tipoAngulo').value = p.tipoAngulo || "interno";
             document.getElementById('metodoAjuste').value = p.metodoAjuste || "brujula";
@@ -764,11 +886,11 @@
 
             p.tabla.forEach((fila) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><input type="text" class="in-pto" value="${fila.pto}" style="color:var(--primary-color);" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" class="ang-g" value="${fila.g}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" class="ang-m" value="${fila.m}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" step="0.1" class="ang-s" value="${fila.s}" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" step="0.001" class="dist" value="${fila.dist}" oninput="guardarEstadoApp()"></td>`;
+                tr.innerHTML = `<td><input type="text" class="in-pto" value="${fila.pto}" style="color:var(--primary-color);" oninput="this.value=this.value.toUpperCase(); guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-g" value="${fila.g}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-m" value="${fila.m}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" step="0.1" class="ang-s" value="${fila.s}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" step="0.001" class="dist" value="${fila.dist}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>`;
                 tbody.appendChild(tr);
             });
             renderBMs();
@@ -788,9 +910,9 @@
 
         function agregarVertice() {
             vibrar(); const tbody = document.getElementById('cuerpoPoligonal'); const numV = tbody.children.length + 1; const tr = document.createElement('tr');
-            tr.innerHTML = `<td><input type="text" class="in-pto" value="V-${numV}" style="color:var(--primary-color);" oninput="guardarEstadoApp()"></td>
-                            <td><input type="number" class="ang-g" oninput="guardarEstadoApp()"></td><td><input type="number" class="ang-m" oninput="guardarEstadoApp()"></td>
-                            <td><input type="number" step="0.1" class="ang-s" oninput="guardarEstadoApp()"></td><td><input type="number" step="0.001" class="dist" oninput="guardarEstadoApp()"></td>`;
+            tr.innerHTML = `<td><input type="text" class="in-pto" value="V-${numV}" style="color:var(--primary-color);" oninput="this.value=this.value.toUpperCase(); guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                            <td><input type="number" class="ang-g" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td><td><input type="number" class="ang-m" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                            <td><input type="number" step="0.1" class="ang-s" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td><td><input type="number" step="0.001" class="dist" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>`;
             tbody.appendChild(tr); guardarEstadoApp();
         }
 
@@ -804,12 +926,13 @@
 
         function calcularPoligonal() {
             vibrar();
+            let pActivo = obtenerProyectoActivo();
             let decs = parseInt(globalConfig.decimales) || 3;
             let precisionEquipo = parseFloat(document.getElementById('precisionEquipo').value) || 5;
             let eEstIni = parseFloat(document.getElementById('eEstIni').value); let nEstIni = parseFloat(document.getElementById('nEstIni').value);
             let eRefIni = parseFloat(document.getElementById('eRefIni').value); let nRefIni = parseFloat(document.getElementById('nRefIni').value);
 
-            if(isNaN(eEstIni) || isNaN(eRefIni)) { showToast("Ingresa la Estación 1 y Referencia.", "warning"); return; }
+            if(isNaN(eEstIni) || isNaN(nEstIni) || isNaN(eRefIni) || isNaN(nRefIni)) { showToast("Ingresa la Estación 1 y Referencia completas.", "warning"); return; }
             let azInicial = calcularAzimut(eEstIni, nEstIni, eRefIni, nRefIni);
 
             let filas = document.querySelectorAll('#cuerpoPoligonal tr'); let nV = filas.length;
@@ -821,7 +944,7 @@
                 let g = parseFloat(filas[i].querySelector('.ang-g').value) || 0; let m = parseFloat(filas[i].querySelector('.ang-m').value) || 0; let s = parseFloat(filas[i].querySelector('.ang-s').value) || 0;
                 let angDec = gmsADecimal(g, m, s); angObs.push(angDec); sumAngObs += angDec;
                 let dist = parseFloat(filas[i].querySelector('.dist').value);
-                if (isNaN(dist) || dist <= 0) { showToast(`Falta la distancia válida en Vértice ${i+1}`, "error"); return; }
+                if (isNaN(dist) || dist <= 0) { showToast(`Falta la distancia válida en ${nombresEstaciones[i]}`, "error"); return; }
                 distancias.push(dist); perimetro += dist;
                 let invD = 1.0 / dist; inversas.push(invD); sumInversaDist += invD;
             }
@@ -922,33 +1045,35 @@
             }
 
             document.getElementById('panelResultados').style.display = 'block';
-            document.getElementById('printTitle').innerText = "REPORTE POLIGONAL CERRADA - " + document.getElementById('proyectName').value;
+            document.getElementById('printTitle').innerText = "REPORTE POLIGONAL CERRADA - " + (pActivo ? pActivo.nombre : "");
             document.getElementById('printDate').innerText = "Fecha: " + new Date().toLocaleDateString();
 
-            dibujarCanvas(coordE, coordN, idxSospechoso, errorLineal);
+            dibujarCanvas(coordE, coordN, nombresEstaciones, idxSospechoso, errorLineal);
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             showToast("Ajuste procesado", "success");
         }
 
-        function dibujarCanvas(E, N, idxSospechoso, errorLin) {
+        function dibujarCanvas(E, N, nombres, idxSospechoso, errorLin) {
             let canvas = document.getElementById('canvasPoligonal'); let ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
             let minE = Math.min(...E); let maxE = Math.max(...E); let minN = Math.min(...N); let maxN = Math.max(...N);
-            let diffE = maxE - minE; let diffN = maxN - minN; let maxDiff = Math.max(diffE, diffN);
-            let pad = 30; let scale = (Math.min(canvas.width, canvas.height) - 2 * pad) / maxDiff;
+            let diffE = (maxE - minE) || 1; let diffN = (maxN - minN) || 1; let maxDiff = Math.max(diffE, diffN);
+            let pad = 35; let scale = (Math.min(canvas.width, canvas.height) - 2 * pad) / maxDiff;
 
             function xToCanvas(e) { return pad + (e - minE) * scale; } function yToCanvas(n) { return canvas.height - pad - (n - minN) * scale; }
 
             ctx.lineWidth = 2; ctx.lineJoin = 'round';
             for(let i=0; i<E.length; i++) {
                 let nextIdx = (i+1)%E.length; ctx.beginPath(); ctx.moveTo(xToCanvas(E[i]), yToCanvas(N[i])); ctx.lineTo(xToCanvas(E[nextIdx]), yToCanvas(N[nextIdx]));
-                if(errorLin > 0.05 && i === idxSospechoso) { ctx.strokeStyle = 'red'; ctx.lineWidth = 4; document.getElementById('txtTrampa').style.display = 'block'; } 
+                if(errorLin > 0.05 && i === idxSospechoso) { ctx.strokeStyle = '#d32f2f'; ctx.lineWidth = 4; document.getElementById('txtTrampa').style.display = 'block'; } 
                 else { ctx.strokeStyle = '#1976d2'; ctx.lineWidth = 2; } ctx.stroke();
             }
 
+            let isDark = document.body.classList.contains('dark-mode');
             for(let i=0; i<E.length; i++) {
-                ctx.beginPath(); ctx.arc(xToCanvas(E[i]), yToCanvas(N[i]), 4, 0, 2*Math.PI);
-                ctx.fillStyle = (i===0) ? '#FF5500' : '#1a1e23'; ctx.fill();
-                ctx.fillStyle = '#000'; ctx.font = '10px sans-serif'; ctx.fillText('V'+(i+1), xToCanvas(E[i])+6, yToCanvas(N[i])-6);
+                ctx.beginPath(); ctx.arc(xToCanvas(E[i]), yToCanvas(N[i]), 4.5, 0, 2*Math.PI);
+                ctx.fillStyle = (i===0) ? '#FF5500' : (isDark ? '#ffffff' : '#1a1e23'); ctx.fill();
+                ctx.fillStyle = isDark ? '#ffffff' : '#1a1e23'; ctx.font = 'bold 11px Rajdhani, sans-serif'; 
+                ctx.fillText(nombres[i] || ('V'+(i+1)), xToCanvas(E[i])+6, yToCanvas(N[i])-6);
             }
             if(errorLin <= 0.05) document.getElementById('txtTrampa').style.display = 'none';
         }

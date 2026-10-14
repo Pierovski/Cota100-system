@@ -106,7 +106,7 @@
         th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--border-color); position: sticky; top: 0; z-index: 10; }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0; text-align: center; vertical-align: middle;}
         td:last-child { border-right: none; }
-        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; font-weight: 800; background: transparent; color: var(--text-color); text-align: center;}
+        td input { border: none; width: 100%; height: 100%; padding: 12px 2px; font-size: 1.15rem; font-weight: 800; background: transparent; color: var(--text-color); text-align: center; text-transform: uppercase;}
         td input:focus { background: rgba(255, 85, 0, 0.05); outline: 2px solid var(--primary-color); outline-offset: -2px;}
         .td-readonly { background: rgba(128,128,128,0.05); }
 
@@ -124,8 +124,9 @@
         .overlay-select.activo { opacity: 1; }
         .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); }
         .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
-        .btn-opcion { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.15rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer;}
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.85rem; font-weight: 700;}
         
         #toast-container { position: fixed; top: 85px; bottom: auto; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none;}
         .toast { background: var(--card-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards;}
@@ -134,7 +135,6 @@
         @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
 
-        /* MODAL DE CONFIRMACIÓN / ALERTA UNIFICADO Y ELEGANTE */
         .confirm-msg { color: var(--text-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3; text-align: center;}
         
         @media screen and (max-width: 480px) {
@@ -157,7 +157,7 @@
     <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
     <div class="modal-select" id="modalSelect">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.2rem; text-transform:uppercase;">SELECCIONAR</h3>
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.15rem; text-transform:uppercase;">SELECCIONAR</h3>
             <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
         </div>
         <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
@@ -204,7 +204,6 @@
             <a href="poligonales.html" class="btn-volver-mini" onclick="vibrar()"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
         </div>
         <h2 class="top-bar-title">POLIGONAL<br><span>ABIERTA ENCUADRADA</span></h2>
-        <!-- ICONO DE GUÍA SUTIL -->
         <div style="width: 90px; display: flex; justify-content: flex-end;">
             <button class="btn-volver-mini" onclick="mostrarLeyenda()" title="Guía de Funciones" style="width: 45px; height: 45px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
@@ -236,9 +235,12 @@
                         <input type="number" id="newBMCota" step="0.001" placeholder="Cota (Z)">
                         <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; margin-bottom: 10px;" onclick="addBM()">Guardar Vértice en Proyecto</button>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar Vértice</button>
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar_bm')">🔗 Importar</button>
+                    </div>
                 </div>
-                <label style="display: block; font-size:0.75rem; opacity:0.7;">Vértices Guardados en DB:</label>
+                <label style="display: block; font-size:0.75rem; opacity:0.7;">Vértices Guardados (Mantén presionado para ordenar):</label>
                 <div class="bm-list" id="listaBMs"></div>
 
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top:10px;">
@@ -362,7 +364,7 @@
                 </div>
             </div>
 
-            <!-- F1: DESGLOSE DE ERROR LONGITUDINAL Y TRANSVERSAL -->
+            <!-- DESGLOSE DE ERROR LONGITUDINAL Y TRANSVERSAL -->
             <div class="form-grid" style="margin-top: 5px; background: rgba(128,128,128,0.02); padding:10px; border-radius:8px;">
                 <div class="input-group">
                     <span style="font-size: 0.75rem; font-weight: 800; opacity: 0.7;">ERROR LONGITUDINAL (E_L)</span>
@@ -396,7 +398,7 @@
     </div>
 
     <script>
-        // --- TOAST NOTIFICATIONS REPARADAS ---
+        // --- TOAST NOTIFICATIONS ---
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -414,8 +416,8 @@
         let confirmCancelCallback = null;
         let promptOkCallback = null;
         let destinoCarga = "";
+        let editandoBMIndex = -1; // Bug crítico reparado
 
-        // EVENT LISTENER PARA BOTONES DE CONFIRMACIÓN
         document.getElementById('btnConfirmCancel').addEventListener('click', () => {
             vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
             setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
@@ -454,8 +456,8 @@
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
                     <strong style="color:var(--primary-color);">📌 Puntos de Control:</strong><br>
                     Debes ingresar las coordenadas (E, N, Z) de tu Estación y tu Vista Atrás en los bloques de partida (Azul) y llegada (Rojo).<br><br>
-                    <strong style="color:var(--primary-color);">🧭 Asumir Norte Local:</strong><br>
-                    Si no tienes coordenadas oficiales, presiona este botón para iniciar el trabajo con una coordenada arbitraria (5000, 5000) y orientar al Norte.<br><br>
+                    <strong style="color:var(--primary-color);">🔗 Puente de Vértices:</strong><br>
+                    Usa el botón Importar para traer vértices desde Poligonal Cerrada o desde otros proyectos sin volver a digitarlos.<br><br>
                     <strong style="color:var(--primary-color);">📐 Tipo de Ángulo:</strong><br>
                     El sistema compensará automáticamente los errores angulares según si mediste Ángulos Internos, Externos o de Deflexión.<br><br>
                     <strong style="color:var(--primary-color);">📉 Error Longitudinal y Transversal:</strong><br>
@@ -514,13 +516,15 @@
             if (stored) { appData = JSON.parse(stored); if(!appData.contadorProyectos) appData.contadorProyectos = appData.proyectos.length; } 
             else { appData.contadorProyectos = 1; appData.proyectos.push(crearObjetoProyecto(1, "Eje Carretera Tramo 1")); appData.activoId = 1; }
             
-            renderSelectProyectos(); cargarProyectoActivo();
+            renderSelectProyectos(); 
+            cargarProyectoActivo();
+            initTouchDragBM();
         }
 
         function crearObjetoProyecto(id, nombre) {
             return {
                 id: id, nombre: nombre, precision: 5, tipoAngulo: "interno", zonaUtm: "17", bms: [],
-                ctrl: { eEi:"", nEi:"", zEstIni:"", eRi:"", nRi:"", eEf:"", nEf:"", zEstFin:"", eRf:"", nRf:"" },
+                ctrl: { eEi:"", nEi:"", zEstIni:"", eRi:"", nRi:"", eEf:"", nEf:"", zEstFin:"", eRf:"", nRefFin:"" },
                 tabla: [
                     { pto:"E-0", g:"", m:"", s:"", dist:"", zen:"90", ai:"1.50", ap:"1.50", final:false },
                     { pto:"E-1", g:"", m:"", s:"", dist:"", zen:"90", ai:"1.50", ap:"1.50", final:false },
@@ -534,6 +538,13 @@
 
         function renderSelectProyectos() { document.getElementById('txtSelectProyecto').innerText = obtenerProyectoActivo() ? obtenerProyectoActivo().nombre : "Sin Nombre"; }
         
+        function cambiarProyectoActivo(idStr) {
+            appData.activoId = parseInt(idStr);
+            guardarBD();
+            renderSelectProyectos();
+            cargarProyectoActivo();
+        }
+
         function crearNuevoProyecto() { 
             appData.contadorProyectos = (appData.contadorProyectos || appData.proyectos.length) + 1; 
             let prefijo = JSON.parse(localStorage.getItem('cota100_ajustes'))?.proyecto || "POLIGONAL"; 
@@ -567,7 +578,7 @@
             });
         }
 
-        /* BASE DE DATOS DE PUNTOS */
+        /* BASE DE DATOS DE PUNTOS Y DRAG & DROP */
         let draggingItemBM = null; let dragTimer = null;
         function initTouchDragBM() {
             const list = document.getElementById('listaBMs');
@@ -614,7 +625,7 @@
                 showCustomConfirm("⚠️ ¿Actualizar los datos de este Vértice?", () => {
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("Ya existe otro vértice con ese nombre.", "warning");
                     p.bms[editandoBMIndex] = { nombre: name, este: eIn, norte: nIn, cota: zIn, obs: obs };
-                    editandoBMIndex = -1; document.getElementById('btnGuardarBM').innerText = "Guardar Vértice en Proyecto"; document.getElementById('btnGuardarBM').style.background = "var(--table-header)";
+                    editandoBMIndex = -1; document.getElementById('btnGuardarBM').innerText = "Guardar Vértice"; document.getElementById('btnGuardarBM').style.background = "var(--table-header)";
                     finalizarGuardado();
                 });
             } else {
@@ -627,15 +638,78 @@
 
         function cargarEditBM(i) {
             let p = obtenerProyectoActivo(); let bm = p.bms[i];
-            document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMEste').value = bm.este; document.getElementById('newBMNorte').value = bm.norte; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
-            editandoBMIndex = i; document.getElementById('btnGuardarBM').innerText = "Actualizar Vértice"; document.getElementById('btnGuardarBM').style.background = "var(--primary-color)";
+            document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMEste').value = bm.este; document.getElementById('newBMNorte').value = bm.norte; document.getElementById('newBMCota').value = bm.cota || 0; document.getElementById('newBMObs').value = bm.obs || "";
+            editandoBMIndex = i; document.getElementById('btnGuardarBM').innerText = "Actualizar"; document.getElementById('btnGuardarBM').style.background = "var(--primary-color)";
         }
 
         function renderBMs() {
             let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; if(!p.bms) p.bms = [];
             p.bms.forEach((bm, i) => { 
-                list.innerHTML += `<div class="bm-item" onclick="clickEnBM(this, event)"><div class="bm-item-header"><div class="bm-info"><strong>${bm.nombre}</strong><span>E: ${bm.este.toFixed(3)} | N: ${bm.norte.toFixed(3)} | Z: ${bm.cota.toFixed(3)}</span></div><div class="bm-actions" onclick="event.stopPropagation()"><button onclick="cargarEditBM(${i})">✏️</button><button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button></div></div><div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div></div>`;
+                let zVal = bm.cota !== undefined ? bm.cota : 0;
+                list.innerHTML += `<div class="bm-item" onclick="clickEnBM(this, event)"><div class="bm-item-header"><div class="bm-info"><strong>${bm.nombre}</strong><span>E: ${Number(bm.este).toFixed(3)} | N: ${Number(bm.norte).toFixed(3)} | Z: ${Number(zVal).toFixed(3)}</span></div><div class="bm-actions" onclick="event.stopPropagation()"><button onclick="cargarEditBM(${i})">✏️</button><button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button></div></div><div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div></div>`;
             });
+        }
+
+        /* --- PUENTE DE VÉRTICES ENTRE MÓDULOS --- */
+        let verticesExternosCache = [];
+        function recopilarVerticesExternos() {
+            let lista = [];
+            let pActual = obtenerProyectoActivo();
+            let nombresActuales = (pActual && pActual.bms) ? pActual.bms.map(b => b.nombre) : [];
+
+            // 1. Otros proyectos de Poligonal Abierta
+            appData.proyectos.forEach(proj => {
+                if (proj.id !== appData.activoId && proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, cota: bm.cota || 0, obs: bm.obs || `De: ${proj.nombre}`, origen: `Pol. Abierta (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+
+            // 2. Proyectos de Poligonal Cerrada
+            try {
+                let dbCerr = JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4'));
+                if (dbCerr && dbCerr.proyectos) {
+                    dbCerr.proyectos.forEach(proj => {
+                        if (proj.bms) {
+                            proj.bms.forEach(bm => {
+                                if (!nombresActuales.includes(bm.nombre)) {
+                                    lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, cota: bm.cota || 0, obs: bm.obs || `De Cerrada: ${proj.nombre}`, origen: `Pol. Cerrada (${proj.nombre})` });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            return lista;
+        }
+
+        function importarVerticeExterno(idx) {
+            let v = verticesExternosCache[idx];
+            if (!v) return;
+            let p = obtenerProyectoActivo();
+            if (!p.bms) p.bms = [];
+            if (p.bms.some(b => b.nombre === v.nombre)) return showToast("Ya existe en este proyecto", "warning");
+            p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), cota: Number(v.cota || 0), obs: v.obs });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`Vértice [${v.nombre}] importado`, "success");
+        }
+
+        function importarTodosVerticesExternos() {
+            let p = obtenerProyectoActivo();
+            if (!p.bms) p.bms = [];
+            let count = 0;
+            verticesExternosCache.forEach(v => {
+                if (!p.bms.some(b => b.nombre === v.nombre)) {
+                    p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), cota: Number(v.cota || 0), obs: v.obs });
+                    count++;
+                }
+            });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`${count} vértices importados`, "success");
         }
 
         function seleccionarPuntoControl(destino) { destinoCarga = destino; abrirModalSelect('bm_control'); }
@@ -662,24 +736,70 @@
             else if(tipo === 'bm_control') {
                 titulo.innerText = "📍 ELEGIR VÉRTICE GEODÉSICO"; let p = obtenerProyectoActivo();
                 if(!p.bms || p.bms.length === 0) contenido.innerHTML = "<p style='padding:15px; font-weight:bold; opacity:0.6; text-align:center;'>No hay vértices registrados en la DB de esta obra.</p>";
-                else p.bms.forEach(bm => { contenido.innerHTML += `<button class="btn-opcion" onclick="aplicarPuntoControl('${bm.este}','${bm.norte}','${bm.cota}')"><span>${bm.nombre}</span><span class="cota">E:${bm.este.toFixed(1)} N:${bm.norte.toFixed(1)}</span></button>`; });
+                else p.bms.forEach(bm => { contenido.innerHTML += `<button class="btn-opcion" onclick="aplicarPuntoControl('${bm.este}','${bm.norte}','${bm.cota || 0}')"><span>${bm.nombre}</span><span class="cota">E:${Number(bm.este).toFixed(1)} N:${Number(bm.norte).toFixed(1)}</span></button>`; });
+            } else if(tipo === 'importar_bm') {
+                titulo.innerText = "🔗 IMPORTAR VÉRTICES";
+                verticesExternosCache = recopilarVerticesExternos();
+                if (verticesExternosCache.length === 0) {
+                    contenido.innerHTML = "<p style='padding:15px; font-weight:bold; opacity:0.6; text-align:center;'>No se encontraron vértices nuevos en otros proyectos o en Poligonal Cerrada.</p>";
+                } else {
+                    contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosVerticesExternos()">📥 IMPORTAR TODOS (${verticesExternosCache.length})</button>`;
+                    verticesExternosCache.forEach((v, idx) => {
+                        contenido.innerHTML += `<button class="btn-opcion" onclick="importarVerticeExterno(${idx})">
+                            <div><strong>${v.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${v.origen}</span></div>
+                            <span class="cota">E:${Number(v.este).toFixed(1)}<br>N:${Number(v.norte).toFixed(1)}</span>
+                        </button>`;
+                    });
+                }
             }
 
-            if(tipo !== 'bm_control') { opciones.forEach(opt => { let isActivo = opt.val == actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; }); }
+            if(tipo !== 'bm_control' && tipo !== 'importar_bm') { opciones.forEach(opt => { let isActivo = opt.val == actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; }); }
             document.getElementById('overlaySelect').style.display = 'block'; setTimeout(() => { document.getElementById('overlaySelect').classList.add('activo'); document.getElementById('modalSelect').classList.add('abierto'); }, 10);
         }
         function cerrarModalSelect() { document.getElementById('overlaySelect').classList.remove('activo'); document.getElementById('modalSelect').classList.remove('abierto'); setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300); }
         
+        function actualizarTextoZona(valor) {
+            let txt = ""; 
+            if(valor === "17") txt = "Tumbes, Piura, Lambayeque, La Libertad, Cajamarca."; 
+            if(valor === "18") txt = "Áncash, Lima, Ica, Huánuco, Pasco, Junín, Loreto, San Martín, Amazonas, Ayacucho, Huancavelica, Apurímac."; 
+            if(valor === "19") txt = "Arequipa, Moquegua, Tacna, Puno, Cusco, Madre de Dios."; 
+            document.querySelector('.ayuda-zona-txt').innerText = txt;
+        }
+
         function seleccionarOpcionModal(valor, texto) {
-            cerrarModalSelect(); document.getElementById(tipoModalActual).value = valor; document.getElementById('txt_'+tipoModalActual).innerText = texto;
-            if(tipoModalActual === 'zonaUtm') {
-                let txt = ""; if(valor === "17") txt = "Tumbes, Piura, Lambayeque, La Libertad, Cajamarca."; if(valor === "18") txt = "Áncash, Lima, Ica, Huánuco, Pasco, Junín, Loreto, San Martín, Amazonas, Ayacucho, Huancavelica, Apurímac."; if(valor === "19") txt = "Arequipa, Moquegua, Tacna, Puno, Cusco, Madre de Dios."; document.querySelector('.ayuda-zona-txt').innerText = txt;
+            cerrarModalSelect();
+            if(tipoModalActual === 'proyecto') { 
+                cambiarProyectoActivo(valor); 
+                return;
             }
-            if(tipoModalActual === 'proyecto') { cambiarProyectoActivo(valor); } 
-            else { guardarEstadoApp(); }
+            document.getElementById(tipoModalActual).value = valor; 
+            document.getElementById('txt_'+tipoModalActual).innerText = texto;
+            if(tipoModalActual === 'zonaUtm') actualizarTextoZona(valor);
+            guardarEstadoApp();
         }
 
         function asumirNorteLocal() { document.getElementById('eEstIni').value = "5000.000"; document.getElementById('nEstIni').value = "5000.000"; document.getElementById('zEstIni').value = "100.000"; document.getElementById('eRefIni').value = "5000.000"; document.getElementById('nRefIni').value = "5100.000"; guardarEstadoApp(); showToast("Orientación Local Asumida", "success"); }
+
+        /* --- MODO RÁFAGA: SALTO CON ENTER EN TABLA --- */
+        function manejarEnterPol(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                let tr = input.closest('tr');
+                let inputsFila = Array.from(tr.querySelectorAll('input:not([disabled])'));
+                let idx = inputsFila.indexOf(input);
+                if (idx > -1 && idx < inputsFila.length - 1) {
+                    inputsFila[idx + 1].focus();
+                } else {
+                    let nextTr = tr.nextElementSibling;
+                    if (nextTr) {
+                        let firstInput = nextTr.querySelector('input:not([disabled])');
+                        if (firstInput) firstInput.focus();
+                    } else {
+                        input.blur();
+                    }
+                }
+            }
+        }
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo(); 
@@ -690,7 +810,8 @@
             
             let tA = p.tipoAngulo === 'interno' ? 'Internos / Derecha' : (p.tipoAngulo === 'def_der' ? 'Deflexión Derecha (+)' : 'Deflexión Izquierda (-)');
             document.getElementById('txt_tipoAngulo').innerText = tA; 
-            document.getElementById('txt_zonaUtm').innerText = p.zonaUtm + " Sur";
+            document.getElementById('txt_zonaUtm').innerText = (p.zonaUtm || "17") + " Sur";
+            actualizarTextoZona(p.zonaUtm || "17");
             
             document.getElementById('eEstIni').value = p.ctrl.eEi || ""; 
             document.getElementById('nEstIni').value = p.ctrl.nEi || ""; 
@@ -701,17 +822,21 @@
             document.getElementById('nEstFin').value = p.ctrl.nEf || ""; 
             document.getElementById('zEstFin').value = p.ctrl.zEstFin || "";
             document.getElementById('eRefFin').value = p.ctrl.eRf || ""; 
-            document.getElementById('nRefFin').value = p.ctrl.nRefFin || "";
+            document.getElementById('nRefFin').value = p.ctrl.nRefFin || p.ctrl.nRf || "";
+
+            document.getElementById('panelResultados').style.display = 'none';
 
             const tbody = document.getElementById('cuerpoPoligonal'); tbody.innerHTML = "";
             p.tabla.forEach((f) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><input type="text" class="in-pto" value="${f.pto}" style="color:var(--primary-color);" oninput="guardarEstadoApp()"></td>
-                                <td><input type="number" class="ang-g" value="${f.g}" oninput="guardarEstadoApp()"></td><td><input type="number" class="ang-m" value="${f.m}" oninput="guardarEstadoApp()"></td><td><input type="number" step="0.1" class="ang-s" value="${f.s}" oninput="guardarEstadoApp()"></td>
-                                <td class="${f.final?'td-readonly':''}">${f.final?'<input type="text" disabled value="Cierre" style="opacity:0.5; background:transparent; border:none; text-align:center; color:var(--text-color); font-weight:800;">':`<input type="number" step="0.001" class="dist" value="${f.dist}" oninput="guardarEstadoApp()">`}</td>
-                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="zen" value="${f.zen}" oninput="guardarEstadoApp()">`}</td>
-                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="ai" value="${f.ai}" oninput="guardarEstadoApp()">`}</td>
-                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="ap" value="${f.ap}" oninput="guardarEstadoApp()">`}</td>`;
+                tr.innerHTML = `<td><input type="text" class="in-pto" value="${f.pto}" style="color:var(--primary-color);" oninput="this.value=this.value.toUpperCase(); guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-g" value="${f.g}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" class="ang-m" value="${f.m}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td><input type="number" step="0.1" class="ang-s" value="${f.s}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                                <td class="${f.final?'td-readonly':''}">${f.final?'<input type="text" disabled value="Cierre" style="opacity:0.5; background:transparent; border:none; text-align:center; color:var(--text-color); font-weight:800;">':`<input type="number" step="0.001" class="dist" value="${f.dist}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`}</td>
+                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="zen" value="${f.zen}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`}</td>
+                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="ai" value="${f.ai}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`}</td>
+                                <td class="${f.final?'td-readonly':''}">${f.final?'':`<input type="number" step="0.001" class="ap" value="${f.ap}" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`}</td>`;
                 tbody.appendChild(tr);
             });
             renderBMs();
@@ -728,14 +853,14 @@
         function agregarVertice() {
             vibrar(); const tbody = document.getElementById('cuerpoPoligonal'); const n = tbody.children.length;
             let last = tbody.lastElementChild;
-            last.querySelector('td:nth-child(5)').innerHTML = `<input type="number" step="0.001" class="dist" oninput="guardarEstadoApp()">`; last.querySelector('td:nth-child(5)').classList.remove('td-readonly');
-            last.querySelector('td:nth-child(6)').innerHTML = `<input type="number" step="0.001" class="zen" value="90" oninput="guardarEstadoApp()">`; last.querySelector('td:nth-child(6)').classList.remove('td-readonly');
-            last.querySelector('td:nth-child(7)').innerHTML = `<input type="number" step="0.001" class="ai" value="1.50" oninput="guardarEstadoApp()">`; last.querySelector('td:nth-child(7)').classList.remove('td-readonly');
-            last.querySelector('td:nth-child(8)').innerHTML = `<input type="number" step="0.001" class="ap" value="1.50" oninput="guardarEstadoApp()">`; last.querySelector('td:nth-child(8)').classList.remove('td-readonly');
+            last.querySelector('td:nth-child(5)').innerHTML = `<input type="number" step="0.001" class="dist" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`; last.querySelector('td:nth-child(5)').classList.remove('td-readonly');
+            last.querySelector('td:nth-child(6)').innerHTML = `<input type="number" step="0.001" class="zen" value="90" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`; last.querySelector('td:nth-child(6)').classList.remove('td-readonly');
+            last.querySelector('td:nth-child(7)').innerHTML = `<input type="number" step="0.001" class="ai" value="1.50" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`; last.querySelector('td:nth-child(7)').classList.remove('td-readonly');
+            last.querySelector('td:nth-child(8)').innerHTML = `<input type="number" step="0.001" class="ap" value="1.50" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)">`; last.querySelector('td:nth-child(8)').classList.remove('td-readonly');
             
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td><input type="text" class="in-pto" value="E-FIN" style="color:var(--primary-color);" oninput="guardarEstadoApp()"></td>
-                            <td><input type="number" class="ang-g" oninput="guardarEstadoApp()"></td><td><input type="number" class="ang-m" oninput="guardarEstadoApp()"></td><td><input type="number" step="0.1" class="ang-s" oninput="guardarEstadoApp()"></td>
+            tr.innerHTML = `<td><input type="text" class="in-pto" value="E-FIN" style="color:var(--primary-color);" oninput="this.value=this.value.toUpperCase(); guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
+                            <td><input type="number" class="ang-g" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td><td><input type="number" class="ang-m" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td><td><input type="number" step="0.1" class="ang-s" oninput="guardarEstadoApp()" onkeydown="manejarEnterPol(event, this)"></td>
                             <td class="td-readonly"><input type="text" disabled value="Cierre" style="opacity:0.5; background:transparent; border:none; text-align:center; color:var(--text-color); font-weight:800;"></td><td class="td-readonly"></td><td class="td-readonly"></td><td class="td-readonly"></td>`;
             if(tbody.children[n-1].querySelector('.in-pto').value === 'E-FIN') tbody.children[n-1].querySelector('.in-pto').value = `E-${n-1}`;
             tbody.appendChild(tr); guardarEstadoApp();
@@ -755,7 +880,7 @@
             let eEstFin = parseFloat(document.getElementById('eEstFin').value); let nEstFin = parseFloat(document.getElementById('nEstFin').value); let zEstFin = parseFloat(document.getElementById('zEstFin').value);
             let eRefFin = parseFloat(document.getElementById('eRefFin').value); let nRefFin = parseFloat(document.getElementById('nRefFin').value);
 
-            if(isNaN(eEstIni) || isNaN(eEstFin) || isNaN(zEstIni) || isNaN(zEstFin)) { showToast("Completa los hitos geodésicos de control.", "warning"); return; }
+            if(isNaN(eEstIni) || isNaN(nEstIni) || isNaN(eRefIni) || isNaN(nRefIni) || isNaN(eEstFin) || isNaN(nEstFin) || isNaN(zEstIni) || isNaN(zEstFin) || isNaN(eRefFin) || isNaN(nRefFin)) { showToast("Completa todos los hitos geodésicos de partida y llegada.", "warning"); return; }
 
             let azIni = calcularAzimut(eEstIni, nEstIni, eRefIni, nRefIni); let azFinTeorico = calcularAzimut(eEstFin, nEstFin, eRefFin, nRefFin);
 
@@ -768,7 +893,7 @@
                 angObs.push(gmsADecimal(g, m, s));
                 if (i < nAng - 1) {
                     let d = parseFloat(filas[i].querySelector('.dist').value); let z = parseFloat(filas[i].querySelector('.zen').value)||90; let hI = parseFloat(filas[i].querySelector('.ai').value)||0; let hP = parseFloat(filas[i].querySelector('.ap').value)||0;
-                    if(isNaN(d)) { showToast(`Falta distancia en Estación ${i}`, "error"); return; }
+                    if(isNaN(d) || d <= 0) { showToast(`Falta distancia válida en Estación ${nombres[i]}`, "error"); return; }
                     dists.push(d); zens.push(z); ais.push(hI); aps.push(hP); perimetro += d;
                 }
             }
@@ -842,6 +967,7 @@
                 tbodyRes.innerHTML += `<tr><td style="color:var(--primary-color); font-weight:800;">${nombres[i]}</td><td>${coordE[i].toFixed(decs)}</td><td>${coordN[i].toFixed(decs)}</td><td>${coordZ[i].toFixed(decs)}</td></tr>`;
             }
             document.getElementById('panelResultados').style.display = 'block';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             showToast("Ajuste Vial Completado", "success");
         }
 
@@ -852,12 +978,6 @@
             let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Eje_Vial_Ajustado.csv"; link.click();
         }
-
-        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function calcIn(v) { document.getElementById('calcDisplay').value += v; }
-        function calcClear() { document.getElementById('calcDisplay').value = ''; }
-        function calcDel() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
         
         function exportarBackup() {
             vibrar(); const backup = JSON.parse(localStorage.getItem('cota100_db_polabierta_v5'));

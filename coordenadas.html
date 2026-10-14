@@ -61,6 +61,7 @@
         .btn-volver-mini:active { transform: scale(0.92); filter: drop-shadow(0 0 10px var(--primary-color)); }
         .top-bar-title { color: var(--text-color); font-weight: 900; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1; letter-spacing: -0.5px;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.75rem; letter-spacing: 2px;}
+        .spacer { width: 45px; }
 
         .modulo-container { padding: 25px 15px; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 10;}
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -122,10 +123,11 @@
         .result-box-wide { grid-column: 1 / -1; text-align: center; margin-bottom: 10px; padding: 18px; background-color: rgba(128,128,128,0.03); border-radius: 10px; border: 1px solid var(--card-border);}
         .result-value-wide { font-size: 1.4rem; color: var(--primary-color); font-weight: 900; font-family: monospace; margin-top: 5px;}
         
-        .btn-action { padding: 15px; font-weight: 800; border-radius: 8px; cursor: pointer; border: none; font-size: 1rem; text-transform: uppercase;}
+        .btn-action, .btn-accion { padding: 15px; font-weight: 800; border-radius: 8px; cursor: pointer; border: none; font-size: 1rem; text-transform: uppercase; transition: 0.2s;}
+        .btn-action:active, .btn-accion:active { transform: scale(0.96); }
         .btn-copiar { background-color: var(--table-header); color: #fff; }
         .btn-limpiar { background-color: transparent; color: var(--error-color); border: 2px solid var(--error-color); }
-        .btn-map { grid-column: 1 / -1; background-color: rgba(46,125,50,0.1); color: var(--success-color); border: 1px solid var(--success-color); }
+        .btn-map { background-color: rgba(46,125,50,0.1); color: var(--success-color); border: 1px solid var(--success-color); }
 
         .drop-zone { border: 2px dashed var(--primary-color); border-radius: 12px; padding: 35px 20px; text-align: center; background-color: rgba(255,85,0,0.02); margin-bottom: 15px; color: var(--primary-color); font-weight: 800; text-transform: uppercase; cursor: pointer;}
         .alerta-critica { background-color: rgba(211, 47, 47, 0.05); border-left: 5px solid var(--error-color); padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
@@ -200,7 +202,11 @@
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             </a>
             <h2 class="top-bar-title">COORDENADAS<br><span>Módulos Topográficos</span></h2>
-            <div class="spacer"></div>
+            <div style="width: 45px; display: flex; justify-content: flex-end;">
+                <button class="btn-volver-mini" onclick="mostrarLeyendaGeneral()" title="Guía General">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </button>
+            </div>
         </div>
 
         <div class="modulo-container">
@@ -404,6 +410,7 @@
                         </div>
                         <div class="result-value" id="resConv" style="font-size: 1.2rem; color:var(--success-color);">0° 0' 0"</div>
                     </div>
+                    <button class="btn-action btn-copiar" style="grid-column: 1 / -1;" onclick="copiarTxt('resEsteGeoOut', 'resNorteGeoOut')">📋 Copiar Coordenadas UTM</button>
                 </div>
             </div>
 
@@ -439,6 +446,7 @@
                     <div class="result-box-inner"><div class="result-label">ESTE TOPO</div><div class="result-value" id="resEsteTopo">0.000</div></div>
                     <div class="result-box-inner"><div class="result-label">NORTE TOPO</div><div class="result-value" id="resNorteTopo">0.000</div></div>
                     <div class="result-box-wide" style="padding: 10px;">Factor CSF Matemático: <strong id="resFactorCombinadoVal">1.00000000</strong></div>
+                    <button class="btn-action btn-copiar" style="grid-column: 1 / -1;" onclick="copiarTxt('resEsteTopo', 'resNorteTopo')">📋 Copiar Coordenadas PTL</button>
                 </div>
             </div>
         </div>
@@ -587,11 +595,26 @@
                 </div>
                 <div class="result-box-inner"><div class="result-label">COTA GPS (h)</div><div class="result-value" id="res_h" style="font-size: 1.3rem; color: #555;">--</div></div>
                 <div class="result-box-inner" style="border-color: var(--success-color); background-color: rgba(46,125,50,0.05);"><div class="result-label" style="color: var(--success-color);">COTA ORTOMÉTRICA (H)</div><div class="result-value" id="res_H" style="font-size: 1.4rem; color: var(--success-color);">--</div></div>
+                <button class="btn-action btn-copiar" style="grid-column: 1 / -1;" onclick="copiarSimple('res_H')">📋 Copiar Cota Ortométrica</button>
             </div>
         </div>
     </div>
 
     <script>
+        let globalConfig = { darkMode: false, decimales: "3", delimitadorCSV: "," };
+
+        function showToast(message, type = "default") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        }
+
         // --- ALERTAS DINÁMICAS ---
         function showCustomAlert(message, title = "INFORMACIÓN") {
             let titleEl = document.getElementById('customAlertTitle');
@@ -654,7 +677,7 @@
                     Aquí puedes procesar la data cruda descargada de la Estación Total o GPS antes de procesarla en Civil 3D.<br><br>
                     <strong style="color:var(--primary-color);">Ajuste Z:</strong> Para subir o bajar masivamente todo el terreno si partiste de un BM inicial incorrecto.<br>
                     <strong style="color:var(--primary-color);">Filtro:</strong> Escribe una palabra clave (Ej: BZ) y descarga un archivo solo con esos puntos.<br>
-                    <strong style="color:var(--primary-color);">Limpiar:</strong> Pásale un archivo sucio (con espacios, comillas o tabulaciones de Excel) y te devolverá un archivo limpio PNEZD separado estrictamente por comas.
+                    <strong style="color:var(--primary-color);">Limpiar:</strong> Pásale un archivo sucio (con espacios, comillas o tabulaciones de Excel) y te devolverá un archivo limpio PNEZD separado con tu delimitador preferido.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: GESTOR CSV");
@@ -776,6 +799,11 @@
         }
 
         window.onload = function() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+                if (conf) globalConfig = conf;
+            } catch(e) {}
+
             let tituloDefecto = 'COORDENADAS';
             let urlDefecto = 'coordenadas.html';
 
@@ -794,7 +822,7 @@
                 localStorage.setItem('cota100_last_url', urlDefecto);
             }
 
-            let zG = localStorage.getItem("cota100_zona") || "17";
+            let zG = localStorage.getItem("cota100_zona") || globalConfig.zonaDefecto || "17";
             document.getElementById('zonaUtm').value = zG; document.getElementById('txt_zonaUtm').innerText = zG + " Sur";
             document.getElementById('zonaUtmGeo').value = zG; document.getElementById('txt_zonaUtmGeo').innerText = zG;
             document.getElementById('zonaGeoidal').value = zG; document.getElementById('txt_zonaGeoidal').innerText = zG;
@@ -809,28 +837,61 @@
         function utmToLatLon(x, y, zone, isSouth, a, f) { let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2); if (isSouth) y = y - 10000000.0; let lonOrigin = (zone - 1) * 6 - 180 + 3; x = x - 500000.0; let m = y / 0.9996; let mu = m / (a * (1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256)); let e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2)); let phi1Rad = mu + (3*e1/2 - 27*Math.pow(e1,3)/32)*Math.sin(2*mu) + (21*e1*e1/16 - 55*Math.pow(e1,4)/32)*Math.sin(4*mu) + (151*Math.pow(e1,3)/96)*Math.sin(6*mu); let n1 = a / Math.sqrt(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad)); let t1 = Math.tan(phi1Rad) * Math.tan(phi1Rad); let c1 = ep2 * Math.cos(phi1Rad) * Math.cos(phi1Rad); let r1 = a * (1 - e2) / Math.pow(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad), 1.5); let d = x / (n1 * 0.9996); let latRad = phi1Rad - (n1 * Math.tan(phi1Rad) / r1) * (d*d/2 - (5 + 3*t1 + 10*c1 - 4*c1*c1 - 9*ep2)*Math.pow(d,4)/24 + (61 + 90*t1 + 298*c1 + 45*t1*t1 - 252*ep2 - 3*c1*c1)*Math.pow(d,6)/720); let lonRad = (d - (1 + 2*t1 + c1)*Math.pow(d,3)/6 + (5 - 2*c1 + 28*t1 - 3*c1*c1 + 8*ep2 + 24*t1*t1)*Math.pow(d,5)/120) / Math.cos(phi1Rad); return { lat: latRad * 180.0 / PI, lon: lonOrigin + (lonRad * 180.0 / PI) }; }
         function latLonToUtm(lat, lon, zone, a, f) { let latRad = lat * PI / 180.0; let lonRad = lon * PI / 180.0; let lonOrigin = (zone - 1) * 6 - 180 + 3; let lonOriginRad = lonOrigin * PI / 180.0; let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2); let n = a / Math.sqrt(1 - e2 * Math.sin(latRad)*Math.sin(latRad)); let t = Math.tan(latRad) * Math.tan(latRad); let c = ep2 * Math.cos(latRad) * Math.cos(latRad); let A = Math.cos(latRad) * (lonRad - lonOriginRad); let m = a * ((1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256)*latRad - (3*e2/8 + 3*e2*e2/32 + 45*Math.pow(e2,3)/1024)*Math.sin(2*latRad) + (15*e2*e2/256 + 45*Math.pow(e2,3)/1024)*Math.sin(4*latRad) - (35*Math.pow(e2,3)/3072)*Math.sin(6*latRad)); let x = 0.9996 * n * (A + (1 - t + c)*Math.pow(A,3)/6 + (5 - 18*t + t*t + 72*c - 58*ep2)*Math.pow(A,5)/120); let k = 0.9996 * (1 + (A*A/2)*(1+c) + (Math.pow(A,4)/24)*(5 - 4*t + 42*c + 13*c*c - 28*ep2)); let gammaRad = Math.sin(latRad) * (lonRad - lonOriginRad); let gammaDeg = gammaRad * 180.0 / PI; x = x + 500000.0; let y = 0.9996 * (m + n * Math.tan(latRad) * (A*A/2 + (5 - t + 9*c + 4*c*c)*Math.pow(A,4)/24 + (61 - 58*t + t*t + 600*c - 330*ep2)*Math.pow(A,6)/720)); if (lat < 0) y = y + 10000000.0; return { este: x, norte: y, k: k, gamma: gammaDeg }; }
 
-        function copiarTxt(id1, id2) { let v1 = document.getElementById(id1).innerText; let v2 = document.getElementById(id2).innerText; navigator.clipboard.writeText(`${v1}\t${v2}`); alert("Copiado al portapapeles"); }
-        function descargarArchivo(contenido, nombre, mime) { let blob = new Blob(["\uFEFF" + contenido], { type: mime }); let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = nombre; link.click(); }
+        function copiarTxt(id1, id2) { 
+            let v1 = document.getElementById(id1).innerText; 
+            let v2 = document.getElementById(id2).innerText; 
+            navigator.clipboard.writeText(`${v1}\t${v2}`); 
+            showToast("Coordenadas copiadas al portapapeles", "success"); 
+        }
+
+        function copiarSimple(id1) {
+            let v1 = document.getElementById(id1).innerText;
+            if (v1 === "--") return showToast("Ingresa primero la cota GPS (h)", "warning");
+            navigator.clipboard.writeText(v1);
+            showToast(`Cota ${v1} copiada`, "success");
+        }
+
+        function descargarArchivo(contenido, nombre, mime) { 
+            let blob = new Blob(["\uFEFF" + contenido], { type: mime }); 
+            let link = document.createElement("a"); 
+            link.href = URL.createObjectURL(blob); 
+            link.download = nombre; 
+            link.click(); 
+        }
 
         // --- SUBMÓDULO 1: DATUM Y KML ---
         function getDeltas() { if(document.getElementById('tipoParametros').value === 'local') return { x: parseFloat(document.getElementById('dxLocal').value)||0, y: parseFloat(document.getElementById('dyLocal').value)||0, z: parseFloat(document.getElementById('dzLocal').value)||0 }; return { x: -288.0, y: 175.0, z: -376.0 }; }
         function ejecutarTransformacion() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let este = parseFloat(document.getElementById('esteIn').value); let norte = parseFloat(document.getElementById('norteIn').value);
             let zona = parseInt(document.getElementById('zonaUtm').value); let dir = document.getElementById('direccionTransf').value; let deltas = getDeltas();
-            if(isNaN(este) || isNaN(norte)) { alert("Faltan datos."); return; }
+            if(isNaN(este) || isNaN(norte)) { showToast("Ingresa Este y Norte válidos.", "warning"); return; }
             let res;
             if (dir === 'psad_to_wgs') { let geo1 = utmToLatLon(este, norte, zona, true, PSAD56.a, PSAD56.f); let geo2 = molodenskyTransform(geo1.lat, geo1.lon, PSAD56, WGS84, deltas.x, deltas.y, deltas.z); res = latLonToUtm(geo2.lat, geo2.lon, zona, WGS84.a, WGS84.f); } 
             else { let geo1 = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f); let geo2 = molodenskyTransform(geo1.lat, geo1.lon, WGS84, PSAD56, -deltas.x, -deltas.y, -deltas.z); res = latLonToUtm(geo2.lat, geo2.lon, zona, PSAD56.a, PSAD56.f); }
-            document.getElementById('resEste').innerText = res.este.toFixed(3); document.getElementById('resNorte').innerText = res.norte.toFixed(3); document.getElementById('cajaResultado').style.display = 'grid';
+            document.getElementById('resEste').innerText = res.este.toFixed(decs); document.getElementById('resNorte').innerText = res.norte.toFixed(decs); document.getElementById('cajaResultado').style.display = 'grid';
+            showToast("Conversión completada", "success");
         }
         function verEnGoogleMapsDatum() {
-            let este = parseFloat(document.getElementById('resEste').innerText); let norte = parseFloat(document.getElementById('resNorte').innerText); let zona = parseInt(document.getElementById('zonaUtm').value);
-            let latLon = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f); window.open(`https://www.google.com/maps/search/?api=1&query=$?q=${latLon.lat},${latLon.lon}`, '_blank');
+            let este = parseFloat(document.getElementById('resEste').innerText); let norte = parseFloat(document.getElementById('resNorte').innerText); 
+            let zona = parseInt(document.getElementById('zonaUtm').value);
+            let dir = document.getElementById('direccionTransf').value;
+            let latLon;
+            if (dir === 'psad_to_wgs') {
+                latLon = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f);
+            } else {
+                let esteWgs = parseFloat(document.getElementById('esteIn').value);
+                let norteWgs = parseFloat(document.getElementById('norteIn').value);
+                latLon = utmToLatLon(esteWgs, norteWgs, zona, true, WGS84.a, WGS84.f);
+            }
+            window.open(`https://www.google.com/maps/search/?api=1&query=${latLon.lat},${latLon.lon}`, '_blank');
         }
         function procesarArchivoDatum() {
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let delimOut = globalConfig.delimitadorCSV || ",";
             let fileInput = document.getElementById('fileInputDatum'); let formatOut = document.getElementById('formatoSalida').value;
             let zona = parseInt(document.getElementById('zonaUtm').value); let dir = document.getElementById('direccionTransf').value; let deltas = getDeltas();
-            if (!fileInput.files.length) { alert("Selecciona un archivo primero."); return; }
+            if (!fileInput.files.length) { showToast("Selecciona un archivo primero.", "warning"); return; }
             let file = fileInput.files[0]; let reader = new FileReader();
             reader.onload = function(e) {
                 let lineas = e.target.result.split(/\r?\n/); let resCSV = ""; let kmlPoints = ""; let procesadas = 0;
@@ -845,59 +906,73 @@
                         res = latLonToUtm(geo2.lat, geo2.lon, zona, WGS84.a, WGS84.f); geoFin = geo2;
                     } else {
                         let geo1 = utmToLatLon(este, norte, zona, true, WGS84.a, WGS84.f); let geo2 = molodenskyTransform(geo1.lat, geo1.lon, WGS84, PSAD56, -deltas.x, -deltas.y, -deltas.z);
-                        res = latLonToUtm(geo2.lat, geo2.lon, zona, PSAD56.a, PSAD56.f); geoFin = geo1; // KML always needs WGS84
+                        res = latLonToUtm(geo2.lat, geo2.lon, zona, PSAD56.a, PSAD56.f); geoFin = geo1;
                     }
-                    resCSV += `${pto},${res.este.toFixed(3)},${res.norte.toFixed(3)},${cota},${desc}\n`;
+                    resCSV += `${pto}${delimOut}${res.este.toFixed(decs)}${delimOut}${res.norte.toFixed(decs)}${delimOut}${cota}${delimOut}${desc}\n`;
                     kmlPoints += `<Placemark><name>${pto}</name><description>${desc} (Z:${cota})</description><Point><coordinates>${geoFin.lon},${geoFin.lat},0</coordinates></Point></Placemark>\n`;
                     procesadas++;
                 }
+                if (procesadas === 0) return showToast("No se encontraron coordenadas válidas.", "error");
                 if(formatOut === 'kml') {
                     let kmlFile = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Export_Cota100</name>${kmlPoints}</Document></kml>`;
                     descargarArchivo(kmlFile, file.name.split('.')[0] + ".kml", 'application/vnd.google-earth.kml+xml');
-                } else { descargarArchivo(resCSV, file.name.split('.')[0] + "_Transf.csv", 'text/csv;charset=utf-8;'); }
-                alert(`Se procesaron ${procesadas} puntos.`);
+                } else { 
+                    descargarArchivo(resCSV, file.name.split('.')[0] + "_Transf.csv", 'text/csv;charset=utf-8;'); 
+                }
+                showToast(`✅ ${procesadas} puntos transformados`, "success");
             }; reader.readAsText(file);
         }
 
         // --- SUBMÓDULO 2: PROYECCIONES ---
         function ejecutarUtmGeo() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let dir = document.getElementById('dirUtmGeo').value; let zona = parseInt(document.getElementById('zonaUtmGeo').value); let hemi = document.getElementById('hemiGeo').value === 'S';
             if(dir === 'u2g') {
                 let este = parseFloat(document.getElementById('esteGeo').value); let norte = parseFloat(document.getElementById('norteGeo').value);
-                if(isNaN(este) || isNaN(norte)) { alert("Faltan datos."); return; }
+                if(isNaN(este) || isNaN(norte)) { showToast("Ingresa Este y Norte UTM.", "warning"); return; }
                 let geo = utmToLatLon(este, norte, zona, hemi, WGS84.a, WGS84.f);
                 document.getElementById('resLatDec').innerText = geo.lat.toFixed(6); document.getElementById('resLonDec').innerText = geo.lon.toFixed(6);
                 document.getElementById('cajaResGeoU2G').style.display = 'grid';
+                showToast("Geográficas calculadas", "success");
             } else {
                 let lat = parseFloat(document.getElementById('latIn').value); let lon = parseFloat(document.getElementById('lonIn').value);
-                if(isNaN(lat) || isNaN(lon)) { alert("Faltan datos."); return; }
+                if(isNaN(lat) || isNaN(lon)) { showToast("Ingresa Latitud y Longitud.", "warning"); return; }
                 let utm = latLonToUtm(lat, lon, zona, WGS84.a, WGS84.f);
-                document.getElementById('resEsteGeoOut').innerText = utm.este.toFixed(3); document.getElementById('resNorteGeoOut').innerText = utm.norte.toFixed(3);
+                document.getElementById('resEsteGeoOut').innerText = utm.este.toFixed(decs); document.getElementById('resNorteGeoOut').innerText = utm.norte.toFixed(decs);
                 document.getElementById('resK').innerText = utm.k.toFixed(6); document.getElementById('resConv').innerText = formatDMS(utm.gamma);
                 document.getElementById('cajaResGeoG2U').style.display = 'grid';
+                showToast("UTM calculadas", "success");
             }
         }
-        function verEnGoogleMapsGeoU2G() { let lat = document.getElementById('resLatDec').innerText; let lon = document.getElementById('resLonDec').innerText; window.open(`https://www.google.com/maps/search/?api=1&query=$?q=${lat},${lon}`, '_blank'); }
+        function verEnGoogleMapsGeoU2G() { 
+            let lat = document.getElementById('resLatDec').innerText; 
+            let lon = document.getElementById('resLonDec').innerText; 
+            window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank'); 
+        }
         function ejecutarPtl() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let esteBase = parseFloat(document.getElementById('esteBase').value); let norteBase = parseFloat(document.getElementById('norteBase').value); let cotaBase = parseFloat(document.getElementById('cotaBase').value);
             let estePunto = parseFloat(document.getElementById('estePunto').value); let nortePunto = parseFloat(document.getElementById('nortePunto').value);
-            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase) || isNaN(estePunto) || isNaN(nortePunto)) { alert("Completa todos los datos."); return; }
+            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase) || isNaN(estePunto) || isNaN(nortePunto)) { showToast("Completa todos los datos de Base y Punto.", "warning"); return; }
             const R = 6378137.0; let factorElevacion = R / (R + cotaBase); let deltaE_Base = esteBase - 500000.0;
             let factorEscala = 0.9996 * (1 + (Math.pow(deltaE_Base, 2) / (2 * Math.pow(R, 2)))); let csf = factorElevacion * factorEscala;
             let deltaE_Topo = (estePunto - esteBase) / csf; let deltaN_Topo = (nortePunto - norteBase) / csf;
             document.getElementById('resFactorCombinadoVal').innerText = csf.toFixed(8);
-            document.getElementById('resEsteTopo').innerText = (esteBase + deltaE_Topo).toFixed(3); document.getElementById('resNorteTopo').innerText = (norteBase + deltaN_Topo).toFixed(3);
+            document.getElementById('resEsteTopo').innerText = (esteBase + deltaE_Topo).toFixed(decs); document.getElementById('resNorteTopo').innerText = (norteBase + deltaN_Topo).toFixed(decs);
             document.getElementById('cajaResultadoPtl').style.display = 'grid';
+            showToast("Proyección PTL (1:1) generada", "success");
         }
 
-        // --- SUBMÓDULO 3: GESTOR MASIVO CSV (NUEVAS FUNCIONES) ---
+        // --- SUBMÓDULO 3: GESTOR MASIVO CSV ---
         function procesarCSV(accion) {
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let delimOut = globalConfig.delimitadorCSV || ",";
             let fileInput;
             if(accion === 'ajuste') fileInput = document.getElementById('fileAjuste');
             else if(accion === 'filtro') fileInput = document.getElementById('fileFiltro');
             else fileInput = document.getElementById('fileLimpio');
 
-            if (!fileInput.files.length) { alert("Selecciona un archivo CSV/TXT primero."); return; }
+            if (!fileInput.files.length) { showToast("Selecciona un archivo CSV/TXT primero.", "warning"); return; }
             let file = fileInput.files[0]; let reader = new FileReader();
 
             reader.onload = function(e) {
@@ -909,34 +984,37 @@
                     let linea = lineas[i].trim(); if (linea === "") continue;
                     
                     if (accion === 'limpiar') {
-                        linea = linea.replace(/['"]/g, ''); // Quita comillas
-                        linea = linea.replace(/[\t;|\s+]/g, ','); // Todo a comas
-                        linea = linea.replace(/,+/g, ','); // Quita comas extra
-                        if (linea.match(/[a-zA-Z]/) && i === 0) continue; // Salta la cabecera
+                        linea = linea.replace(/['"]/g, '');
+                        linea = linea.replace(/[\t;|\s+]/g, ',');
+                        linea = linea.replace(/,+/g, ',');
+                        if (linea.match(/[a-zA-Z]/) && i === 0) continue;
                         let c = linea.split(',');
-                        if(c.length >= 3) { resCSV += `${c[0]},${parseFloat(c[1]).toFixed(3)},${parseFloat(c[2]).toFixed(3)},${c[3]?parseFloat(c[3]).toFixed(3):'0.000'},${c[4]||''}\n`; procesadas++; }
+                        if(c.length >= 3 && !isNaN(parseFloat(c[1])) && !isNaN(parseFloat(c[2]))) { 
+                            resCSV += `${c[0]}${delimOut}${parseFloat(c[1]).toFixed(decs)}${delimOut}${parseFloat(c[2]).toFixed(decs)}${delimOut}${c[3] && !isNaN(parseFloat(c[3])) ? parseFloat(c[3]).toFixed(decs) : '0.000'}${delimOut}${c[4]||''}\n`; 
+                            procesadas++; 
+                        }
                         continue;
                     }
 
-                    // Lectura estándar
                     let sep = linea.includes(';') ? ';' : (linea.includes('\t') ? '\t' : ',');
                     let cols = linea.split(sep); if(cols.length < 3) continue;
                     
                     if (accion === 'ajuste') {
                         if(cols.length >= 4 && !isNaN(parseFloat(cols[3]))) {
-                            cols[3] = (parseFloat(cols[3]) + dz).toFixed(3);
-                            resCSV += cols.join(',') + "\n"; procesadas++;
-                        } else { resCSV += linea + "\n"; } // Sin Z lo pasa igual
+                            cols[3] = (parseFloat(cols[3]) + dz).toFixed(decs);
+                            resCSV += cols.join(delimOut) + "\n"; procesadas++;
+                        } else { resCSV += cols.join(delimOut) + "\n"; }
                     } 
                     else if (accion === 'filtro') {
                         let desc = (cols[4] || "").toUpperCase();
-                        if (desc.includes(filtroStr)) { resCSV += cols.join(',') + "\n"; procesadas++; }
+                        if (desc.includes(filtroStr)) { resCSV += cols.join(delimOut) + "\n"; procesadas++; }
                     }
                 }
                 
+                if (procesadas === 0) return showToast("No se encontraron registros que coincidan.", "warning");
                 let sufijo = accion === 'ajuste' ? '_CotasAjustadas' : (accion === 'filtro' ? '_Filtrado' : '_PNEZD_Limpio');
                 descargarArchivo(resCSV, file.name.split('.')[0] + sufijo + ".csv", 'text/csv;charset=utf-8;');
-                alert(`Se procesaron ${procesadas} puntos correctamente.`);
+                showToast(`✅ ${procesadas} puntos procesados`, "success");
             }; reader.readAsText(file);
         }
 
@@ -970,24 +1048,26 @@
         }
 
         function ejecutarGeoidalOffline() {
+            let decs = parseInt(globalConfig.decimales) || 3;
             let tipo = document.getElementById('tipoIngresoGeoidal').value; let lat, lon;
             if(tipo === 'latlon') { lat = parseFloat(document.getElementById('latGeoidal').value); lon = parseFloat(document.getElementById('lonGeoidal').value); } 
             else {
                 let este = parseFloat(document.getElementById('esteGeoidal').value); let norte = parseFloat(document.getElementById('norteGeoidal').value);
                 let zona = parseInt(document.getElementById('zonaGeoidal').value); let hemi = document.getElementById('hemiGeoidal').value === 'S';
-                if(isNaN(este) || isNaN(norte)) { alert("Faltan coordenadas UTM."); return; }
+                if(isNaN(este) || isNaN(norte)) { showToast("Faltan coordenadas UTM.", "warning"); return; }
                 let geo = utmToLatLon(este, norte, zona, hemi, WGS84.a, WGS84.f); lat = geo.lat; lon = geo.lon;
             }
-            if(isNaN(lat) || isNaN(lon)) { alert("Faltan datos de ubicación."); return; }
+            if(isNaN(lat) || isNaN(lon)) { showToast("Faltan datos de ubicación.", "warning"); return; }
 
             let N = interpolarBilineal(lat, lon);
-            if (N === null) { alert("⚠️ Coordenadas fuera de la malla offline de Perú."); return; }
+            if (N === null) { showToast("⚠️ Coordenadas fuera de la malla offline de Perú.", "error"); return; }
 
             let h_elipsoidal = parseFloat(document.getElementById('cotaElipsoidal').value);
-            document.getElementById('resN').innerText = N.toFixed(3) + " m";
-            if(!isNaN(h_elipsoidal)) { document.getElementById('res_h').innerText = h_elipsoidal.toFixed(3); document.getElementById('res_H').innerText = (h_elipsoidal - N).toFixed(3); } 
+            document.getElementById('resN').innerText = N.toFixed(decs) + " m";
+            if(!isNaN(h_elipsoidal)) { document.getElementById('res_h').innerText = h_elipsoidal.toFixed(decs); document.getElementById('res_H').innerText = (h_elipsoidal - N).toFixed(decs); } 
             else { document.getElementById('res_h').innerText = "--"; document.getElementById('res_H').innerText = "--"; }
             document.getElementById('cajaResGeoidal').style.display = 'grid';
+            showToast("Ondulación calculada", "success");
         }
     </script>
 </body>

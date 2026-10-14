@@ -14,6 +14,7 @@
             --primary-color: #FF5500; 
             --primary-glow: rgba(255, 85, 0, 0.15);
             --danger-color: #d32f2f;
+            --success-color: #2e7d32;
             --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: rgba(255, 85, 0, 0.15);
             --lock-bg: rgba(255, 255, 255, 0.8);
@@ -24,6 +25,7 @@
             --bg-color: #05070a;
             --text-color: #ffffff;
             --primary-glow: rgba(255, 85, 0, 0.25);
+            --success-color: #00C851;
             --card-bg: rgba(18, 22, 28, 0.85);
             --card-border: rgba(255, 85, 0, 0.2);
             --lock-bg: rgba(5, 7, 10, 0.85);
@@ -95,22 +97,31 @@
         #errorMsg { color: var(--danger-color); font-weight: 800; font-size: 0.85rem; margin-top: 20px; display: none; text-transform: uppercase; letter-spacing: 2px; animation: shake 0.4s;}
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-        /* --- HEADER --- */
+        /* --- HEADER LIMPIO --- */
         .header { text-align: center; padding: 35px 20px 15px; position: relative; z-index: 10;}
         .header h1 { color: var(--text-color); font-weight: 900; font-size: 2.8rem; letter-spacing: -2px; margin-bottom: 0; line-height: 1;}
         .header h1 span { color: var(--primary-color); }
         .header p { color: #888; font-size: 0.8rem; font-weight: 800; letter-spacing: 8px; text-transform: uppercase; margin-top: 5px; font-family: monospace;}
 
-        /* --- WIDGET ÚLTIMO ACCESO --- */
-        .dashboard-container { padding: 5px 20px 15px; animation: fluidEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; position: relative; z-index: 10;}
-        .dashboard-widget { background: transparent; border: 1px solid var(--primary-color); border-radius: 12px; padding: 12px 18px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; position: relative; transition: 0.3s; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);}
+        /* --- WIDGET ÚLTIMO ACCESO + ESCUDO DE BACKUP --- */
+        .dashboard-container { padding: 5px 20px 15px; animation: fluidEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; position: relative; z-index: 10; max-width: 600px; margin: 0 auto;}
+        .dashboard-row { display: flex; gap: 10px; align-items: stretch; }
+        .dashboard-widget { flex: 1; background: transparent; border: 1px solid var(--primary-color); border-radius: 12px; padding: 12px 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; position: relative; transition: 0.3s; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);}
         .dashboard-widget:active { transform: scale(0.98); background: linear-gradient(135deg, #FF3300 0%, #FF8C00 60%, #FFD700 100%); border-color: transparent; }
         .dashboard-widget:active .widget-label, .dashboard-widget:active .widget-title { color: #ffffff; }
         .widget-label { font-size: 0.65rem; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 2px; font-family: monospace; transition: 0.3s;}
-        .widget-title { font-size: 1.05rem; font-weight: 800; color: var(--primary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; text-transform: uppercase; transition: 0.3s;}
+        .widget-title { font-size: 1.05rem; font-weight: 800; color: var(--primary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; text-transform: uppercase; transition: 0.3s;}
+
+        .btn-cloud-quick {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+            padding: 0 14px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--primary-color); font-weight: 800; font-size: 0.65rem; text-transform: uppercase;
+            cursor: pointer; transition: 0.2s; backdrop-filter: blur(10px);
+        }
+        .btn-cloud-quick:active { transform: scale(0.94); background: var(--primary-color); color: #fff; }
 
         /* --- GRID DE ICONOS --- */
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; position: relative; z-index: 10;}
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; position: relative; z-index: 10; max-width: 600px; margin: 0 auto;}
         @keyframes fluidEntrance { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
         .tech-card { 
@@ -132,6 +143,14 @@
         .footer-firma { text-align: center; margin: 30px 0; opacity: 0; animation: fluidEntrance 0.5s 1.5s forwards; position: relative; z-index: 10;}
         .created-by { font-size: 0.75rem; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 3px; font-family: monospace;}
         .author-name { font-size: 0.9rem; font-weight: 900; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-top: 3px; }
+
+        /* MODAL BÓVEDA RÁPIDA */
+        .overlay-vault { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
+        .overlay-vault.activo { opacity: 1; }
+        .modal-vault { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); text-align: center;}
+        .modal-vault.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
+        .btn-vault-action { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 10px; font-size: 1rem; font-weight: 800; text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-vault-action:active { transform: scale(0.96); }
 
         @media screen and (max-width: 480px) {
             html { font-size: 13px; } 
@@ -161,6 +180,26 @@
         } catch(e) {}
     </script>
 
+    <!-- MODAL DE BÓVEDA PERSONAL (RESPALDO EN 1 TOQUE) -->
+    <div class="overlay-vault" id="overlayVault" onclick="cerrarModalVault()"></div>
+    <div class="modal-vault" id="modalVault">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; color:var(--primary-color); font-weight:900; font-size:1.15rem; text-transform:uppercase;">🛡️ Bóveda Personal</h3>
+            <button onclick="cerrarModalVault()" style="background:none; border:none; font-size:1.4rem; color:var(--danger-color); font-weight:800; cursor:pointer;">X</button>
+        </div>
+        <p id="txtVaultStatus" style="font-size:0.85rem; font-weight:700; color:var(--text-color); opacity:0.85; margin-bottom:15px; line-height:1.3;">
+            Guarda o restaura todas tus libretas y configuraciones con un solo toque.
+        </p>
+        <button class="btn-vault-action" style="background:var(--primary-color); color:#fff; box-shadow: 0 4px 12px rgba(255,85,0,0.3);" onclick="respaldoRapidoTotal()">
+            📤 Enviar a Drive / WhatsApp
+        </button>
+        <label class="btn-vault-action" style="background:transparent; color:var(--text-color); border:1px dashed var(--primary-color);">
+            📥 Restaurar Archivo .JSON
+            <input type="file" id="importVaultFile" accept=".json" style="display:none;" onchange="restaurarRapidoTotal()">
+        </label>
+        <div id="lblUltimaCopiaIndex" style="font-size:0.75rem; font-weight:700; color:#888; margin-top:5px;">Último respaldo: Nunca</div>
+    </div>
+
     <!-- PANTALLA DE BLOQUEO LIMPIA Y SOBRIA -->
     <div id="lock-screen">
         <div class="lock-box">
@@ -186,18 +225,26 @@
         <img src="icono.png" alt="COTA100 Logo">
     </div>
 
-    <!-- HEADER -->
+    <!-- HEADER ORIGINAL Y LIMPIO -->
     <div class="header" id="main-header" style="opacity: 0;">
         <h1>COTA<span>100</span></h1>
         <p>System</p>
     </div>
 
-    <!-- WIDGET ÚLTIMO ACCESO SUTIL Y CENTRADO -->
+    <!-- WIDGET ÚLTIMO ACCESO + ESCUDO DE BACKUP -->
     <div class="dashboard-container" id="main-dashboard">
-        <a href="#" id="linkUltimoModulo" class="dashboard-widget">
-            <span class="widget-label">RETOMAR ÚLTIMO PROCESO</span>
-            <h3 class="widget-title" id="lblUltimoModulo">MENÚ PRINCIPAL</h3>
-        </a>
+        <div class="dashboard-row">
+            <a href="#" id="linkUltimoModulo" class="dashboard-widget">
+                <span class="widget-label">RETOMAR ÚLTIMO PROCESO</span>
+                <h3 class="widget-title" id="lblUltimoModulo">MENÚ PRINCIPAL</h3>
+            </a>
+            <button class="btn-cloud-quick" onclick="abrirModalVault()" title="Bóveda de Respaldo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:3px;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Backup</span>
+            </button>
+        </div>
     </div>
 
     <!-- GRID DE MÓDULOS -->
@@ -285,6 +332,108 @@
 
         const hashClave = "NzM3MA==";
 
+        // --- BLINDAJE NATIVO DE ALMACENAMIENTO PERMANENTE (SILENCIOSO) ---
+        async function blindarAlmacenamientoPersistente() {
+            const statusTxt = document.getElementById('txtVaultStatus');
+            if (navigator.storage && navigator.storage.persist) {
+                try {
+                    let isPersisted = await navigator.storage.persisted();
+                    if (!isPersisted) {
+                        isPersisted = await navigator.storage.persist();
+                    }
+                    if (isPersisted) {
+                        statusTxt.innerHTML = "✅ <strong style='color:var(--success-color);'>Memoria Blindada Activa:</strong> El sistema operativo no borrará tus libretas al limpiar memoria.";
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function abrirModalVault() {
+            let lastBackup = localStorage.getItem('cota100_last_backup');
+            if(lastBackup) {
+                document.getElementById('lblUltimaCopiaIndex').innerHTML = `Último respaldo: <span style="color:var(--primary-color);">${lastBackup}</span>`;
+            }
+            document.getElementById('overlayVault').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('overlayVault').classList.add('activo');
+                document.getElementById('modalVault').classList.add('abierto');
+            }, 10);
+        }
+
+        function cerrarModalVault() {
+            document.getElementById('overlayVault').classList.remove('activo');
+            document.getElementById('modalVault').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlayVault').style.display = 'none'; }, 300);
+        }
+
+        // --- EMPAQUETADOR BARREDOR UNIVERSAL DE 1 TOQUE ---
+        function respaldoRapidoTotal() {
+            const backup = {
+                version_export: "7.0",
+                fecha: new Date().toISOString(),
+                ajustes: JSON.parse(localStorage.getItem('cota100_ajustes')),
+                db_simple: JSON.parse(localStorage.getItem('cota100_db_simple_v4')),
+                db_alcan: JSON.parse(localStorage.getItem('cota100_db_alcan_v3')),
+                db_poligonal: JSON.parse(localStorage.getItem('cota100_db_poligonal_v11')),
+                db_polabierta: JSON.parse(localStorage.getItem('cota100_db_polabierta_v5')),
+                db_polcerrada: JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4')),
+                db_areas: JSON.parse(localStorage.getItem('cota100_db_areas_v2'))
+            };
+
+            const jsonStr = JSON.stringify(backup, null, 2);
+            const fileName = `COTA100_BACKUP_TOTAL_${new Date().toISOString().split('T')[0]}.json`;
+            const file = new File([jsonStr], fileName, { type: "application/json" });
+
+            let fechaStr = new Date().toLocaleString('es-PE', { hour12: true });
+            localStorage.setItem('cota100_last_backup', fechaStr);
+            document.getElementById('lblUltimaCopiaIndex').innerHTML = `Último respaldo: <span style="color:var(--primary-color);">${fechaStr}</span>`;
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    title: 'Bóveda COTA100',
+                    text: `Respaldo Completo COTA100 (${fechaStr})`,
+                    files: [file]
+                }).catch(() => {
+                    descargarDirectoIndex(jsonStr, fileName);
+                });
+            } else {
+                descargarDirectoIndex(jsonStr, fileName);
+            }
+        }
+
+        function descargarDirectoIndex(content, filename) {
+            const blob = new Blob([content], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function restaurarRapidoTotal() {
+            const fileInput = document.getElementById('importVaultFile');
+            if(fileInput.files.length === 0) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const b = JSON.parse(e.target.result);
+                    if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
+                    if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
+                    if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
+                    if(b.db_poligonal) localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b.db_poligonal));
+                    if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
+                    if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
+                    if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));
+                    
+                    alert("✅ Bóveda restaurada con éxito. Se actualizará el sistema.");
+                    window.location.reload();
+                } catch(err) { alert("❌ Error: El archivo seleccionado no es un respaldo válido."); }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
         function verificarClave() {
             const input = document.getElementById('pinInput');
             const errorMsg = document.getElementById('errorMsg');
@@ -325,6 +474,7 @@
         }
 
         function iniciarAppVisual() {
+            blindarAlmacenamientoPersistente();
             cargarUltimoModulo();
             document.getElementById('main-header').style.opacity = "1";
             document.getElementById('main-dashboard').style.opacity = "1";

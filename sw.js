@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cota100-v8.7';
+const CACHE_NAME = 'cota100-v9.1';
 
 const urlsToCache = [
   './',
@@ -12,16 +12,20 @@ const urlsToCache = [
   './niv-alcan.html',
   './niv-poligonal.html',
   './poligonales.html',
+  './pol-abierta.html',
+  './pol-cerrada.html',
   './poligonal.js',
   './manifest.json',
-  './icono.png'
+  './icono.png',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caché COTA100 instalada');
+        console.log('Caché COTA100 v9.0 instalada');
         return cache.addAll(urlsToCache);
       })
   );
@@ -49,14 +53,12 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request)
       .then(networkResponse => {
-        // Si hay internet y responde bien, guardamos una copia fresca en la caché
         return caches.open(CACHE_NAME).then(cache => {
           cache.put(event.request, networkResponse.clone());
           return networkResponse;
         });
       })
       .catch(() => {
-        // Si no hay internet (falla el fetch), sacamos la versión de la caché
         return caches.match(event.request);
       })
   );
