@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cota100-v9.1';
+const CACHE_NAME = 'cota100-v9.2';
 
 const urlsToCache = [
   './',
@@ -25,7 +25,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caché COTA100 v9.0 instalada');
+        console.log('Caché COTA100 v9.2 instalada');
         return cache.addAll(urlsToCache);
       })
   );
@@ -48,8 +48,22 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// ESTRATEGIA: NETWORK FIRST (Red Primero, luego Caché)
+// ESTRATEGIA: NETWORK FIRST (Excluyendo llamadas dinámicas a Firebase/Google Auth)
 self.addEventListener('fetch', event => {
+  const url = event.request.url;
+
+  // No interceptar ni cachear peticiones de autenticación o base de datos en la nube
+  if (
+    event.request.method !== 'GET' ||
+    url.includes('firestore.googleapis.com') ||
+    url.includes('identitytoolkit.googleapis.com') ||
+    url.includes('securetoken.googleapis.com') ||
+    url.includes('firebase') ||
+    url.includes('accounts.google.com')
+  ) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then(networkResponse => {
