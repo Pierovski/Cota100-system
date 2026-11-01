@@ -112,11 +112,12 @@
         .text-box { flex: 1; text-align: left; display: flex; flex-direction: column;}
         .text-box h3 { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); margin-bottom: 4px; line-height: 1; transition: 0.3s;}
         .text-box p { font-size: 0.85rem; color: #888; font-weight: 600; line-height: 1.3; margin: 0; transition: 0.3s;}
+        .db-badge { font-size: 0.72rem; font-weight: 800; color: var(--primary-color); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; transition: 0.3s; }
 
-        /* Cambiar colores al tocar */
         .tech-list-card:active .icon-box, 
         .tech-list-card:active .text-box h3, 
-        .tech-list-card:active .text-box p {
+        .tech-list-card:active .text-box p,
+        .tech-list-card:active .db-badge {
             color: #ffffff;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
@@ -132,7 +133,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="cargarContadoresPol()">
 
     <div class="fire-base">
         <div class="fire-wave delay"></div>
@@ -140,15 +141,49 @@
     </div>
 
     <script>
+        let audioCtxMenu = null;
         try {
             let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
             if (conf && conf.darkMode) document.body.classList.add('dark-mode');
         } catch(e) {}
+        function feedbackUI() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
+                if (conf.vibracion !== false && navigator.vibrate) navigator.vibrate(20);
+                if (conf.sonido) {
+                    if (!audioCtxMenu) audioCtxMenu = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxMenu.state === 'suspended') audioCtxMenu.resume();
+                    let osc = audioCtxMenu.createOscillator();
+                    let gain = audioCtxMenu.createGain();
+                    osc.connect(gain); gain.connect(audioCtxMenu.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxMenu.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxMenu.currentTime);
+                    osc.start(); osc.stop(audioCtxMenu.currentTime + 0.08);
+                }
+            } catch(e) {}
+        }
+
+        function obtenerResumenPol(key) {
+            try {
+                let db = JSON.parse(localStorage.getItem(key));
+                if (!db || !db.proyectos || db.proyectos.length === 0) return "📁 Sin proyectos guardados";
+                let totalProj = db.proyectos.length;
+                let totalPts = db.proyectos.reduce((acc, p) => acc + (p.bms ? p.bms.length : 0), 0);
+                let act = db.proyectos.find(p => p.id === db.activoId) || db.proyectos[0];
+                return `📁 ${totalProj} Proy. | 📍 ${totalPts} Vértices DB | Activo: ${act.nombre}`;
+            } catch(e) {
+                return "";
+            }
+        }
+
+        function cargarContadoresPol() {
+            document.getElementById('badgeCerrada').innerText = obtenerResumenPol('cota100_db_polcerrada_v4');
+            document.getElementById('badgeAbierta').innerText = obtenerResumenPol('cota100_db_polabierta_v5');
+        }
     </script>
 
     <div class="top-bar">
-        <!-- Ícono de Casa (Home) -->
-        <a href="index.html" class="btn-volver-mini">
+        <a href="index.html" class="btn-volver-mini" onclick="feedbackUI()">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -159,9 +194,8 @@
     </div>
 
     <div class="modulo-container">
-        <a href="pol-cerrada.html" class="tech-list-card card-animar">
+        <a href="pol-cerrada.html" class="tech-list-card card-animar" onclick="feedbackUI()">
             <div class="icon-box">
-                <!-- Icono de Poligonal Cerrada -->
                 <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="12,3 20,9 20,17 12,21 4,17 4,9"/>
                     <circle cx="12" cy="3" r="2" fill="var(--card-bg)" stroke="currentColor" stroke-width="2"/>
@@ -174,12 +208,12 @@
             <div class="text-box">
                 <h3>Poligonal Cerrada</h3>
                 <p>Ajuste de circuitos cerrados. Cálculo de error angular, lineal y compensación de coordenadas.</p>
+                <span class="db-badge" id="badgeCerrada"></span>
             </div>
         </a>
 
-        <a href="pol-abierta.html" class="tech-list-card card-animar">
+        <a href="pol-abierta.html" class="tech-list-card card-animar" onclick="feedbackUI()">
             <div class="icon-box">
-                <!-- Icono de Poligonal Abierta -->
                 <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 17 9 11 15 15 21 7"></polyline>
                     <circle cx="3" cy="17" r="2" fill="var(--card-bg)"></circle>
@@ -190,7 +224,8 @@
             </div>
             <div class="text-box">
                 <h3>Abierta / Encuadrada</h3>
-                <p>Poligonales con control de azimut de partida y llegada. Ajuste sobre línea base conocida.</p>
+                <p>Poligonales viales encuadradas o libres con control de azimut, cota trigonométrica y cierre.</p>
+                <span class="db-badge" id="badgeAbierta"></span>
             </div>
         </a>
     </div>

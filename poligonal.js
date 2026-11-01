@@ -1,3 +1,4 @@
+// MOTOR EXCLUSIVO DE: niv-poligonal.html (Nivelación Simultánea / Pata de Gallo)
 /* --- PROTECCIÓN DE NAVEGACIÓN (ALERTA DEDO GORDO GLOBAL) --- */
 window.addEventListener('beforeunload', function (e) {
     let tbodyIda = document.getElementById('cuerpoIda');
@@ -14,47 +15,63 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-/* --- FUNCIONES GLOBALES --- */
+/* --- FUNCIONES GLOBALES CONECTADAS A AJUSTES --- */
+let audioCtxPol = null;
+
 function vibrar() {
-    if (navigator.vibrate) {
-        navigator.vibrate(15);
+    if (globalConfig.vibracion !== false && navigator.vibrate) {
+        try { navigator.vibrate(20); } catch(e) {}
+    }
+    if (globalConfig.sonido) {
+        try {
+            if (!audioCtxPol) audioCtxPol = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtxPol.state === 'suspended') audioCtxPol.resume();
+            let osc = audioCtxPol.createOscillator();
+            let gain = audioCtxPol.createGain();
+            osc.connect(gain); gain.connect(audioCtxPol.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxPol.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtxPol.currentTime);
+            osc.start(); osc.stop(audioCtxPol.currentTime + 0.08);
+        } catch(e) {}
     }
 }
 
-// Bloqueador absoluto de 3 decimales
+// Bloqueador dinámico según decimales de Ajustes (3 o 4 decimales)
 function formatDecimal(input) {
+    let decs = parseInt(globalConfig.decimales) || 3;
     let val = input.value.replace(/,/g, '.');
     val = val.replace(/[^0-9.-]/g, ''); 
     if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
     if ((val.match(/-/g) || []).length > 1) val = '-' + val.replace(/-/g, '');
     let parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-    // Bloqueamos a 3 decimales estrictamente
-    if (parts.length === 2 && parts[1].length > 3) {
-        val = parts[0] + '.' + parts[1].substring(0, 3);
+    if (parts.length === 2 && parts[1].length > decs) {
+        val = parts[0] + '.' + parts[1].substring(0, decs);
     }
     if(input.value !== val) input.value = val;
 }
 
-// Autocompletar ceros al quitar el foco (Ej: 1.6 -> 1.600)
+// Autocompletar ceros al quitar el foco respetando precisión global
 function completarCeros(input) {
+    let decs = parseInt(globalConfig.decimales) || 3;
     validarLecturaFisica(input);
     let val = input.value.trim();
     if (val === "" || val === "-" || val === ".") return;
     let floatVal = parseFloat(val);
     if (!isNaN(floatVal)) {
-        input.value = floatVal.toFixed(3);
+        input.value = floatVal.toFixed(decs);
         guardarBD();
     }
 }
 
-// Validación Topográfica (Máximo 5.000m para miras de aluminio)
+// Validación Topográfica Dinámica (4.00m o 5.00m según Ajustes)
 function validarLecturaFisica(input) {
     if(!input.classList.contains('in-va') && !input.classList.contains('in-vd')) return;
+    let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
     let val = parseFloat(input.value);
-    if (!isNaN(val) && val > 5.000) {
+    if (!isNaN(val) && (val > limiteMira || val < 0)) {
         input.classList.add('input-error');
-        showToast("Lectura mayor a 5 metros. Verifica tu mira.", "error");
+        showToast(val < 0 ? "Lectura negativa detectada." : `Lectura mayor a ${limiteMira.toFixed(2)}m. Verifica tu mira.`, "error");
     } else {
         input.classList.remove('input-error');
     }
@@ -102,12 +119,12 @@ function mostrarLeyenda() {
             <div><strong style="color:var(--primary-color);">HUD Δ PC:</strong> El error milimétrico por armada se calcula con la diferencia entre la V.AD (L1-L2) y la V.AT (L1-L2) del mismo PC. Si el alarife mueve la placa, esto explotará en rojo.</div>
         </div>
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">📍</span> 
-            <div><strong style="color:var(--primary-color);">Límites de Mira:</strong> El sistema asume miras de aluminio estándar. Cualquier lectura superior a 5.000 metros bloqueará la celda en rojo.</div>
+            <span style="font-size:1.2rem; margin-right:10px;">💾</span> 
+            <div><strong style="color:var(--primary-color);">Guardar BMs Compensados:</strong> En Opciones de Exportación puedes guardar automáticamente las cotas compensadas en la Base de Datos de BMs para usarlas en Niv. Simple o Alcantarillado.</div>
         </div>
         <div style="display:flex; align-items:flex-start;">
             <span style="font-size:1.2rem; margin-right:10px;">📊</span> 
-            <div><strong style="color:var(--primary-color);">Exportación:</strong> Genera reportes en Excel (Real o Camuflado) o exporta puntos limpios a CSV para Civil 3D.</div>
+            <div><strong style="color:var(--primary-color);">Exportación Camuflada:</strong> Genera reportes en Excel (Real o Ida y Vuelta con simulación realista de altura de instrumento) y cuadro de compensación incluido.</div>
         </div>
     `;
     showCustomAlert(html, "GUÍA DE FUNCIONES");
@@ -180,6 +197,7 @@ function cerrarPrueba() {
 }
 
 function calcPrueba() {
+    let decs = parseInt(globalConfig.decimales) || 3;
     let a1 = parseFloat(document.getElementById('peA1').value);
     let b1 = parseFloat(document.getElementById('peB1').value);
     let a2 = parseFloat(document.getElementById('peA2').value);
@@ -187,14 +205,17 @@ function calcPrueba() {
     
     let resDiv = document.getElementById('resPrueba');
     if(!isNaN(a1) && !isNaN(b1) && !isNaN(a2) && !isNaN(b2)) {
-        let delta1 = a1 - b1; 
-        let delta2 = a2 - b2; 
-        let error = delta2 - delta1;
+        let deltaReal = a1 - b1; 
+        let a2Teorico = b2 + deltaReal; 
+        let error = a2 - a2Teorico;
         let errorMM = error * 1000;
         
         let color = Math.abs(errorMM) <= 3 ? 'var(--success-text)' : 'var(--danger-color)';
         let signo = errorMM > 0 ? '+' : '';
-        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error de Colimación (e):</span><span style="color:${color}; font-size:1.8rem; letter-spacing:1px;">${signo}${errorMM.toFixed(1)} mm</span>`;
+        let estadoCal = Math.abs(errorMM) <= 3 ? '✓ Nivel Calibrado (OK)' : `🔧 Calibrar retículo en mira A a: <strong>${a2Teorico.toFixed(decs)} m</strong>`;
+        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error de Colimación (e):</span>
+            <span style="color:${color}; font-size:1.8rem; letter-spacing:1px;">${signo}${errorMM.toFixed(1)} mm</span>
+            <div style="font-size:0.85rem; margin-top:6px; padding:6px; border-radius:6px; background:rgba(128,128,128,0.08); color:var(--text-color);">${estadoCal}</div>`;
     } else {
         resDiv.innerHTML = 'Error: ---';
     }
@@ -208,6 +229,9 @@ function mostrarOpcionesExportacion() {
         <button class="btn-opcion" style="margin-top:10px;" onclick="exportarExcelPlantilla('ida_vuelta')">
             <span style="width:100%; text-align:center;">🎭 EXCEL: IDA Y VUELTA (Camuflado)</span>
         </button>
+        <button class="btn-opcion" style="margin-top:10px; border-color:#1976d2; background:rgba(25,118,210,0.08); color:#1976d2;" onclick="guardarCompensadasEnDB()">
+            <span style="width:100%; text-align:center; color:inherit;">💾 GUARDAR BMs COMPENSADOS EN DB</span>
+        </button>
         <button class="btn-opcion" style="margin-top:10px; border-color:var(--excel-color); background:rgba(27,94,32,0.05); color:var(--excel-color);" onclick="exportarCSVparaCivil3D()">
             <span style="width:100%; text-align:center; color:inherit;">🗺️ CSV: PUNTOS PARA CIVIL 3D</span>
         </button>
@@ -220,6 +244,42 @@ function mostrarOpcionesExportacion() {
         document.getElementById('overlaySelect').classList.add('activo'); 
         document.getElementById('modalSelect').classList.add('abierto'); 
     }, 10);
+}
+
+// Inyecta directamente las cotas compensadas del circuito en la Base de Datos de BMs del proyecto
+function guardarCompensadasEnDB() {
+    cerrarModalSelect();
+    let compRows = document.querySelectorAll('#cuerpoCompensadas tr');
+    if (compRows.length === 0) return showToast("Primero genera las cotas compensadas.", "warning");
+
+    let p = obtenerProyectoActivo();
+    if (!p) return;
+    let nuevos = 0;
+    let actualizados = 0;
+
+    compRows.forEach((tr, idx) => {
+        let tds = tr.querySelectorAll('td');
+        let nombreBM = tds[0].innerText.trim().toUpperCase();
+        let cotaComp = parseFloat(tds[4].innerText);
+        if (!nombreBM || isNaN(cotaComp)) return;
+
+        let existenteIdx = p.bms.findIndex(b => b.nombre === nombreBM);
+        if (existenteIdx > -1) {
+            // No sobreescribimos la cota del BM de partida (idx === 0) para mantener intacto el origen oficial
+            if (idx > 0) {
+                p.bms[existenteIdx].cota = cotaComp;
+                if (!p.bms[existenteIdx].obs) p.bms[existenteIdx].obs = "Compensado en Circuito";
+                actualizados++;
+            }
+        } else {
+            p.bms.push({ nombre: nombreBM, cota: cotaComp, obs: "BM Compensado en Circuito" });
+            nuevos++;
+        }
+    });
+
+    guardarBD();
+    renderBMs();
+    showToast(`✅ ${nuevos} BMs creados y ${actualizados} actualizados en la DB`, "success");
 }
 
 /* --- UI: MODAL SELECTOR GENÉRICO --- */
@@ -263,6 +323,21 @@ function abrirModalSelect(tipo) {
             </button>`;
         });
         extra.innerHTML = `<button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px; margin-top:10px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>`;
+    } else if(tipo === 'importar-bm') {
+        titulo.innerText = "🔗 PUENTE DE BMs";
+        let decs = parseInt(globalConfig.decimales) || 3;
+        bmsExternosPolCache = recopilarBMsExternosPol();
+        if (bmsExternosPolCache.length === 0) {
+            contenido.innerHTML = `<div style="padding:15px; text-align:center; font-weight:700; opacity:0.7;">No se encontraron BMs nuevos en otros módulos o proyectos.</div>`;
+        } else {
+            contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternosPol()">📥 IMPORTAR TODOS (${bmsExternosPolCache.length})</button>`;
+            bmsExternosPolCache.forEach((bm, idx) => {
+                contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExternoPol(${idx})">
+                    <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                    <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
+                </button>`;
+            });
+        }
     }
 
     document.getElementById('overlaySelect').style.display = 'block';
@@ -557,7 +632,7 @@ function addBM() {
                     procesarDobleLiga();
                 }
             }
-            editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM en Proyecto"; btn.style.background = "var(--table-header)";
+            editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
             guardarBD(); finalizarGuardado();
         });
     } else {
@@ -670,6 +745,115 @@ function borrarFilaEspecifica(btn) {
     });
 }
 
+let bmsExternosPolCache = [];
+
+function recopilarBMsExternosPol() {
+    let lista = [];
+    let pActual = obtenerProyectoActivo();
+    let nombresActuales = pActual ? pActual.bms.map(b => b.nombre) : [];
+
+    appData.proyectos.forEach(proj => {
+        if (proj.id !== appData.activoId && proj.bms) {
+            proj.bms.forEach(bm => {
+                if (!nombresActuales.includes(bm.nombre)) {
+                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Simultánea (${proj.nombre})` });
+                }
+            });
+        }
+    });
+
+    try {
+        let dbSim = JSON.parse(localStorage.getItem('cota100_db_simple_v4'));
+        if (dbSim && dbSim.proyectos) {
+            dbSim.proyectos.forEach(proj => {
+                if (proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simple: ${proj.nombre}`, origen: `Niv. Simple (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+        }
+    } catch(e) {}
+
+    try {
+        let dbAlc = JSON.parse(localStorage.getItem('cota100_db_alcan_v3'));
+        if (dbAlc && dbAlc.proyectos) {
+            dbAlc.proyectos.forEach(proj => {
+                if (proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Alcan: ${proj.nombre}`, origen: `Alcantarillado (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+        }
+    } catch(e) {}
+
+    return lista;
+}
+
+function importarBMExternoPol(idx) {
+    let bm = bmsExternosPolCache[idx];
+    if (!bm) return;
+    let p = obtenerProyectoActivo();
+    if (p.bms.some(b => b.nombre === bm.nombre)) return showToast("Ese BM ya existe en el proyecto", "warning");
+    p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+    guardarBD(); renderBMs(); cerrarModalSelect();
+    showToast(`BM [${bm.nombre}] importado`, "success");
+}
+
+function importarTodosBMsExternosPol() {
+    let p = obtenerProyectoActivo();
+    let count = 0;
+    bmsExternosPolCache.forEach(bm => {
+        if (!p.bms.some(b => b.nombre === bm.nombre)) {
+            p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+            count++;
+        }
+    });
+    guardarBD(); renderBMs(); cerrarModalSelect();
+    showToast(`${count} BMs importados con éxito`, "success");
+}
+
+function manejarEnterDobleLiga(event, input) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        let tr = input.closest('tr');
+        let tbody = tr.parentNode;
+        let isIda = (tbody.id === 'cuerpoIda');
+        let rowIdx = Array.from(tbody.children).indexOf(tr);
+        let filasIda = document.getElementById('cuerpoIda').children;
+        let filasVuelta = document.getElementById('cuerpoVuelta').children;
+
+        if (rowIdx === 0) {
+            if (isIda && input.classList.contains('in-pto')) {
+                filasIda[0].querySelector('.in-va').focus();
+            } else if (isIda && input.classList.contains('in-va')) {
+                filasVuelta[0].querySelector('.in-va').focus();
+            } else if (!isIda && input.classList.contains('in-va')) {
+                if (filasIda.length < 2) agregarFila(true);
+                filasIda[1].querySelector('.in-vd').focus();
+            }
+        } else {
+            if (isIda && input.classList.contains('in-pto')) {
+                filasIda[rowIdx].querySelector('.in-vd').focus();
+            } else if (isIda && input.classList.contains('in-vd')) {
+                filasVuelta[rowIdx].querySelector('.in-vd').focus();
+            } else if (!isIda && input.classList.contains('in-vd')) {
+                filasIda[rowIdx].querySelector('.in-va').focus();
+            } else if (isIda && input.classList.contains('in-va')) {
+                filasVuelta[rowIdx].querySelector('.in-va').focus();
+            } else if (!isIda && input.classList.contains('in-va')) {
+                if (rowIdx === filasIda.length - 1) agregarFila(true);
+                filasIda[rowIdx + 1].querySelector('.in-vd').focus();
+            }
+        }
+    }
+}
+
 function agregarFila(isAuto = false, scrollDown = false) {
     if(tablaBloqueada) return; 
     const tbodyIda = document.getElementById('cuerpoIda'); const tbodyVuelta = document.getElementById('cuerpoVuelta');
@@ -677,15 +861,15 @@ function agregarFila(isAuto = false, scrollDown = false) {
     
     const trIda = document.createElement('tr');
     if (idx === 0) {
-        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)"></td>
-            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
+        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="td-readonly"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
             <td class="out-cota" style="padding: 2px;">---</td>
             <td style="background: rgba(128,128,128,0.02); padding: 0;"></td>`;
     } else {
-        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();"></td>
-            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
-            <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
+        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="out-cota">---</td>
             <td style="background: rgba(128,128,128,0.02); padding: 0;"><button class="btn-del-fila" onclick="borrarFilaEspecifica(this)">✖</button></td>`;
     }
@@ -693,14 +877,14 @@ function agregarFila(isAuto = false, scrollDown = false) {
     const trVuelta = document.createElement('tr');
     if (idx === 0) {
         trVuelta.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto" placeholder="..." readonly></td>
-            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="td-readonly"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
             <td class="out-cota" style="padding: 2px;">---</td>
             <td style="background: rgba(128,128,128,0.02); padding: 0;"></td>`;
     } else {
         trVuelta.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto" placeholder="..." readonly></td>
-            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
-            <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+            <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="out-cota">---</td>
             <td style="background: rgba(128,128,128,0.02); padding: 0;"></td>`;
     }
@@ -888,6 +1072,8 @@ function procesarDobleLiga() {
     document.getElementById('contenedorCompensadas').style.display = 'none';
 
     if(!isNaN(cotaBM) && !isNaN(distM) && distM > 0 && filasIda.length > 0) {
+        let p = obtenerProyectoActivo();
+        let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
         let anchors = []; let filledRows = 0;
         for(let i=0; i<filasIda.length; i++) {
             if (filasIda[i].classList.contains('fila-inactiva')) continue;
@@ -909,26 +1095,50 @@ function procesarDobleLiga() {
 
             for(let k=0; k<anchors.length-1; k++) {
                 let start = anchors[k]; let end = anchors[k+1];
-                let ptoStart = filasIda[start].querySelector('.in-pto').value.toUpperCase(); let ptoEnd = filasIda[end].querySelector('.in-pto').value.toUpperCase();
+                let ptoStart = filasIda[start].querySelector('.in-pto').value.toUpperCase().trim();
+                let ptoEnd = filasIda[end].querySelector('.in-pto').value.toUpperCase().trim();
 
                 let divIda = filasIda[end].querySelector('.out-cota div[data-cota]'); let cotaIdaEnd = divIda ? parseFloat(divIda.getAttribute('data-cota')) : NaN;
                 let divVuelta = filasVuelta[end].querySelector('.out-cota div[data-cota]'); let cotaVueltaEnd = divVuelta ? parseFloat(divVuelta.getAttribute('data-cota')) : NaN;
 
                 if(!isNaN(cotaIdaEnd) && !isNaN(cotaVueltaEnd)) {
-                    let errTramo = Math.abs(cotaIdaEnd - cotaVueltaEnd); let setups = end - start; let distTramo = setups * distPerSetup;
-                    let tolTramo = multiplicador * Math.sqrt(distTramo / 1000); let cumple = errTramo <= tolTramo;
+                    let errLineas = Math.abs(cotaIdaEnd - cotaVueltaEnd);
+                    let promEnd = (cotaIdaEnd + cotaVueltaEnd) / 2.0;
+                    let setups = end - start;
+                    let distTramo = setups * distPerSetup;
+                    let tolTramo = multiplicador * Math.sqrt(distTramo / 1000);
+
+                    // Verificar si ptoEnd tiene Cota Oficial en DB o es el último punto con Cota de Llegada
+                    let bmOficialEnd = (p && p.bms) ? p.bms.find(b => b.nombre === ptoEnd) : null;
+                    let cotaOficialTarget = NaN;
+                    if (k === anchors.length - 2 && !isNaN(cotaLlegadaInput)) {
+                        cotaOficialTarget = cotaLlegadaInput;
+                    } else if (bmOficialEnd && end > 0) {
+                        cotaOficialTarget = bmOficialEnd.cota;
+                    }
+
+                    let errContraBM = !isNaN(cotaOficialTarget) ? Math.abs(promEnd - cotaOficialTarget) : NaN;
+                    let cumple = (errLineas <= tolTramo) && (isNaN(errContraBM) || errContraBM <= tolTramo);
                     if(!cumple) todosCumplen = false;
 
                     let bgCumple = document.body.classList.contains('dark-mode') ? 'rgba(46,125,50,0.1)' : '#f1f8e9'; let bgFalla = document.body.classList.contains('dark-mode') ? 'rgba(211,47,47,0.1)' : '#ffebee';
                     let borderCumple = document.body.classList.contains('dark-mode') ? 'var(--success-color)' : '#a5d6a7'; let borderFalla = document.body.classList.contains('dark-mode') ? 'var(--danger-color)' : '#ef9a9a';
 
+                    let lineaExtraBM = !isNaN(errContraBM)
+                        ? `<div style="font-size:0.85rem; margin-top:4px; padding-top:4px; border-top:1px dashed rgba(128,128,128,0.3); display:flex; justify-content:space-between;">
+                             <span>Cota BM Oficial: <strong>${cotaOficialTarget.toFixed(decs)} m</strong></span>
+                             <span>Err. vs BM: <strong>${(promEnd - cotaOficialTarget > 0 ? '+' : '') + (promEnd - cotaOficialTarget).toFixed(4)} m</strong></span>
+                           </div>`
+                        : '';
+
                     htmlSeg += `
                         <div style="border: 2px solid ${cumple ? borderCumple : borderFalla}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? bgCumple : bgFalla};">
                             <div style="font-weight: 900; color: var(--text-color); margin-bottom: 5px;">📍 ${ptoStart} ➔ ${ptoEnd} <span style="float:right; font-size:0.8rem; opacity:0.8;">(${setups} armadas)</span></div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-color); opacity: 0.9;">
-                                <span>Error (L1 vs L2): <strong>${errTramo.toFixed(4)} m</strong></span>
+                                <span>Discrepancia (L1 vs L2): <strong>${errLineas.toFixed(4)} m</strong></span>
                                 <span>Tol: <strong>±${tolTramo.toFixed(4)} m</strong></span>
                             </div>
+                            ${lineaExtraBM}
                         </div>
                     `;
                 }
@@ -938,7 +1148,6 @@ function procesarDobleLiga() {
         document.getElementById('contenedorSegmentos').innerHTML = htmlSeg;
         
         let distKm = distM / 1000; 
-        let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
         let toleranciaGlobal = multiplicador * Math.sqrt(distKm);
         let errorCierreGlobal = 0;
 
@@ -965,7 +1174,7 @@ function procesarDobleLiga() {
     }
 }
 
-// NUEVA COMPENSACIÓN (5 COLUMNAS VISUALES)
+// COMPENSACIÓN (5 COLUMNAS VISUALES)
 function generarCompensadas() {
     let decs = parseInt(globalConfig.decimales) || 3;
     const cotaBM = parseFloat(document.getElementById('cotaBM').value);
@@ -974,7 +1183,6 @@ function generarCompensadas() {
     const filasIda = document.querySelectorAll('#cuerpoIda tr'); 
     const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
     
-    // Inyectamos las 5 cabeceras para garantizar la visibilidad total
     const tablaCompensada = document.getElementById('tablaCompensada');
     tablaCompensada.querySelector('thead').innerHTML = `<tr><th>PUNTO</th><th>COTA L1</th><th>COTA L2</th><th>PROMEDIO</th><th>COMPENSADA</th></tr>`;
     
@@ -1052,20 +1260,20 @@ function exportarCSVparaCivil3D() {
     if(compRows.length === 0) return showToast("Primero debes obtener cotas compensadas.", "warning");
     
     let decs = parseInt(globalConfig.decimales) || 3;
-    let csvContent = "Punto,Norte,Este,Elevacion,Descripcion\n";
+    let delim = globalConfig.delimitadorCSV || ",";
+    let csvContent = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
     let ptoCount = 1;
 
     compRows.forEach(tr => {
         let tds = tr.querySelectorAll('td');
         let ptoStr = tds[0].innerText.trim();
-        // Extracción desde la 5ta columna (Compensada) que es el índice 4
         let elevStr = parseFloat(tds[4].innerText).toFixed(decs);
-        csvContent += `${ptoCount},1000.000,1000.000,${elevStr},${ptoStr}\n`;
+        csvContent += `${ptoCount}${delim}1000.000${delim}1000.000${delim}${elevStr}${delim}${ptoStr}\n`;
         ptoCount++;
     });
 
     let p = obtenerProyectoActivo();
-    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     let url = URL.createObjectURL(blob);
     let link = document.createElement("a");
     link.setAttribute("href", url);
@@ -1076,11 +1284,32 @@ function exportarCSVparaCivil3D() {
     showToast("CSV generado para Civil 3D", "success");
 }
 
-/* --- EL MOTOR DE EXPORTACIÓN MAESTRO (EXCEL) --- */
+// Función auxiliar para generar variación realista de altura de instrumento en Vuelta Camuflada
+function calcularShiftTripodeSeguro(vaOriginal, vdOriginal, indiceSemilla, limiteMira) {
+    let posiblesOffsets = [-0.142, 0.118, -0.087, 0.164, -0.113, 0.092, -0.156, 0.131, -0.074, 0.148];
+    let delta = posiblesOffsets[indiceSemilla % posiblesOffsets.length];
+    let minSeguro = 0.350;
+    let maxSeguro = (limiteMira || 5.0) - 0.150;
+
+    if ((vaOriginal + delta) < minSeguro || (vdOriginal + delta) < minSeguro) {
+        delta = Math.abs(delta);
+    }
+    if ((vaOriginal + delta) > maxSeguro || (vdOriginal + delta) > maxSeguro) {
+        delta = -Math.abs(delta);
+    }
+    if ((vaOriginal + delta) < minSeguro || (vdOriginal + delta) < minSeguro ||
+        (vaOriginal + delta) > maxSeguro || (vdOriginal + delta) > maxSeguro) {
+        delta = 0.000;
+    }
+    return delta;
+}
+
+/* --- EL MOTOR DE EXPORTACIÓN MAESTRO (EXCEL CON CAMUFLAJE DE ALTURA DE INSTRUMENTO Y TABLA COMPENSADA) --- */
 function exportarExcelPlantilla(modo) {
     cerrarModalSelect();
     let p = obtenerProyectoActivo();
     let decs = parseInt(globalConfig.decimales) || 3;
+    let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
     let wb = XLSX.utils.book_new();
     
     let isCamuflaje = (modo === 'ida_vuelta');
@@ -1104,8 +1333,10 @@ function exportarExcelPlantilla(modo) {
     wsData.push([null, null, null, null, null, null, null, null, null, null, null, null, null]);
     
     let fechaActual = new Date().toISOString().split('T')[0];
+    let nomOperador = globalConfig.operador || "COTA100";
+    let nomEquipo = globalConfig.equipo || "";
     wsData.push([{v: "PROYECTO    :"}, {v: p.nombre}, null, null, {v: "FECHA         :"}, {v: fechaActual}, null, null, null, null, null, null, null]);
-    wsData.push([{v: "TOPOGRAFO :"}, {v: "COTA100"}, null, null, null, null, null, null, null, null, null, null, null]);
+    wsData.push([{v: "TOPOGRAFO :"}, {v: nomOperador}, null, null, {v: nomEquipo ? "EQUIPO        :" : ""}, {v: nomEquipo}, null, null, null, null, null, null, null]);
     
     let tramoTexto = (p.params.cotaBM && p.params.cotaLlegada) ? `${p.params.cotaBM} --- ${p.params.cotaLlegada}` : "CIRCUITO";
     wsData.push([{v: "TRAMO        :"}, {v: tramoTexto}, null, null, null, null, null, null, null, null, null, null, null]);
@@ -1158,6 +1389,13 @@ function exportarExcelPlantilla(modo) {
         let currentAiRet = 0;
         let pcCount = 1;
         
+        let shiftsArmada = [];
+        for (let k = 0; k < N; k++) {
+            let srcVa = dataL2[N - k].vd;
+            let srcVd = dataL2[N - k - 1].va;
+            shiftsArmada.push(calcularShiftTripodeSeguro(srcVa, srcVd, k, limiteMira));
+        }
+        
         for (let i = 0; i <= N; i++) {
             let src = N - i; 
             let ptoNombre = "";
@@ -1166,14 +1404,18 @@ function exportarExcelPlantilla(modo) {
             else { ptoNombre = "PC-" + pcCount; pcCount++; } 
             
             if (i === 0) {
-                let vaRet = dataL2[src].vd; currentAiRet = cotaRetorno + vaRet;
+                let vaRet = Number((dataL2[src].vd + shiftsArmada[0]).toFixed(decs));
+                currentAiRet = Number((cotaRetorno + vaRet).toFixed(decs));
                 exportL2.push({ pto: ptoNombre, va: vaRet, ai: currentAiRet, vd: NaN, cota: cotaRetorno, obs: dataL2[src].obs });
             } else if (i === N) {
-                let vdRet = dataL2[src].va; let cotaLlegadaRet = currentAiRet - vdRet;
+                let vdRet = Number((dataL2[src].va + shiftsArmada[N - 1]).toFixed(decs));
+                let cotaLlegadaRet = Number((currentAiRet - vdRet).toFixed(decs));
                 exportL2.push({ pto: ptoNombre, va: NaN, ai: NaN, vd: vdRet, cota: cotaLlegadaRet, obs: dataL2[src].obs });
             } else {
-                let vaRet = dataL2[src].vd; let vdRet = dataL2[src].va;
-                let cotaIntermedia = currentAiRet - vdRet; currentAiRet = cotaIntermedia + vaRet;
+                let vdRet = Number((dataL2[src].va + shiftsArmada[i - 1]).toFixed(decs));
+                let vaRet = Number((dataL2[src].vd + shiftsArmada[i]).toFixed(decs));
+                let cotaIntermedia = Number((currentAiRet - vdRet).toFixed(decs));
+                currentAiRet = Number((cotaIntermedia + vaRet).toFixed(decs));
                 exportL2.push({ pto: ptoNombre, va: vaRet, ai: currentAiRet, vd: vdRet, cota: cotaIntermedia, obs: dataL2[src].obs });
             }
         }
@@ -1205,10 +1447,18 @@ function exportarExcelPlantilla(modo) {
         ]);
     }
     
-    // Sumatorias y Cálculo de Error
     let diffIda = sumVaIda - sumVdIda;
     let diffVuelta = sumVaVuelta - sumVdVuelta;
-    let errorCierre = diffIda + diffVuelta; 
+    let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
+    let discrepanciaLineas = isCamuflaje ? (diffIda + diffVuelta) : (diffIda - diffVuelta);
+    let errorCierre = discrepanciaLineas;
+
+    if (!isNaN(cotaLlegadaInput) && dataL1.length > 0 && dataL2.length > 0) {
+        let cotaFin1 = dataL1[dataL1.length - 1].cota;
+        let cotaFin2 = dataL2[dataL2.length - 1].cota;
+        let promFinal = (cotaFin1 + cotaFin2) / 2.0;
+        errorCierre = promFinal - cotaLlegadaInput;
+    }
 
     let distM = parseFloat(document.getElementById('distanciaM').value) || 0;
     let multiplicador = parseFloat(document.getElementById('ordenNiv').value) || 0.020;
@@ -1218,12 +1468,52 @@ function exportarExcelPlantilla(modo) {
     let errorColor = isErrorAceptable ? "FF00C851" : "FFD32F2F"; 
 
     wsData.push([
-        null, 
-        {v: sumVaIda, t: 'n', s: cellSum}, {v: diffIda, t: 'n', s: cellSumDiff}, {v: sumVdIda, t: 'n', s: cellSum}, null, null, null,
-        null,
-        {v: sumVaVuelta, t: 'n', s: cellSum}, {v: diffVuelta, t: 'n', s: cellSumDiff}, {v: sumVdVuelta, t: 'n', s: cellSum}, null, 
-        {v: errorCierre, t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, border: {top:{style:'medium', color:{rgb:"FF000000"}}, bottom:{style:'medium', color:{rgb:"FF000000"}}, left:{style:'medium', color:{rgb:"FF000000"}}, right:{style:'medium', color:{rgb:"FF000000"}}}, numFmt: "0.000"}}
+        {v: "SUMAS", s: cellCenter}, 
+        {v: Number(sumVaIda.toFixed(decs)), t: 'n', s: cellSum}, {v: Number(diffIda.toFixed(decs)), t: 'n', s: cellSumDiff}, {v: Number(sumVdIda.toFixed(decs)), t: 'n', s: cellSum}, null, null, null,
+        {v: "DISC. L1/L2", s: cellCenter},
+        {v: Number(sumVaVuelta.toFixed(decs)), t: 'n', s: cellSum}, {v: Number(diffVuelta.toFixed(decs)), t: 'n', s: cellSumDiff}, {v: Number(sumVdVuelta.toFixed(decs)), t: 'n', s: cellSum}, null, 
+        {v: Number(discrepanciaLineas.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: "0.000"}}
     ]);
+
+    if (!isNaN(cotaLlegadaInput) && dataL1.length > 0 && dataL2.length > 0) {
+        let promFinal = (dataL1[dataL1.length - 1].cota + dataL2[dataL2.length - 1].cota) / 2.0;
+        wsData.push([
+            {v: "CIERRE BM", s: headIda},
+            {v: "COTA LLEGADA:", s: cellCenter},
+            {v: Number(cotaLlegadaInput.toFixed(decs)), t: 'n', s: cellCota},
+            {v: "PROM. MEDIDO:", s: cellCenter},
+            {v: Number(promFinal.toFixed(decs)), t: 'n', s: cellCota},
+            {v: "ERROR VS BM:", s: cellCenter},
+            null,
+            {v: Number(errorCierre.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: "0.000"}},
+            null, null, null, null, null
+        ]);
+    }
+
+    // Agregar Cuadro Resumen de Cotas Compensadas debajo si existen en la tabla
+    let compRows = document.querySelectorAll('#cuerpoCompensadas tr');
+    if (compRows.length > 0) {
+        wsData.push([null, null, null, null, null, null, null, null, null, null, null, null, null]);
+        wsData.push([
+            {v: "PUNTO / BM", s: headIda},
+            {v: "COTA L1", s: headIda},
+            {v: "COTA L2", s: headIda},
+            {v: "PROMEDIO", s: headIda},
+            {v: "COTA COMPENSADA", s: headIda},
+            null, null, null, null, null, null, null, null
+        ]);
+        compRows.forEach(tr => {
+            let tds = tr.querySelectorAll('td');
+            wsData.push([
+                {v: tds[0].innerText.trim(), s: cellCenter},
+                {v: Number(parseFloat(tds[1].innerText).toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(parseFloat(tds[2].innerText).toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(parseFloat(tds[3].innerText).toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(parseFloat(tds[4].innerText).toFixed(decs)), t: 'n', s: cellSumDiff},
+                null, null, null, null, null, null, null, null
+            ]);
+        });
+    }
     
     let ws = XLSX.utils.aoa_to_sheet(wsData);
     if(!ws['!merges']) ws['!merges'] = [];
@@ -1231,7 +1521,7 @@ function exportarExcelPlantilla(modo) {
     ws['!merges'].push({s: {r:6, c:0}, e: {r:6, c:5}}); 
     ws['!merges'].push({s: {r:6, c:7}, e: {r:6, c:12}}); 
     
-    ws['!cols'] = [ {wch: 10}, {wch: 10}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 25}, {wch: 3}, {wch: 10}, {wch: 10}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 12} ];
+    ws['!cols'] = [ {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 16}, {wch: 25}, {wch: 3}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 14} ];
     
     XLSX.utils.book_append_sheet(wb, ws, "Nivelación");
     XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_${isCamuflaje ? 'IdaVuelta' : 'Lineas'}.xlsx`);

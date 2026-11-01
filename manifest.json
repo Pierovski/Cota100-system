@@ -1,21 +1,23 @@
 {
   "name": "COTA100 SYSTEM",
-  "short_name": "Cota100 system",
+  "short_name": "COTA100",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#FF6600",
+  "background_color": "#05070a",
+  "theme_color": "#FF5500",
   "orientation": "portrait",
   "icons": [
     {
       "src": "icono.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icono.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

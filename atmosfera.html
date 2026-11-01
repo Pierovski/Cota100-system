@@ -46,7 +46,7 @@
         .fire-base { position: fixed; bottom: 0; left: 0; width: 100vw; height: 35vh; z-index: -2; pointer-events: none; overflow: hidden; }
         .fire-wave { position: absolute; bottom: 0; left: 0; width: 200vw; height: 100%; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cdefs%3E%3ClinearGradient id='fireGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF3300;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%23FF8C00;stop-opacity:0.7' /%3E%3Cstop offset='100%25' style='stop-color:%23FFD700;stop-opacity:0.9' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23fireGrad)' d='M0,128L48,138.7C96,149,192,171,288,160C384,149,480,107,576,117.3C672,128,768,192,864,197.3C960,203,1056,149,1152,133.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x; background-size: 50% 100%; animation: waveFire 10s linear infinite; }
         .fire-wave.delay { bottom: -15px; opacity: 0.6; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cdefs%3E%3ClinearGradient id='fireGrad2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF5500;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23FFaa00;stop-opacity:0.6' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23fireGrad2)' d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,197.3C672,192,768,160,864,160C960,160,1056,192,1152,208C1248,224,1344,224,1392,224L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x; background-size: 50% 100%; animation: waveFire 8s linear infinite reverse; }
-        @keyframes flowWater { 0% { transform: translateX(0); } 100% { transform: translateX(-50vw); } }
+        @keyframes waveFire { 0% { transform: translateX(0); } 100% { transform: translateX(-50vw); } }
 
         /* --- CABECERA DUAL --- */
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--card-border); background-color: transparent; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); height: 70px; }
@@ -93,7 +93,6 @@
         .res-valor-gigante { font-size: 2.5rem; color: var(--text-color); font-weight: 900; font-family: monospace; letter-spacing: -1px;}
         .res-unidad { font-size: 1rem; color: var(--primary-color); font-weight: 700; letter-spacing: 0;}
         
-        .info-box { background-color: rgba(25, 118, 210, 0.05); border-left: 5px solid #1976d2; padding: 12px; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-color); line-height: 1.4; border-radius: 0 8px 8px 0; text-align: left; font-weight: 600;}
         .alerta-critica { background-color: rgba(211, 47, 47, 0.05); border-left: 5px solid var(--danger-color); padding: 12px; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-color); border-radius: 0 8px 8px 0; text-align: left; display: none;}
         .alerta-critica strong { color: var(--danger-color); font-weight: 900;}
         .helper-text { font-size: 0.75rem; color: var(--text-color); opacity: 0.6; font-weight: 600; margin-top: 4px; text-align: left;}
@@ -115,7 +114,6 @@
         @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
 
-        /* MODAL ALERTA UNIFICADO Y ELEGANTE */
         .confirm-msg { color: var(--text-color); font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3;}
 
         @media screen and (max-width: 480px) {
@@ -173,7 +171,6 @@
         </div>
         <h2 class="top-bar-title">ATMÓSFERA<br><span>Corrección PPM</span></h2>
         
-        <!-- ICONO DE GUÍA SUTIL -->
         <div style="width: 90px; display: flex; justify-content: flex-end;">
             <button class="btn-volver-mini" onclick="mostrarLeyenda()" title="Guía de Funciones" style="width: 45px; height: 45px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
@@ -183,16 +180,12 @@
 
     <div class="modulo-container">
 
-        <div class="info-box">
-            <strong>¿Qué es esto?</strong> Calcula la <strong>Presión Absoluta</strong> (fuerza real del aire en tu hito) y el <strong>PPM</strong> (corrección de velocidad del láser). Es vital en zonas de altura para que tus distancias no salgan "cortas" o "estiradas" en el Civil 3D.
-        </div>
-
         <div class="panel-control" style="border-left: 4px solid var(--text-color);">
             <div class="panel-titulo" style="color: var(--text-color);">⚙️ 1. Configuración de Marca</div>
             <div class="input-group">
                 <label>
                     Fabricante del Equipo 
-                    <span class="info-icon" onclick="showCustomAlert('La fórmula de refracción óptica cambia según la longitud de onda del láser de cada marca. Elige el fabricante correcto para precisión milimétrica.', 'FABRICANTE DEL EQUIPO')">ℹ️</span>
+                    <span class="info-icon" onclick="showCustomAlert('La fórmula de refracción óptica cambia según la longitud de onda del láser portador de cada marca. Elige el fabricante correcto para precisión milimétrica.', 'FABRICANTE DEL EQUIPO')">ℹ️</span>
                 </label>
                 <div class="custom-select" onclick="abrirModalSelect('marca')">
                     <span id="txtMarcaEquipo">Leica Geosystems</span><span class="arrow">▼</span>
@@ -210,7 +203,7 @@
                     <span class="info-icon" onclick="showCustomAlert('Elevación sobre el nivel del mar donde armarás la Estación. Define la presión barométrica teórica del lugar.', 'ALTITUD')">ℹ️</span>
                 </label>
                 <div style="display:flex; gap:8px;">
-                    <input type="number" id="inAltitud" step="0.001" placeholder="Ej: 2875" style="flex:1;">
+                    <input type="number" id="inAltitud" step="0.001" placeholder="Ej: 2875" style="flex:1;" oninput="guardarEstadoAtm()" onkeydown="manejarEnterAtm(event, 'inTemp')">
                     <button class="btn-accion" style="width:auto; padding:0 18px; margin:0; background:var(--primary-color);" onclick="obtenerGPS()" title="Obtener Altitud del Celular">📍 GPS</button>
                 </div>
             </div>
@@ -221,14 +214,14 @@
                         TEMP. (°C)
                         <span class="info-icon" onclick="showCustomAlert('Temperatura real del aire a la sombra, a la altura de tu equipo. Afecta directamente la densidad del aire y por ende, la velocidad del distanciómetro.', 'TEMPERATURA')">ℹ️</span>
                     </label>
-                    <input type="number" id="inTemp" step="0.1" placeholder="Ej: 19.5">
+                    <input type="number" id="inTemp" step="0.1" placeholder="Ej: 19.5" oninput="guardarEstadoAtm()" onkeydown="manejarEnterAtm(event, 'inHumedad')">
                 </div>
                 <div class="input-group">
                     <label style="color: #1976d2;">
                         HUMEDAD (%)
-                        <span class="info-icon" onclick="showCustomAlert('<strong>(Opcional)</strong> Refina el cálculo del PPM compensando la cantidad de vapor de agua. Ideal en mediciones de alta precisión en zonas tropicales o de selva muy húmedas.', 'HUMEDAD RELATIVA')">ℹ️</span>
+                        <span class="info-icon" onclick="showCustomAlert('<strong>(Opcional)</strong> Refina el cálculo del PPM compensando la presión parcial de vapor de agua en todas las marcas.', 'HUMEDAD RELATIVA')">ℹ️</span>
                     </label>
-                    <input type="number" id="inHumedad" step="1" placeholder="Ej: 65">
+                    <input type="number" id="inHumedad" step="1" placeholder="Ej: 65" oninput="guardarEstadoAtm()" onkeydown="manejarEnterAtm(event, 'CALC')">
                 </div>
             </div>
         </div>
@@ -268,6 +261,8 @@
                 </div>
             </div>
 
+            <div id="resImpactoDist" style="margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(255, 85, 0, 0.06); border: 1px dashed var(--card-border); font-size: 0.85rem; font-weight: 800; color: var(--text-color);"></div>
+
             <button class="btn-accion" style="background:var(--table-header); margin-top:15px; font-size:1rem;" onclick="copiarBitacora()">📋 Copiar Bitácora QA/QC</button>
             <button class="btn-accion btn-limpiar" onclick="limpiarAtmosfera();">🗑️ Limpiar Datos</button>
         </div>
@@ -276,9 +271,29 @@
 
     <script>
         let usarVibracion = true;
+        let usarSonido = false;
+        let unidadPresionPref = "hpa";
+        let globalConfig = {};
         let lastReport = ""; 
+        let audioCtxAtm = null;
         
-        function vibrar() { if (usarVibracion && navigator.vibrate) navigator.vibrate(30); }
+        function vibrar() {
+            if (usarVibracion && navigator.vibrate) {
+                try { navigator.vibrate(25); } catch(e) {}
+            }
+            if (usarSonido) {
+                try {
+                    if (!audioCtxAtm) audioCtxAtm = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxAtm.state === 'suspended') audioCtxAtm.resume();
+                    let osc = audioCtxAtm.createOscillator();
+                    let gain = audioCtxAtm.createGain();
+                    osc.connect(gain); gain.connect(audioCtxAtm.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxAtm.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxAtm.currentTime);
+                    osc.start(); osc.stop(audioCtxAtm.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
 
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
@@ -309,17 +324,41 @@
         function mostrarLeyenda() {
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
+                    <strong style="color:var(--primary-color);">¿Qué hace este módulo?</strong><br>
+                    Calcula la <strong>Presión Absoluta (QFE)</strong> y el <strong>PPM</strong> (corrección de velocidad del láser). Es vital en zonas de altura para que tus distancias no salgan "cortas" o "estiradas".<br><br>
                     <strong style="color:var(--primary-color);">⚙️ Configuración de Marca:</strong><br>
-                    La fórmula de corrección cambia según el láser de cada fabricante. Selecciona el tuyo para asegurar precisión milimétrica.<br><br>
+                    La fórmula de corrección cambia según el láser de cada fabricante. Selecciona el tuyo para precisión milimétrica.<br><br>
                     <strong style="color:var(--primary-color);">📍 Datos del Terreno:</strong><br>
-                    Ingresa la Altitud (usa el GPS del celular si no la sabes), Temperatura y Humedad.<br><br>
-                    <strong style="color:var(--primary-color);">⚡ Resultados:</strong><br>
-                    El sistema calculará la Presión Local (hPa / mmHg) y el <strong>PPM</strong> exacto que debes ingresar en tu Estación Total.<br><br>
+                    Ingresa Altitud (o usa el botón GPS), Temperatura y Humedad.<br><br>
                     <strong style="color:var(--primary-color);">📋 Bitácora:</strong><br>
                     Copia un reporte detallado con fecha y hora para tus informes de Control de Calidad (QA/QC).
                 </div>
             `;
             showCustomAlert(html, "GUÍA: ATMÓSFERA Y PPM");
+        }
+
+        function manejarEnterAtm(event, nextId) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (nextId === 'CALC') {
+                    document.activeElement.blur();
+                    calcularAtmosfera();
+                } else {
+                    let el = document.getElementById(nextId);
+                    if (el) el.focus();
+                }
+            }
+        }
+
+        function guardarEstadoAtm() {
+            let estado = {
+                marca: document.getElementById('marcaEquipo').value,
+                marcaTxt: document.getElementById('txtMarcaEquipo').innerText,
+                alt: document.getElementById('inAltitud').value,
+                temp: document.getElementById('inTemp').value,
+                hum: document.getElementById('inHumedad').value
+            };
+            localStorage.setItem('cota100_estado_atmosfera', JSON.stringify(estado));
         }
 
         function inicializarApp() {
@@ -329,8 +368,31 @@
             try {
                 let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
                 if(conf) {
+                    globalConfig = conf;
                     if (conf.darkMode) document.body.classList.add('dark-mode');
                     usarVibracion = conf.vibracion !== false;
+                    usarSonido = !!conf.sonido;
+                    unidadPresionPref = conf.unidadPresion || "hpa";
+                    if (unidadPresionPref === "mmhg") {
+                        document.getElementById('marcaEquipo').value = 'topcon';
+                        document.getElementById('txtMarcaEquipo').innerText = 'Topcon / Sokkia / South';
+                    }
+                }
+            } catch(e) {}
+
+            try {
+                let guardado = JSON.parse(localStorage.getItem('cota100_estado_atmosfera'));
+                if (guardado) {
+                    if (guardado.marca) {
+                        document.getElementById('marcaEquipo').value = guardado.marca;
+                        document.getElementById('txtMarcaEquipo').innerText = guardado.marcaTxt || 'Leica Geosystems';
+                    }
+                    document.getElementById('inAltitud').value = guardado.alt || '';
+                    document.getElementById('inTemp').value = guardado.temp || '';
+                    document.getElementById('inHumedad').value = guardado.hum || '';
+                    if (guardado.alt !== '' && guardado.temp !== '') {
+                        calcularAtmosfera(true);
+                    }
                 }
             } catch(e) {}
         }
@@ -368,6 +430,10 @@
             cerrarModalSelect();
             document.getElementById('marcaEquipo').value = valor;
             document.getElementById('txtMarcaEquipo').innerText = texto;
+            guardarEstadoAtm();
+            if (document.getElementById('inAltitud').value !== '' && document.getElementById('inTemp').value !== '') {
+                calcularAtmosfera(true);
+            }
         }
 
         function obtenerGPS() {
@@ -378,6 +444,7 @@
                     (pos) => {
                         if(pos.coords.altitude !== null) {
                             document.getElementById('inAltitud').value = pos.coords.altitude.toFixed(1);
+                            guardarEstadoAtm();
                             let acc = pos.coords.altitudeAccuracy ? pos.coords.altitudeAccuracy.toFixed(0) : "15";
                             showToast(`Altitud GPS obtenida (Ref. ±${acc}m)`, "success");
                         } else {
@@ -392,8 +459,8 @@
             }
         }
 
-        function calcularAtmosfera() {
-            vibrar();
+        function calcularAtmosfera(silencioso = false) {
+            if (!silencioso) vibrar();
             let h = parseFloat(document.getElementById('inAltitud').value);
             let t = parseFloat(document.getElementById('inTemp').value);
             let hr = parseFloat(document.getElementById('inHumedad').value) || 0; 
@@ -401,8 +468,10 @@
             let marcaTxt = document.getElementById('txtMarcaEquipo').innerText;
 
             if (isNaN(h) || isNaN(t)) {
-                showToast("Faltan datos de Altitud y Temperatura.", "error"); return;
+                if (!silencioso) showToast("Faltan datos de Altitud y Temperatura.", "error");
+                return;
             }
+            guardarEstadoAtm();
             
             if(t >= 32) { document.getElementById('alertaTermica').style.display = 'block'; } 
             else { document.getElementById('alertaTermica').style.display = 'none'; }
@@ -412,34 +481,52 @@
             
             const R_earth = 6378137.0;
             let elevFactor = R_earth / (R_earth + h);
+
+            // Corrección por presión parcial de vapor de agua (Magnus-Tetens) aplicable a cualquier EDM infrarrojo/láser
+            let corrHumedad = 0;
+            if (hr > 0) {
+                let x = (7.5 * t) / (237.3 + t) + 0.7857;
+                let e_hPa = (hr / 100.0) * Math.pow(10, x);
+                corrHumedad = (0.04126 * e_hPa) / (1 + 0.003661 * t);
+            }
             
             let ppm = 0;
             if (marca === 'leica') {
-                if (hr > 0) {
-                    let x = (7.5 * t) / (237.3 + t) + 0.7857;
-                    let e = (hr / 100) * Math.pow(10, x);
-                    ppm = 286.34 - ( ((0.29525 * p_hPa) / (1 + 0.003661 * t)) - ((0.0004126 * e) / (1 + 0.003661 * t)) );
-                } else {
-                    ppm = 286.34 - ((0.29525 * p_hPa) / (1 + 0.003661 * t));
-                }
+                ppm = 286.34 - ((0.29525 * p_hPa) / (1 + 0.003661 * t)) + corrHumedad;
             } else if (marca === 'topcon') {
-                ppm = 279.67 - ((0.2904 * p_hPa) / (1 + 0.003661 * t));
+                ppm = 279.67 - ((0.2904 * p_hPa) / (1 + 0.003661 * t)) + corrHumedad;
             } else if (marca === 'trimble') {
-                ppm = 275.0 - ((0.2900 * p_hPa) / (1 + 0.003661 * t));
+                ppm = 275.0 - ((0.2900 * p_hPa) / (1 + 0.003661 * t)) + corrHumedad;
             } else if (marca === 'chcnav') {
-                ppm = 281.8 - ((0.29065 * p_hPa) / (1 + 0.003661 * t));
+                ppm = 281.8 - ((0.29065 * p_hPa) / (1 + 0.003661 * t)) + corrHumedad;
             }
 
-            document.getElementById('resHpa').innerHTML = p_hPa.toFixed(1) + ' <span class="res-unidad">hPa</span>';
-            document.getElementById('resMmhg').innerHTML = p_mmHg.toFixed(1) + ' <span class="res-unidad">mmHg</span>';
-            document.getElementById('resPpm').innerText = ppm.toFixed(1);
+            if (unidadPresionPref === "mmhg") {
+                document.getElementById('resHpa').innerHTML = p_mmHg.toFixed(1) + ' <span class="res-unidad">mmHg</span>';
+                document.getElementById('resMmhg').innerHTML = p_hPa.toFixed(1) + ' <span class="res-unidad">hPa</span>';
+            } else {
+                document.getElementById('resHpa').innerHTML = p_hPa.toFixed(1) + ' <span class="res-unidad">hPa</span>';
+                document.getElementById('resMmhg').innerHTML = p_mmHg.toFixed(1) + ' <span class="res-unidad">mmHg</span>';
+            }
+            document.getElementById('resPpm').innerText = (ppm > 0 ? "+" : "") + ppm.toFixed(1);
             document.getElementById('resElevFactor').innerText = elevFactor.toFixed(7);
 
-            document.getElementById('cajaResultado').style.display = 'block';
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            let mm100 = (ppm * 0.1).toFixed(1);
+            let mm500 = (ppm * 0.5).toFixed(1);
+            let mm1000 = (ppm * 1.0).toFixed(1);
+            let signoStr = ppm > 0 ? "+" : "";
+            document.getElementById('resImpactoDist').innerHTML = `🎯 <strong>Impacto en Distancia:</strong> En 100m: <span style="color:var(--primary-color);">${signoStr}${mm100} mm</span> | En 500m: <span style="color:var(--primary-color);">${signoStr}${mm500} mm</span> | En 1km: <span style="color:var(--primary-color);">${signoStr}${mm1000} mm</span>`;
 
-            let fecha = new Date().toLocaleString();
-            lastReport = `--- BITÁCORA ATMOSFÉRICA QA/QC ---\nFecha: ${fecha}\nFabricante: ${marcaTxt}\nAltitud: ${h.toFixed(2)} m.s.n.m.\nTemperatura: ${t.toFixed(1)} °C\nHumedad Relativa: ${hr > 0 ? hr+'%' : 'N/A'}\nPresión Local: ${p_hPa.toFixed(2)} hPa (${p_mmHg.toFixed(2)} mmHg)\n\nPPM Aplicado: ${ppm.toFixed(1)}\nFactor Elevación: ${elevFactor.toFixed(7)}\n--------------------------------`;
+            document.getElementById('cajaResultado').style.display = 'block';
+            if (!silencioso) {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+
+            let fecha = new Date().toLocaleString('es-PE');
+            let proyInfo = globalConfig.proyecto ? `Proyecto: ${globalConfig.proyecto}\n` : '';
+            let operInfo = globalConfig.operador ? `Operador: ${globalConfig.operador}\n` : '';
+            let eqInfo = globalConfig.equipo ? `Equipo Base: ${globalConfig.equipo}\n` : '';
+            lastReport = `--- BITÁCORA ATMOSFÉRICA QA/QC ---\nFecha: ${fecha}\n${proyInfo}${operInfo}${eqInfo}Fabricante EDM: ${marcaTxt}\nAltitud: ${h.toFixed(2)} m.s.n.m.\nTemperatura: ${t.toFixed(1)} °C\nHumedad Relativa: ${hr > 0 ? hr+'%' : 'N/A'}\nPresión Local (QFE): ${p_hPa.toFixed(2)} hPa (${p_mmHg.toFixed(2)} mmHg)\n\nPPM Aplicado: ${signoStr}${ppm.toFixed(1)} (${signoStr}${mm1000} mm/km)\nFactor Elevación: ${elevFactor.toFixed(7)}\nFactor Combinado Ref.: ${(elevFactor * 0.9996).toFixed(7)}\n--------------------------------`;
         }
 
         function copiarBitacora() {
@@ -459,6 +546,7 @@
             document.getElementById('inHumedad').value = '';
             document.getElementById('cajaResultado').style.display = 'none';
             document.getElementById('alertaTermica').style.display = 'none';
+            localStorage.removeItem('cota100_estado_atmosfera');
             lastReport = "";
         }
     </script>

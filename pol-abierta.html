@@ -56,7 +56,7 @@
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--card-border); background-color: transparent; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); height: 70px; }
         .nav-buttons-left { display: flex; gap: 8px; }
         .btn-volver-mini { background: transparent; border: none; color: var(--primary-color); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; filter: drop-shadow(0 0 5px var(--primary-glow)); }
-        .btn-volver-mini:active { transform: scale(0.92); filter: drop-shadow(0 0 10px var(--primary-color)); }
+        .btn-volver-mini:active { transform: scale(0.92); }
         .top-bar-title { color: var(--text-color); font-weight: 900; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
         .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem;}
 
@@ -124,7 +124,7 @@
         .overlay-select.activo { opacity: 1; }
         .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(15px); }
         .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
-        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;}
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
         .btn-opcion span.cota { color: var(--text-color); font-size: 0.85rem; font-weight: 700;}
         
@@ -151,6 +151,12 @@
 <body onload="inicializarApp()">
 
     <div class="fire-base"><div class="fire-wave delay"></div><div class="fire-wave"></div></div>
+    <script>
+        try {
+            let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
+            if (conf && conf.darkMode) document.body.classList.add('dark-mode');
+        } catch(e) {}
+    </script>
     <div id="toast-container"></div>
 
     <!-- MODALES GENÉRICOS -->
@@ -169,12 +175,12 @@
             <div class="confirm-msg" id="customConfirmMsg">¿Estás seguro?</div>
             <div style="display: flex; gap: 10px;">
                 <button class="btn-accion" style="background:rgba(128,128,128,0.2); color:var(--text-color); flex:1;" id="btnConfirmCancel">Cancelar</button>
-                <button class="btn-accion" style="background:var(--primary-color); flex:1;" id="btnConfirmOk">Aceptar</button>
+                <button class="btn-accion" style="background:var(--primary-color); color:#fff; flex:1;" id="btnConfirmOk">Aceptar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL ALERTA DE INFORMACIÓN (INFO ICONS) CON BOTÓN PÍLDORA -->
+    <!-- MODAL ALERTA DE INFORMACIÓN -->
     <div class="overlay-select" id="customAlertOverlay">
         <div class="modal-select" id="customAlertModal">
             <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
@@ -185,7 +191,7 @@
         </div>
     </div>
 
-    <!-- MODAL INGRESO DE TEXTO (RENOMBRAR PROYECTO) -->
+    <!-- MODAL INGRESO DE TEXTO -->
     <div class="overlay-select" id="customPromptOverlay">
         <div class="modal-select" id="customPromptModal">
             <h3 id="customPromptTitle" style="color:var(--text-color); margin-bottom:10px; font-weight:900; text-transform:uppercase; font-size: 1.1rem;">INGRESO</h3>
@@ -203,7 +209,7 @@
             <a href="index.html" class="btn-volver-mini" onclick="vibrar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a>
             <a href="poligonales.html" class="btn-volver-mini" onclick="vibrar()"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
         </div>
-        <h2 class="top-bar-title">POLIGONAL<br><span>ABIERTA ENCUADRADA</span></h2>
+        <h2 class="top-bar-title">POLIGONAL<br><span>ABIERTA / ENCUADRADA</span></h2>
         <div style="width: 90px; display: flex; justify-content: flex-end;">
             <button class="btn-volver-mini" onclick="mostrarLeyenda()" title="Guía de Funciones" style="width: 45px; height: 45px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
@@ -215,7 +221,6 @@
         <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
             <div class="panel-titulo" onclick="togglePanel('panelProyecto')"><span>📁 Base de Datos / Proyectos</span><span>▼</span></div>
             <div id="panelProyecto">
-                <!-- SELECTOR DE PROYECTOS UNIFICADO -->
                 <div class="project-selector" style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center;">
                     <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')">
                         <span id="txtSelectProyecto">Cargando...</span>
@@ -267,12 +272,17 @@
                     <label>Precisión Eq. (Seg) <span class="info-icon" onclick="showCustomAlert('Indica la precisión nominal angular de tu Estación Total (Ej. 5 segundos) para el cálculo estricto de tolerancias de cierre.', 'PRECISIÓN DEL EQUIPO')">ℹ️</span></label>
                     <input type="number" id="precisionEquipo" value="5" step="1" oninput="guardarEstadoApp()">
                 </div>
-                <div class="input-group full-width">
+                <div class="input-group">
+                    <label>Formato Áng. Cenital <span class="info-icon" onclick="showCustomAlert('<strong>Decimal:</strong> Ej. 89.500°<br><strong>G.MMSS (Sexagesimal):</strong> Escribe Grados.MinutosSegundos (Ej: 89.3000 equivale a 89° 30\' 00\"). Evita errores de tipeo desde la Estación Total.', 'FORMATO CENITAL')">ℹ️</span></label>
+                    <div class="custom-select" onclick="abrirModalSelect('formatoZen')"><span id="txt_formatoZen">Grados Decimales</span><span class="arrow">▼</span></div>
+                    <input type="hidden" id="formatoZen" value="dec">
+                </div>
+                <div class="input-group">
                     <label>Zona de Trabajo UTM <span class="info-icon" onclick="showCustomAlert('Define la zona UTM para el área de proyecto. Necesario en caso debas proyectar coordenadas.', 'ZONA UTM')">ℹ️</span></label>
                     <div class="custom-select" onclick="abrirModalSelect('zonaUtm')"><span id="txt_zonaUtm">17 Sur</span><span class="arrow">▼</span></div>
                     <input type="hidden" id="zonaUtm" value="17">
-                    <div class="ayuda-zona-txt">Tumbes, Piura, Lambayeque, La Libertad, Cajamarca.</div>
                 </div>
+                <div class="ayuda-zona-txt full-width" style="margin-top:-4px;">Tumbes, Piura, Lambayeque, La Libertad, Cajamarca.</div>
             </div>
         </div>
 
@@ -299,23 +309,23 @@
         </div>
 
         <div class="panel-control" style="border-left: 4px solid var(--danger-color);">
-            <div class="panel-titulo" style="color: var(--danger-color);">🏁 2. Control Geodésico de Llegada (Cierre)</div>
+            <div class="panel-titulo" style="color: var(--danger-color);">🏁 2. Control Geodésico de Llegada (Opcional para Libre)</div>
             <label style="color: var(--danger-color);">
-                <div style="display:flex; align-items:center;">ESTACIÓN FINAL (Último hito) <span class="info-icon" onclick="showCustomAlert('Punto oficial de cierre donde terminas la medición de campo.', 'ESTACIÓN FINAL')">ℹ️</span></div>
+                <div style="display:flex; align-items:center;">ESTACIÓN FINAL (Opcional si es Libre) <span class="info-icon" onclick="showCustomAlert('<strong>Poligonal Encuadrada:</strong> Ingresa aquí las coordenadas conocidas del punto de llegada para compensar el cierre lineal y altimétrico.<br><br><strong>Poligonal Abierta Libre:</strong> Déjala en blanco si estás levantando una trocha o línea abierta sin punto de cierre conocido.', 'ESTACIÓN FINAL')">ℹ️</span></div>
                 <button style="background:transparent; border:1px solid var(--text-color); color:var(--text-color); border-radius:4px; padding:2px 8px; font-weight:800; font-size:0.75rem; cursor:pointer;" onclick="seleccionarPuntoControl('est_fin')">📍 Cargar</button>
             </label>
             <div class="form-grid" style="margin-top:5px;">
-                <input type="number" id="eEstFin" step="0.001" placeholder="ESTE (X)" oninput="guardarEstadoApp()">
-                <input type="number" id="nEstFin" step="0.001" placeholder="NORTE (Y)" oninput="guardarEstadoApp()">
-                <input type="number" id="zEstFin" step="0.001" placeholder="COTA (Z)" class="full-width" oninput="guardarEstadoApp()">
+                <input type="number" id="eEstFin" step="0.001" placeholder="ESTE (Opcional)" oninput="guardarEstadoApp()">
+                <input type="number" id="nEstFin" step="0.001" placeholder="NORTE (Opcional)" oninput="guardarEstadoApp()">
+                <input type="number" id="zEstFin" step="0.001" placeholder="COTA Z (Opcional)" class="full-width" oninput="guardarEstadoApp()">
             </div>
             <label style="color: var(--danger-color);">
-                <div style="display:flex; align-items:center;">REFERENCIA FINAL (Cierre Visual) <span class="info-icon" onclick="showCustomAlert('Punto oficial o azimut conocido para verificar el cierre angular final.', 'REFERENCIA DE CIERRE')">ℹ️</span></div>
+                <div style="display:flex; align-items:center;">REFERENCIA FINAL (Cierre Visual - Opcional) <span class="info-icon" onclick="showCustomAlert('Punto de control final para verificar el azimut de llegada. Si no dispones de visual de llegada, déjalo en blanco.', 'REFERENCIA DE CIERRE')">ℹ️</span></div>
                 <button style="background:transparent; border:1px solid var(--text-color); color:var(--text-color); border-radius:4px; padding:2px 8px; font-weight:800; font-size:0.75rem; cursor:pointer;" onclick="seleccionarPuntoControl('ref_fin')">📍 Cargar</button>
             </label>
             <div class="form-grid" style="margin-top:5px;">
-                <input type="number" id="eRefFin" step="0.001" placeholder="ESTE (X)" oninput="guardarEstadoApp()">
-                <input type="number" id="nRefFin" step="0.001" placeholder="NORTE (Y)" oninput="guardarEstadoApp()">
+                <input type="number" id="eRefFin" step="0.001" placeholder="ESTE (Opcional)" oninput="guardarEstadoApp()">
+                <input type="number" id="nRefFin" step="0.001" placeholder="NORTE (Opcional)" oninput="guardarEstadoApp()">
             </div>
         </div>
 
@@ -346,10 +356,10 @@
             </div>
         </div>
 
-        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; margin-bottom: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(255,85,0,0.3);" onclick="calcularPoligonal()">PROCESAR AJUSTE</button>
+        <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.2rem; margin-bottom: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(255,85,0,0.3);" onclick="calcularPoligonal()">PROCESAR POLIGONAL</button>
 
         <div class="panel-resultados" id="panelResultados">
-            <h3 style="text-transform: uppercase; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1rem;">REPORTE DE COMPENSACIÓN VIAL</h3>
+            <h3 style="text-transform: uppercase; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1rem;">REPORTE DE POLIGONAL VIAL</h3>
             <div id="tolBadge" class="tol-tag tol-pass" style="margin-top: 10px; font-size:0.9rem;">ESTADO: ACEPTABLE</div>
             
             <div class="form-grid" style="margin-top: 15px; background: rgba(128,128,128,0.05); padding:10px; border-radius:8px;">
@@ -364,7 +374,6 @@
                 </div>
             </div>
 
-            <!-- DESGLOSE DE ERROR LONGITUDINAL Y TRANSVERSAL -->
             <div class="form-grid" style="margin-top: 5px; background: rgba(128,128,128,0.02); padding:10px; border-radius:8px;">
                 <div class="input-group">
                     <span style="font-size: 0.75rem; font-weight: 800; opacity: 0.7;">ERROR LONGITUDINAL (E_L)</span>
@@ -378,13 +387,12 @@
                 </div>
             </div>
 
-            <!-- ALTÍMETRO (EJE Z) -->
             <div class="form-grid" style="margin-top: 10px;">
                 <div class="input-group"><span style="font-size: 0.75rem; font-weight: 800; opacity: 0.7;">PRECISIÓN RELATIVA VIAL</span><div class="res-valor" id="resPrecision" style="font-size: 1.5rem; color:var(--text-color);">1 : 0</div></div>
                 <div class="input-group"><span style="font-size: 0.75rem; font-weight: 800; opacity: 0.7;">CIERRE ALTÍMETRO (ΔZ)</span><div class="res-valor" id="resErrZ" style="font-size: 1.5rem; color:var(--text-color);">0.000 m</div></div>
             </div>
 
-            <h3 style="color: var(--primary-color); margin: 20px 0 10px; font-size: 1rem; text-align: left;">COORDENADAS COMPENSADAS VIALES (X, Y, Z)</h3>
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px; font-size: 1rem; text-align: left;">COORDENADAS FINALES VIALES (X, Y, Z)</h3>
             <div class="table-wrapper" style="margin-bottom: 15px;">
                 <table class="tabla-resultados">
                     <thead><tr><th>ESTACIÓN</th><th>ESTE (X)</th><th>NORTE (Y)</th><th>COTA (Z)</th></tr></thead>
@@ -392,13 +400,17 @@
                 </table>
             </div>
 
-            <button class="btn-accion" style="background:var(--success-color); width:100%;" onclick="exportarCSV_PNEZD()">📥 DESCARGAR REPORTE PNEZD (.CSV)</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <button class="btn-accion full-width" style="background:#1976d2; font-size:0.9rem; padding:12px 6px; margin:0;" onclick="guardarVerticesAbiertaDB()">💾 GUARDAR VÉRTICES CALCULADOS EN DB</button>
+                <button class="btn-accion" style="background:var(--success-color); font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarCSV_PNEZD()">📥 CSV PNEZD</button>
+                <button class="btn-accion" style="background:#1b5e20; font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarExcelMemoriaAbierta()">📊 EXCEL (.XLSX)</button>
+                <button class="btn-accion full-width" style="background:var(--primary-color); font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarSCR_Abierta()">📐 CAD + EJE Y CUADRO (.SCR)</button>
+            </div>
         </div>
 
     </div>
 
     <script>
-        // --- TOAST NOTIFICATIONS ---
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -416,25 +428,43 @@
         let confirmCancelCallback = null;
         let promptOkCallback = null;
         let destinoCarga = "";
-        let editandoBMIndex = -1; // Bug crítico reparado
+        let editandoBMIndex = -1;
+        let ultimoCalculoAbierta = null;
 
         document.getElementById('btnConfirmCancel').addEventListener('click', () => {
-            vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            document.getElementById('customConfirmModal').classList.remove('abierto');
             setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
             if (confirmCancelCallback) confirmCancelCallback();
         });
 
         document.getElementById('btnConfirmOk').addEventListener('click', () => {
-            vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
+            vibrar();
+            document.getElementById('customConfirmOverlay').classList.remove('activo');
+            document.getElementById('customConfirmModal').classList.remove('abierto');
             setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
             if (confirmOkCallback) confirmOkCallback();
         });
 
+        document.getElementById('customConfirmOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'customConfirmOverlay') {
+                vibrar();
+                document.getElementById('customConfirmOverlay').classList.remove('activo');
+                document.getElementById('customConfirmModal').classList.remove('abierto');
+                setTimeout(() => document.getElementById('customConfirmOverlay').style.display='none', 200);
+            }
+        });
+
         function showConfirm(message, onOk, onCancel = null) {
-            vibrar(); document.getElementById('customConfirmMsg').innerText = message;
+            vibrar(); 
+            document.getElementById('customConfirmMsg').innerText = message;
             confirmOkCallback = onOk; confirmCancelCallback = onCancel;
             document.getElementById('customConfirmOverlay').style.display = 'block';
-            setTimeout(() => document.getElementById('customConfirmOverlay').classList.add('activo'), 10);
+            setTimeout(() => {
+                document.getElementById('customConfirmOverlay').classList.add('activo');
+                document.getElementById('customConfirmModal').classList.add('abierto');
+            }, 10);
         }
 
         function showCustomAlert(message, title = "INFORMACIÓN") {
@@ -447,39 +477,36 @@
         }
 
         function cerrarCustomAlert() {
-            vibrar(); document.getElementById('customAlertOverlay').classList.remove('activo'); document.getElementById('customAlertModal').classList.remove('abierto');
+            vibrar(); 
+            document.getElementById('customAlertOverlay').classList.remove('activo'); 
+            document.getElementById('customAlertModal').classList.remove('abierto');
             setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
         }
 
         function mostrarLeyenda() {
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
-                    <strong style="color:var(--primary-color);">📌 Puntos de Control:</strong><br>
-                    Debes ingresar las coordenadas (E, N, Z) de tu Estación y tu Vista Atrás en los bloques de partida (Azul) y llegada (Rojo).<br><br>
-                    <strong style="color:var(--primary-color);">🔗 Puente de Vértices:</strong><br>
-                    Usa el botón Importar para traer vértices desde Poligonal Cerrada o desde otros proyectos sin volver a digitarlos.<br><br>
-                    <strong style="color:var(--primary-color);">📐 Tipo de Ángulo:</strong><br>
-                    El sistema compensará automáticamente los errores angulares según si mediste Ángulos Internos, Externos o de Deflexión.<br><br>
-                    <strong style="color:var(--primary-color);">📉 Error Longitudinal y Transversal:</strong><br>
-                    El reporte final desglosará tu error en el eje de la poligonal (falla en distanciometría) y perpendicular a ella (falla angular o de plomada).
+                    <strong style="color:var(--primary-color);">📌 Encuadrada vs. Abierta Libre:</strong><br>
+                    • Si ingresas las coordenadas de la <strong>Estación Final</strong>, el sistema compensa el error lineal y de cota en todos los tramos.<br>
+                    • Si dejas la <strong>Estación Final vacía</strong>, calcula una <strong>Poligonal Abierta Libre</strong> arrastrando coordenadas y cotas puras.<br><br>
+                    <strong style="color:var(--primary-color);">💾 Guardar Vértices en DB:</strong><br>
+                    Toca el botón azul en los resultados para guardar las estaciones calculadas en tu Base de Datos de puntos.<br><br>
+                    <strong style="color:var(--primary-color);">📊 Excel y AutoCAD (.SCR):</strong><br>
+                    Descarga la memoria de cálculo en Excel o el script `.scr` que dibuja el eje vial acotado en AutoCAD.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: POLIGONAL ABIERTA");
         }
 
-        function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
+        function showCustomConfirm(message, onOk, onCancel = null) {
             vibrar(); 
             document.getElementById('customConfirmMsg').innerHTML = message.replace(/\n/g, '<br>');
-            document.getElementById('btnConfirmOk').innerText = okText;
-            document.getElementById('btnConfirmCancel').innerText = cancelText;
             confirmOkCallback = onOk; confirmCancelCallback = onCancel;
             document.getElementById('customConfirmOverlay').style.display = 'block';
-            setTimeout(() => { document.getElementById('customConfirmOverlay').classList.add('activo'); document.getElementById('customConfirmModal').classList.add('abierto'); }, 10);
-        }
-
-        function cerrarCustomConfirm() {
-            vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo'); document.getElementById('customConfirmModal').classList.remove('abierto');
-            setTimeout(() => { document.getElementById('customConfirmOverlay').style.display = 'none'; }, 300);
+            setTimeout(() => { 
+                document.getElementById('customConfirmOverlay').classList.add('activo'); 
+                document.getElementById('customConfirmModal').classList.add('abierto'); 
+            }, 10);
         }
 
         function showCustomPrompt(title, defaultVal, onOk) {
@@ -491,7 +518,9 @@
             setTimeout(() => { document.getElementById('customPromptOverlay').classList.add('activo'); document.getElementById('customPromptModal').classList.add('abierto'); inp.focus(); }, 10);
         }
         function cerrarCustomPrompt() {
-            vibrar(); document.getElementById('customPromptOverlay').classList.remove('activo'); document.getElementById('customPromptModal').classList.remove('abierto');
+            vibrar(); 
+            document.getElementById('customPromptOverlay').classList.remove('activo'); 
+            document.getElementById('customPromptModal').classList.remove('abierto');
             setTimeout(() => { document.getElementById('customPromptOverlay').style.display = 'none'; }, 300);
         }
         function btnPromptOkClick() {
@@ -503,7 +532,24 @@
         let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
         let globalConfig = { darkMode: false, vibracion: false, decimales: "3" };
 
-        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+        let audioCtxPolAb = null;
+        function vibrar() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) {
+                try { navigator.vibrate(25); } catch(e) {}
+            }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxPolAb) audioCtxPolAb = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxPolAb.state === 'suspended') audioCtxPolAb.resume();
+                    let osc = audioCtxPolAb.createOscillator();
+                    let gain = audioCtxPolAb.createGain();
+                    osc.connect(gain); gain.connect(audioCtxPolAb.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxPolAb.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxPolAb.currentTime);
+                    osc.start(); osc.stop(audioCtxPolAb.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; }
 
         function inicializarApp() {
@@ -650,6 +696,36 @@
             });
         }
 
+        function guardarVerticesAbiertaDB() {
+            vibrar();
+            if (!ultimoCalculoAbierta) return showToast("Procesa la poligonal primero", "warning");
+            let p = obtenerProyectoActivo();
+            if (!p) return;
+            if (!p.bms) p.bms = [];
+            let creados = 0, actualizados = 0;
+
+            for (let i = 0; i < ultimoCalculoAbierta.nombres.length; i++) {
+                let nom = ultimoCalculoAbierta.nombres[i].trim().toUpperCase();
+                let x = Number(ultimoCalculoAbierta.coordE[i].toFixed(4));
+                let y = Number(ultimoCalculoAbierta.coordN[i].toFixed(4));
+                let z = Number(ultimoCalculoAbierta.coordZ[i].toFixed(4));
+                let idx = p.bms.findIndex(b => b.nombre === nom);
+                if (idx > -1) {
+                    p.bms[idx].este = x;
+                    p.bms[idx].norte = y;
+                    p.bms[idx].cota = z;
+                    if (!p.bms[idx].obs) p.bms[idx].obs = "Calculado en Poligonal Abierta";
+                    actualizados++;
+                } else {
+                    p.bms.push({ nombre: nom, este: x, norte: y, cota: z, obs: "Vértice Poligonal Abierta" });
+                    creados++;
+                }
+            }
+            guardarBD();
+            renderBMs();
+            showToast(`✅ ${creados} vértices creados y ${actualizados} actualizados en DB`, "success");
+        }
+
         /* --- PUENTE DE VÉRTICES ENTRE MÓDULOS --- */
         let verticesExternosCache = [];
         function recopilarVerticesExternos() {
@@ -657,7 +733,6 @@
             let pActual = obtenerProyectoActivo();
             let nombresActuales = (pActual && pActual.bms) ? pActual.bms.map(b => b.nombre) : [];
 
-            // 1. Otros proyectos de Poligonal Abierta
             appData.proyectos.forEach(proj => {
                 if (proj.id !== appData.activoId && proj.bms) {
                     proj.bms.forEach(bm => {
@@ -668,7 +743,6 @@
                 }
             });
 
-            // 2. Proyectos de Poligonal Cerrada
             try {
                 let dbCerr = JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4'));
                 if (dbCerr && dbCerr.proyectos) {
@@ -732,6 +806,7 @@
 
             if(tipo === 'proyecto') { titulo.innerText = "📁 PROYECTO"; appData.proyectos.forEach(proj => { opciones.push({val: proj.id, txt: proj.nombre}); }); actual = appData.activoId.toString(); }
             else if(tipo === 'tipoAngulo') { titulo.innerText = "📐 TIPO DE ÁNGULO"; opciones = [{val:'interno', txt:'Internos / Derecha'}, {val:'def_der', txt:'Deflexión Derecha (+)'}, {val:'def_izq', txt:'Deflexión Izquierda (-)'}]; }
+            else if(tipo === 'formatoZen') { titulo.innerText = "🔭 FORMATO CENITAL"; opciones = [{val:'dec', txt:'Grados Decimales'}, {val:'gms', txt:'G.MMSS (Ej: 89.3000)'}]; }
             else if(tipo === 'zonaUtm') { titulo.innerText = "🌍 ZONA PERÚ"; opciones = [{val:'17', txt:'17 Sur'}, {val:'18', txt:'18 Sur'}, {val:'19', txt:'19 Sur'}]; }
             else if(tipo === 'bm_control') {
                 titulo.innerText = "📍 ELEGIR VÉRTICE GEODÉSICO"; let p = obtenerProyectoActivo();
@@ -810,6 +885,8 @@
             
             let tA = p.tipoAngulo === 'interno' ? 'Internos / Derecha' : (p.tipoAngulo === 'def_der' ? 'Deflexión Derecha (+)' : 'Deflexión Izquierda (-)');
             document.getElementById('txt_tipoAngulo').innerText = tA; 
+            document.getElementById('formatoZen').value = p.formatoZen || "dec";
+            document.getElementById('txt_formatoZen').innerText = (p.formatoZen === "gms") ? "G.MMSS (Ej: 89.3000)" : "Grados Decimales";
             document.getElementById('txt_zonaUtm').innerText = (p.zonaUtm || "17") + " Sur";
             actualizarTextoZona(p.zonaUtm || "17");
             
@@ -844,7 +921,7 @@
 
         function guardarEstadoApp() {
             let p = obtenerProyectoActivo(); if(!p) return;
-            p.precision = parseFloat(document.getElementById('precisionEquipo').value)||5; p.tipoAngulo = document.getElementById('tipoAngulo').value; p.zonaUtm = document.getElementById('zonaUtm').value;
+            p.precision = parseFloat(document.getElementById('precisionEquipo').value)||5; p.tipoAngulo = document.getElementById('tipoAngulo').value; p.formatoZen = document.getElementById('formatoZen').value; p.zonaUtm = document.getElementById('zonaUtm').value;
             p.ctrl = { eEi: document.getElementById('eEstIni').value, nEi: document.getElementById('nEstIni').value, zEstIni: document.getElementById('zEstIni').value, eRi: document.getElementById('eRefIni').value, nRi: document.getElementById('nRefIni').value, eEf: document.getElementById('eEstFin').value, nEf: document.getElementById('nEstFin').value, zEstFin: document.getElementById('zEstFin').value, eRf: document.getElementById('eRefFin').value, nRefFin: document.getElementById('nRefFin').value };
             let filas = []; document.querySelectorAll('#cuerpoPoligonal tr').forEach((tr, i, arr) => { let esFin = (i === arr.length - 1); filas.push({ pto: tr.querySelector('.in-pto').value, g: tr.querySelector('.ang-g').value, m: tr.querySelector('.ang-m').value, s: tr.querySelector('.ang-s').value, dist: esFin?'':tr.querySelector('.dist').value, zen: esFin?'':tr.querySelector('.zen').value, ai: esFin?'':tr.querySelector('.ai').value, ap: esFin?'':tr.querySelector('.ap').value, final: esFin }); });
             p.tabla = filas; guardarBD();
@@ -870,58 +947,117 @@
 
         function calcularAzimut(E1, N1, E2, N2) { let dE = E2 - E1; let dN = N2 - N1; let az = Math.atan2(dE, dN) * 180 / Math.PI; if (az < 0) az += 360; return az; }
         function gmsADecimal(g, m, s) { let signo = (g < 0) ? -1 : 1; return signo * (Math.abs(g) + (m / 60) + (s / 3600)); }
-        function decimalAGMSString(dec) { let absoluto = Math.abs(dec); let g = Math.floor(absoluto); let mFloat = (absoluto - g) * 60; let m = Math.floor(mFloat); let s = (mFloat - m) * 60; let signoStr = (dec < 0) ? "-" : ""; return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`; }
+        function decimalAGMSString(dec) { let absoluto = Math.abs(dec); let g = Math.floor(absoluto); let mFloat = (absoluto - g) * 60; let m = Math.floor(mFloat); let s = (mFloat - m) * 60; if (s >= 59.95) { s = 0; m++; } if (m >= 60) { m = 0; g++; } let signoStr = (dec < 0) ? "-" : ""; return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`; }
         function normalizarAzimut(az) { while (az >= 360.0) az -= 360.0; while (az < 0.0) az += 360.0; return az; }
+
+        function parseZenitalAngle(val, formato) {
+            if (isNaN(val)) return 90.0;
+            if (formato !== 'gms') return val;
+            let sign = val < 0 ? -1 : 1;
+            let absVal = Math.abs(val);
+            let g = Math.floor(absVal);
+            let rest = (absVal - g) * 100.0;
+            let m = Math.floor(rest + 1e-9);
+            let s = (rest - m) * 100.0;
+            return sign * (g + (m / 60.0) + (s / 3600.0));
+        }
 
         function calcularPoligonal() {
             vibrar(); let decs = parseInt(globalConfig.decimales) || 3; let precisionEquipo = parseFloat(document.getElementById('precisionEquipo').value)||5;
-            let eEstIni = parseFloat(document.getElementById('eEstIni').value); let nEstIni = parseFloat(document.getElementById('nEstIni').value); let zEstIni = parseFloat(document.getElementById('zEstIni').value);
+            let eEstIni = parseFloat(document.getElementById('eEstIni').value); let nEstIni = parseFloat(document.getElementById('nEstIni').value);
+            let zEstIni = parseFloat(document.getElementById('zEstIni').value);
+            if (isNaN(zEstIni)) zEstIni = 0.0;
             let eRefIni = parseFloat(document.getElementById('eRefIni').value); let nRefIni = parseFloat(document.getElementById('nRefIni').value);
-            let eEstFin = parseFloat(document.getElementById('eEstFin').value); let nEstFin = parseFloat(document.getElementById('nEstFin').value); let zEstFin = parseFloat(document.getElementById('zEstFin').value);
+            let eEstFin = parseFloat(document.getElementById('eEstFin').value); let nEstFin = parseFloat(document.getElementById('nEstFin').value);
+            let zEstFin = parseFloat(document.getElementById('zEstFin').value);
             let eRefFin = parseFloat(document.getElementById('eRefFin').value); let nRefFin = parseFloat(document.getElementById('nRefFin').value);
 
-            if(isNaN(eEstIni) || isNaN(nEstIni) || isNaN(eRefIni) || isNaN(nRefIni) || isNaN(eEstFin) || isNaN(nEstFin) || isNaN(zEstIni) || isNaN(zEstFin) || isNaN(eRefFin) || isNaN(nRefFin)) { showToast("Completa todos los hitos geodésicos de partida y llegada.", "warning"); return; }
+            if(isNaN(eEstIni) || isNaN(nEstIni) || isNaN(eRefIni) || isNaN(nRefIni)) {
+                showToast("Completa las coordenadas de Partida y Vista Atrás Inicial.", "warning");
+                return;
+            }
 
-            let azIni = calcularAzimut(eEstIni, nEstIni, eRefIni, nRefIni); let azFinTeorico = calcularAzimut(eEstFin, nEstFin, eRefFin, nRefFin);
+            let tieneCoordFin = (!isNaN(eEstFin) && !isNaN(nEstFin));
+            let tieneCotaFin = !isNaN(zEstFin);
+            let tieneRefFin = (tieneCoordFin && !isNaN(eRefFin) && !isNaN(nRefFin));
+
+            let tipoAngulo = document.getElementById('tipoAngulo').value;
+            let formatoZen = document.getElementById('formatoZen').value;
+
+            let azIni = tipoAngulo.startsWith('def')
+                ? calcularAzimut(eRefIni, nRefIni, eEstIni, nEstIni)
+                : calcularAzimut(eEstIni, nEstIni, eRefIni, nRefIni);
+            
+            let azFinTeorico = tieneRefFin ? calcularAzimut(eEstFin, nEstFin, eRefFin, nRefFin) : null;
 
             let filas = document.querySelectorAll('#cuerpoPoligonal tr'); let nAng = filas.length;
-            let angObs = []; let dists = []; let zens = []; let ais = []; let aps = []; let perimetro = 0; let nombres = [];
+            let angObs = []; let dists = []; let distsHoriz = []; let zens = []; let ais = []; let aps = []; let perimetroHoriz = 0; let nombres = [];
 
             for (let i = 0; i < nAng; i++) {
                 nombres.push(filas[i].querySelector('.in-pto').value || `E-${i}`);
                 let g = parseFloat(filas[i].querySelector('.ang-g').value)||0; let m = parseFloat(filas[i].querySelector('.ang-m').value)||0; let s = parseFloat(filas[i].querySelector('.ang-s').value)||0;
                 angObs.push(gmsADecimal(g, m, s));
                 if (i < nAng - 1) {
-                    let d = parseFloat(filas[i].querySelector('.dist').value); let z = parseFloat(filas[i].querySelector('.zen').value)||90; let hI = parseFloat(filas[i].querySelector('.ai').value)||0; let hP = parseFloat(filas[i].querySelector('.ap').value)||0;
+                    let d = parseFloat(filas[i].querySelector('.dist').value);
+                    let zRaw = parseFloat(filas[i].querySelector('.zen').value);
+                    let z = isNaN(zRaw) ? 90.0 : parseZenitalAngle(zRaw, formatoZen);
+                    let hI = parseFloat(filas[i].querySelector('.ai').value)||0;
+                    let hP = parseFloat(filas[i].querySelector('.ap').value)||0;
                     if(isNaN(d) || d <= 0) { showToast(`Falta distancia válida en Estación ${nombres[i]}`, "error"); return; }
-                    dists.push(d); zens.push(z); ais.push(hI); aps.push(hP); perimetro += d;
+                    let dH = d * Math.sin(z * Math.PI / 180.0);
+                    dists.push(d); distsHoriz.push(dH); zens.push(z); ais.push(hI); aps.push(hP); perimetroHoriz += dH;
                 }
             }
 
-            let tipoAngulo = document.getElementById('tipoAngulo').value;
             let azActual = azIni;
             for(let i=0; i<nAng; i++) {
                 let a = angObs[i];
-                if(tipoAngulo === 'def_der') azActual = normalizarAzimut(azActual + a);
-                else if(tipoAngulo === 'def_izq') azActual = normalizarAzimut(azActual - a);
-                else azActual = normalizarAzimut(azActual + a);
-                if(i < nAng - 1) azActual = normalizarAzimut(azActual + 180);
+                if(tipoAngulo === 'def_der') {
+                    azActual = normalizarAzimut(azActual + a);
+                } else if(tipoAngulo === 'def_izq') {
+                    azActual = normalizarAzimut(azActual - a);
+                } else {
+                    azActual = normalizarAzimut(azActual + a);
+                    if(i < nAng - 1) azActual = normalizarAzimut(azActual + 180);
+                }
             }
 
-            let errorAng = azActual - azFinTeorico; if (errorAng > 180) errorAng -= 360; if (errorAng < -180) errorAng += 360;
-            let errorSeg = Math.abs(errorAng * 3600); let tolSeg = precisionEquipo * Math.sqrt(nAng);
-            document.getElementById('tolBadge').className = errorSeg <= tolSeg ? "tol-tag tol-pass" : "tol-tag tol-fail";
-            document.getElementById('tolBadge').innerText = errorSeg <= tolSeg ? "✓ CUMPLE TOLERANCIA VIAL" : "⚠️ RECHAZADO: REVISAR EQUIPO";
-            document.getElementById('resTolAng').innerText = `± ${tolSeg.toFixed(1)}"`;
+            let errorAng = 0;
+            if (tieneRefFin && azFinTeorico !== null) {
+                errorAng = azActual - azFinTeorico; 
+                if (errorAng > 180) errorAng -= 360; 
+                if (errorAng < -180) errorAng += 360;
+            }
 
-            let corrAng = -errorAng / nAng;
+            let errorSeg = Math.abs(errorAng * 3600); 
+            let tolSeg = precisionEquipo * Math.sqrt(nAng);
+            
+            let badge = document.getElementById('tolBadge');
+            if (!tieneCoordFin) {
+                badge.className = "tol-tag tol-pass"; badge.innerText = "🧭 POLIGONAL ABIERTA LIBRE (SIN CIERRE)";
+            } else if (!tieneRefFin) {
+                badge.className = "tol-tag tol-pass"; badge.innerText = "✓ ENCUADRADA EN COORDENADAS (SIN REF. AZIMUTAL)";
+            } else if(errorSeg <= tolSeg) { 
+                badge.className = "tol-tag tol-pass"; badge.innerText = "✓ CUMPLE TOLERANCIA VIAL ENCUADRADA"; 
+            } else { 
+                badge.className = "tol-tag tol-fail"; badge.innerText = "⚠️ RECHAZADO: REVISAR CIERRE ANGULAR"; 
+            }
+            document.getElementById('resTolAng').innerText = tieneRefFin ? `± ${tolSeg.toFixed(1)}"` : "N/A";
+
+            let corrPorAng = tieneRefFin ? (-errorAng / nAng) : 0;
             azActual = azIni; let azCompensados = [];
             for (let i = 0; i < nAng - 1; i++) {
-                let a = angObs[i] + corrAng;
-                if(tipoAngulo === 'def_der') azActual = normalizarAzimut(azActual + a);
-                else if(tipoAngulo === 'def_izq') azActual = normalizarAzimut(azActual - a);
-                else azActual = normalizarAzimut(azActual + a);
-                azCompensados.push(azActual); azActual = normalizarAzimut(azActual + 180);
+                if(tipoAngulo === 'def_der') {
+                    azActual = normalizarAzimut(azActual + angObs[i] + corrPorAng);
+                } else if(tipoAngulo === 'def_izq') {
+                    azActual = normalizarAzimut(azActual - angObs[i] + corrPorAng);
+                } else {
+                    azActual = normalizarAzimut(azActual + angObs[i] + corrPorAng);
+                }
+                azCompensados.push(azActual);
+                if (!tipoAngulo.startsWith('def')) {
+                    azActual = normalizarAzimut(azActual + 180);
+                }
             }
 
             let actE = eEstIni; let actN = nEstIni; let actZ = zEstIni;
@@ -929,38 +1065,52 @@
             for (let i = 0; i < dists.length; i++) {
                 let azRad = azCompensados[i] * Math.PI / 180.0;
                 let zenRad = zens[i] * Math.PI / 180.0;
-                let distHoriz = dists[i] * Math.sin(zenRad);
+                let distHoriz = distsHoriz[i];
                 let dE = distHoriz * Math.sin(azRad); let dN = distHoriz * Math.cos(azRad);
-                let dZ = (dists[i] * Math.cos(zenRad)) + ais[i] - aps[i];
+                let corrCR = 0.0675 * Math.pow(distHoriz / 1000.0, 2);
+                let dZ = (dists[i] * Math.cos(zenRad)) + ais[i] - aps[i] + corrCR;
 
                 proyE.push(dE); proyN.push(dN); dZs.push(dZ);
                 actE += dE; actN += dN; actZ += dZ;
             }
 
-            let errorE = actE - eEstFin; let errorN = actN - nEstFin; let errorZ = actZ - zEstFin;
-            let errorLineal = Math.sqrt(Math.pow(errorE,2) + Math.pow(errorN,2));
-            let precRel = perimetro / errorLineal;
+            let errorE = tieneCoordFin ? (actE - eEstFin) : 0;
+            let errorN = tieneCoordFin ? (actN - nEstFin) : 0;
+            let errorZ = tieneCotaFin ? (actZ - zEstFin) : 0;
+            let errorLineal = tieneCoordFin ? Math.sqrt(Math.pow(errorE,2) + Math.pow(errorN,2)) : 0;
+            let precRel = (tieneCoordFin && errorLineal > 0) ? (perimetroHoriz / errorLineal) : Infinity;
 
-            let azCierreTeorico = calcularAzimut(eEstIni, nEstIni, eEstFin, nEstFin);
-            let azError = calcularAzimut(0, 0, errorE, errorN);
-            let angErrorRel = (azError - azCierreTeorico) * Math.PI / 180.0;
-            let errLongitudinal = errorLineal * Math.cos(angErrorRel);
-            let errTransversal = errorLineal * Math.sin(angErrorRel);
+            let errLongitudinal = 0;
+            let errTransversal = 0;
+            if (tieneCoordFin) {
+                let azCierreTeorico = calcularAzimut(eEstIni, nEstIni, eEstFin, nEstFin);
+                let azError = calcularAzimut(0, 0, errorE, errorN);
+                let angErrorRel = (azError - azCierreTeorico) * Math.PI / 180.0;
+                errLongitudinal = errorLineal * Math.cos(angErrorRel);
+                errTransversal = errorLineal * Math.sin(angErrorRel);
+            }
 
             let coordE = [eEstIni]; let coordN = [nEstIni]; let coordZ = [zEstIni];
             let cE = eEstIni; let cN = nEstIni; let cZ = zEstIni;
             for(let i=0; i<dists.length; i++) {
-                let factor = dists[i] / perimetro;
-                cE += proyE[i] - (errorE * factor); cN += proyN[i] - (errorN * factor); cZ += dZs[i] - (errorZ * factor);
+                let factor = perimetroHoriz > 0 ? (distsHoriz[i] / perimetroHoriz) : 0;
+                cE += proyE[i] - (errorE * factor);
+                cN += proyN[i] - (errorN * factor);
+                cZ += dZs[i] - (errorZ * factor);
                 coordE.push(cE); coordN.push(cN); coordZ.push(cZ);
             }
 
-            document.getElementById('resErrAng').innerText = decimalAGMSString(errorAng);
-            document.getElementById('resErrLin').innerText = errorLineal.toFixed(decs) + " m";
-            document.getElementById('resErrLong').innerText = errLongitudinal.toFixed(decs) + " m";
-            document.getElementById('resErrTrans').innerText = errTransversal.toFixed(decs) + " m";
-            document.getElementById('resErrZ').innerText = errorZ.toFixed(decs) + " m";
-            document.getElementById('resPrecision').innerText = isNaN(precRel) || precRel===Infinity ? "PERFECTO" : "1 : " + Math.round(precRel).toLocaleString();
+            ultimoCalculoAbierta = {
+                nombres, angObs, azCompensados, dists, distsHoriz, zens, proyE, proyN, dZs,
+                coordE, coordN, coordZ, perimetroHoriz, errorAng, errorLineal, errorZ, tieneCoordFin
+            };
+
+            document.getElementById('resErrAng').innerText = tieneRefFin ? decimalAGMSString(errorAng) : "---";
+            document.getElementById('resErrLin').innerText = tieneCoordFin ? (errorLineal.toFixed(decs) + " m") : "LIBRE";
+            document.getElementById('resErrLong').innerText = tieneCoordFin ? (errLongitudinal.toFixed(decs) + " m") : "---";
+            document.getElementById('resErrTrans').innerText = tieneCoordFin ? (errTransversal.toFixed(decs) + " m") : "---";
+            document.getElementById('resErrZ').innerText = tieneCotaFin ? (errorZ.toFixed(decs) + " m") : "LIBRE";
+            document.getElementById('resPrecision').innerText = !tieneCoordFin ? "ABIERTA" : (isNaN(precRel) || precRel===Infinity ? "PERFECTO" : "1 : " + Math.round(precRel).toLocaleString());
 
             const tbodyRes = document.getElementById('cuerpoResultados'); tbodyRes.innerHTML = "";
             for(let i=0; i<coordE.length; i++) {
@@ -968,15 +1118,136 @@
             }
             document.getElementById('panelResultados').style.display = 'block';
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            showToast("Ajuste Vial Completado", "success");
+            showToast(tieneCoordFin ? "Ajuste Vial Encuadrado Completado" : "Poligonal Abierta Libre Calculada", "success");
         }
 
         function exportarCSV_PNEZD() {
             vibrar(); let rows = document.querySelectorAll('#cuerpoResultados tr'); if(rows.length === 0) return;
-            let csv = "Punto,Este,Norte,Elevacion,Descripcion\n";
-            rows.forEach(tr => { let tds = tr.querySelectorAll('td'); csv += `${tds[0].innerText},${tds[1].innerText},${tds[2].innerText},${tds[3].innerText},Estación_Ajustada_Vial\n`; });
+            let delim = globalConfig.delimitadorCSV || ",";
+            let csv = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
+            rows.forEach(tr => { let tds = tr.querySelectorAll('td'); csv += `${tds[0].innerText}${delim}${tds[1].innerText}${delim}${tds[2].innerText}${delim}${tds[3].innerText}${delim}Estacion_Vial_Abierta\n`; });
             let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-            let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Eje_Vial_Ajustado.csv"; link.click();
+            let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Eje_Vial_Abierto.csv"; link.click();
+            showToast("CSV PNEZD descargado", "success");
+        }
+
+        function exportarExcelMemoriaAbierta() {
+            vibrar();
+            if (!ultimoCalculoAbierta) return showToast("Procesa la poligonal primero", "warning");
+            let m = ultimoCalculoAbierta;
+            let p = obtenerProyectoActivo();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let wb = XLSX.utils.book_new();
+
+            let headStyle = { fill: { fgColor: { rgb: "FF1A1E23" } }, font: { bold: true, color: { rgb: "FFFFFFFF" } }, alignment: { horizontal: "center" } };
+            let subHeadStyle = { fill: { fgColor: { rgb: "FFFF5500" } }, font: { bold: true, color: { rgb: "FFFFFFFF" } }, alignment: { horizontal: "center" } };
+            let centerStyle = { alignment: { horizontal: "center" } };
+            let numStyle = { alignment: { horizontal: "center" }, numFmt: "0.000" };
+
+            let rows = [
+                [{ v: "MEMORIA DE CÁLCULO - POLIGONAL ABIERTA / VIAL", s: headStyle }],
+                ["Proyecto:", p ? p.nombre : "Eje Vial", "Operador:", globalConfig.operador || "COTA100", "Fecha:", new Date().toLocaleDateString('es-PE')],
+                ["Longitud Horiz. Total (m):", Number(m.perimetroHoriz.toFixed(decs)), "Modo:", m.tieneCoordFin ? "Encuadrada" : "Abierta Libre", "Error Lineal (m):", Number(m.errorLineal.toFixed(4))],
+                [],
+                [
+                    { v: "ESTACIÓN", s: subHeadStyle },
+                    { v: "TRAMO", s: subHeadStyle },
+                    { v: "ÁNG. OBS.", s: subHeadStyle },
+                    { v: "AZIMUT COMP.", s: subHeadStyle },
+                    { v: "DIST. INCL. (m)", s: subHeadStyle },
+                    { v: "DIST. HORIZ. (m)", s: subHeadStyle },
+                    { v: "ΔE PARCIAL", s: subHeadStyle },
+                    { v: "ΔN PARCIAL", s: subHeadStyle },
+                    { v: "ΔZ TRIG.", s: subHeadStyle },
+                    { v: "ESTE FINAL (X)", s: subHeadStyle },
+                    { v: "NORTE FINAL (Y)", s: subHeadStyle },
+                    { v: "COTA FINAL (Z)", s: subHeadStyle }
+                ]
+            ];
+
+            let nPts = m.nombres.length;
+            for (let i = 0; i < nPts; i++) {
+                let esUltima = (i === nPts - 1);
+                let tramoStr = esUltima ? "CIERRE" : `${m.nombres[i]} - ${m.nombres[i+1]}`;
+                rows.push([
+                    { v: m.nombres[i], s: centerStyle },
+                    { v: tramoStr, s: centerStyle },
+                    { v: decimalAGMSString(m.angObs[i]), s: centerStyle },
+                    { v: esUltima ? "-" : decimalAGMSString(m.azCompensados[i]), s: centerStyle },
+                    esUltima ? { v: "-", s: centerStyle } : { v: Number(m.dists[i].toFixed(decs)), t: 'n', s: numStyle },
+                    esUltima ? { v: "-", s: centerStyle } : { v: Number(m.distsHoriz[i].toFixed(decs)), t: 'n', s: numStyle },
+                    esUltima ? { v: "-", s: centerStyle } : { v: Number(m.proyE[i].toFixed(decs)), t: 'n', s: numStyle },
+                    esUltima ? { v: "-", s: centerStyle } : { v: Number(m.proyN[i].toFixed(decs)), t: 'n', s: numStyle },
+                    esUltima ? { v: "-", s: centerStyle } : { v: Number(m.dZs[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.coordE[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.coordN[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.coordZ[i].toFixed(decs)), t: 'n', s: numStyle }
+                ]);
+            }
+
+            let ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }];
+            ws['!cols'] = [{wch:12},{wch:14},{wch:14},{wch:15},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12},{wch:15},{wch:15},{wch:14}];
+            XLSX.utils.book_append_sheet(wb, ws, "Poligonal_Abierta");
+            XLSX.writeFile(wb, `Memoria_Abierta_${p ? p.nombre.replace(/\s+/g,'_') : 'Vial'}.xlsx`);
+            showToast("Excel de Poligonal Abierta descargado", "success");
+        }
+
+        function exportarSCR_Abierta() {
+            vibrar();
+            if (!ultimoCalculoAbierta) return showToast("Procesa la poligonal primero", "warning");
+            let m = ultimoCalculoAbierta;
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let nPts = m.coordE.length;
+
+            let minE = Math.min(...m.coordE), maxE = Math.max(...m.coordE);
+            let minN = Math.min(...m.coordN), maxN = Math.max(...m.coordN);
+            let span = Math.max(maxE - minE, maxN - minN) || 50;
+            let hTxt = Number((span * 0.018).toFixed(2));
+            if (hTxt < 0.8) hTxt = 0.8;
+
+            let scr = `_PLINE\n`;
+            for (let i = 0; i < nPts; i++) {
+                scr += `${m.coordE[i].toFixed(decs)},${m.coordN[i].toFixed(decs)}\n`;
+            }
+            scr += `\n`;
+
+            for (let i = 0; i < nPts; i++) {
+                let e1 = m.coordE[i], n1 = m.coordN[i];
+                scr += `_CIRCLE ${e1.toFixed(decs)},${n1.toFixed(decs)} ${(hTxt * 0.45).toFixed(2)}\n`;
+                scr += `_TEXT ${(e1 + hTxt*0.6).toFixed(decs)},${(n1 + hTxt*0.6).toFixed(decs)} ${hTxt} 0 ${m.nombres[i]} (Z=${m.coordZ[i].toFixed(2)})\n`;
+
+                if (i < nPts - 1) {
+                    let e2 = m.coordE[i+1], n2 = m.coordN[i+1];
+                    let midE = (e1 + e2) / 2.0, midN = (n1 + n2) / 2.0;
+                    let distReal = Math.sqrt(Math.pow(e2 - e1, 2) + Math.pow(n2 - n1, 2));
+                    let angCad = Math.atan2(n2 - n1, e2 - e1) * 180.0 / Math.PI;
+                    if (angCad > 90) angCad -= 180;
+                    if (angCad < -90) angCad += 180;
+                    scr += `_TEXT ${midE.toFixed(decs)},${midN.toFixed(decs)} ${(hTxt * 0.85).toFixed(2)} ${angCad.toFixed(1)} ${distReal.toFixed(2)}m\n`;
+                }
+            }
+
+            let tableX = maxE + span * 0.18;
+            let tableY = maxN;
+            let rowH = hTxt * 2.2;
+            scr += `_TEXT ${tableX.toFixed(2)},${(tableY + rowH).toFixed(2)} ${(hTxt * 1.1).toFixed(2)} 0 CUADRO DE POLIGONAL ABIERTA (LONGITUD: ${m.perimetroHoriz.toFixed(2)} m)\n`;
+            scr += `_TEXT ${tableX.toFixed(2)},${tableY.toFixed(2)} ${(hTxt * 0.85).toFixed(2)} 0 ESTACION     ESTE(X)          NORTE(Y)         COTA(Z)\n`;
+
+            for (let i = 0; i < nPts; i++) {
+                let yFila = tableY - ((i + 1) * rowH);
+                let lineaTxt = `${m.nombres[i].padEnd(12)} ${m.coordE[i].toFixed(decs).padEnd(16)} ${m.coordN[i].toFixed(decs).padEnd(16)} ${m.coordZ[i].toFixed(decs)}`;
+                scr += `_TEXT ${tableX.toFixed(2)},${yFila.toFixed(2)} ${(hTxt * 0.8).toFixed(2)} 0 ${lineaTxt}\n`;
+            }
+
+            scr += `_ZOOM _E\n`;
+            let p = obtenerProyectoActivo();
+            let blob = new Blob([scr], { type: 'text/plain;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Eje_Abierta_${p ? p.nombre.replace(/\s+/g,'_') : 'Vial'}.scr`;
+            link.click();
+            showToast("Script AutoCAD (.scr) descargado", "success");
         }
         
         function exportarBackup() {

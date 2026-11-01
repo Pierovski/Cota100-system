@@ -129,9 +129,7 @@
         .btn-limpiar { background-color: transparent; color: var(--error-color); border: 2px solid var(--error-color); }
         .btn-map { background-color: rgba(46,125,50,0.1); color: var(--success-color); border: 1px solid var(--success-color); }
 
-        .drop-zone { border: 2px dashed var(--primary-color); border-radius: 12px; padding: 35px 20px; text-align: center; background-color: rgba(255,85,0,0.02); margin-bottom: 15px; color: var(--primary-color); font-weight: 800; text-transform: uppercase; cursor: pointer;}
-        .alerta-critica { background-color: rgba(211, 47, 47, 0.05); border-left: 5px solid var(--error-color); padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
-        .alerta-critica h4 { color: var(--error-color); margin-bottom: 6px; font-size: 0.95rem; text-transform: uppercase; font-weight: 900;}
+        .drop-zone { border: 2px dashed var(--primary-color); border-radius: 12px; padding: 30px 20px; text-align: center; background-color: rgba(255,85,0,0.02); margin-bottom: 15px; color: var(--primary-color); font-weight: 800; text-transform: uppercase; cursor: pointer;}
 
         /* MODALES Y TOAST */
         .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
@@ -227,7 +225,7 @@
 
             <a href="#" onclick="cambiarPantalla('calc-geoidal', 'COTAS Y GEOIDAL'); return false;" class="tech-list-card card-animar">
                 <div class="icon-box"><svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
-                <div class="text-box"><h3>Cotas y Geoidal</h3><p>Corrección GPS con modelo EGM2008 / EGM96 local.</p></div>
+                <div class="text-box"><h3>Cotas y Geoidal</h3><p>Corrección GPS individual y masiva con modelo EGM Perú.</p></div>
             </a>
         </div>
     </div>
@@ -414,39 +412,55 @@
                 </div>
             </div>
 
-            <!-- PTL -->
+            <!-- PTL (SIN CARTEL ROJO ESTORBOSO ARRIBA) -->
             <div id="tab-ptl" class="tab-content">
-                <div class="alerta-critica">
-                    <h4>⚠️ Ojo: Evita la Doble Corrección</h4>
-                    <p>Al generar tus coordenadas PTL (Topográficas) aquí, el software ya asume el estiramiento de la cuadrícula. Por lo tanto, <strong>la configuración de PPM/Escala en tu Estación Total debe quedar ESTRICTAMENTE en 1.000000.</strong></p>
-                </div>
                 <div class="seccion-modulo">
-                    <div class="seccion-titulo" style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">1. PUNTO BASE (Origen)</div>
+                    <div class="seccion-titulo" style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">1. PUNTO BASE (Origen Fijo PTL = UTM)</div>
                     <div class="form-grid">
                         <div class="input-group full-width">
                             <label>
-                                ELEVACIÓN (Cota m.s.n.m)
-                                <span class="info-icon" onclick="showCustomAlert('Ingresa la cota ortométrica promedio de tu área de trabajo para que el sistema calcule el Factor de Elevación de la Tierra.', 'ELEVACIÓN PROMEDIO')">ℹ️</span>
+                                Dirección de Proyección
+                                <span class="info-icon" onclick="showCustomAlert('<strong>UTM ➔ PTL (1:1):</strong> Convierte coordenadas GPS/UTM a terreno real 1:1 para diseño o Estación Total.<br><strong>PTL (1:1) ➔ UTM:</strong> Devuelve coordenadas de un plano PTL a UTM oficial para replantear con GPS RTK.', 'DIRECCIÓN PTL')">ℹ️</span>
                             </label>
-                            <input type="number" id="cotaBase" step="0.001" placeholder="Ej: 2850.000">
+                            <div class="custom-select" onclick="abrirModalSelect('dirPtl')"><span id="txt_dirPtl">UTM ➔ PTL (Terreno 1:1)</span><span class="arrow">▼</span></div>
+                            <input type="hidden" id="dirPtl" value="utm_to_ptl">
                         </div>
-                        <div class="input-group"><label>ESTE BASE (X)</label><input type="number" id="esteBase" step="0.001" placeholder="Ej: 715000"></div>
-                        <div class="input-group"><label>NORTE BASE (Y)</label><input type="number" id="norteBase" step="0.001" placeholder="Ej: 9105000"></div>
+                        <div class="input-group full-width">
+                            <label>
+                                ELEVACIÓN BASE (Cota m.s.n.m)
+                                <span class="info-icon" onclick="showCustomAlert('Ingresa la cota ortométrica o elipsoidal promedio de tu proyecto para calcular el Factor de Elevación con el Radio Medio de Gauss exacto a tu latitud.', 'ELEVACIÓN PROMEDIO')">ℹ️</span>
+                            </label>
+                            <input type="number" id="cotaBase" step="0.001" placeholder="Ej: 2850.000" oninput="guardarEstadoPtl()">
+                        </div>
+                        <div class="input-group"><label>ESTE BASE (X₀)</label><input type="number" id="esteBase" step="0.001" placeholder="Ej: 715000" oninput="guardarEstadoPtl()"></div>
+                        <div class="input-group"><label>NORTE BASE (Y₀)</label><input type="number" id="norteBase" step="0.001" placeholder="Ej: 9105000" oninput="guardarEstadoPtl()"></div>
                     </div>
                 </div>
                 <div class="seccion-modulo">
-                    <div class="seccion-titulo" style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">2. PUNTO A PROYECTAR</div>
+                    <div class="seccion-titulo" style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">2. PUNTO INDIVIDUAL A PROYECTAR</div>
                     <div class="form-grid">
-                        <div class="input-group"><label>ESTE UTM (X)</label><input type="number" id="estePunto" step="0.001" placeholder="Ej: 715100"></div>
-                        <div class="input-group"><label>NORTE UTM (Y)</label><input type="number" id="nortePunto" step="0.001" placeholder="Ej: 9105200"></div>
+                        <div class="input-group"><label id="lblEstePtlIn">ESTE UTM (X)</label><input type="number" id="estePunto" step="0.001" placeholder="Ej: 715100"></div>
+                        <div class="input-group"><label id="lblNortePtlIn">NORTE UTM (Y)</label><input type="number" id="nortePunto" step="0.001" placeholder="Ej: 9105200"></div>
                     </div>
-                    <button class="btn-calc" onclick="ejecutarPtl()">Generar PTL (1:1)</button>
+                    <button class="btn-calc" onclick="ejecutarPtl()">Calcular Proyección PTL</button>
                 </div>
-                <div class="result-grid" id="cajaResultadoPtl">
-                    <div class="result-box-inner"><div class="result-label">ESTE TOPO</div><div class="result-value" id="resEsteTopo">0.000</div></div>
-                    <div class="result-box-inner"><div class="result-label">NORTE TOPO</div><div class="result-value" id="resNorteTopo">0.000</div></div>
-                    <div class="result-box-wide" style="padding: 10px;">Factor CSF Matemático: <strong id="resFactorCombinadoVal">1.00000000</strong></div>
-                    <button class="btn-action btn-copiar" style="grid-column: 1 / -1;" onclick="copiarTxt('resEsteTopo', 'resNorteTopo')">📋 Copiar Coordenadas PTL</button>
+                <div class="result-grid" id="cajaResultadoPtl" style="margin-bottom: 15px;">
+                    <div class="result-box-inner"><div class="result-label" id="lblEstePtlOut">ESTE TOPO (PTL)</div><div class="result-value" id="resEsteTopo">0.000</div></div>
+                    <div class="result-box-inner"><div class="result-label" id="lblNortePtlOut">NORTE TOPO (PTL)</div><div class="result-value" id="resNorteTopo">0.000</div></div>
+                    <div class="result-box-wide" style="padding: 12px; line-height: 1.5;">
+                        <div>Factor Combinado (CSF): <strong id="resFactorCombinadoVal" style="color:var(--primary-color);">1.00000000</strong></div>
+                        <div style="font-size:0.8rem; opacity:0.85;">F. Escala (K): <span id="resPtlK">--</span> | F. Elevación: <span id="resPtlFe">--</span></div>
+                    </div>
+                    <button class="btn-action btn-copiar" onclick="copiarTxt('resEsteTopo', 'resNorteTopo')">📋 Copiar Coord.</button>
+                    <button class="btn-action btn-map" onclick="copiarSustentoPTL()">📄 Sustento PTL</button>
+                </div>
+                <div class="seccion-modulo">
+                    <div class="seccion-titulo" style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">3. TRANSFORMACIÓN MASIVA CSV (PNEZD)</div>
+                    <div class="drop-zone" id="dropZonePtl" onclick="document.getElementById('fileInputPtl').click()">
+                        <p>📂 CARGAR CSV / TXT PARA CONVERTIR LOTE PTL ⇄ UTM</p>
+                        <input type="file" id="fileInputPtl" accept=".csv, .txt" style="display: none;" onchange="actualizarNombreFile(this, 'dropZonePtl')">
+                    </div>
+                    <button class="btn-calc" onclick="procesarArchivoPtl()">Transformar CSV y Descargar</button>
                 </div>
             </div>
         </div>
@@ -577,31 +591,67 @@
                     <div class="input-group"><label>LONGITUD</label><input type="number" id="lonGeoidal" step="0.000001" placeholder="Ej: -79.022333"></div>
                 </div>
                 <div class="form-grid" style="margin-top: 10px;">
-                    <div class="input-group full-width">
+                    <div class="input-group">
                         <label>
-                            COTA ELIPSOIDAL (h) - Opcional
-                            <span class="info-icon" onclick="showCustomAlert('Si ingresas la altura pura (elipsoidal) que te marca el GPS RTK, el sistema la corregirá automáticamente utilizando la ondulación de la malla para darte la Cota Ortométrica real sobre el Nivel del Mar.', 'ALTURA ELIPSOIDAL')">ℹ️</span>
+                            COTA ELIPSOIDAL (h)
+                            <span class="info-icon" onclick="showCustomAlert('Altura pura (elipsoidal) medida con el GPS RTK para obtener la Cota Ortométrica (H = h - N).', 'ALTURA ELIPSOIDAL')">ℹ️</span>
                         </label>
-                        <input type="number" id="cotaElipsoidal" step="0.001" placeholder="Altura cruda GPS (Ej: 150.320)">
+                        <input type="number" id="cotaElipsoidal" step="0.001" placeholder="Ej: 150.320">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            AJUSTE LOCAL ΔN (m)
+                            <span class="info-icon" onclick="showCustomAlert('<strong>Opcional:</strong> La malla regional offline interpola cada 2°. Si tienes un BM IGN o dato exacto de EGM08-PE.GGF en tu colectora, ingresa aquí el ajuste fino ΔN (o la diferencia local) para calibrar al milímetro.', 'CALIBRACIÓN LOCAL ΔN')">ℹ️</span>
+                        </label>
+                        <input type="number" id="ajusteDeltaN" step="0.001" placeholder="Opcional (Ej: +0.420)">
                     </div>
                 </div>
                 <button class="btn-calc" onclick="ejecutarGeoidalOffline()">Calcular Cota Real</button>
             </div>
 
-            <div class="result-grid" id="cajaResGeoidal">
+            <div class="result-grid" id="cajaResGeoidal" style="margin-bottom: 15px;">
                 <div class="result-box-wide" style="background-color: rgba(255,85,0,0.05); border: 2px solid var(--primary-color);">
-                    <div class="result-label" style="color: var(--primary-color);">ONDULACIÓN (N) MODELO PERÚ</div>
+                    <div class="result-label" id="lblModoGeoidal" style="color: var(--primary-color);">ONDULACIÓN (N) MODELO PERÚ</div>
                     <div class="result-value-wide" id="resN" style="color: var(--text-color); font-size: 2rem;">0.000 m</div>
                 </div>
                 <div class="result-box-inner"><div class="result-label">COTA GPS (h)</div><div class="result-value" id="res_h" style="font-size: 1.3rem; color: #555;">--</div></div>
                 <div class="result-box-inner" style="border-color: var(--success-color); background-color: rgba(46,125,50,0.05);"><div class="result-label" style="color: var(--success-color);">COTA ORTOMÉTRICA (H)</div><div class="result-value" id="res_H" style="font-size: 1.4rem; color: var(--success-color);">--</div></div>
                 <button class="btn-action btn-copiar" style="grid-column: 1 / -1;" onclick="copiarSimple('res_H')">📋 Copiar Cota Ortométrica</button>
             </div>
+
+            <div class="seccion-modulo">
+                <div style="font-weight: 800; color: var(--primary-color); margin-bottom: 10px; text-transform: uppercase;">📂 Conversión Masiva CSV (h Elipsoidal ➔ H Ortométrica)</div>
+                <div class="drop-zone" id="dropZoneGeoCSV" onclick="document.getElementById('fileInputGeoCSV').click()">
+                    <p>📂 CARGAR CSV / TXT PNEZD CON COTAS ELIPSOIDALES</p>
+                    <input type="file" id="fileInputGeoCSV" accept=".csv, .txt" style="display: none;" onchange="actualizarNombreFile(this, 'dropZoneGeoCSV')">
+                </div>
+                <button class="btn-calc" style="margin-bottom:0;" onclick="procesarArchivoGeoidalCSV()">Convertir Cotas (H = h - N) y Descargar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let globalConfig = { darkMode: false, decimales: "3", delimitadorCSV: "," };
+        let globalConfig = { darkMode: false, decimales: "3", delimitadorCSV: ",", vibracion: true, sonido: false };
+        let audioCtxCoord = null;
+        let ultimoSustentoPTL = "";
+
+        function feedbackUI() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) {
+                try { navigator.vibrate(25); } catch(e) {}
+            }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxCoord) audioCtxCoord = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxCoord.state === 'suspended') audioCtxCoord.resume();
+                    let osc = audioCtxCoord.createOscillator();
+                    let gain = audioCtxCoord.createGain();
+                    osc.connect(gain); gain.connect(audioCtxCoord.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxCoord.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxCoord.currentTime);
+                    osc.start(); osc.stop(audioCtxCoord.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
 
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
@@ -615,7 +665,6 @@
             }, 3000);
         }
 
-        // --- ALERTAS DINÁMICAS ---
         function showCustomAlert(message, title = "INFORMACIÓN") {
             let titleEl = document.getElementById('customAlertTitle');
             if(titleEl) titleEl.innerHTML = `ℹ️ ${title}`;
@@ -638,9 +687,9 @@
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
                     Este es el gestor principal de Coordenadas. Selecciona el submódulo que necesitas:<br><br>
                     <strong style="color:var(--primary-color);">Datum y KML:</strong> Convierte coordenadas entre PSAD56 y WGS84, y exporta tu data directo a Google Earth.<br><br>
-                    <strong style="color:var(--primary-color);">Proyecciones:</strong> Pasa de UTM a Latitud/Longitud y genera Planos Topográficos Locales (Escala 1:1).<br><br>
+                    <strong style="color:var(--primary-color);">Proyecciones:</strong> Pasa de UTM a Latitud/Longitud y genera Planos Topográficos Locales (Escala 1:1) con sustento geodésico riguroso.<br><br>
                     <strong style="color:var(--primary-color);">Gestor CSV:</strong> Limpia archivos sucios, ajusta elevaciones y filtra puntos de un levantamiento grande.<br><br>
-                    <strong style="color:var(--primary-color);">Cotas y Geoidal:</strong> Obtén la cota ortométrica real desde tu GPS usando el modelo EGM oficial para Perú.
+                    <strong style="color:var(--primary-color);">Cotas y Geoidal:</strong> Obtén la cota ortométrica real desde tu GPS (individual o por archivo CSV masivo) usando el modelo EGM oficial para Perú.
                 </div>
             `;
             showCustomAlert(html, "MÓDULOS DE COORDENADAS");
@@ -661,10 +710,10 @@
         function mostrarLeyendaPTL() {
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
-                    <strong style="color:var(--primary-color); text-transform:uppercase;">UTM a Geográficas</strong><br>
-                    Convierte puntos de planos CAD (X,Y) a Latitud y Longitud para ingresarlos a un GPS de mano (Garmin) o visualizarlos en mapas online.<br><br>
+                    <strong style="color:var(--danger-color); text-transform:uppercase;">⚠️ Evita la Doble Corrección:</strong><br>
+                    Al proyectar coordenadas a PTL (1:1) aquí, la cuadrícula ya incluye el estiramiento. Por lo tanto, la Escala en tu Estación Total debe quedar estrictamente en <strong>1.000000</strong>.<br><br>
                     <strong style="color:var(--primary-color); text-transform:uppercase;">Plano Topo. Local (PTL)</strong><br>
-                    La Tierra es curva, pero AutoCAD es plano. Para que la distancia física medida con tu Estación Total cuadre al milímetro con el plano impreso (Escala 1:1), debes proyectar las coordenadas UTM a Topográficas usando el Factor Combinado desde un BM Base.
+                    Calcula el Radio Medio de Gauss a la latitud real de tu obra, el Factor de Elevación y el Factor Combinado (CSF). Usa el botón <strong>📄 Sustento PTL</strong> para copiar la memoria de cálculo lista para tu informe de supervisión.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: PROYECCIONES");
@@ -687,8 +736,8 @@
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
                     <strong style="color:var(--primary-color); text-transform:uppercase;">¿Por qué transformar la cota?</strong><br>
-                    El GPS RTK entrega una altura <strong>Elipsoidal</strong> que es matemática y no respeta la física de gravedad de la tierra (El agua no fluye respetando esa cota).<br><br>
-                    Al calcular la ondulación geoidal (N) y restársela a tu medida de GPS, obtienes la cota <strong>Ortométrica</strong> (Nivel Medio del Mar) verdadera, que es la legalmente exigida en obras de saneamiento, canales y presas.
+                    El GPS RTK entrega una altura <strong>Elipsoidal (h)</strong> que es puramente geométrica y no respeta la gravedad terrestre.<br><br>
+                    Al calcular la ondulación geoidal (N) y restársela a tu medida GPS (H = h - N), obtienes la cota <strong>Ortométrica</strong> (m.s.n.m.). Usa la casilla <strong>Ajuste Local ΔN</strong> para calibrar la malla regional contra un BM oficial o procesa un CSV entero en la sección inferior.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: COTAS Y GEOIDAL");
@@ -764,6 +813,17 @@
             localStorage.setItem("cota100_zona", zona);
         }
 
+        function guardarEstadoPtl() {
+            let st = {
+                dir: document.getElementById('dirPtl').value,
+                dirTxt: document.getElementById('txt_dirPtl').innerText,
+                cotaB: document.getElementById('cotaBase').value,
+                esteB: document.getElementById('esteBase').value,
+                norteB: document.getElementById('norteBase').value
+            };
+            localStorage.setItem('cota100_estado_ptl', JSON.stringify(st));
+        }
+
         /* --- UI: MODAL SELECTOR --- */
         let tipoModalActual = "";
         function abrirModalSelect(tipo) {
@@ -777,6 +837,7 @@
             else if(tipo === 'dirUtmGeo') { titulo.innerText = "🔄 DIRECCIÓN"; opciones = [{val:'u2g', txt:'UTM ➔ Lat/Lon'}, {val:'g2u', txt:'Lat/Lon ➔ UTM'}]; } 
             else if(tipo.startsWith('hemi')) { titulo.innerText = "🌐 HEMISFERIO"; opciones = [{val:'S', txt:'Sur (-)'}, {val:'N', txt:'Norte (+)'}]; } 
             else if(tipo === 'tipoIngresoGeoidal') { titulo.innerText = "📍 INGRESO POR"; opciones = [{val:'utm', txt:'Coordenadas UTM'}, {val:'latlon', txt:'Latitud y Longitud'}]; }
+            else if(tipo === 'dirPtl') { titulo.innerText = "🔄 DIRECCIÓN PTL"; opciones = [{val:'utm_to_ptl', txt:'UTM ➔ PTL (Terreno 1:1)'}, {val:'ptl_to_utm', txt:'PTL (Terreno 1:1) ➔ UTM'}]; }
 
             opciones.forEach(opt => { let isActivo = opt.val === actual; contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${opt.val}', '${opt.txt}')"><span>${opt.txt}</span></button>`; });
             document.getElementById('overlaySelect').style.display = 'block'; setTimeout(() => { document.getElementById('overlaySelect').classList.add('activo'); document.getElementById('modalSelect').classList.add('abierto'); }, 10);
@@ -790,6 +851,21 @@
             if(tipoModalActual === 'tipoParametros') { document.getElementById('cajaParametros').style.display = valor === 'local' ? 'grid' : 'none'; }
             if(tipoModalActual === 'dirUtmGeo') { document.getElementById('input-u2g').style.display = valor === 'u2g' ? 'block' : 'none'; document.getElementById('input-g2u').style.display = valor === 'g2u' ? 'block' : 'none'; document.getElementById('cajaResGeoU2G').style.display = 'none'; document.getElementById('cajaResGeoG2U').style.display = 'none'; }
             if(tipoModalActual === 'tipoIngresoGeoidal') { document.getElementById('geo-latlon').style.display = valor === 'latlon' ? 'grid' : 'none'; document.getElementById('geo-utm').style.display = valor === 'utm' ? 'grid' : 'none'; document.getElementById('geo-utm-params').style.display = valor === 'utm' ? 'grid' : 'none'; }
+            if(tipoModalActual === 'dirPtl') {
+                if (valor === 'utm_to_ptl') {
+                    document.getElementById('lblEstePtlIn').innerText = 'ESTE UTM (X)';
+                    document.getElementById('lblNortePtlIn').innerText = 'NORTE UTM (Y)';
+                    document.getElementById('lblEstePtlOut').innerText = 'ESTE TOPO (PTL)';
+                    document.getElementById('lblNortePtlOut').innerText = 'NORTE TOPO (PTL)';
+                } else {
+                    document.getElementById('lblEstePtlIn').innerText = 'ESTE TOPO (PTL)';
+                    document.getElementById('lblNortePtlIn').innerText = 'NORTE TOPO (PTL)';
+                    document.getElementById('lblEstePtlOut').innerText = 'ESTE UTM (OFICIAL)';
+                    document.getElementById('lblNortePtlOut').innerText = 'NORTE UTM (OFICIAL)';
+                }
+                document.getElementById('cajaResultadoPtl').style.display = 'none';
+                guardarEstadoPtl();
+            }
             if(tipoModalActual === 'zonaUtm' || tipoModalActual === 'zonaUtmGeo' || tipoModalActual === 'zonaGeoidal') {
                 document.getElementById('zonaUtm').value = valor; document.getElementById('txt_zonaUtm').innerText = valor + " Sur";
                 document.getElementById('zonaUtmGeo').value = valor; document.getElementById('txt_zonaUtmGeo').innerText = valor;
@@ -828,11 +904,40 @@
             document.getElementById('zonaGeoidal').value = zG; document.getElementById('txt_zonaGeoidal').innerText = zG;
             actualizarAyudaZona(zG);
             actualizarInterfaz();
+
+            try {
+                let stPtl = JSON.parse(localStorage.getItem('cota100_estado_ptl'));
+                if (stPtl) {
+                    if (stPtl.dir) {
+                        document.getElementById('dirPtl').value = stPtl.dir;
+                        document.getElementById('txt_dirPtl').innerText = stPtl.dirTxt || 'UTM ➔ PTL (Terreno 1:1)';
+                        if (stPtl.dir === 'ptl_to_utm') {
+                            document.getElementById('lblEstePtlIn').innerText = 'ESTE TOPO (PTL)';
+                            document.getElementById('lblNortePtlIn').innerText = 'NORTE TOPO (PTL)';
+                            document.getElementById('lblEstePtlOut').innerText = 'ESTE UTM (OFICIAL)';
+                            document.getElementById('lblNortePtlOut').innerText = 'NORTE UTM (OFICIAL)';
+                        }
+                    }
+                    document.getElementById('cotaBase').value = stPtl.cotaB || '';
+                    document.getElementById('esteBase').value = stPtl.esteB || '';
+                    document.getElementById('norteBase').value = stPtl.norteB || '';
+                }
+            } catch(e) {}
         };
 
         // --- CORE MATEMÁTICO ---
         const PI = Math.PI; const PSAD56 = { a: 6378388.0, f: 1/297.0 }; const WGS84 = { a: 6378137.0, f: 1/298.257223563 };
-        function formatDMS(deg) { let d = Math.abs(deg); let dInt = Math.floor(d); let mFloat = (d - dInt) * 60; let mInt = Math.floor(mFloat); let sFloat = (mFloat - mInt) * 60; let sign = deg < 0 ? "-" : ""; return `${sign}${dInt}° ${mInt}' ${sFloat.toFixed(2)}"`; }
+        function formatDMS(deg) {
+            let d = Math.abs(deg);
+            let dInt = Math.floor(d);
+            let mFloat = (d - dInt) * 60;
+            let mInt = Math.floor(mFloat);
+            let sFloat = (mFloat - mInt) * 60;
+            if (sFloat >= 59.995) { sFloat = 0; mInt++; }
+            if (mInt >= 60) { mInt = 0; dInt++; }
+            let sign = deg < 0 ? "-" : "";
+            return `${sign}${dInt}° ${mInt.toString().padStart(2,'0')}' ${sFloat.toFixed(2).padStart(5,'0')}"`;
+        }
         function molodenskyTransform(lat, lon, fromEllip, toEllip, deltaX, deltaY, deltaZ) { let latRad = lat * PI / 180.0; let lonRad = lon * PI / 180.0; let a = fromEllip.a; let f = fromEllip.f; let da = toEllip.a - fromEllip.a; let df = toEllip.f - fromEllip.f; let e2 = 2*f - f*f; let sinLat = Math.sin(latRad); let cosLat = Math.cos(latRad); let sinLon = Math.sin(lonRad); let cosLon = Math.cos(lonRad); let rm = a * (1 - e2) / Math.pow(1 - e2 * sinLat * sinLat, 1.5); let rn = a / Math.sqrt(1 - e2 * sinLat * sinLat); let dLat = (-deltaX * sinLat * cosLon - deltaY * sinLat * sinLon + deltaZ * cosLat + (a * df + f * da) * Math.sin(2 * latRad)) / rm; let dLon = (-deltaX * sinLon + deltaY * cosLon) / (rn * cosLat); return { lat: lat + (dLat * 180.0 / PI), lon: lon + (dLon * 180.0 / PI) }; }
         function utmToLatLon(x, y, zone, isSouth, a, f) { let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2); if (isSouth) y = y - 10000000.0; let lonOrigin = (zone - 1) * 6 - 180 + 3; x = x - 500000.0; let m = y / 0.9996; let mu = m / (a * (1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256)); let e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2)); let phi1Rad = mu + (3*e1/2 - 27*Math.pow(e1,3)/32)*Math.sin(2*mu) + (21*e1*e1/16 - 55*Math.pow(e1,4)/32)*Math.sin(4*mu) + (151*Math.pow(e1,3)/96)*Math.sin(6*mu); let n1 = a / Math.sqrt(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad)); let t1 = Math.tan(phi1Rad) * Math.tan(phi1Rad); let c1 = ep2 * Math.cos(phi1Rad) * Math.cos(phi1Rad); let r1 = a * (1 - e2) / Math.pow(1 - e2 * Math.sin(phi1Rad)*Math.sin(phi1Rad), 1.5); let d = x / (n1 * 0.9996); let latRad = phi1Rad - (n1 * Math.tan(phi1Rad) / r1) * (d*d/2 - (5 + 3*t1 + 10*c1 - 4*c1*c1 - 9*ep2)*Math.pow(d,4)/24 + (61 + 90*t1 + 298*c1 + 45*t1*t1 - 252*ep2 - 3*c1*c1)*Math.pow(d,6)/720); let lonRad = (d - (1 + 2*t1 + c1)*Math.pow(d,3)/6 + (5 - 2*c1 + 28*t1 - 3*c1*c1 + 8*ep2 + 24*t1*t1)*Math.pow(d,5)/120) / Math.cos(phi1Rad); return { lat: latRad * 180.0 / PI, lon: lonOrigin + (lonRad * 180.0 / PI) }; }
         function latLonToUtm(lat, lon, zone, a, f) { let latRad = lat * PI / 180.0; let lonRad = lon * PI / 180.0; let lonOrigin = (zone - 1) * 6 - 180 + 3; let lonOriginRad = lonOrigin * PI / 180.0; let e2 = 2*f - f*f; let ep2 = e2 / (1 - e2); let n = a / Math.sqrt(1 - e2 * Math.sin(latRad)*Math.sin(latRad)); let t = Math.tan(latRad) * Math.tan(latRad); let c = ep2 * Math.cos(latRad) * Math.cos(latRad); let A = Math.cos(latRad) * (lonRad - lonOriginRad); let m = a * ((1 - e2/4 - 3*e2*e2/64 - 5*Math.pow(e2,3)/256)*latRad - (3*e2/8 + 3*e2*e2/32 + 45*Math.pow(e2,3)/1024)*Math.sin(2*latRad) + (15*e2*e2/256 + 45*Math.pow(e2,3)/1024)*Math.sin(4*latRad) - (35*Math.pow(e2,3)/3072)*Math.sin(6*latRad)); let x = 0.9996 * n * (A + (1 - t + c)*Math.pow(A,3)/6 + (5 - 18*t + t*t + 72*c - 58*ep2)*Math.pow(A,5)/120); let k = 0.9996 * (1 + (A*A/2)*(1+c) + (Math.pow(A,4)/24)*(5 - 4*t + 42*c + 13*c*c - 28*ep2)); let gammaRad = Math.sin(latRad) * (lonRad - lonOriginRad); let gammaDeg = gammaRad * 180.0 / PI; x = x + 500000.0; let y = 0.9996 * (m + n * Math.tan(latRad) * (A*A/2 + (5 - t + 9*c + 4*c*c)*Math.pow(A,4)/24 + (61 - 58*t + t*t + 600*c - 330*ep2)*Math.pow(A,6)/720)); if (lat < 0) y = y + 10000000.0; return { este: x, norte: y, k: k, gamma: gammaDeg }; }
@@ -923,7 +1028,7 @@
             }; reader.readAsText(file);
         }
 
-        // --- SUBMÓDULO 2: PROYECCIONES ---
+        // --- SUBMÓDULO 2: PROYECCIONES Y PTL GEODÉSICO RIGUROSO ---
         function ejecutarUtmGeo() {
             let decs = parseInt(globalConfig.decimales) || 3;
             let dir = document.getElementById('dirUtmGeo').value; let zona = parseInt(document.getElementById('zonaUtmGeo').value); let hemi = document.getElementById('hemiGeo').value === 'S';
@@ -939,7 +1044,7 @@
                 if(isNaN(lat) || isNaN(lon)) { showToast("Ingresa Latitud y Longitud.", "warning"); return; }
                 let utm = latLonToUtm(lat, lon, zona, WGS84.a, WGS84.f);
                 document.getElementById('resEsteGeoOut').innerText = utm.este.toFixed(decs); document.getElementById('resNorteGeoOut').innerText = utm.norte.toFixed(decs);
-                document.getElementById('resK').innerText = utm.k.toFixed(6); document.getElementById('resConv').innerText = formatDMS(utm.gamma);
+                document.getElementById('resK').innerText = utm.k.toFixed(7); document.getElementById('resConv').innerText = formatDMS(utm.gamma);
                 document.getElementById('cajaResGeoG2U').style.display = 'grid';
                 showToast("UTM calculadas", "success");
             }
@@ -949,18 +1054,155 @@
             let lon = document.getElementById('resLonDec').innerText; 
             window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank'); 
         }
+
+        function calcularParametrosPTL_Base(esteBase, norteBase, cotaBase) {
+            let zona = parseInt(document.getElementById('zonaUtmGeo').value) || 17;
+            let isSouth = (document.getElementById('hemiGeo').value === 'S');
+            let geoBase = utmToLatLon(esteBase, norteBase, zona, isSouth, WGS84.a, WGS84.f);
+            let utmCheck = latLonToUtm(geoBase.lat, geoBase.lon, zona, WGS84.a, WGS84.f);
+
+            let latRad = geoBase.lat * PI / 180.0;
+            let e2 = 2 * WGS84.f - WGS84.f * WGS84.f;
+            let sinLat2 = Math.pow(Math.sin(latRad), 2);
+            let M = WGS84.a * (1 - e2) / Math.pow(1 - e2 * sinLat2, 1.5);
+            let N = WGS84.a / Math.sqrt(1 - e2 * sinLat2);
+            let Rm = Math.sqrt(M * N);
+
+            let factorElevacion = Rm / (Rm + cotaBase);
+            let factorEscala = utmCheck.k;
+            let csf = factorElevacion * factorEscala;
+
+            return {
+                zona,
+                lat: geoBase.lat,
+                lon: geoBase.lon,
+                Rm,
+                factorElevacion,
+                factorEscala,
+                csf,
+                gamma: utmCheck.gamma
+            };
+        }
+
         function ejecutarPtl() {
+            feedbackUI();
             let decs = parseInt(globalConfig.decimales) || 3;
-            let esteBase = parseFloat(document.getElementById('esteBase').value); let norteBase = parseFloat(document.getElementById('norteBase').value); let cotaBase = parseFloat(document.getElementById('cotaBase').value);
-            let estePunto = parseFloat(document.getElementById('estePunto').value); let nortePunto = parseFloat(document.getElementById('nortePunto').value);
-            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase) || isNaN(estePunto) || isNaN(nortePunto)) { showToast("Completa todos los datos de Base y Punto.", "warning"); return; }
-            const R = 6378137.0; let factorElevacion = R / (R + cotaBase); let deltaE_Base = esteBase - 500000.0;
-            let factorEscala = 0.9996 * (1 + (Math.pow(deltaE_Base, 2) / (2 * Math.pow(R, 2)))); let csf = factorElevacion * factorEscala;
-            let deltaE_Topo = (estePunto - esteBase) / csf; let deltaN_Topo = (nortePunto - norteBase) / csf;
+            let dir = document.getElementById('dirPtl').value;
+            let esteBase = parseFloat(document.getElementById('esteBase').value);
+            let norteBase = parseFloat(document.getElementById('norteBase').value);
+            let cotaBase = parseFloat(document.getElementById('cotaBase').value);
+            let estePunto = parseFloat(document.getElementById('estePunto').value);
+            let nortePunto = parseFloat(document.getElementById('nortePunto').value);
+            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase) || isNaN(estePunto) || isNaN(nortePunto)) {
+                showToast("Completa todos los datos de Base y Punto.", "warning");
+                return;
+            }
+            guardarEstadoPtl();
+            let ptlInfo = calcularParametrosPTL_Base(esteBase, norteBase, cotaBase);
+            let csf = ptlInfo.csf;
+            let esteOut, norteOut;
+            if (dir === 'utm_to_ptl') {
+                esteOut = esteBase + ((estePunto - esteBase) / csf);
+                norteOut = norteBase + ((nortePunto - norteBase) / csf);
+            } else {
+                esteOut = esteBase + ((estePunto - esteBase) * csf);
+                norteOut = norteBase + ((nortePunto - norteBase) * csf);
+            }
             document.getElementById('resFactorCombinadoVal').innerText = csf.toFixed(8);
-            document.getElementById('resEsteTopo').innerText = (esteBase + deltaE_Topo).toFixed(decs); document.getElementById('resNorteTopo').innerText = (norteBase + deltaN_Topo).toFixed(decs);
+            document.getElementById('resPtlK').innerText = ptlInfo.factorEscala.toFixed(7);
+            document.getElementById('resPtlFe').innerText = ptlInfo.factorElevacion.toFixed(7);
+            document.getElementById('resEsteTopo').innerText = esteOut.toFixed(decs);
+            document.getElementById('resNorteTopo').innerText = norteOut.toFixed(decs);
             document.getElementById('cajaResultadoPtl').style.display = 'grid';
-            showToast("Proyección PTL (1:1) generada", "success");
+
+            let ppmGeom = (1.0 - csf) * 1e6;
+            let fechaStr = new Date().toLocaleString('es-PE');
+            let proyNom = globalConfig.proyecto || "PROYECTO TOPOGRÁFICO";
+            ultimoSustentoPTL = `--- SUSTENTO TÉCNICO DE PROYECCIÓN PTL (1:1) ---\n` +
+                `Proyecto: ${proyNom} | Fecha: ${fechaStr}\n` +
+                `Elipsoide: WGS84 | Zona UTM: ${ptlInfo.zona} Sur\n\n` +
+                `1. COORDENADAS DEL PUNTO BASE (ORIGEN PTL = UTM):\n` +
+                `   Este Base (X0): ${esteBase.toFixed(decs)} m\n` +
+                `   Norte Base (Y0): ${norteBase.toFixed(decs)} m\n` +
+                `   Elevación Media (Z0): ${cotaBase.toFixed(decs)} m.s.n.m.\n` +
+                `   Latitud Geodésica: ${formatDMS(ptlInfo.lat)} (${ptlInfo.lat.toFixed(6)}°)\n` +
+                `   Longitud Geodésica: ${formatDMS(ptlInfo.lon)} (${ptlInfo.lon.toFixed(6)}°)\n\n` +
+                `2. PARÁMETROS GEODÉSICOS DE ESCALA:\n` +
+                `   Radio Medio de Gauss (Rm): ${ptlInfo.Rm.toFixed(3)} m\n` +
+                `   Factor de Elevación (Fe): ${ptlInfo.factorElevacion.toFixed(8)}\n` +
+                `   Factor de Escala UTM (K): ${ptlInfo.factorEscala.toFixed(8)}\n` +
+                `   FACTOR COMBINADO (CSF = Fe * K): ${csf.toFixed(8)}\n` +
+                `   Factor Inverso (1 / CSF): ${(1.0 / csf).toFixed(8)} (+${ppmGeom.toFixed(1)} ppm en terreno)\n` +
+                `   Convergencia de Meridianos (γ): ${formatDMS(ptlInfo.gamma)}\n` +
+                `------------------------------------------------`;
+
+            showToast(dir === 'utm_to_ptl' ? "Proyección PTL (1:1) generada" : "Conversión PTL a UTM generada", "success");
+        }
+
+        function copiarSustentoPTL() {
+            feedbackUI();
+            if (!ultimoSustentoPTL) return showToast("Calcula la proyección PTL primero", "warning");
+            navigator.clipboard.writeText(ultimoSustentoPTL).then(() => {
+                showToast("Sustento técnico PTL copiado al portapapeles", "success");
+            }).catch(() => {
+                showToast("No se pudo copiar al portapapeles", "error");
+            });
+        }
+
+        function procesarArchivoPtl() {
+            feedbackUI();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let delimOut = globalConfig.delimitadorCSV || ",";
+            let dir = document.getElementById('dirPtl').value;
+            let esteBase = parseFloat(document.getElementById('esteBase').value);
+            let norteBase = parseFloat(document.getElementById('norteBase').value);
+            let cotaBase = parseFloat(document.getElementById('cotaBase').value);
+            if(isNaN(esteBase) || isNaN(norteBase) || isNaN(cotaBase)) {
+                showToast("Primero ingresa las coordenadas y elevación del Punto Base (1).", "warning");
+                return;
+            }
+            let fileInput = document.getElementById('fileInputPtl');
+            if (!fileInput.files.length) {
+                showToast("Selecciona un archivo CSV/TXT primero.", "warning");
+                return;
+            }
+            guardarEstadoPtl();
+            let ptlInfo = calcularParametrosPTL_Base(esteBase, norteBase, cotaBase);
+            let csf = ptlInfo.csf;
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let lineas = e.target.result.split(/\r?\n/);
+                let resCSV = "";
+                let procesadas = 0;
+                for (let i = 0; i < lineas.length; i++) {
+                    let linea = lineas[i].trim();
+                    if (linea === "") continue;
+                    let cols = linea.split(/[,\t;]/);
+                    if (cols.length < 3) continue;
+                    let pto = cols[0];
+                    let xIn = parseFloat(cols[1]);
+                    let yIn = parseFloat(cols[2]);
+                    let zIn = cols[3] || "0.000";
+                    let desc = cols[4] || "";
+                    if (isNaN(xIn) || isNaN(yIn)) continue;
+                    let xOut, yOut;
+                    if (dir === 'utm_to_ptl') {
+                        xOut = esteBase + ((xIn - esteBase) / csf);
+                        yOut = norteBase + ((yIn - norteBase) / csf);
+                    } else {
+                        xOut = esteBase + ((xIn - esteBase) * csf);
+                        yOut = norteBase + ((yIn - norteBase) * csf);
+                    }
+                    resCSV += `${pto}${delimOut}${xOut.toFixed(decs)}${delimOut}${yOut.toFixed(decs)}${delimOut}${zIn}${delimOut}${desc}\n`;
+                    procesadas++;
+                }
+                if (procesadas === 0) return showToast("No se encontraron coordenadas válidas en el archivo.", "error");
+                let sufijo = (dir === 'utm_to_ptl') ? "_PTL_1a1.csv" : "_UTM_Oficial.csv";
+                descargarArchivo(resCSV, file.name.split('.')[0] + sufijo, 'text/csv;charset=utf-8;');
+                showToast(`✅ ${procesadas} puntos proyectados (CSF: ${csf.toFixed(7)})`, "success");
+            };
+            reader.readAsText(file);
         }
 
         // --- SUBMÓDULO 3: GESTOR MASIVO CSV ---
@@ -1018,7 +1260,7 @@
             }; reader.readAsText(file);
         }
 
-        // --- SUBMÓDULO 4: COTAS Y GEOIDAL (MALLA PERÚ OFFLINE) ---
+        // --- SUBMÓDULO 4: COTAS Y GEOIDAL (MALLA PERÚ OFFLINE + MASIVO CSV) ---
         const EGM_PERU = {
             latStart: 0, latEnd: -20, latStep: -2, lonStart: -82, lonEnd: -68, lonStep: 2,
             grid: [
@@ -1048,6 +1290,7 @@
         }
 
         function ejecutarGeoidalOffline() {
+            feedbackUI();
             let decs = parseInt(globalConfig.decimales) || 3;
             let tipo = document.getElementById('tipoIngresoGeoidal').value; let lat, lon;
             if(tipo === 'latlon') { lat = parseFloat(document.getElementById('latGeoidal').value); lon = parseFloat(document.getElementById('lonGeoidal').value); } 
@@ -1059,15 +1302,72 @@
             }
             if(isNaN(lat) || isNaN(lon)) { showToast("Faltan datos de ubicación.", "warning"); return; }
 
-            let N = interpolarBilineal(lat, lon);
-            if (N === null) { showToast("⚠️ Coordenadas fuera de la malla offline de Perú.", "error"); return; }
+            let N_base = interpolarBilineal(lat, lon);
+            if (N_base === null) { showToast("⚠️ Coordenadas fuera de la malla offline de Perú.", "error"); return; }
+
+            let deltaN = parseFloat(document.getElementById('ajusteDeltaN').value) || 0;
+            let N = N_base + deltaN;
+
+            let lblGeo = document.getElementById('lblModoGeoidal');
+            if (deltaN !== 0) {
+                lblGeo.innerText = "ONDULACIÓN (N) CALIBRADA LOCALMENTE";
+            } else {
+                lblGeo.innerText = "ONDULACIÓN (N) REGIONAL APROX. (MALLA 2°)";
+            }
 
             let h_elipsoidal = parseFloat(document.getElementById('cotaElipsoidal').value);
             document.getElementById('resN').innerText = N.toFixed(decs) + " m";
             if(!isNaN(h_elipsoidal)) { document.getElementById('res_h').innerText = h_elipsoidal.toFixed(decs); document.getElementById('res_H').innerText = (h_elipsoidal - N).toFixed(decs); } 
             else { document.getElementById('res_h').innerText = "--"; document.getElementById('res_H').innerText = "--"; }
             document.getElementById('cajaResGeoidal').style.display = 'grid';
-            showToast("Ondulación calculada", "success");
+            showToast(deltaN !== 0 ? "Ondulación calibrada calculada" : "Ondulación regional (Malla 2°). Para RTK use ΔN local", deltaN !== 0 ? "success" : "warning");
+        }
+
+        function procesarArchivoGeoidalCSV() {
+            feedbackUI();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let delimOut = globalConfig.delimitadorCSV || ",";
+            let zona = parseInt(document.getElementById('zonaGeoidal').value) || 17;
+            let hemi = document.getElementById('hemiGeoidal').value === 'S';
+            let deltaN = parseFloat(document.getElementById('ajusteDeltaN').value) || 0;
+
+            let fileInput = document.getElementById('fileInputGeoCSV');
+            if (!fileInput.files.length) return showToast("Selecciona un archivo CSV/TXT primero.", "warning");
+
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let lineas = e.target.result.split(/\r?\n/);
+                let resCSV = "";
+                let procesadas = 0;
+
+                for (let i = 0; i < lineas.length; i++) {
+                    let linea = lineas[i].trim();
+                    if (linea === "") continue;
+                    let cols = linea.split(/[,\t;]/);
+                    if (cols.length < 4) continue;
+                    let pto = cols[0];
+                    let este = parseFloat(cols[1]);
+                    let norte = parseFloat(cols[2]);
+                    let hElip = parseFloat(cols[3]);
+                    let desc = cols[4] || "";
+                    if (isNaN(este) || isNaN(norte) || isNaN(hElip)) continue;
+
+                    let geo = utmToLatLon(este, norte, zona, hemi, WGS84.a, WGS84.f);
+                    let N_base = interpolarBilineal(geo.lat, geo.lon);
+                    if (N_base === null) continue;
+                    let N_total = N_base + deltaN;
+                    let H_orto = hElip - N_total;
+
+                    resCSV += `${pto}${delimOut}${este.toFixed(decs)}${delimOut}${norte.toFixed(decs)}${delimOut}${H_orto.toFixed(decs)}${delimOut}${desc}\n`;
+                    procesadas++;
+                }
+
+                if (procesadas === 0) return showToast("No se encontraron puntos válidos (P,E,N,h) dentro de Perú.", "error");
+                descargarArchivo(resCSV, file.name.split('.')[0] + "_Cotas_Ortometricas.csv", 'text/csv;charset=utf-8;');
+                showToast(`✅ ${procesadas} cotas convertidas a Ortométricas (H)`, "success");
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>

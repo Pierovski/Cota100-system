@@ -404,6 +404,24 @@
         }
 
         const hashClave = "NzM3MA==";
+        let audioCtxIndex = null;
+
+        function feedbackUI() {
+            try {
+                let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
+                if (conf.vibracion !== false && navigator.vibrate) navigator.vibrate(20);
+                if (conf.sonido) {
+                    if (!audioCtxIndex) audioCtxIndex = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxIndex.state === 'suspended') audioCtxIndex.resume();
+                    let osc = audioCtxIndex.createOscillator();
+                    let gain = audioCtxIndex.createGain();
+                    osc.connect(gain); gain.connect(audioCtxIndex.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxIndex.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxIndex.currentTime);
+                    osc.start(); osc.stop(audioCtxIndex.currentTime + 0.08);
+                }
+            } catch(e) {}
+        }
 
         // --- EMPAQUETADOR DINÁMICO UNIVERSAL (CAPTURA TODOS LOS MÓDULOS PRESENTES Y FUTUROS) ---
         function recopilarTodoLocalStorage() {
@@ -429,14 +447,15 @@
             };
         }
 
-        function inyectarTodoLocalStorage(b) {
+                function inyectarTodoLocalStorage(b) {
             if (b.storage_dump && typeof b.storage_dump === 'object') {
                 Object.keys(b.storage_dump).forEach(k => {
                     if (b.storage_dump[k] !== null && b.storage_dump[k] !== undefined) {
                         localStorage.setItem(k, b.storage_dump[k]);
                     }
                 });
-            } else {
+                return true;
+            } else if (b.ajustes || b.db_simple || b.db_alcan || b.db_poligonal || b.db_polabierta || b.db_polcerrada || b.db_areas) {
                 if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
                 if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
                 if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
@@ -444,8 +463,11 @@
                 if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
                 if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
                 if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));
+                return true;
             }
+            throw new Error("Archivo individual o formato incompatible con Bóveda General");
         }
+        
 
         // --- BLINDAJE NATIVO DE ALMACENAMIENTO PERMANENTE ---
         async function blindarAlmacenamientoPersistente() {
@@ -465,6 +487,7 @@
 
         // --- CONTROLES DEL MODAL NUBE (IZQUIERDO) ---
         function abrirModalCloud() {
+            feedbackUI();
             let lastCloud = localStorage.getItem('cota100_last_cloud_sync');
             if (lastCloud) {
                 document.getElementById('lblCloudSyncStatus').innerHTML = `Última sincronización: <span style="color:var(--primary-color);">${lastCloud}</span>`;
@@ -484,6 +507,7 @@
 
         // --- CONTROLES DEL MODAL BACKUP LOCAL (DERECHO) ---
         function abrirModalVault() {
+            feedbackUI();
             let lastBackup = localStorage.getItem('cota100_last_backup');
             if(lastBackup) {
                 document.getElementById('lblUltimaCopiaIndex').innerHTML = `Último respaldo: <span style="color:var(--primary-color);">${lastBackup}</span>`;
@@ -551,6 +575,7 @@
         }
 
         function verificarClave() {
+            feedbackUI();
             const input = document.getElementById('pinInput');
             const errorMsg = document.getElementById('errorMsg');
             
@@ -572,6 +597,7 @@
         }
 
         function registrarAcceso(nombre, url) {
+            feedbackUI();
             localStorage.setItem('cota100_last_name', nombre);
             localStorage.setItem('cota100_last_url', url);
         }

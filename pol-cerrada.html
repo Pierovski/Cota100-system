@@ -115,13 +115,13 @@
         .panel-resultados { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; text-align: center; display: none; margin-bottom: 15px; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .res-valor { font-size: 1.4rem; font-weight: 800; margin: 2px 0 10px; color: var(--primary-color); font-family: monospace;}
         .tabla-resultados th { background-color: var(--primary-color); color: #000; }
-        .tabla-resultados td { font-family: monospace; font-size: 1.1rem; font-weight: 700; padding: 8px;}
+        .tabla-resultados td { font-family: monospace; font-size: 1.05rem; font-weight: 700; padding: 8px;}
         .tol-tag { font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; color: #fff; display: inline-block; margin-bottom: 5px; text-transform: uppercase;}
         .tol-pass { background-color: var(--success-color); }
         .tol-fail { background-color: var(--danger-color); }
         #canvasPoligonal { width: 100%; max-width: 100%; background: rgba(0,0,0,0.02); border: 1px dashed var(--border-color); border-radius: 8px; margin-top: 15px; }
 
-        /* MODALES Y TOASTS CORREGIDOS */
+        /* MODALES Y TOASTS */
         .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
         .overlay-select.activo { opacity: 1; }
         .modal-select { position: fixed; top: 50%; left: 50%; width: 90%; max-width: 340px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
@@ -253,7 +253,6 @@
         <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
             <div class="panel-titulo" onclick="togglePanel('panelProyecto')"><span>📁 Base de Datos / Proyectos</span><span>▼</span></div>
             <div id="panelProyecto">
-                <!-- SELECTOR DE PROYECTOS UNIFICADO -->
                 <div class="project-selector" style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center;">
                     <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')">
                         <span id="txtSelectProyecto">Cargando...</span>
@@ -264,7 +263,6 @@
                     <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--danger-color); margin:0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
                 
-                <!-- BASE DE DATOS DE BMs PARA ESTE MÓDULO -->
                 <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;">
                     <label style="color: var(--primary-color);">+ Registrar Vértice de Control Oficial</label>
                     <div class="form-grid" style="margin-top: 4px;">
@@ -297,7 +295,7 @@
             <div class="panel-titulo" style="color: var(--text-color);">⚙️ Configuración Geométrica</div>
             <div class="form-grid">
                 <div class="input-group">
-                    <label>Tipo de Ángulo <span class="info-icon" onclick="showCustomAlert('Define cómo mediste con tu Estación Total. Elige <strong>Internos</strong> si barrer el ángulo encierra el polígono. Elige <strong>Externos</strong> si mediste por el lado de afuera.', 'TIPO DE ÁNGULO')">ℹ️</span></label>
+                    <label>Tipo de Ángulo <span class="info-icon" onclick="showCustomAlert('Define cómo mediste con tu Estación Total. El sistema detectará automáticamente el sentido del recorrido (Horario o Antihorario) que cierre geométricamente el polígono.', 'TIPO DE ÁNGULO')">ℹ️</span></label>
                     <div class="custom-select" onclick="abrirModalSelect('tipoAngulo')"><span id="txt_tipoAngulo">Internos</span><span class="arrow">▼</span></div>
                     <input type="hidden" id="tipoAngulo" value="interno">
                 </div>
@@ -341,7 +339,18 @@
                 <input type="number" id="eRefIni" step="0.001" placeholder="ESTE (X)" oninput="guardarEstadoApp()">
                 <input type="number" id="nRefIni" step="0.001" placeholder="NORTE (Y)" oninput="guardarEstadoApp()">
             </div>
-            <button class="btn-accion" style="background:transparent; color:var(--text-color); border:1px dashed var(--text-color); font-size:0.85rem; padding:8px; margin-top:5px;" onclick="asumirNorteLocal()">🧭 Asumir Norte Local (Azimut 0°)</button>
+            <div style="border-top: 1px dashed var(--border-color); margin-top: 8px; padding-top: 8px;">
+                <label style="color: var(--text-color); display:flex; align-items:center; justify-content:space-between;">
+                    <span>Ángulo de Apoyo Externo en V-1 (Opcional)</span>
+                    <span class="info-icon" onclick="showCustomAlert('<strong>¿Cuándo llenarlo?</strong><br>Si tu REFERENCIA (Vista Atrás) es el último vértice del polígono (V-n), <strong>déjalo vacío</strong>.<br><br>Si amarraste a un BM o Punto Geodésico <strong>EXTERNO</strong> fuera del polígono, escribe aquí el ángulo horizontal a la derecha medido desde ese BM externo hacia V-2 para orientar el lado V1-V2 sin alterar la suma de ángulos internos 180(n-2).', 'AMARRE A BM EXTERNO')">ℹ️</span>
+                </label>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:4px;">
+                    <input type="number" id="apoyoG" placeholder="Grad" oninput="guardarEstadoApp()">
+                    <input type="number" id="apoyoM" placeholder="Min" oninput="guardarEstadoApp()">
+                    <input type="number" id="apoyoS" step="0.1" placeholder="Seg" oninput="guardarEstadoApp()">
+                </div>
+            </div>
+            <button class="btn-accion" style="background:transparent; color:var(--text-color); border:1px dashed var(--text-color); font-size:0.85rem; padding:8px; margin-top:8px;" onclick="asumirNorteLocal()">🧭 Asumir Norte Local (Azimut 0°)</button>
         </div>
 
         <div class="panel-control" style="padding: 15px 10px; border-left: 4px solid var(--primary-color);">
@@ -404,24 +413,26 @@
             <canvas id="canvasPoligonal" width="400" height="300"></canvas>
             <p id="txtTrampa" style="font-size:0.8rem; color:var(--danger-color); font-weight:800; margin-top:5px; display:none;">⚠️ Vértice Sospechoso Resaltado en Rojo</p>
 
-            <h3 style="color: var(--primary-color); margin: 20px 0 10px; font-size: 1rem; text-align: left;">COORDENADAS AJUSTADAS</h3>
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px; font-size: 1rem; text-align: left;">COORDENADAS Y AZIMUTS AJUSTADOS</h3>
             <div class="table-wrapper" style="margin-bottom: 15px;">
                 <table class="tabla-resultados">
-                    <thead><tr><th>VÉRTICE</th><th>ESTE (X)</th><th>NORTE (Y)</th></tr></thead>
+                    <thead><tr><th>VÉRTICE</th><th>ESTE (X)</th><th>NORTE (Y)</th><th>AZIMUT LADO</th></tr></thead>
                     <tbody id="cuerpoResultados"></tbody>
                 </table>
             </div>
 
-            <div style="display:flex; gap:10px;">
-                <button class="btn-accion" style="background:var(--success-color); flex:1;" onclick="exportarCSV_PNEZD()">📥 CSV PNEZD</button>
-                <button class="btn-accion" style="background:var(--table-header); flex:1;" onclick="window.print()">🖨️ PDF / Imprimir</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <button class="btn-accion full-width" style="background:#1976d2; font-size:0.9rem; padding:12px 6px; margin:0;" onclick="guardarVerticesCompensadosDB()">💾 GUARDAR VÉRTICES COMPENSADOS EN DB</button>
+                <button class="btn-accion" style="background:var(--success-color); font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarCSV_PNEZD()">📥 CSV PNEZD</button>
+                <button class="btn-accion" style="background:#1b5e20; font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarExcelMemoriaCerrada()">📊 EXCEL (.XLSX)</button>
+                <button class="btn-accion" style="background:var(--primary-color); font-size:0.85rem; padding:12px 4px; margin:0;" onclick="exportarSCR_Cerrada()">📐 CAD + CUADRO (.SCR)</button>
+                <button class="btn-accion" style="background:var(--table-header); font-size:0.85rem; padding:12px 4px; margin:0;" onclick="window.print()">🖨️ REPORTE PDF</button>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- UI Y NOTIFICACIONES ---
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -438,6 +449,7 @@
         let confirmOkCallback = null;
         let confirmCancelCallback = null;
         let promptOkCallback = null;
+        let ultimoCalculoMemoria = null;
 
         document.getElementById('btnConfirmCancel').addEventListener('click', () => {
             vibrar(); document.getElementById('customConfirmOverlay').classList.remove('activo');
@@ -481,13 +493,11 @@
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
                     <strong style="color:var(--primary-color);">📍 Puntos de Control:</strong><br>
-                    Ingresa las coordenadas de tu Estación 1 y Vista Atrás. Puedes usar "Trasladar a UTM" para mover todo el polígono a una coordenada oficial sin perder la geometría que ya calculaste.<br><br>
-                    <strong style="color:var(--primary-color);">🔗 Puente de Vértices:</strong><br>
-                    Usa el botón Importar para traer vértices desde Poligonal Abierta o desde otros proyectos sin volver a digitarlos.<br><br>
-                    <strong style="color:var(--primary-color);">⚙️ Método de Ajuste:</strong><br>
-                    Puedes elegir la regla de la Brújula (Bowditch) si ángulos y distancias tienen igual precisión, o la regla del Tránsito.<br><br>
-                    <strong style="color:var(--primary-color);">📉 Auditoría y Compensación:</strong><br>
-                    Al procesar, te mostrará la precisión relativa y resaltará en rojo el tramo sospechoso si hay un error lineal alto.
+                    Ingresa las coordenadas de tu Estación 1 y Vista Atrás. Usa "Trasladar a UTM" para mover todo el polígono a una coordenada oficial sin perder la geometría.<br><br>
+                    <strong style="color:var(--primary-color);">💾 Guardar Vértices en DB:</strong><br>
+                    Una vez compensada tu poligonal, toca el botón azul para guardar todos los vértices ajustados en la Base de Datos del proyecto (listos para usarlos en Áreas y Perímetros o en Poligonal Abierta).<br><br>
+                    <strong style="color:var(--primary-color);">📐 CAD + Cuadro Técnico (.SCR):</strong><br>
+                    Genera un script para AutoCAD que dibuja el polígono, acota las distancias de cada lindero y construye la tabla técnica de vértices y coordenadas al costado.
                 </div>
             `;
             showCustomAlert(html, "GUÍA: POLIGONAL CERRADA");
@@ -517,7 +527,24 @@
         let globalConfig = { darkMode: false, vibracion: false, decimales: "3" };
         let editandoBMIndex = -1;
 
-        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+        let audioCtxPolCerr = null;
+        function vibrar() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) {
+                try { navigator.vibrate(25); } catch(e) {}
+            }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxPolCerr) audioCtxPolCerr = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxPolCerr.state === 'suspended') audioCtxPolCerr.resume();
+                    let osc = audioCtxPolCerr.createOscillator();
+                    let gain = audioCtxPolCerr.createGain();
+                    osc.connect(gain); gain.connect(audioCtxPolCerr.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxPolCerr.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxPolCerr.currentTime);
+                    osc.start(); osc.stop(audioCtxPolCerr.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; }
 
         function inicializarApp() {
@@ -596,7 +623,8 @@
             if(editandoBMIndex > -1) {
                 showConfirm("⚠️ ¿Actualizar este Vértice?", () => {
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("Ya existe otro con ese nombre.", "warning");
-                    p.bms[editandoBMIndex] = { nombre: name, este: eIn, norte: nIn, obs: obs };
+                    let oldCota = p.bms[editandoBMIndex].cota || 0;
+                    p.bms[editandoBMIndex] = { nombre: name, este: eIn, norte: nIn, cota: oldCota, obs: obs };
                     editandoBMIndex = -1; 
                     document.getElementById('btnGuardarBM').innerText = "Guardar Vértice"; 
                     document.getElementById('btnGuardarBM').style.background = "var(--table-header)";
@@ -604,7 +632,7 @@
                 });
             } else {
                 if(p.bms.some(bm => bm.nombre === name)) return showToast("Ya existe un vértice con ese nombre.", "warning");
-                p.bms.push({ nombre: name, este: eIn, norte: nIn, obs: obs }); 
+                p.bms.push({ nombre: name, este: eIn, norte: nIn, cota: 0, obs: obs }); 
                 finalizarGuardadoBM();
             }
         }
@@ -643,6 +671,35 @@
             });
         }
 
+        // Guarda todos los vértices compensados del polígono directamente en la Base de Datos del proyecto
+        function guardarVerticesCompensadosDB() {
+            vibrar();
+            if (!ultimoCalculoMemoria) return showToast("Procesa el ajuste primero", "warning");
+            let p = obtenerProyectoActivo();
+            if (!p) return;
+            if (!p.bms) p.bms = [];
+            let creados = 0, actualizados = 0;
+
+            for (let i = 0; i < ultimoCalculoMemoria.nombres.length; i++) {
+                let nom = ultimoCalculoMemoria.nombres[i].trim().toUpperCase();
+                let x = Number(ultimoCalculoMemoria.coordE[i].toFixed(4));
+                let y = Number(ultimoCalculoMemoria.coordN[i].toFixed(4));
+                let idx = p.bms.findIndex(b => b.nombre === nom);
+                if (idx > -1) {
+                    p.bms[idx].este = x;
+                    p.bms[idx].norte = y;
+                    if (!p.bms[idx].obs) p.bms[idx].obs = "Compensado en Poligonal Cerrada";
+                    actualizados++;
+                } else {
+                    p.bms.push({ nombre: nom, este: x, norte: y, cota: 0, obs: "Vértice Compensado" });
+                    creados++;
+                }
+            }
+            guardarBD();
+            renderBMs();
+            showToast(`✅ ${creados} vértices creados y ${actualizados} actualizados en DB`, "success");
+        }
+
         /* --- PUENTE DE VÉRTICES ENTRE MÓDULOS --- */
         let verticesExternosCache = [];
         function recopilarVerticesExternos() {
@@ -650,18 +707,16 @@
             let pActual = obtenerProyectoActivo();
             let nombresActuales = (pActual && pActual.bms) ? pActual.bms.map(b => b.nombre) : [];
 
-            // 1. Otros proyectos de Poligonal Cerrada
             appData.proyectos.forEach(proj => {
                 if (proj.id !== appData.activoId && proj.bms) {
                     proj.bms.forEach(bm => {
                         if (!nombresActuales.includes(bm.nombre)) {
-                            lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, obs: bm.obs || `De: ${proj.nombre}`, origen: `Pol. Cerrada (${proj.nombre})` });
+                            lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, cota: bm.cota || 0, obs: bm.obs || `De: ${proj.nombre}`, origen: `Pol. Cerrada (${proj.nombre})` });
                         }
                     });
                 }
             });
 
-            // 2. Proyectos de Poligonal Abierta
             try {
                 let dbAb = JSON.parse(localStorage.getItem('cota100_db_polabierta_v5'));
                 if (dbAb && dbAb.proyectos) {
@@ -669,7 +724,7 @@
                         if (proj.bms) {
                             proj.bms.forEach(bm => {
                                 if (!nombresActuales.includes(bm.nombre)) {
-                                    lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, obs: bm.obs || `De Abierta: ${proj.nombre}`, origen: `Pol. Abierta (${proj.nombre})` });
+                                    lista.push({ nombre: bm.nombre, este: bm.este, norte: bm.norte, cota: bm.cota || 0, obs: bm.obs || `De Abierta: ${proj.nombre}`, origen: `Pol. Abierta (${proj.nombre})` });
                                 }
                             });
                         }
@@ -686,7 +741,7 @@
             let p = obtenerProyectoActivo();
             if (!p.bms) p.bms = [];
             if (p.bms.some(b => b.nombre === v.nombre)) return showToast("Ya existe en este proyecto", "warning");
-            p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), obs: v.obs });
+            p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), cota: Number(v.cota || 0), obs: v.obs });
             guardarBD(); renderBMs(); cerrarModalSelect();
             showToast(`Vértice [${v.nombre}] importado`, "success");
         }
@@ -697,7 +752,7 @@
             let count = 0;
             verticesExternosCache.forEach(v => {
                 if (!p.bms.some(b => b.nombre === v.nombre)) {
-                    p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), obs: v.obs });
+                    p.bms.push({ nombre: v.nombre, este: Number(v.este), norte: Number(v.norte), cota: Number(v.cota || 0), obs: v.obs });
                     count++;
                 }
             });
@@ -878,6 +933,9 @@
 
             document.getElementById('eEstIni').value = p.ctrl.eEi || ""; document.getElementById('nEstIni').value = p.ctrl.nEi || "";
             document.getElementById('eRefIni').value = p.ctrl.eRi || ""; document.getElementById('nRefIni').value = p.ctrl.nRi || "";
+            document.getElementById('apoyoG').value = p.ctrl.apoyoG || "";
+            document.getElementById('apoyoM').value = p.ctrl.apoyoM || "";
+            document.getElementById('apoyoS').value = p.ctrl.apoyoS || "";
 
             document.getElementById('panelResultados').style.display = 'none';
 
@@ -902,7 +960,15 @@
             p.tipoAngulo = document.getElementById('tipoAngulo').value;
             p.metodoAjuste = document.getElementById('metodoAjuste').value;
             p.metodoAngular = document.getElementById('metodoAngular').value;
-            p.ctrl = { eEi: document.getElementById('eEstIni').value, nEi: document.getElementById('nEstIni').value, eRi: document.getElementById('eRefIni').value, nRi: document.getElementById('nRefIni').value };
+            p.ctrl = {
+                eEi: document.getElementById('eEstIni').value,
+                nEi: document.getElementById('nEstIni').value,
+                eRi: document.getElementById('eRefIni').value,
+                nRi: document.getElementById('nRefIni').value,
+                apoyoG: document.getElementById('apoyoG').value,
+                apoyoM: document.getElementById('apoyoM').value,
+                apoyoS: document.getElementById('apoyoS').value
+            };
             let filas = [];
             document.querySelectorAll('#cuerpoPoligonal tr').forEach((tr) => { filas.push({ pto: tr.querySelector('.in-pto').value, g: tr.querySelector('.ang-g').value, m: tr.querySelector('.ang-m').value, s: tr.querySelector('.ang-s').value, dist: tr.querySelector('.dist').value }); });
             p.tabla = filas; guardarBD();
@@ -918,11 +984,49 @@
 
         function quitarVertice() { vibrar(); const tbody = document.getElementById('cuerpoPoligonal'); if (tbody.children.length > 3) { tbody.removeChild(tbody.lastChild); guardarEstadoApp(); } else { showToast("Mínimo 3 vértices.", "warning"); } }
 
-        // --- MATEMÁTICA CORE ---
+        // --- MATEMÁTICA CORE CON AUTODETECCIÓN GEOMÉTRICA HORARIO / ANTIHORARIO ---
         function calcularAzimut(E1, N1, E2, N2) { let dE = E2 - E1; let dN = N2 - N1; let az = Math.atan2(dE, dN) * 180 / Math.PI; if (az < 0) az += 360; return az; }
         function gmsADecimal(g, m, s) { let signo = (g < 0) ? -1 : 1; return signo * (Math.abs(g) + (m / 60) + (s / 3600)); }
-        function decimalAGMSString(dec) { let absoluto = Math.abs(dec); let g = Math.floor(absoluto); let mFloat = (absoluto - g) * 60; let m = Math.floor(mFloat); let s = (mFloat - m) * 60; let signoStr = (dec < 0) ? "-" : ""; return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`; }
+        function decimalAGMSString(dec) { let absoluto = Math.abs(dec); let g = Math.floor(absoluto); let mFloat = (absoluto - g) * 60; let m = Math.floor(mFloat); let s = (mFloat - m) * 60; if (s >= 59.95) { s = 0; m++; } if (m >= 60) { m = 0; g++; } let signoStr = (dec < 0) ? "-" : ""; return `${signoStr}${g}° ${m.toString().padStart(2, '0')}' ${s.toFixed(1).padStart(4, '0')}"`; }
         function normalizarAzimut(az) { while (az >= 360.0) az -= 360.0; while (az < 0.0) az += 360.0; return az; }
+
+        function simularPropagacionCerrada(azInicial, angCompensados, distancias, tieneApoyoExterno, angApoyoDec, tipoAngulo, sumAngObs, signoGiro) {
+            let nV = angCompensados.length;
+            let azCalculados = [];
+            let azActual;
+
+            if (tieneApoyoExterno) {
+                azActual = normalizarAzimut(azInicial + angApoyoDec);
+            } else if (tipoAngulo === 'def_izq' && sumAngObs > 0) {
+                azActual = normalizarAzimut(azInicial - angCompensados[0]);
+            } else {
+                azActual = normalizarAzimut(azInicial + (signoGiro * angCompensados[0]));
+            }
+            azCalculados.push(azActual);
+
+            for (let i = 1; i < nV; i++) {
+                if (tipoAngulo === 'def_der') {
+                    azActual = normalizarAzimut(azActual + angCompensados[i]);
+                } else if (tipoAngulo === 'def_izq') {
+                    azActual = normalizarAzimut(sumAngObs > 0 ? (azActual - angCompensados[i]) : (azActual + angCompensados[i]));
+                } else {
+                    azActual = normalizarAzimut(azActual + 180 + (signoGiro * angCompensados[i]));
+                }
+                azCalculados.push(azActual);
+            }
+
+            let proyE = [], proyN = [], sumAbsE = 0, sumAbsN = 0, errorE = 0, errorN = 0;
+            for (let i = 0; i < nV; i++) {
+                let azRad = azCalculados[i] * Math.PI / 180.0;
+                let dE = distancias[i] * Math.sin(azRad);
+                let dN = distancias[i] * Math.cos(azRad);
+                proyE.push(dE); proyN.push(dN);
+                errorE += dE; errorN += dN;
+                sumAbsE += Math.abs(dE); sumAbsN += Math.abs(dN);
+            }
+            let errorLineal = Math.sqrt(Math.pow(errorE, 2) + Math.pow(errorN, 2));
+            return { azCalculados, proyE, proyN, sumAbsE, sumAbsN, errorE, errorN, errorLineal };
+        }
 
         function calcularPoligonal() {
             vibrar();
@@ -954,7 +1058,7 @@
             if(tipoAngulo === 'interno') teorico = 180 * (nV - 2);
             else if(tipoAngulo === 'externo') teorico = 180 * (nV + 2);
             else if(tipoAngulo === 'def_der') teorico = 360; 
-            else if(tipoAngulo === 'def_izq') teorico = -360;
+            else if(tipoAngulo === 'def_izq') teorico = (sumAngObs < 0 ? -360 : 360);
 
             let errorAngular = sumAngObs - teorico;
             let errorSegundos = Math.abs(errorAngular * 3600);
@@ -967,32 +1071,31 @@
 
             let metodoAngular = document.getElementById('metodoAngular').value;
             let angCompensados = [];
+            let corrAngArray = [];
             for (let i = 0; i < nV; i++) {
-                let corr = 0;
-                if(metodoAngular === 'igual') corr = -errorAngular / nV;
-                else corr = -errorAngular * (inversas[i] / sumInversaDist);
+                let corr = (metodoAngular === 'igual') ? (-errorAngular / nV) : (-errorAngular * (inversas[i] / sumInversaDist));
+                corrAngArray.push(corr);
                 angCompensados.push(angObs[i] + corr);
             }
 
-            let azCalculados = [];
-            let azActual = normalizarAzimut(azInicial + angCompensados[0]);
-            azCalculados.push(azActual);
+            let apG = document.getElementById('apoyoG').value.trim();
+            let apM = document.getElementById('apoyoM').value.trim();
+            let apS = document.getElementById('apoyoS').value.trim();
+            let tieneApoyoExterno = (apG !== "" || apM !== "" || apS !== "");
+            let angApoyoDec = tieneApoyoExterno ? gmsADecimal(parseFloat(apG)||0, parseFloat(apM)||0, parseFloat(apS)||0) : null;
 
-            for (let i = 1; i < nV; i++) {
-                if(tipoAngulo.startsWith('def')) azActual = normalizarAzimut(azActual + angCompensados[i]);
-                else azActual = normalizarAzimut(azActual + 180 + angCompensados[i]);
-                azCalculados.push(azActual);
-            }
+            let simPos = simularPropagacionCerrada(azInicial, angCompensados, distancias, tieneApoyoExterno, angApoyoDec, tipoAngulo, sumAngObs, 1);
+            let simNeg = simularPropagacionCerrada(azInicial, angCompensados, distancias, tieneApoyoExterno, angApoyoDec, tipoAngulo, sumAngObs, -1);
+            let mejorSim = (simNeg.errorLineal < simPos.errorLineal && !tipoAngulo.startsWith('def')) ? simNeg : simPos;
 
-            let proyE = []; let proyN = []; let sumAbsE = 0; let sumAbsN = 0; let errorE = 0; let errorN = 0;
-            for (let i = 0; i < nV; i++) {
-                let azRad = azCalculados[i] * Math.PI / 180.0;
-                let dE = distancias[i] * Math.sin(azRad); let dN = distancias[i] * Math.cos(azRad);
-                proyE.push(dE); proyN.push(dN); errorE += dE; errorN += dN;
-                sumAbsE += Math.abs(dE); sumAbsN += Math.abs(dN);
-            }
-
-            let errorLineal = Math.sqrt(Math.pow(errorE, 2) + Math.pow(errorN, 2));
+            let azCalculados = mejorSim.azCalculados;
+            let proyE = mejorSim.proyE;
+            let proyN = mejorSim.proyN;
+            let sumAbsE = mejorSim.sumAbsE;
+            let sumAbsN = mejorSim.sumAbsN;
+            let errorE = mejorSim.errorE;
+            let errorN = mejorSim.errorN;
+            let errorLineal = mejorSim.errorLineal;
             let precisionRelativa = perimetro / errorLineal;
 
             let azimutError = calcularAzimut(0, 0, errorE, errorN);
@@ -1007,15 +1110,13 @@
 
             let metodoAjuste = document.getElementById('metodoAjuste').value;
             let coordE = [eEstIni]; let coordN = [nEstIni];
+            let compEArray = []; let compNArray = [];
             let compAcumE = eEstIni; let compAcumN = nEstIni;
 
             for (let i = 0; i < nV; i++) {
-                let compE = 0; let compN = 0;
-                if(metodoAjuste === 'brujula') {
-                    compE = -errorE * (distancias[i] / perimetro); compN = -errorN * (distancias[i] / perimetro);
-                } else {
-                    compE = -errorE * (Math.abs(proyE[i]) / sumAbsE); compN = -errorN * (Math.abs(proyN[i]) / sumAbsN);
-                }
+                let compE = (metodoAjuste === 'brujula') ? (-errorE * (distancias[i] / perimetro)) : (-errorE * (Math.abs(proyE[i]) / sumAbsE));
+                let compN = (metodoAjuste === 'brujula') ? (-errorN * (distancias[i] / perimetro)) : (-errorN * (Math.abs(proyN[i]) / sumAbsN));
+                compEArray.push(compE); compNArray.push(compN);
                 compAcumE = compAcumE + proyE[i] + compE; compAcumN = compAcumN + proyN[i] + compN;
                 if(i < nV - 1) { coordE.push(compAcumE); coordN.push(compAcumN); }
             }
@@ -1034,15 +1135,23 @@
             document.getElementById('resGeometriaDebil').innerHTML = msgGeometria;
             
             let resPrec = document.getElementById('resPrecision');
-            if(precisionRelativa === Infinity || isNaN(precisionRelativa)) { resPrec.innerText = "PERFECTO"; } 
+            if(precisionRelativa === Infinity || isNaN(precisionRelativa) || errorLineal < 1e-6) { resPrec.innerText = "PERFECTO"; } 
             else { resPrec.innerText = "1 : " + Math.round(precisionRelativa).toLocaleString(); }
 
             const tbodyRes = document.getElementById('cuerpoResultados'); tbodyRes.innerHTML = ""; 
             for (let i = 0; i < coordE.length; i++) {
+                let nextI = (i + 1) % coordE.length;
+                let azLado = calcularAzimut(coordE[i], coordN[i], coordE[nextI], coordN[nextI]);
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="color: var(--primary-color); font-weight: 800;">${nombresEstaciones[i]}</td><td>${coordE[i].toFixed(decs)}</td><td>${coordN[i].toFixed(decs)}</td>`;
+                tr.innerHTML = `<td style="color: var(--primary-color); font-weight: 800;">${nombresEstaciones[i]}</td><td>${coordE[i].toFixed(decs)}</td><td>${coordN[i].toFixed(decs)}</td><td style="font-size:0.9rem; opacity:0.85;">${decimalAGMSString(azLado)}</td>`;
                 tbodyRes.appendChild(tr);
             }
+
+            ultimoCalculoMemoria = {
+                nombres: nombresEstaciones, angObs, corrAngArray, angCompensados,
+                azCalculados, distancias, proyE, proyN, compEArray, compNArray,
+                coordE, coordN, perimetro, area, errorAngular, errorE, errorN, errorLineal, precisionRelativa
+            };
 
             document.getElementById('panelResultados').style.display = 'block';
             document.getElementById('printTitle').innerText = "REPORTE POLIGONAL CERRADA - " + (pActivo ? pActivo.nombre : "");
@@ -1080,10 +1189,137 @@
 
         function exportarCSV_PNEZD() {
             vibrar(); let filas = document.querySelectorAll('#cuerpoResultados tr'); if(filas.length === 0) return showToast("No hay resultados", "warning");
-            let csv = "Punto,Este,Norte,Elevacion,Descripcion\n";
-            filas.forEach(tr => { let tds = tr.querySelectorAll('td'); csv += `${tds[0].innerText},${tds[1].innerText},${tds[2].innerText},0.000,Vértice Poligonal\n`; });
+            let delim = globalConfig.delimitadorCSV || ",";
+            let csv = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
+            filas.forEach(tr => { let tds = tr.querySelectorAll('td'); csv += `${tds[0].innerText}${delim}${tds[1].innerText}${delim}${tds[2].innerText}${delim}0.000${delim}Vertice_Poligonal\n`; });
             let blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Poligonal_PNEZD.csv"; link.click();
+            showToast("CSV PNEZD descargado", "success");
+        }
+
+        /* --- EXPORTAR EXCEL DE MEMORIA DE CÁLCULO (.XLSX) --- */
+        function exportarExcelMemoriaCerrada() {
+            vibrar();
+            if (!ultimoCalculoMemoria) return showToast("Procesa el ajuste primero", "warning");
+            let m = ultimoCalculoMemoria;
+            let p = obtenerProyectoActivo();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let wb = XLSX.utils.book_new();
+
+            let headStyle = { fill: { fgColor: { rgb: "FF1A1E23" } }, font: { bold: true, color: { rgb: "FFFFFFFF" } }, alignment: { horizontal: "center" } };
+            let subHeadStyle = { fill: { fgColor: { rgb: "FFFF5500" } }, font: { bold: true, color: { rgb: "FFFFFFFF" } }, alignment: { horizontal: "center" } };
+            let centerStyle = { alignment: { horizontal: "center" } };
+            let numStyle = { alignment: { horizontal: "center" }, numFmt: "0.000" };
+
+            let rows = [
+                [{ v: "MEMORIA DE CÁLCULO Y COMPENSACIÓN - POLIGONAL CERRADA", s: headStyle }],
+                ["Proyecto:", p ? p.nombre : "Poligonal", "Operador:", globalConfig.operador || "COTA100", "Fecha:", new Date().toLocaleDateString('es-PE')],
+                ["Perímetro (m):", Number(m.perimetro.toFixed(decs)), "Área (m²):", Number(m.area.toFixed(2)), "Error Lineal (m):", Number(m.errorLineal.toFixed(4))],
+                [],
+                [
+                    { v: "VÉRTICE", s: subHeadStyle },
+                    { v: "LADO", s: subHeadStyle },
+                    { v: "ÁNG. OBS.", s: subHeadStyle },
+                    { v: "CORR. ANG (\")", s: subHeadStyle },
+                    { v: "ÁNG. COMP.", s: subHeadStyle },
+                    { v: "AZIMUT", s: subHeadStyle },
+                    { v: "DIST. (m)", s: subHeadStyle },
+                    { v: "ΔE PARCIAL", s: subHeadStyle },
+                    { v: "ΔN PARCIAL", s: subHeadStyle },
+                    { v: "CORR. E", s: subHeadStyle },
+                    { v: "CORR. N", s: subHeadStyle },
+                    { v: "ESTE (X)", s: subHeadStyle },
+                    { v: "NORTE (Y)", s: subHeadStyle }
+                ]
+            ];
+
+            let nV = m.nombres.length;
+            for (let i = 0; i < nV; i++) {
+                let nextI = (i + 1) % nV;
+                let ladoStr = `${m.nombres[i]} - ${m.nombres[nextI]}`;
+                rows.push([
+                    { v: m.nombres[i], s: centerStyle },
+                    { v: ladoStr, s: centerStyle },
+                    { v: decimalAGMSString(m.angObs[i]), s: centerStyle },
+                    { v: Number((m.corrAngArray[i] * 3600).toFixed(1)), t: 'n', s: centerStyle },
+                    { v: decimalAGMSString(m.angCompensados[i]), s: centerStyle },
+                    { v: decimalAGMSString(m.azCalculados[i]), s: centerStyle },
+                    { v: Number(m.distancias[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.proyE[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.proyN[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.compEArray[i].toFixed(4)), t: 'n', s: numStyle },
+                    { v: Number(m.compNArray[i].toFixed(4)), t: 'n', s: numStyle },
+                    { v: Number(m.coordE[i].toFixed(decs)), t: 'n', s: numStyle },
+                    { v: Number(m.coordN[i].toFixed(decs)), t: 'n', s: numStyle }
+                ]);
+            }
+
+            let ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 12 } }];
+            ws['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:12},{wch:14},{wch:14},{wch:11},{wch:12},{wch:12},{wch:10},{wch:10},{wch:14},{wch:14}];
+            XLSX.utils.book_append_sheet(wb, ws, "Poligonal_Cerrada");
+            XLSX.writeFile(wb, `Memoria_${p ? p.nombre.replace(/\s+/g,'_') : 'Poligonal'}.xlsx`);
+            showToast("Excel de Memoria descargado", "success");
+        }
+
+        /* --- EXPORTAR SCRIPT AUTOCAD (.SCR) CON ACOTADO Y CUADRO DE CONSTRUCCIÓN --- */
+        function exportarSCR_Cerrada() {
+            vibrar();
+            if (!ultimoCalculoMemoria) return showToast("Procesa el ajuste primero", "warning");
+            let m = ultimoCalculoMemoria;
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let nV = m.coordE.length;
+
+            let minE = Math.min(...m.coordE), maxE = Math.max(...m.coordE);
+            let minN = Math.min(...m.coordN), maxN = Math.max(...m.coordN);
+            let span = Math.max(maxE - minE, maxN - minN) || 50;
+            let hTxt = Number((span * 0.018).toFixed(2));
+            if (hTxt < 0.8) hTxt = 0.8;
+
+            let scr = `_PLINE\n`;
+            for (let i = 0; i < nV; i++) {
+                scr += `${m.coordE[i].toFixed(decs)},${m.coordN[i].toFixed(decs)}\n`;
+            }
+            scr += `_C\n`;
+
+            for (let i = 0; i < nV; i++) {
+                let nextI = (i + 1) % nV;
+                let e1 = m.coordE[i], n1 = m.coordN[i];
+                let e2 = m.coordE[nextI], n2 = m.coordN[nextI];
+                let midE = (e1 + e2) / 2.0;
+                let midN = (n1 + n2) / 2.0;
+                let distReal = Math.sqrt(Math.pow(e2 - e1, 2) + Math.pow(n2 - n1, 2));
+                let angCad = Math.atan2(n2 - n1, e2 - e1) * 180.0 / Math.PI;
+                if (angCad > 90) angCad -= 180;
+                if (angCad < -90) angCad += 180;
+
+                scr += `_CIRCLE ${e1.toFixed(decs)},${n1.toFixed(decs)} ${(hTxt * 0.45).toFixed(2)}\n`;
+                scr += `_TEXT ${(e1 + hTxt*0.6).toFixed(decs)},${(n1 + hTxt*0.6).toFixed(decs)} ${hTxt} 0 ${m.nombres[i]}\n`;
+                scr += `_TEXT ${midE.toFixed(decs)},${midN.toFixed(decs)} ${(hTxt * 0.85).toFixed(2)} ${angCad.toFixed(1)} ${distReal.toFixed(2)}m\n`;
+            }
+
+            let tableX = maxE + span * 0.18;
+            let tableY = maxN;
+            let rowH = hTxt * 2.2;
+            scr += `_TEXT ${tableX.toFixed(2)},${(tableY + rowH).toFixed(2)} ${(hTxt * 1.1).toFixed(2)} 0 CUADRO DE DATOS TECNICOS (AREA: ${m.area.toFixed(2)} m2 | PERIMETRO: ${m.perimetro.toFixed(2)} m)\n`;
+            scr += `_TEXT ${tableX.toFixed(2)},${tableY.toFixed(2)} ${(hTxt * 0.85).toFixed(2)} 0 VERTICE    LADO         DIST.(m)     ANGULO           ESTE(X)          NORTE(Y)\n`;
+
+            for (let i = 0; i < nV; i++) {
+                let nextI = (i + 1) % nV;
+                let yFila = tableY - ((i + 1) * rowH);
+                let distReal = Math.sqrt(Math.pow(m.coordE[nextI] - m.coordE[i], 2) + Math.pow(m.coordN[nextI] - m.coordN[i], 2));
+                let lineaTxt = `${m.nombres[i].padEnd(10)} ${(m.nombres[i]+'-'+m.nombres[nextI]).padEnd(12)} ${distReal.toFixed(2).padEnd(12)} ${decimalAGMSString(m.angCompensados[i]).replace(/\s+/g,'').padEnd(16)} ${m.coordE[i].toFixed(decs).padEnd(16)} ${m.coordN[i].toFixed(decs)}`;
+                scr += `_TEXT ${tableX.toFixed(2)},${yFila.toFixed(2)} ${(hTxt * 0.8).toFixed(2)} 0 ${lineaTxt}\n`;
+            }
+
+            scr += `_ZOOM _E\n`;
+            let p = obtenerProyectoActivo();
+            let blob = new Blob([scr], { type: 'text/plain;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Poligono_Cuadro_${p ? p.nombre.replace(/\s+/g,'_') : 'Cerrada'}.scr`;
+            link.click();
+            showToast("Script AutoCAD + Cuadro Técnico (.scr) descargado", "success");
         }
 
         function exportarBackup() {

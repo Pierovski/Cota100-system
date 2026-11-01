@@ -437,8 +437,10 @@
                         <input type="text" id="newBMCota" inputmode="decimal" placeholder="Cota (m)" oninput="formatDecimal(this)" onblur="completarCeros(this)">
                         <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
                     </div>
-                    <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem;" onclick="addBM()">Guardar BM en Proyecto</button>
-                    <!-- REUBICACIÓN DEL BOTÓN DE 2 ESTACAS -->
+                    <div style="display: flex; gap: 8px;">
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar BM</button>
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar-bm')">🔗 Importar BMs</button>
+                    </div>
                     <button class="btn-accion" style="background:transparent; color: var(--primary-color); border: 1px solid var(--primary-color); margin-top: 10px; font-size: 0.9rem; padding: 10px;" onclick="abrirPruebaDosEstacas()">🎯 PRUEBA DE 2 ESTACAS (COLIMACIÓN)</button>
                 </div>
                 
@@ -529,7 +531,10 @@
                     <thead><tr><th>PUNTO</th><th>COTA IDA</th><th>COTA VUELTA</th><th>PROMEDIO</th></tr></thead>
                     <tbody id="cuerpoCompensadas"></tbody>
                 </table>
-                <button class="btn-accion" style="background:transparent; color: var(--excel-color); border: 1px solid var(--excel-color); margin-top: 15px; font-size: 1rem;" onclick="mostrarOpcionesExportacion()" id="btnExcel">📥 Opciones de Exportación</button>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top: 15px;">
+                    <button class="btn-accion" style="background:var(--primary-color); color:#fff; font-size: 0.9rem; margin:0;" onclick="guardarBMsCompensadosEnDB()">💾 Guardar BMs en DB</button>
+                    <button class="btn-accion" style="background:transparent; color: var(--excel-color); border: 1px solid var(--excel-color); font-size: 0.9rem; margin:0;" onclick="mostrarOpcionesExportacion()" id="btnExcel">📥 Exportar Excel/CSV</button>
+                </div>
             </div>
         </div>
 

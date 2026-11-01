@@ -63,7 +63,7 @@
         td input:focus { background: rgba(255, 85, 0, 0.05); }
         .row-highlight td { background-color: rgba(255, 85, 0, 0.15) !important; }
 
-        .alerta-critica { background-color: rgba(211, 47, 47, 0.05); border-left: 5px solid var(--danger-color); padding: 12px; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-color); border-radius: 0 8px 8px 0; font-weight: 600;}
+        .alerta-critica { background-color: rgba(211, 47, 47, 0.08); border-left: 5px solid var(--danger-color); padding: 12px; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-color); border-radius: 0 8px 8px 0; font-weight: 600; display: none;}
         .drop-zone { border: 2px dashed var(--primary-color); border-radius: 8px; padding: 25px 20px; text-align: center; background-color: rgba(255,85,0,0.02); margin-bottom: 12px; color: var(--primary-color); font-weight: 800; text-transform: uppercase;}
 
         .canvas-container { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; background: rgba(128,128,128,0.03); border: 1px dashed var(--card-border); border-radius: 12px; padding: 15px; backdrop-filter: blur(5px);}
@@ -165,7 +165,7 @@
     <div class="overlay-select" id="promptAreaOverlay"></div>
     <div class="modal-select" id="promptAreaModal">
         <h3 style="color:var(--text-color); margin-bottom:10px; font-weight:900; text-transform:uppercase; font-size: 1.1rem;">AJUSTE REGISTRAL (HOMOTECIA)</h3>
-        <p style="font-size:0.8rem; color:var(--text-color); opacity:0.8; margin-bottom:10px;">Ingresa el área exacta que manda el título de propiedad (en m²). El polígono se ajustará desde su centroide.</p>
+        <p style="font-size:0.8rem; color:var(--text-color); opacity:0.8; margin-bottom:10px;">Ingresa el área exacta que manda el título de propiedad (en m²). El polígono se ajustará desde su centroide manteniendo sus ángulos internos.</p>
         <input type="number" id="inputTargetArea" step="0.01" placeholder="Área Objetivo (Ej: 10000.00)" style="margin-bottom:15px;">
         <div style="display:flex; gap:10px;">
             <button class="btn-accion" style="background:var(--danger-color); flex:1;" onclick="cerrarPromptArea()">CANCELAR</button>
@@ -239,9 +239,8 @@
             </div>
         </div>
 
-        <div class="alerta-critica" id="alertaGeometria">
-            <strong style="color: var(--danger-color);">⚠️ GEOMETRÍA:</strong> Ingresa los vértices en orden secuencial siguiendo el lindero. El sistema detectará automáticamente si dos lados se cruzan ("moño").
-        </div>
+        <!-- ALERTA DINÁMICA: OCULTA POR DEFECTO, SOLO APARECE SI HAY CRUCE ("MOÑO") -->
+        <div class="alerta-critica" id="alertaGeometria"></div>
 
         <div class="panel-control" style="padding: 10px; border-left: 4px solid var(--primary-color);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -293,7 +292,11 @@
                 </div>
             </div>
 
-            <button class="btn-accion" style="background:var(--success-color); width:100%; margin-top:15px; font-size:0.9rem;" onclick="exportarCSV_Replant()">📥 DESCARGAR PARA REPLANTEO (.CSV)</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:15px;">
+                <button class="btn-accion" style="background:var(--success-color); font-size:0.85rem; padding:12px 6px; margin:0;" onclick="exportarCSV_Replant()">📥 REPLANTEO (.CSV)</button>
+                <button class="btn-accion" style="background:var(--primary-color); font-size:0.85rem; padding:12px 6px; margin:0;" onclick="exportarSCR_AutoCAD()">📐 CAD + CUADRO (.SCR)</button>
+                <button class="btn-accion full-width" style="background:var(--table-header); font-size:0.85rem; padding:12px 6px; margin:0;" onclick="copiarCuadroTecnicoPortapapeles()">📋 COPIAR CUADRO TÉCNICO (RUMBOS Y AZIMUTS)</button>
+            </div>
         </div>
 
     </div>
@@ -306,11 +309,29 @@
             setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => toast.remove()); setTimeout(()=>toast.remove(), 400); }, 3000);
         }
         
-        function vibrar() { if(globalConfig.vibracion && navigator.vibrate) navigator.vibrate(30); }
+        let audioCtxAreas = null;
+        function vibrar() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) {
+                try { navigator.vibrate(25); } catch(e) {}
+            }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxAreas) audioCtxAreas = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxAreas.state === 'suspended') audioCtxAreas.resume();
+                    let osc = audioCtxAreas.createOscillator();
+                    let gain = audioCtxAreas.createGain();
+                    osc.connect(gain); gain.connect(audioCtxAreas.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxAreas.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxAreas.currentTime);
+                    osc.start(); osc.stop(audioCtxAreas.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
         function togglePanel(id) { vibrar(); const p = document.getElementById(id); p.style.display = p.style.display==="none"?"block":"none"; }
         
         let confirmOkCallback = null;
         let promptOkCallback = null;
+        let ultimoReporteLinderos = "";
 
         document.getElementById('btnConfirmCancel').addEventListener('click', () => { 
             vibrar(); 
@@ -355,7 +376,7 @@
         function cerrarCustomPrompt() {
             document.getElementById('customPromptOverlay').classList.remove('activo');
             document.getElementById('customPromptModal').classList.remove('abierto');
-            setTimeout(() => document.getElementById('customPromptOverlay').style.display = 'none', 300);
+            setTimeout(() => { document.getElementById('customPromptOverlay').style.display = 'none', 300});
         }
 
         function btnPromptOkClick() {
@@ -378,18 +399,20 @@
             vibrar(); 
             document.getElementById('customAlertOverlay').classList.remove('activo'); 
             document.getElementById('customAlertModal').classList.remove('abierto');
-            setTimeout(() => document.getElementById('customAlertOverlay').style.display='none', 300); 
+            setTimeout(() => { document.getElementById('customAlertOverlay').style.display='none', 300}); 
         }
 
         function mostrarLeyendaArea() {
             let html = `
                 <div style="font-size: 0.95rem; color: var(--text-color); line-height: 1.4;">
+                    <strong style="color:var(--primary-color);">⚠️ Orden Secuencial:</strong><br>
+                    Ingresa los vértices siguiendo el lindero. El sistema te avisará con una alerta roja únicamente si detecta que dos lados se cruzan ("moño").<br><br>
                     <strong style="color:var(--primary-color);">🔗 Traer de Poligonal:</strong><br>
-                    Importa directamente los vértices de control registrados en tus proyectos de Poligonal Cerrada o Abierta.<br><br>
-                    <strong style="color:var(--primary-color);">📥 Importar (KML/CSV):</strong><br>
-                    Puedes dibujar un polígono en Google Earth, guardarlo como KML e importarlo aquí directamente para calcular su área UTM.<br><br>
+                    Importa directamente los vértices registrados en tus proyectos de Poligonal Cerrada o Abierta.<br><br>
                     <strong style="color:var(--primary-color);">⚙️ Ajuste Registral (Homotecia):</strong><br>
-                    Si una partida registral indica 1000.00 m² pero tu levantamiento dio 1025.00 m², este botón redimensiona las coordenadas proporcionalmente desde el centroide para cuadrar con el área oficial.
+                    Redimensiona las coordenadas proporcionalmente desde el centroide para cuadrar con el área oficial de una partida registral.<br><br>
+                    <strong style="color:var(--primary-color);">📐 CAD + Cuadro (.SCR):</strong><br>
+                    Dibuja automáticamente en AutoCAD el polígono, acota cada lindero y genera la tabla técnica completa al costado.
                 </div>
             `;
             showInfoAlert(html);
@@ -397,7 +420,7 @@
 
         let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
         let globalConfig = { darkMode: false, vibracion: false, decimales: "3", formatoCSV: "PEN", delimitadorCSV: ";" };
-        let currentCentroid = {x:0, y:0, a:0};
+        let currentCentroid = {x:0, y:0, a:0, perim:0, cruzado:false, angulosDMS:[]};
         let canvasHitBoxes = [];
         let lotesPoligonalesCache = [];
 
@@ -410,6 +433,9 @@
                     if(conf.darkMode) document.body.classList.add('dark-mode'); 
                     document.getElementById('formatoColumnas').value = conf.formatoCSV || "PEN"; 
                     document.getElementById('txtFormato').innerText = (conf.formatoCSV === "EN") ? "E-N" : "P-E-N"; 
+                    let zDef = conf.zonaDefecto || "17";
+                    document.getElementById('zonaUtm').value = zDef;
+                    document.getElementById('txtZonaUtm').innerText = zDef + " Sur";
                 } 
             } catch(e) {}
             let stored = localStorage.getItem('cota100_db_areas_v2');
@@ -563,7 +589,6 @@
             if (event.key === 'Enter') {
                 event.preventDefault();
                 let tr = input.closest('tr');
-                let tbody = document.getElementById('cuerpoTablaAreas');
                 if (input.classList.contains('coor-x')) {
                     tr.querySelector('.coor-y').focus();
                 } else if (input.classList.contains('coor-y')) {
@@ -580,6 +605,7 @@
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo(); 
             document.getElementById('cajaResultado').style.display = 'none';
+            document.getElementById('alertaGeometria').style.display = 'none';
             const tbody = document.getElementById('cuerpoTablaAreas'); tbody.innerHTML = "";
             if(!p.tabla || p.tabla.length < 3) p.tabla = [{e:"",n:""},{e:"",n:""},{e:"",n:""}];
             p.tabla.forEach((f, i) => {
@@ -607,13 +633,26 @@
         function limpiarTablaAreas() { showConfirm("¿Vaciar toda la tabla?", () => { obtenerProyectoActivo().tabla = [{e:"",n:""},{e:"",n:""},{e:"",n:""}]; guardarBD(); cargarProyectoActivo(); showToast("Tabla vaciada", "success"); }); }
 
         function degToDMS_Compact(deg) {
-            let d = Math.floor(deg);
-            let mFloat = (deg - d) * 60;
+            let d = Math.floor(Math.abs(deg));
+            let mFloat = (Math.abs(deg) - d) * 60;
             let m = Math.floor(mFloat);
             let s = Math.round((mFloat - m) * 60);
-            if (s === 60) { s = 0; m++; }
-            if (m === 60) { m = 0; d++; }
+            if (s >= 60) { s = 0; m++; }
+            if (m >= 60) { m = 0; d++; }
             return `${d}°${m.toString().padStart(2,'0')}'${s.toString().padStart(2,'0')}"`;
+        }
+
+        function calcularAzimutLado(E1, N1, E2, N2) {
+            let az = Math.atan2(E2 - E1, N2 - N1) * 180.0 / Math.PI;
+            if (az < 0) az += 360.0;
+            return az;
+        }
+
+        function azimutARumbo(az) {
+            if (az >= 0 && az <= 90) return `N ${degToDMS_Compact(az)} E`;
+            if (az > 90 && az <= 180) return `S ${degToDMS_Compact(180 - az)} E`;
+            if (az > 180 && az <= 270) return `S ${degToDMS_Compact(az - 180)} O`;
+            return `N ${degToDMS_Compact(360 - az)} O`;
         }
 
         /* --- DETECTOR GEOMÉTRICO DE CRUCE DE LINDEROS ("MOÑO") --- */
@@ -632,7 +671,7 @@
             for (let i = 0; i < n; i++) {
                 let iNext = (i + 1) % n;
                 for (let j = i + 2; j < n; j++) {
-                    if (i === 0 && j === n - 1) continue; // Lados adyacentes comparten vértice
+                    if (i === 0 && j === n - 1) continue;
                     let jNext = (j + 1) % n;
                     if (segmentosSeCruzan(X[i], Y[i], X[iNext], Y[iNext], X[j], Y[j], X[jNext], Y[jNext])) {
                         return { lado1: `${i+1}-${iNext+1}`, lado2: `${j+1}-${jNext+1}` };
@@ -642,7 +681,7 @@
             return null;
         }
 
-        // --- CÁLCULO CORE (GAUSS, CENTROIDE, ÁNGULOS DMS Y CRUCE) ---
+        // --- CÁLCULO CORE (GAUSS, CENTROIDE PROTEGIDO, ÁNGULOS DMS Y CRUCE) ---
         function calcularArea() {
             vibrar(); let trs = document.querySelectorAll('#cuerpoTablaAreas tr'); let X = []; let Y = []; let filasValidas = []; let decs = parseInt(globalConfig.decimales) || 3;
             trs.forEach((tr) => { 
@@ -656,10 +695,11 @@
             let cruce = verificarCrucePoligono(X, Y);
             let alertaBox = document.getElementById('alertaGeometria');
             if (cruce) {
+                alertaBox.style.display = 'block';
                 alertaBox.innerHTML = `<strong style="color: var(--danger-color);">🚨 POLÍGONO CRUZADO ("MOÑO") DETECTADO:</strong> El lado <strong>${cruce.lado1}</strong> se cruza con el lado <strong>${cruce.lado2}</strong>. Corrige el orden de tus vértices porque el área mostrada es inválida.`;
                 showToast(`⚠️ Cruce detectado entre lados ${cruce.lado1} y ${cruce.lado2}`, "error");
             } else {
-                alertaBox.innerHTML = `<strong style="color: var(--success-color);">✓ GEOMETRÍA LIMPIA:</strong> Contorno cerrado sin cruces de linderos (${n} vértices verificados).`;
+                alertaBox.style.display = 'none';
             }
 
             let areaConSigno = 0; let p = 0; let cx = 0; let cy = 0;
@@ -674,11 +714,16 @@
             let areaAbs = Math.abs(areaConSigno);
             let isCCW = areaConSigno > 0; 
             
-            cx = cx / (6.0 * areaConSigno); cy = cy / (6.0 * areaConSigno);
-            currentCentroid = {x: cx, y: cy, a: areaAbs};
+            if (areaAbs > 1e-6) {
+                cx = cx / (6.0 * areaConSigno);
+                cy = cy / (6.0 * areaConSigno);
+            } else {
+                cx = X.reduce((a, b) => a + b, 0) / n;
+                cy = Y.reduce((a, b) => a + b, 0) / n;
+            }
 
-            // Ángulos Internos en Grados, Minutos y Segundos
             let sumaGrados = 0;
+            let angsDMS = [];
             for(let i = 0; i < n; i++) {
                 let prev = (i - 1 + n) % n; let next = (i + 1) % n;
                 let ax = X[prev] - X[i]; let ay = Y[prev] - Y[i];
@@ -688,8 +733,26 @@
                 if(angRad < 0) angRad += 2 * Math.PI;
                 let deg = angRad * 180 / Math.PI;
                 sumaGrados += deg;
-                filasValidas[i].querySelector('.ang-int').innerText = degToDMS_Compact(deg);
+                let dmsStr = degToDMS_Compact(deg);
+                angsDMS.push(dmsStr);
+                filasValidas[i].querySelector('.ang-int').innerText = dmsStr;
             }
+
+            currentCentroid = {x: cx, y: cy, a: areaAbs, perim: p, cruzado: !!cruce, angulosDMS: angsDMS};
+
+            let loteNom = obtenerProyectoActivo() ? obtenerProyectoActivo().nombre : "LOTE";
+            let txtCuadro = `--- CUADRO DE DATOS TÉCNICOS (${loteNom}) ---\n`;
+            txtCuadro += `Área: ${areaAbs.toFixed(2)} m² (${(areaAbs/10000).toFixed(4)} Ha) | Perímetro: ${p.toFixed(decs)} m\n`;
+            txtCuadro += `VÉRTICE\tLADO\tDIST.(m)\tÁNG. INT.\tAZIMUT\tRUMBO\tESTE (X)\tNORTE (Y)\n`;
+            for (let i = 0; i < n; i++) {
+                let j = (i + 1) % n;
+                let distLado = Math.sqrt(Math.pow(X[j] - X[i], 2) + Math.pow(Y[j] - Y[i], 2));
+                let azDeg = calcularAzimutLado(X[i], Y[i], X[j], Y[j]);
+                let azLado = degToDMS_Compact(azDeg);
+                let rumboLado = azimutARumbo(azDeg);
+                txtCuadro += `V-${i+1}\tV-${i+1} - V-${j+1}\t${distLado.toFixed(decs)}\t${angsDMS[i]}\t${azLado}\t${rumboLado}\t${X[i].toFixed(decs)}\t${Y[i].toFixed(decs)}\n`;
+            }
+            ultimoReporteLinderos = txtCuadro;
             
             document.getElementById('resAreaM2').innerText = areaAbs.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " m²";
             document.getElementById('resAreaHa').innerText = (areaAbs / 10000.0).toLocaleString('en-US', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " Ha";
@@ -703,6 +766,16 @@
             redibujarCroquis();
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             if (!cruce) showToast("Área calculada exitosamente", "success");
+        }
+
+        function copiarCuadroTecnicoPortapapeles() {
+            vibrar();
+            if (!ultimoReporteLinderos) return showToast("Calcula el área primero", "warning");
+            navigator.clipboard.writeText(ultimoReporteLinderos).then(() => {
+                showToast("Cuadro Técnico con Rumbos copiado", "success");
+            }).catch(() => {
+                showToast("No se pudo copiar al portapapeles", "error");
+            });
         }
 
         // --- CROQUIS Y CANVAS INTERACTIVO ---
@@ -723,6 +796,14 @@
             let offsetX = pad + (drawW - rangeX * scale) / 2; let offsetY = pad + (drawH - rangeY * scale) / 2;
 
             let cruce = verificarCrucePoligono(X, Y);
+            let alertaBox = document.getElementById('alertaGeometria');
+            if (cruce) {
+                alertaBox.style.display = 'block';
+                alertaBox.innerHTML = `<strong style="color: var(--danger-color);">🚨 POLÍGONO CRUZADO ("MOÑO"):</strong> Lado <strong>${cruce.lado1}</strong> cruza con <strong>${cruce.lado2}</strong>.`;
+            } else {
+                alertaBox.style.display = 'none';
+            }
+
             ctx.strokeStyle = cruce ? '#d32f2f' : '#FF6600'; 
             ctx.lineWidth = 2; 
             ctx.fillStyle = cruce ? 'rgba(211, 47, 47, 0.12)' : 'rgba(255, 102, 0, 0.08)'; 
@@ -770,7 +851,8 @@
         // --- AJUSTE REGISTRAL (HOMOTECIA) ---
         function abrirPromptArea() {
             vibrar();
-            if(currentCentroid.a === 0 || isNaN(currentCentroid.a)) return showToast("Calcula el área primero", "warning");
+            if(currentCentroid.a <= 1e-4 || isNaN(currentCentroid.a)) return showToast("Calcula un área válida primero", "warning");
+            if(currentCentroid.cruzado) return showToast("No se puede ajustar un polígono cruzado", "error");
             document.getElementById('inputTargetArea').value = currentCentroid.a.toFixed(2);
             document.getElementById('promptAreaOverlay').style.display = 'block'; 
             setTimeout(() => {
@@ -805,15 +887,15 @@
             guardarEstadoApp(); calcularArea(); showToast(`Área ajustada a ${tArea} m²`, "success");
         }
 
-        // --- IMPORTACIÓN Y KML ---
+        // --- IMPORTACIÓN Y KML CON SERIE GEODÉSICA COMPLETA (6° ORDEN) ---
         function latLonToUtmCompact(lat, lon, zone, isSouth) {
             const a = 6378137.0; const f = 1/298.257223563;
             let latR = lat*Math.PI/180; let lonR = lon*Math.PI/180; let l0 = (zone-1)*6-180+3; let l0R = l0*Math.PI/180;
             let e2 = 2*f-f*f; let ep2 = e2/(1-e2); let n = a/Math.sqrt(1-e2*Math.sin(latR)*Math.sin(latR));
             let t = Math.tan(latR)*Math.tan(latR); let c = ep2*Math.cos(latR)*Math.cos(latR); let A = Math.cos(latR)*(lonR-l0R);
-            let m = a*((1-e2/4-3*e2*e2/64-5*Math.pow(e2,3)/256)*latR - (3*e2/8+3*e2*e2/32+45*Math.pow(e2,3)/1024)*Math.sin(2*latR) + (15*e2*e2/256+45*Math.pow(e2,3)/1024)*Math.sin(4*latR));
-            let x = 0.9996*n*(A+(1-t+c)*Math.pow(A,3)/6) + 500000.0;
-            let y = 0.9996*(m+n*Math.tan(latR)*(A*A/2+(5-t+9*c+4*c*c)*Math.pow(A,4)/24));
+            let m = a*((1-e2/4-3*e2*e2/64-5*Math.pow(e2,3)/256)*latR - (3*e2/8+3*e2*e2/32+45*Math.pow(e2,3)/1024)*Math.sin(2*latR) + (15*e2*e2/256+45*Math.pow(e2,3)/1024)*Math.sin(4*latR) - (35*Math.pow(e2,3)/3072)*Math.sin(6*latR));
+            let x = 0.9996*n*(A+(1-t+c)*Math.pow(A,3)/6 + (5-18*t+t*t+72*c-58*ep2)*Math.pow(A,5)/120) + 500000.0;
+            let y = 0.9996*(m+n*Math.tan(latR)*(A*A/2+(5-t+9*c+4*c*c)*Math.pow(A,4)/24 + (61-58*t+t*t+600*c-330*ep2)*Math.pow(A,6)/720));
             if(isSouth && lat < 0) y += 10000000.0;
             return { e: x, n: y };
         }
@@ -840,7 +922,6 @@
                             }
                         }
                     });
-                    // Si el KML repite el primer punto al final para cerrar el polígono, removemos el duplicado
                     if (pts.length > 3 && pts[0].e === pts[pts.length - 1].e && pts[0].n === pts[pts.length - 1].n) {
                         pts.pop();
                     }
@@ -878,8 +959,79 @@
             showToast("CSV de replanteo descargado", "success");
         }
 
+        // --- EXPORTAR SCRIPT AUTOCAD (.SCR) CON ACOTADO DE LINDEROS Y CUADRO TÉCNICO ---
+        function exportarSCR_AutoCAD() {
+            vibrar();
+            let p = obtenerProyectoActivo();
+            let decs = parseInt(globalConfig.decimales) || 3;
+            let pts = [];
+            document.querySelectorAll('#cuerpoTablaAreas tr').forEach((tr, idx) => {
+                let xv = parseFloat(tr.querySelector('.coor-x').value);
+                let yv = parseFloat(tr.querySelector('.coor-y').value);
+                let angTxt = tr.querySelector('.ang-int').innerText.trim();
+                if (!isNaN(xv) && !isNaN(yv)) pts.push({ id: `V-${idx+1}`, e: xv, n: yv, ang: angTxt });
+            });
+            let nV = pts.length;
+            if (nV < 3) return showToast("Requiere al menos 3 vértices válidos", "warning");
+
+            let minE = Math.min(...pts.map(pt => pt.e)), maxE = Math.max(...pts.map(pt => pt.e));
+            let minN = Math.min(...pts.map(pt => pt.n)), maxN = Math.max(...pts.map(pt => pt.n));
+            let span = Math.max(maxE - minE, maxN - minN) || 50;
+            let hTxt = Number((span * 0.018).toFixed(2));
+            if (hTxt < 0.6) hTxt = 0.6;
+
+            let scr = `_PLINE\n`;
+            pts.forEach(pt => { scr += `${pt.e.toFixed(decs)},${pt.n.toFixed(decs)}\n`; });
+            scr += `_C\n`;
+
+            for (let i = 0; i < nV; i++) {
+                let nextI = (i + 1) % nV;
+                let e1 = pts[i].e, n1 = pts[i].n;
+                let e2 = pts[nextI].e, n2 = pts[nextI].n;
+                let midE = (e1 + e2) / 2.0;
+                let midN = (n1 + n2) / 2.0;
+                let distReal = Math.sqrt(Math.pow(e2 - e1, 2) + Math.pow(n2 - n1, 2));
+                let angCad = Math.atan2(n2 - n1, e2 - e1) * 180.0 / Math.PI;
+                if (angCad > 90) angCad -= 180;
+                if (angCad < -90) angCad += 180;
+
+                scr += `_CIRCLE ${e1.toFixed(decs)},${n1.toFixed(decs)} ${(hTxt * 0.45).toFixed(2)}\n`;
+                scr += `_TEXT ${(e1 + hTxt * 0.6).toFixed(decs)},${(n1 + hTxt * 0.6).toFixed(decs)} ${hTxt} 0 ${pts[i].id}\n`;
+                scr += `_TEXT ${midE.toFixed(decs)},${midN.toFixed(decs)} ${(hTxt * 0.85).toFixed(2)} ${angCad.toFixed(1)} ${distReal.toFixed(2)}m\n`;
+            }
+
+            if (currentCentroid.a > 0) {
+                scr += `_TEXT ${currentCentroid.x.toFixed(decs)},${currentCentroid.y.toFixed(decs)} ${(hTxt * 1.15).toFixed(2)} 0 AREA=${currentCentroid.a.toFixed(2)}m2\n`;
+                scr += `_TEXT ${currentCentroid.x.toFixed(decs)},${(currentCentroid.y - hTxt * 1.6).toFixed(decs)} ${(hTxt * 0.95).toFixed(2)} 0 PERIMETRO=${currentCentroid.perim.toFixed(2)}m\n`;
+            }
+
+            let tableX = maxE + span * 0.18;
+            let tableY = maxN;
+            let rowH = hTxt * 2.2;
+            scr += `_TEXT ${tableX.toFixed(2)},${(tableY + rowH).toFixed(2)} ${(hTxt * 1.05).toFixed(2)} 0 CUADRO DE DATOS TECNICOS - ${p.nombre}\n`;
+            scr += `_TEXT ${tableX.toFixed(2)},${tableY.toFixed(2)} ${(hTxt * 0.85).toFixed(2)} 0 VERTICE    LADO         DIST.(m)     ANG.INT.         AZIMUT           ESTE(X)          NORTE(Y)\n`;
+
+            for (let i = 0; i < nV; i++) {
+                let nextI = (i + 1) % nV;
+                let yFila = tableY - ((i + 1) * rowH);
+                let distReal = Math.sqrt(Math.pow(pts[nextI].e - pts[i].e, 2) + Math.pow(pts[nextI].n - pts[i].n, 2));
+                let azStr = degToDMS_Compact(calcularAzimutLado(pts[i].e, pts[i].n, pts[nextI].e, pts[nextI].n));
+                let lineaTxt = `${pts[i].id.padEnd(10)} ${(pts[i].id+'-'+pts[nextI].id).padEnd(12)} ${distReal.toFixed(decs).padEnd(12)} ${pts[i].ang.padEnd(16)} ${azStr.padEnd(16)} ${pts[i].e.toFixed(decs).padEnd(16)} ${pts[i].n.toFixed(decs)}`;
+                scr += `_TEXT ${tableX.toFixed(2)},${yFila.toFixed(2)} ${(hTxt * 0.8).toFixed(2)} 0 ${lineaTxt}\n`;
+            }
+
+            scr += `_ZOOM _E\n`;
+
+            let blob = new Blob([scr], { type: 'text/plain;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Poligono_${p.nombre.replace(/\s+/g,'_')}.scr`;
+            link.click();
+            showToast("Script AutoCAD + Cuadro (.scr) descargado", "success");
+        }
+
         function exportarBackup() { vibrar(); const b = JSON.parse(localStorage.getItem('cota100_db_areas_v2')); if(!b || b.proyectos.length===0) return; const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(b))); dl.setAttribute("download", `DB_Areas_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup exportado", "success"); }
-        function importarBackup() { const f = document.getElementById('importFile'); if (f.files.length === 0) return; const reader = new FileReader(); reader.onload = (e) => { try { const b = JSON.parse(e.target.result); if(b.proyectos) { localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b)); showToast("✅ DB restaurada...", "success"); setTimeout(()=>window.location.reload(),1500); } else showToast("❌ Archivo no válido", "error"); } catch(err) { showToast("❌ Error al leer", "error"); } }; reader.readAsText(f.files[0]); }
+        function importarBackup() { const f = document.getElementById('importFile'); if (f.files.length === 0) return; const reader = new FileReader(); reader.onload = (e) => { try { const b = JSON.parse(e.target.result); if(b.proyectos) { localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b)); showToast("✅ DB restaurada...", "success"); setTimeout(()=>window.location.reload(),1500); } else showToast("❌ Archivo no válido", "error"); } catch(err) { showToast("❌ Error al leer", "error"); } }; reader.readAsText(fileInput.files[0]); }
     </script>
 </body>
 </html>

@@ -113,7 +113,7 @@
         .input-group { display: flex; flex-direction: column; }
         .full-width { grid-column: 1 / -1; }
 
-        label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8;}
+        label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8; display: flex; align-items: center; justify-content: space-between;}
         
         input { width: 100%; font-weight: 800; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; text-align: center; padding: 12px;}
         input:focus { border-color: var(--primary-color); outline: none; background: transparent; }
@@ -137,7 +137,7 @@
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center;}
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98);}
 
-        /* TABLA PRINCIPAL Y MEJORA DE ESPACIO EN CELDA PTO */
+        /* TABLA PRINCIPAL */
         .table-wrapper { width: 100%; overflow-x: hidden; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 12px; transition: 0.3s;}
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 2px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--border-color); position: sticky; top: 0; z-index: 10;}
@@ -148,6 +148,7 @@
 
         td input { border: none; width: 100%; height: 100%; padding: 12px 2px; text-align: center; background: transparent; border-radius: 0; color: var(--text-color); font-weight: 800; text-transform: uppercase;}
         td input:focus { background: rgba(255, 85, 0, 0.05); outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
+        td input.vd-faltante { background: rgba(211, 47, 47, 0.12) !important; outline: 2px dashed var(--danger-color) !important; outline-offset: -2px; }
         
         td input.in-pto { font-size: 1rem; text-align: left; padding-left: 6px; padding-right: 44px; letter-spacing: -0.3px; } 
         td input.in-va, td input.in-vd { font-size: 1.15rem; }
@@ -166,6 +167,11 @@
         .in-cota.editable-activa { pointer-events: auto !important; background-color: rgba(255, 85, 0, 0.05); }
         .in-cota.fijo { background: rgba(25, 118, 210, 0.05); border-color: #1976d2; color: #1976d2; pointer-events: none; }
         
+        .badge-rasante { font-size: 0.7rem; font-weight: 900; border-radius: 3px; padding: 1px 4px; margin-top: 2px; display: none; text-align: center; letter-spacing: 0.3px;}
+        .badge-corte { background: rgba(211, 47, 47, 0.12); color: var(--danger-color); border: 1px solid rgba(211, 47, 47, 0.3); }
+        .badge-relleno { background: rgba(25, 118, 210, 0.12); color: #1976d2; border: 1px solid rgba(25, 118, 210, 0.3); }
+        .badge-rasante-ok { background: rgba(46, 125, 50, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
+
         .trend-icon { width: 15px; text-align: center; display: inline-block; font-size: 1.2rem; font-weight: 900; cursor: pointer; user-select: none;}
         .trend-icon:active { transform: scale(1.2); }
         
@@ -231,7 +237,6 @@
 </head>
 <body onload="inicializarApp()">
 
-    <!-- Fondo de Fuego Animado -->
     <div class="fire-base">
         <div class="fire-wave delay"></div>
         <div class="fire-wave"></div>
@@ -330,6 +335,15 @@
                     <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--primary-color); margin:0;" onclick="crearNuevoProyecto()">➕</button>
                     <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--danger-color); margin:0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
+
+                <!-- CONTROL DE PLANTILLA / RASANTE (CORTE Y RELLENO EN VIVO) -->
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-bottom: 10px;">
+                    <label style="color: var(--primary-color);">
+                        <span>🎯 Cota Plantilla / Rasante Fija (Opcional)</span>
+                        <span class="info-icon" style="background:rgba(128,128,128,0.1); border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center; cursor:pointer;" onclick="showCustomAlert('Si estás nivelando una plataforma o subrasante a una cota de diseño fija, escríbela aquí. En cada fila verás en vivo cuánto falta CORTAR (-) o RELLENAR (+) respecto a esa plantilla.', 'CONTROL DE PLANTILLA')">ℹ️</span>
+                    </label>
+                    <input type="text" inputmode="decimal" id="cotaRasanteFija" placeholder="Opcional (Ej: 102.500 para ver Corte/Relleno)" oninput="formatDecimal(this); procesarTabla();" onblur="completarCerosSimple(this)">
+                </div>
                 
                 <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
                     <label style="color: var(--primary-color);">+ Registrar BM Oficial</label>
@@ -421,19 +435,38 @@
         </div>
     </div>
 
-    <!-- LÓGICA PRINCIPAL DE LA APLICACIÓN -->
     <script>
         /* --- FUNCIONES BASE DE ESTADO --- */
         let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
-        let globalConfig = { darkMode: false, vibracion: false, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
+        let globalConfig = { darkMode: false, vibracion: true, sonido: false, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
         let inputPtoActivo = null; 
         let tablaBloqueada = false;
         let wakeLock = null;
         let editandoBMIndex = -1;
+        let audioCtxSim = null;
+
+        function feedbackUI() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) {
+                try { navigator.vibrate(20); } catch(e) {}
+            }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxSim) audioCtxSim = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxSim.state === 'suspended') audioCtxSim.resume();
+                    let osc = audioCtxSim.createOscillator();
+                    let gain = audioCtxSim.createGain();
+                    osc.connect(gain); gain.connect(audioCtxSim.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxSim.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxSim.currentTime);
+                    osc.start(); osc.stop(audioCtxSim.currentTime + 0.08);
+                } catch(e) {}
+            }
+        }
 
         function guardarEstadoTabla() {
             let p = obtenerProyectoActivo(); 
             if(!p) return;
+            p.cotaRasanteFija = document.getElementById('cotaRasanteFija').value || "";
             let filas = [];
             document.querySelectorAll('#cuerpoTabla tr').forEach((tr, i) => {
                 filas.push({
@@ -485,12 +518,12 @@
                     <div><strong style="color:var(--primary-color);">Vincular BM:</strong> Toca para inyectar un BM de la Base de Datos a la libreta (Cota Fija).</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">💾</span> 
-                    <div><strong style="color:var(--primary-color);">BM On-the-Fly:</strong> Aparece al escribir un punto nuevo. Tócalo para guardarlo directo en tu lista de BMs.</div>
+                    <span style="font-size:1.2rem; margin-right:10px;">🎯</span> 
+                    <div><strong style="color:var(--primary-color);">Control de Plantilla:</strong> Escribe una Cota de Rasante Fija arriba para ver en cada lectura de terreno el <strong>Corte (-)</strong> o <strong>Relleno (+)</strong> en vivo.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">🔗</span> 
-                    <div><strong style="color:var(--primary-color);">Puente de BMs:</strong> Importa BMs registrados en Nivelación Simultánea o Alcantarillado sin volver a digitarlos.</div>
+                    <span style="font-size:1.2rem; margin-right:10px;">⚡</span> 
+                    <div><strong style="color:var(--primary-color);">Auto-Nombrado:</strong> Si dejas el nombre vacío y llenas V.AT(+) y V.AD(-), se nombrará solo como <strong>PC-1, PC-2...</strong> Si solo llenas V.AD(-), se nombrará <strong>R-1, R-2...</strong></div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">⚖️</span> 
@@ -543,7 +576,6 @@
             let pActual = obtenerProyectoActivo();
             let nombresActuales = pActual ? pActual.bms.map(b => b.nombre) : [];
 
-            // 1. Buscar en otros proyectos de Nivelación Simple
             appData.proyectos.forEach(proj => {
                 if (proj.id !== appData.activoId && proj.bms) {
                     proj.bms.forEach(bm => {
@@ -554,7 +586,6 @@
                 }
             });
 
-            // 2. Buscar en Nivelación Simultánea (Doble Liga)
             try {
                 let dbPol = JSON.parse(localStorage.getItem('cota100_db_poligonal_v11'));
                 if (dbPol && dbPol.proyectos) {
@@ -570,7 +601,6 @@
                 }
             } catch(e) {}
 
-            // 3. Buscar en Alcantarillado
             try {
                 let dbAlc = JSON.parse(localStorage.getItem('cota100_db_alcan_v3'));
                 if (dbAlc && dbAlc.proyectos) {
@@ -695,8 +725,33 @@
             }
         }
 
+        function autoNombrarPuntosSimple() {
+            let trs = document.querySelectorAll('#cuerpoTabla tr');
+            let pcCount = 1;
+            let radCount = 1;
+            for (let i = 1; i < trs.length; i++) {
+                let inPto = trs[i].querySelector('.in-pto');
+                let va = trs[i].querySelector('.in-va').value.trim();
+                let vd = trs[i].querySelector('.in-vd').value.trim();
+                let ptoVal = inPto.value.trim().toUpperCase();
+
+                if (document.activeElement !== inPto) {
+                    if ((ptoVal === "" || ptoVal.startsWith("R-")) && va !== "" && vd !== "") {
+                        inPto.value = "PC-" + pcCount;
+                        ptoVal = inPto.value;
+                    } else if (ptoVal === "" && va === "" && vd !== "") {
+                        inPto.value = "R-" + radCount;
+                        ptoVal = inPto.value;
+                    }
+                }
+                if (ptoVal.startsWith("PC-")) pcCount++;
+                if (ptoVal.startsWith("R-")) radCount++;
+            }
+        }
+
         function completarCerosSimple(input) {
             completarCerosInput(input);
+            autoNombrarPuntosSimple();
             procesarTabla();
         }
 
@@ -781,7 +836,7 @@
             } else { 
                 appData.contadorProyectos = 1;
                 let prefijo = JSON.parse(localStorage.getItem('cota100_ajustes'))?.proyecto || "PROYECTO";
-                appData.proyectos.push({ id: 1, nombre: `${prefijo} 1`, bms: [], tabla: [] }); 
+                appData.proyectos.push({ id: 1, nombre: `${prefijo} 1`, bms: [], tabla: [], cotaRasanteFija: "" }); 
                 appData.activoId = 1; 
             }
             renderSelectProyectos(); cargarProyectoActivo();
@@ -801,7 +856,7 @@
             let prefijo = JSON.parse(localStorage.getItem('cota100_ajustes'))?.proyecto || "PROYECTO";
             let nombre = `${prefijo} ${appData.contadorProyectos}`;
             let nuevoId = Date.now();
-            appData.proyectos.push({ id: nuevoId, nombre: nombre, bms: [], tabla: [] });
+            appData.proyectos.push({ id: nuevoId, nombre: nombre, bms: [], tabla: [], cotaRasanteFija: "" });
             appData.activoId = nuevoId; guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
             showToast("Proyecto creado", "success");
         }
@@ -832,6 +887,7 @@
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
+            document.getElementById('cotaRasanteFija').value = p.cotaRasanteFija || "";
             renderBMs(); cargarTablaDesdeBD(p.tabla);
         }
 
@@ -1107,7 +1163,6 @@
             let decs = parseInt(globalConfig.decimales) || 3;
             let trs = document.querySelectorAll('#cuerpoTabla tr');
 
-            // Identificar filas donde se transmite cota hasta el punto de cierre (PCs con VA y VD + la fila final de cierre)
             let filasCambio = [];
             let ultimoInicioFijo = 0;
             for (let i = filaDestinoIdx - 1; i >= 0; i--) {
@@ -1212,10 +1267,11 @@
             }
         }
 
-        /* --- MOTOR MATEMÁTICO ESTABILIZADO --- */
+        /* --- MOTOR MATEMÁTICO CON PROTECCIÓN CONTRA "PC ROTO" Y CONTROL DE PLANTILLA --- */
         function procesarTabla() {
             let decs = parseInt(globalConfig.decimales) || 3;
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
+            let cotaPlantilla = parseFloat(document.getElementById('cotaRasanteFija').value);
             let trs = document.querySelectorAll('#cuerpoTabla tr');
             let ai_actual = NaN;
             let prevCotaCalculada = NaN;
@@ -1229,6 +1285,9 @@
                 let cellAI = tr.querySelector('.btn-ai-label');
                 let aiNum = tr.querySelector('.val-ai-num');
                 let iconTrend = tr.querySelector('.trend-icon');
+                let badgeRas = tr.querySelector('.badge-rasante');
+
+                inVd.classList.remove('vd-faltante');
 
                 let va = parseFloat(inVa.value);
                 let vd = parseFloat(inVd.value);
@@ -1298,15 +1357,28 @@
                                 } else { 
                                     aiNum.innerText = ai_actual.toFixed(decs); 
                                 }
+                            } else if (!isNaN(va)) {
+                                // Protección contra "PC Roto": Tiene V.AT(+) pero olvidó poner V.AD(-) ni tiene Cota Fija
+                                if (!isCotaActive) cotaInp.value = "";
+                                inVd.classList.add('vd-faltante');
+                                aiNum.innerText = "FALTA VD";
+                                ai_actual = NaN;
                             } else { 
                                 if (!isCotaActive && !isFijo) cotaInp.value = ""; 
                                 aiNum.innerText = ai_actual.toFixed(decs); 
                             }
                         }
                     } else { 
-                        aiNum.innerText = "---"; 
-                        if (!isCotaActive && !isFijo) cotaInp.value = "";
-                        if (!isVdActive && isFijo) inVd.value = ""; 
+                        // Si la estación anterior quedó rota pero en esta fila arranca de un nuevo BM Fijo con V.AT(+)
+                        let cotaValFija = parseFloat(cotaInp.value);
+                        if (isFijo && !isNaN(cotaValFija) && !isNaN(va)) {
+                            ai_actual = Number((cotaValFija + va).toFixed(decs));
+                            aiNum.innerText = ai_actual.toFixed(decs);
+                        } else {
+                            aiNum.innerText = "---"; 
+                            if (!isCotaActive && !isFijo) cotaInp.value = "";
+                            if (!isVdActive && isFijo) inVd.value = ""; 
+                        }
                     }
                 }
 
@@ -1320,9 +1392,37 @@
                         iconTrend.innerHTML = '<span style="color:gray; font-size:1.2rem; font-weight:900;">●</span>';
                     }
                     prevCotaCalculada = currentCota;
+
+                    if (badgeRas) {
+                        if (!isNaN(cotaPlantilla) && i > 0) {
+                            let diffRas = Number((cotaPlantilla - currentCota).toFixed(decs));
+                            badgeRas.style.display = 'block';
+                            badgeRas.className = 'badge-rasante';
+                            if (Math.abs(diffRas) < 0.002) {
+                                badgeRas.classList.add('badge-rasante-ok');
+                                badgeRas.innerText = `RASANTE OK (0.000)`;
+                            } else if (diffRas < 0) {
+                                badgeRas.classList.add('badge-corte');
+                                badgeRas.innerText = `CORTE: ${diffRas.toFixed(decs)} m`;
+                            } else {
+                                badgeRas.classList.add('badge-relleno');
+                                badgeRas.innerText = `RELLENO: +${diffRas.toFixed(decs)} m`;
+                            }
+                        } else {
+                            badgeRas.style.display = 'none';
+                        }
+                    }
                 } else { 
                     iconTrend.innerHTML = ''; 
+                    if (badgeRas) badgeRas.style.display = 'none';
                 }
+
+                if (inVa.value !== "") {
+                    let valVaCheck = parseFloat(inVa.value);
+                    if (valVaCheck < 0) { inVa.style.color = "#9c27b0"; inVa.style.fontWeight = "900"; }
+                    else if (valVaCheck >= limiteMira) { inVa.style.color = "var(--danger-color)"; inVa.style.fontWeight = "900"; }
+                    else { inVa.style.color = "var(--text-color)"; inVa.style.fontWeight = "800"; }
+                } else { inVa.style.color = "var(--text-color)"; }
 
                 if (inVd.value !== "") {
                     let valVdCheck = parseFloat(inVd.value);
@@ -1412,6 +1512,7 @@
                         <input type="text" inputmode="decimal" class="in-cota" placeholder="Cota..." oninput="formatDecimal(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
                         <span class="trend-icon" onclick="medirDesnivelRapido(this)"></span>
                     </div>
+                    <div class="badge-rasante"></div>
                 </td>
             `;
             tbody.appendChild(tr); if(!isAuto) guardarEstadoTabla();
@@ -1467,6 +1568,7 @@
                             <input type="text" inputmode="decimal" class="in-cota ${f.fijo === "true" ? 'fijo' : ''}" placeholder="Cota..." value="${f.cota}" data-fijo="${f.fijo}" oninput="formatDecimal(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
                             <span class="trend-icon" onclick="medirDesnivelRapido(this)"></span>
                         </div>
+                        <div class="badge-rasante"></div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1475,9 +1577,26 @@
         }
 
         function exportarXLSX() {
+            feedbackUI();
             let p = obtenerProyectoActivo(); let decs = parseInt(globalConfig.decimales) || 3;
-            let datos = [["REPORTE DE NIVELACIÓN SIMPLE - COTA100"], ["Proyecto:", p.nombre], [], ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA", "OBSERVACIÓN"]];
-            document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
+            let cotaPlantilla = parseFloat(document.getElementById('cotaRasanteFija').value);
+            let fechaHoy = new Date().toLocaleDateString('es-PE');
+            let oper = globalConfig.operador || "COTA100";
+            let eq = globalConfig.equipo || "Nivel Automático";
+            let cabeceras = ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA TERRENO"];
+            if (!isNaN(cotaPlantilla)) {
+                cabeceras.push("COTA PLANTILLA", "CORTE (-) / RELLENO (+)");
+            }
+            cabeceras.push("OBSERVACIÓN");
+
+            let datos = [
+                ["REPORTE DE NIVELACIÓN SIMPLE - COTA100"],
+                ["Proyecto:", p.nombre, "", "Fecha:", fechaHoy],
+                ["Operador:", oper, "", "Equipo:", eq],
+                [],
+                cabeceras
+            ];
+            document.querySelectorAll('#cuerpoTabla tr').forEach((tr, idx) => {
                 let ptoVal = tr.querySelector('.in-pto').value;
                 let aiStr = tr.querySelector('.val-ai-num').innerText;
                 let cotaVal = parseFloat(tr.querySelector('.in-cota').value);
@@ -1487,7 +1606,22 @@
                 let obsPto = ""; let bmData = p.bms.find(b => b.nombre === ptoVal);
                 if(bmData && bmData.obs) obsPto = bmData.obs;
 
-                datos.push([ ptoVal, !isNaN(vaVal) ? Number(vaVal.toFixed(decs)) : "", aiStr !== "---" ? Number(parseFloat(aiStr).toFixed(decs)) : "", !isNaN(vdVal) ? Number(vdVal.toFixed(decs)) : "", !isNaN(cotaVal) ? Number(cotaVal.toFixed(decs)) : "", obsPto ]);
+                let fila = [
+                    ptoVal,
+                    !isNaN(vaVal) ? Number(vaVal.toFixed(decs)) : "",
+                    (aiStr !== "---" && aiStr !== "FALTA VD") ? Number(parseFloat(aiStr).toFixed(decs)) : "",
+                    !isNaN(vdVal) ? Number(vdVal.toFixed(decs)) : "",
+                    !isNaN(cotaVal) ? Number(cotaVal.toFixed(decs)) : ""
+                ];
+                if (!isNaN(cotaPlantilla)) {
+                    if (!isNaN(cotaVal) && idx > 0) {
+                        fila.push(Number(cotaPlantilla.toFixed(decs)), Number((cotaPlantilla - cotaVal).toFixed(decs)));
+                    } else {
+                        fila.push("", "");
+                    }
+                }
+                fila.push(obsPto);
+                datos.push(fila);
             });
             let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(datos), "Radiación");
             XLSX.writeFile(wb, `${p.nombre.replace(/\s+/g, '_')}_Nivelacion.xlsx`);
