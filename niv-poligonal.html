@@ -267,28 +267,36 @@
 
     <div id="toast-container"></div>
 
-    <!-- MODAL PRUEBA DE 2 ESTACAS -->
+    <!-- MODAL PRUEBA DE 2 ESTACAS (CON DISTANCIAS REALES DE CAMPO) -->
     <div class="overlay-select" id="overlayPrueba"></div>
-    <div class="modal-select" id="modalPrueba" style="max-width: 350px;">
-        <h3 style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.1rem; text-align:center;">🎯 PRUEBA DE 2 ESTACAS</h3>
+    <div class="modal-select" id="modalPrueba" style="max-width: 360px;">
+        <h3 style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem; text-align:center;">🎯 PRUEBA DE 2 ESTACAS</h3>
         
-        <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:10px;">
-            <div style="font-size:0.8rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">ESTACIÓN 1 (AL MEDIO)</div>
+        <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.78rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">DISTANCIAS DE CAMPO (m)</div>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;"><label style="font-size:0.68rem;">Dist. Estacas (A-B)</label><input type="text" id="peDistAB" value="30.000" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
+                <div style="flex:1;"><label style="font-size:0.68rem;">Est. 2 a Mira B</label><input type="text" id="peDistB2" value="2.000" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
+            </div>
+        </div>
+
+        <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:8px;">
+            <div style="font-size:0.8rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">ESTACIÓN 1 (AL MEDIO EXACTA)</div>
             <div style="display:flex; gap:10px;">
                 <div style="flex:1;"><label style="font-size:0.7rem;">Lectura A1</label><input type="text" id="peA1" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
                 <div style="flex:1;"><label style="font-size:0.7rem;">Lectura B1</label><input type="text" id="peB1" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
             </div>
         </div>
 
-        <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:15px;">
-            <div style="font-size:0.8rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">ESTACIÓN 2 (CERCA A 'B')</div>
+        <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:12px;">
+            <div style="font-size:0.8rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">ESTACIÓN 2 (EXTERIOR CERCA A 'B')</div>
             <div style="display:flex; gap:10px;">
                 <div style="flex:1;"><label style="font-size:0.7rem;">Lectura A2</label><input type="text" id="peA2" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
                 <div style="flex:1;"><label style="font-size:0.7rem;">Lectura B2</label><input type="text" id="peB2" inputmode="decimal" oninput="formatDecimal(this); calcPrueba()" onblur="completarCeros(this)"></div>
             </div>
         </div>
 
-        <div id="resPrueba" style="text-align:center; margin-bottom:15px; font-size:1.1rem; font-weight:900; color:var(--text-color);">
+        <div id="resPrueba" style="text-align:center; margin-bottom:12px; font-size:1.05rem; font-weight:900; color:var(--text-color);">
             Error: ---
         </div>
 
@@ -407,22 +415,22 @@
                     <div class="form-grid" style="margin-top: 5px; margin-bottom: 5px;">
                         <div class="input-group">
                             <label>
-                                Dist. Total (m)
-                                <span class="info-icon" onclick="showCustomAlert('Distancia total nivelada (Ida + Vuelta) en metros. Crucial para calcular el error máximo tolerable.', 'DISTANCIA TOTAL')">ℹ️</span>
+                                Long. Circuito (m)
+                                <span class="info-icon" onclick="showCustomAlert('Longitud horizontal real del circuito recorrido en metros (sin duplicar por doble mira). Calcula la tolerancia T = m · √K.', 'LONGITUD DEL CIRCUITO')">ℹ️</span>
                             </label>
                             <input type="text" id="distanciaM" inputmode="decimal" placeholder="Ej: 1500" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
                         <div class="input-group">
                             <label>
                                 Tol. Armada (mm)
-                                <span class="info-icon" onclick="showCustomAlert('Máxima diferencia en milímetros permitida entre la lectura de ambas líneas en un mismo punto.', 'TOLERANCIA POR ARMADA')">ℹ️</span>
+                                <span class="info-icon" onclick="showCustomAlert('Máxima diferencia en milímetros permitida entre el desnivel de ambas líneas en una misma armada.', 'TOLERANCIA POR ARMADA')">ℹ️</span>
                             </label>
                             <input type="text" id="tolTramo" inputmode="decimal" value="2" placeholder="Ej: 2" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
                         <div class="input-group full-width">
                             <label style="color:var(--primary-color);">
                                 Cota Llegada (Opcional)
-                                <span class="info-icon" onclick="showCustomAlert('Si nivelas hacia un BM distinto al de partida (Poligonal Abierta), ingresa su cota aquí para verificar el cierre final contra él.', 'COTA DE LLEGADA')">ℹ️</span>
+                                <span class="info-icon" onclick="showCustomAlert('Si nivelas hacia un BM distinto al de partida, ingresa su cota aquí (o regístralo en tu lista de BMs). Si cierras en el mismo BM inicial, déjalo vacío y el sistema verificará automáticamente contra la Cota Inicial.', 'COTA DE LLEGADA')">ℹ️</span>
                             </label>
                             <input type="text" id="cotaLlegada" inputmode="decimal" placeholder="Opcional. Ej: 105.000" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
@@ -513,7 +521,7 @@
                 <h4 style="color: var(--text-color); opacity: 0.8; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase;">Resumen Global</h4>
                 <div style="display: flex; gap: 10px;">
                     <div class="input-group" style="flex: 1;">
-                        <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-color); opacity: 0.8;">ERROR TOTAL (E)</span>
+                        <span id="lblErrorGlobal" style="font-size: 0.8rem; font-weight: 800; color: var(--text-color); opacity: 0.8;">ERROR TOTAL (E)</span>
                         <div class="res-valor" id="resError">0.000 m</div>
                     </div>
                     <div class="input-group" style="flex: 1;">
@@ -528,7 +536,7 @@
             
             <div id="contenedorCompensadas" style="display: none;">
                 <table class="tabla-compensada" id="tablaCompensada">
-                    <thead><tr><th>PUNTO</th><th>COTA IDA</th><th>COTA VUELTA</th><th>PROMEDIO</th></tr></thead>
+                    <thead><tr><th>PUNTO</th><th>COTA L1</th><th>COTA L2</th><th>PROMEDIO</th><th>COMPENSADA</th></tr></thead>
                     <tbody id="cuerpoCompensadas"></tbody>
                 </table>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top: 15px;">

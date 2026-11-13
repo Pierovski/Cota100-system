@@ -149,6 +149,7 @@
         td input { border: none; width: 100%; height: 100%; padding: 12px 2px; text-align: center; background: transparent; border-radius: 0; color: var(--text-color); font-weight: 800; text-transform: uppercase;}
         td input:focus { background: rgba(255, 85, 0, 0.05); outline: 2px solid var(--primary-color); outline-offset: -2px; z-index: 2;}
         td input.vd-faltante { background: rgba(211, 47, 47, 0.12) !important; outline: 2px dashed var(--danger-color) !important; outline-offset: -2px; }
+        td input[readonly] { background: rgba(128, 128, 128, 0.08); cursor: not-allowed; }
         
         td input.in-pto { font-size: 1rem; text-align: left; padding-left: 6px; padding-right: 44px; letter-spacing: -0.3px; } 
         td input.in-va, td input.in-vd { font-size: 1.15rem; }
@@ -436,7 +437,7 @@
     </div>
 
     <script>
-        /* --- FUNCIONES BASE DE ESTADO --- */
+        /* --- FUNCIONES BASE DE ESTADO Y PRECISIÓN ENTERA --- */
         let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
         let globalConfig = { darkMode: false, vibracion: true, sonido: false, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
         let inputPtoActivo = null; 
@@ -444,6 +445,26 @@
         let wakeLock = null;
         let editandoBMIndex = -1;
         let audioCtxSim = null;
+
+        function getDecs() {
+            return parseInt(globalConfig.decimales) || 3;
+        }
+
+        function getScaleFactor(decs = getDecs()) {
+            return Math.pow(10, decs);
+        }
+
+        function toScaledInt(val, decs = getDecs()) {
+            if (val === null || val === undefined || val === "") return NaN;
+            let num = typeof val === "number" ? val : parseFloat(String(val).replace(',', '.'));
+            if (isNaN(num)) return NaN;
+            return Math.round(num * Math.pow(10, decs));
+        }
+
+        function fromScaledInt(intVal, decs = getDecs()) {
+            if (isNaN(intVal)) return NaN;
+            return intVal / Math.pow(10, decs);
+        }
 
         function feedbackUI() {
             if (globalConfig.vibracion !== false && navigator.vibrate) {
@@ -476,7 +497,8 @@
                     vd: tr.querySelector('.in-vd').value,
                     cota: tr.querySelector('.in-cota').value,
                     fijo: tr.querySelector('.in-cota').dataset.fijo || (i===0 ? "true" : "false"),
-                    locked: tr.dataset.locked || "false"
+                    locked: tr.dataset.locked || "false",
+                    cierreCompensado: tr.dataset.cierreCompensado || "false"
                 });
             });
             p.tabla = filas; 
@@ -515,7 +537,7 @@
             let html = `
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">📍</span> 
-                    <div><strong style="color:var(--primary-color);">Vincular BM:</strong> Toca para inyectar un BM de la Base de Datos a la libreta (Cota Fija).</div>
+                    <div><strong style="color:var(--primary-color);">Vincular BM:</strong> Toca para inyectar un BM de la Base de Datos a la libreta (Cota Fija o Ver Cierre).</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">🎯</span> 
@@ -527,7 +549,7 @@
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">⚖️</span> 
-                    <div><strong style="color:var(--primary-color);">Compensar Cierre:</strong> Al cerrar en un BM conocido, reparte el error automáticamente entre tus Puntos de Cambio.</div>
+                    <div><strong style="color:var(--primary-color);">Compensar Cierre:</strong> Al cerrar en un BM conocido, reparte el error automáticamente entre los Puntos de Cambio del tramo sin alterar cierres previos.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start;">
                     <span style="font-size:1.2rem; margin-right:10px;">👆</span> 
@@ -579,42 +601,35 @@
             appData.proyectos.forEach(proj => {
                 if (proj.id !== appData.activoId && proj.bms) {
                     proj.bms.forEach(bm => {
-                        if (!nombresActuales.includes(bm.nombre)) {
+                        if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
                             lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Simple (${proj.nombre})` });
                         }
                     });
                 }
             });
 
-            try {
-                let dbPol = JSON.parse(localStorage.getItem('cota100_db_poligonal_v11'));
-                if (dbPol && dbPol.proyectos) {
-                    dbPol.proyectos.forEach(proj => {
-                        if (proj.bms) {
-                            proj.bms.forEach(bm => {
-                                if (!nombresActuales.includes(bm.nombre)) {
-                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simultánea: ${proj.nombre}`, origen: `Simultánea (${proj.nombre})` });
-                                }
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
+            const fuentes = [
+                { key: 'cota100_db_poligonal_v11', label: 'Simultánea' },
+                { key: 'cota100_db_alcan_v3', label: 'Alcantarillado' },
+                { key: 'cota100_db_vial_v1', label: 'Carreteras' }
+            ];
 
-            try {
-                let dbAlc = JSON.parse(localStorage.getItem('cota100_db_alcan_v3'));
-                if (dbAlc && dbAlc.proyectos) {
-                    dbAlc.proyectos.forEach(proj => {
-                        if (proj.bms) {
-                            proj.bms.forEach(bm => {
-                                if (!nombresActuales.includes(bm.nombre)) {
-                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Alcan: ${proj.nombre}`, origen: `Alcantarillado (${proj.nombre})` });
-                                }
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
+            fuentes.forEach(f => {
+                try {
+                    let dbExt = JSON.parse(localStorage.getItem(f.key));
+                    if (dbExt && dbExt.proyectos) {
+                        dbExt.proyectos.forEach(proj => {
+                            if (proj.bms) {
+                                proj.bms.forEach(bm => {
+                                    if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
+                                        lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De ${f.label}: ${proj.nombre}`, origen: `${f.label} (${proj.nombre})` });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch(e) {}
+            });
 
             return lista;
         }
@@ -655,7 +670,7 @@
             const contenido = document.getElementById('modalSelectContent');
             contenido.innerHTML = "";
             let p = obtenerProyectoActivo();
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
 
             if(tipo === 'proyecto') {
                 titulo.innerText = "📁 SELECCIONAR PROYECTO";
@@ -703,7 +718,7 @@
 
         /* --- BLOQUEADOR DE DECIMALES Y FORMATEO ANTI-FANTASMA NUMÉRICO --- */
         function formatDecimal(input) {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let val = input.value.replace(/,/g, '.');
             val = val.replace(/[^0-9.-]/g, ''); 
             if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
@@ -717,11 +732,11 @@
         }
 
         function completarCerosInput(input) {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let val = input.value.trim();
             if (val !== "" && val !== "-" && val !== ".") {
-                let floatVal = parseFloat(val);
-                if (!isNaN(floatVal)) input.value = floatVal.toFixed(decs);
+                let intVal = toScaledInt(val, decs);
+                if (!isNaN(intVal)) input.value = fromScaledInt(intVal, decs).toFixed(decs);
             }
         }
 
@@ -959,6 +974,8 @@
             
             if(!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
             let p = obtenerProyectoActivo();
+            let decs = getDecs();
+            let cotaExacta = fromScaledInt(toScaledInt(cota, decs), decs);
             
             const finalizarGuardado = () => {
                 document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; document.getElementById('newBMObs').value = "";
@@ -969,10 +986,17 @@
                 showCustomConfirm("⚠️ ¿Actualizar este BM? Se actualizarán las cotas en la libreta.", () => {
                     let oldName = p.bms[editandoBMIndex].nombre;
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
-                    p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
+                    p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
                     document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
                         let inPto = tr.querySelector('.in-pto');
-                        if (inPto.dataset.bmAsignado === oldName) { inPto.dataset.bmAsignado = name; inPto.value = name; }
+                        if (inPto.dataset.bmAsignado === oldName) {
+                            inPto.dataset.bmAsignado = name;
+                            inPto.value = name;
+                            let inCota = tr.querySelector('.in-cota');
+                            if (inCota.dataset.fijo === "true") {
+                                inCota.value = cotaExacta.toFixed(decs);
+                            }
+                        }
                     });
                     editandoBMIndex = -1;
                     let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
@@ -980,7 +1004,7 @@
                 });
             } else {
                 if(p.bms.some(bm => bm.nombre === name)) return showToast("⚠️ Ya existe un BM con ese nombre.", "warning");
-                p.bms.push({ nombre: name, cota: cota, obs: obs }); finalizarGuardado();
+                p.bms.push({ nombre: name, cota: cotaExacta, obs: obs }); finalizarGuardado();
             }
         }
 
@@ -1000,7 +1024,7 @@
         }
 
         function renderBMs() {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
             p.bms.forEach((bm) => {
                 list.innerHTML += `
@@ -1057,7 +1081,7 @@
             const val = input.value.toUpperCase().trim(); 
             const prevBm = input.dataset.bmAsignado || ""; 
             input.value = val; 
-            let decs = parseInt(globalConfig.decimales) || 3; 
+            let decs = getDecs(); 
             let p = obtenerProyectoActivo(); 
             const bmEncontrado = p.bms.find(b => b.nombre === val);
             const tr = input.closest('tr'); 
@@ -1066,6 +1090,7 @@
 
             const aplicarBMFijo = () => {
                 input.dataset.bmAsignado = val; 
+                tr.dataset.cierreCompensado = "false";
                 inCota.value = bmEncontrado.cota.toFixed(decs);
                 inCota.dataset.fijo = "true"; 
                 inCota.classList.add('fijo'); 
@@ -1076,6 +1101,7 @@
             
             const aplicarBMCierre = () => {
                 input.dataset.bmAsignado = val; 
+                tr.dataset.cierreCompensado = "false";
                 inCota.dataset.fijo = "false"; 
                 inCota.classList.remove('fijo');
                 inCota.classList.remove('editable-activa');
@@ -1085,6 +1111,7 @@
 
             const desvincularBM = () => {
                 input.dataset.bmAsignado = ""; 
+                tr.dataset.cierreCompensado = "false";
                 inCota.dataset.fijo = "false"; 
                 inCota.classList.remove('fijo'); 
                 inCota.classList.remove('editable-activa');
@@ -1118,8 +1145,8 @@
             let inputPto = tr.querySelector('.in-pto');
             let inputCota = tr.querySelector('.in-cota');
             let nombre = inputPto.value.toUpperCase().trim();
-            let cotaVal = parseFloat(inputCota.value);
-            let decs = parseInt(globalConfig.decimales) || 3; 
+            let decs = getDecs();
+            let cotaInt = toScaledInt(inputCota.value, decs);
 
             if (!nombre) return;
 
@@ -1140,14 +1167,16 @@
                 procesarTabla(); 
             };
 
-            if (!isNaN(cotaVal)) {
-                showCustomConfirm(`¿Guardar <strong>${nombre}</strong> con cota <strong>${cotaVal.toFixed(decs)}</strong> como nuevo BM?`, () => {
-                    procesarGuardado(cotaVal);
+            if (!isNaN(cotaInt)) {
+                let cotaFinal = fromScaledInt(cotaInt, decs);
+                showCustomConfirm(`¿Guardar <strong>${nombre}</strong> con cota <strong>${cotaFinal.toFixed(decs)}</strong> como nuevo BM?`, () => {
+                    procesarGuardado(cotaFinal);
                 });
             } else {
                 showCustomPrompt(`INGRESE COTA PARA NUEVO BM [${nombre}]`, "", (val) => {
-                    let parsed = parseFloat(val.replace(',', '.'));
-                    if (!isNaN(parsed)) {
+                    let parsedInt = toScaledInt(val, decs);
+                    if (!isNaN(parsedInt)) {
+                        let parsed = fromScaledInt(parsedInt, decs);
                         inputCota.value = parsed.toFixed(decs);
                         procesarGuardado(parsed);
                     } else {
@@ -1157,60 +1186,97 @@
             }
         }
 
-        /* --- COMPENSACIÓN AUTOMÁTICA DE CIERRE EN LIBRETA --- */
-        function compensarCierreSimple(filaDestinoIdx, errorCierre) {
+        /* --- COMPENSACIÓN AUTOMÁTICA DE CIERRE AISLADA POR SUB-TRAMOS --- */
+        function compensarCierreSimple(filaDestinoIdx, errorCierreInt) {
             if (tablaBloqueada) return showToast("Desbloquea la tabla primero", "warning");
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
+            let p = obtenerProyectoActivo();
             let trs = document.querySelectorAll('#cuerpoTabla tr');
 
-            let filasCambio = [];
+            // Buscar el último punto de partida firme:
+            // - Fila 0
+            // - Fila con cota fija + V.AT(+)
+            // - O un BM oficial intermedio previamente cerrado/compensado que tenga V.AT(+) para continuar la línea
             let ultimoInicioFijo = 0;
             for (let i = filaDestinoIdx - 1; i >= 0; i--) {
-                if (trs[i].querySelector('.in-cota').dataset.fijo === "true") {
+                let ptoRow = trs[i].querySelector('.in-pto').value.toUpperCase().trim();
+                let bmEnDB = p && p.bms ? p.bms.find(b => b.nombre === ptoRow) : null;
+                let esFijo = trs[i].querySelector('.in-cota').dataset.fijo === "true";
+                let fueCompensado = trs[i].dataset.cierreCompensado === "true";
+                let cotaRowInt = toScaledInt(trs[i].querySelector('.in-cota').value, decs);
+                let bmCerradoExacto = bmEnDB && !isNaN(cotaRowInt) && (cotaRowInt === toScaledInt(bmEnDB.cota, decs));
+                let tieneVa = !isNaN(toScaledInt(trs[i].querySelector('.in-va').value, decs));
+
+                if (i === 0 || ((esFijo || fueCompensado || bmCerradoExacto) && tieneVa)) {
                     ultimoInicioFijo = i;
                     break;
                 }
             }
 
+            // Recopilar solo puntos de cambio del sub-tramo actual (y la fila de cierre) no bloqueados
+            let filasCambio = [];
             for (let i = ultimoInicioFijo + 1; i <= filaDestinoIdx; i++) {
+                if (trs[i].dataset.locked === "true") continue;
                 let inVa = trs[i].querySelector('.in-va');
                 let inVd = trs[i].querySelector('.in-vd');
-                if (i === filaDestinoIdx || (!isNaN(parseFloat(inVa.value)) && !isNaN(parseFloat(inVd.value)))) {
-                    filasCambio.push(inVd);
+                let esCotaFijaManual = trs[i].querySelector('.in-cota').dataset.fijo === "true";
+                if (esCotaFijaManual && i !== filaDestinoIdx) continue;
+
+                let vaInt = toScaledInt(inVa.value, decs);
+                let vdInt = toScaledInt(inVd.value, decs);
+
+                if (i === filaDestinoIdx || (!isNaN(vaInt) && !isNaN(vdInt))) {
+                    if (!isNaN(vdInt)) {
+                        filasCambio.push(inVd);
+                    }
                 }
             }
 
-            if (filasCambio.length === 0) return;
+            if (filasCambio.length === 0) {
+                return showToast("No hay estaciones desbloqueadas en este tramo para repartir el error.", "warning");
+            }
 
-            showCustomConfirm(`⚖️ <strong>COMPENSAR CIERRE</strong><br><br>Se repartirá el error de <strong>${errorCierre > 0 ? '+' : ''}${errorCierre.toFixed(decs)} m</strong> entre <strong>${filasCambio.length}</strong> lectura(s) de cambio para cerrar en 0.000 m.<br><br>¿Aplicar ajuste?`, () => {
-                let factor = Math.pow(10, decs);
-                let errorEntero = Math.round(errorCierre * factor);
+            let errorMetros = fromScaledInt(errorCierreInt, decs);
+            showCustomConfirm(`⚖️ <strong>COMPENSAR CIERRE</strong><br><br>Se repartirá el error de <strong>${errorCierreInt > 0 ? '+' : ''}${errorMetros.toFixed(decs)} m</strong> entre <strong>${filasCambio.length}</strong> lectura(s) de cambio del tramo actual para cerrar en ${(0).toFixed(decs)} m.<br><br>¿Aplicar ajuste?`, () => {
                 let n = filasCambio.length;
-                let cuotaBase = Math.trunc(errorEntero / n);
-                let residuo = errorEntero - (cuotaBase * n);
+                let cuotaBase = Math.trunc(errorCierreInt / n);
+                let residuo = errorCierreInt - (cuotaBase * n);
+                let signoResiduo = residuo >= 0 ? 1 : -1;
+                let absResiduo = Math.abs(residuo);
 
+                // Reparto entero uniforme en las últimas |residuo| estaciones para evitar saltos bruscos
                 filasCambio.forEach((inputVd, idx) => {
-                    let vdActual = parseFloat(inputVd.value);
-                    let ajusteEntero = cuotaBase + (idx === n - 1 ? residuo : 0);
-                    let nuevoVd = vdActual + (ajusteEntero / factor);
-                    inputVd.value = nuevoVd.toFixed(decs);
+                    let vdActualInt = toScaledInt(inputVd.value, decs);
+                    let extra = (idx >= n - absResiduo) ? signoResiduo : 0;
+                    let nuevoVdInt = vdActualInt + cuotaBase + extra;
+                    inputVd.value = fromScaledInt(nuevoVdInt, decs).toFixed(decs);
                 });
 
+                trs[filaDestinoIdx].dataset.cierreCompensado = "true";
                 procesarTabla();
-                showToast("Cierre compensado a 0.000 m", "success");
+                showToast(`Cierre compensado a ${(0).toFixed(decs)} m`, "success");
             });
         }
 
         function toggleLockAI(btn) {
             if(tablaBloqueada) return; 
-            let tr = btn.closest('tr'); let isLocked = tr.dataset.locked === "true";
+            let tr = btn.closest('tr');
+            let isLocked = tr.dataset.locked === "true";
             let inVa = tr.querySelector('.in-va');
+            let inVd = tr.querySelector('.in-vd');
+            let tbody = document.getElementById('cuerpoTabla');
+            let isFirstRow = (tr === tbody.firstElementChild);
+
             if(isLocked) {
-                tr.dataset.locked = "false"; btn.innerHTML = `🔓 AI: <span class="val-ai-num">${tr.querySelector('.val-ai-num').innerText}</span>`;
-                inVa.removeAttribute('readonly'); 
+                tr.dataset.locked = "false";
+                btn.innerHTML = `🔓 AI: <span class="val-ai-num">${tr.querySelector('.val-ai-num').innerText}</span>`;
+                inVa.removeAttribute('readonly');
+                if (!isFirstRow) inVd.removeAttribute('readonly');
             } else {
-                tr.dataset.locked = "true"; btn.innerHTML = `🔒 AI: <span class="val-ai-num">${tr.querySelector('.val-ai-num').innerText}</span>`;
-                inVa.setAttribute('readonly', 'true'); 
+                tr.dataset.locked = "true";
+                btn.innerHTML = `🔒 AI: <span class="val-ai-num">${tr.querySelector('.val-ai-num').innerText}</span>`;
+                inVa.setAttribute('readonly', 'true');
+                if (!isFirstRow) inVd.setAttribute('readonly', 'true');
             }
             guardarEstadoTabla();
         }
@@ -1221,6 +1287,8 @@
 
         function manejarCotaTap(divContainer, event) {
             if(tablaBloqueada) return;
+            let tr = divContainer.closest('tr');
+            if(tr && tr.dataset.locked === "true") return showToast("Fila bloqueada con candado 🔒", "warning");
             let input = divContainer.querySelector('.in-cota');
             if(input.dataset.bmAsignado && input.dataset.fijo === "true") return; 
 
@@ -1247,34 +1315,36 @@
 
         function medirDesnivelRapido(spanIcon) {
             if(tablaBloqueada) return;
+            let decs = getDecs();
             let divContainer = spanIcon.closest('.cota-container');
             let input = divContainer.querySelector('.in-cota');
-            let val = parseFloat(input.value);
+            let valInt = toScaledInt(input.value, decs);
             
-            if(!isNaN(val)) {
+            if(!isNaN(valInt)) {
                 if(!cotaSel1) {
-                    cotaSel1 = {el: input, val: val, cont: divContainer};
+                    cotaSel1 = {el: input, valInt: valInt, cont: divContainer};
                     cotaSel1.cont.style.boxShadow = "0 0 0 2px var(--primary-color) inset";
                     cotaSel1.cont.style.borderRadius = "4px";
                     showToast("Punto 1 seleccionado. Toca otra flecha.", "default");
                 } else if (cotaSel1.el === input) {
                     cotaSel1.cont.style.boxShadow = ""; cotaSel1 = null;
                 } else {
-                    let dh = Math.abs(cotaSel1.val - val);
-                    showCustomAlert(`RESULTADO DEL DESNIVEL:<br><br>ΔH = ${dh.toFixed(3)} m`, "CÁLCULO DE DESNIVEL");
+                    let dhInt = Math.abs(cotaSel1.valInt - valInt);
+                    let dh = fromScaledInt(dhInt, decs);
+                    showCustomAlert(`RESULTADO DEL DESNIVEL:<br><br>ΔH = ${dh.toFixed(decs)} m`, "CÁLCULO DE DESNIVEL");
                     cotaSel1.cont.style.boxShadow = ""; cotaSel1 = null; 
                 }
             }
         }
 
-        /* --- MOTOR MATEMÁTICO CON PROTECCIÓN CONTRA "PC ROTO" Y CONTROL DE PLANTILLA --- */
+        /* --- MOTOR MATEMÁTICO EN ENTEROS ESCALADOS CON PROTECCIÓN CONTRA "PC ROTO" --- */
         function procesarTabla() {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
-            let cotaPlantilla = parseFloat(document.getElementById('cotaRasanteFija').value);
+            let cotaPlantillaInt = toScaledInt(document.getElementById('cotaRasanteFija').value, decs);
             let trs = document.querySelectorAll('#cuerpoTabla tr');
-            let ai_actual = NaN;
-            let prevCotaCalculada = NaN;
+            let aiActualInt = NaN;
+            let prevCotaCalculadaInt = NaN;
 
             for(let i = 0; i < trs.length; i++) {
                 let tr = trs[i];
@@ -1289,20 +1359,20 @@
 
                 inVd.classList.remove('vd-faltante');
 
-                let va = parseFloat(inVa.value);
-                let vd = parseFloat(inVd.value);
+                let vaInt = toScaledInt(inVa.value, decs);
+                let vdInt = toScaledInt(inVd.value, decs);
                 
                 let activeEl = document.activeElement;
                 let isCotaActive = (activeEl === cotaInp);
                 let isVdActive = (activeEl === inVd);
 
-                let cotaValida = parseFloat(cotaInp.value);
-                if (!isNaN(cotaValida) && !inPto.dataset.bmAsignado && isCotaActive) {
+                let cotaValidaInt = toScaledInt(cotaInp.value, decs);
+                if (!isNaN(cotaValidaInt) && !inPto.dataset.bmAsignado && isCotaActive) {
                     cotaInp.dataset.fijo = "true";
                 }
                 let isFijo = (cotaInp.dataset.fijo === "true");
 
-                if(!isNaN(va)) {
+                if(!isNaN(vaInt)) {
                     tr.style.borderTop = "3px solid var(--primary-color)";
                     cellAI.classList.remove('ai-repetido');
                 } else {
@@ -1311,69 +1381,69 @@
                 }
 
                 if (i === 0) {
-                    let cotaVal = parseFloat(cotaInp.value);
-                    cotaInp.dataset.fijo = !isNaN(cotaVal) ? "true" : "false";
+                    let cotaValInt = toScaledInt(cotaInp.value, decs);
+                    cotaInp.dataset.fijo = !isNaN(cotaValInt) ? "true" : "false";
                     if(cotaInp.dataset.fijo === "true") cotaInp.classList.add('fijo');
                     else cotaInp.classList.remove('fijo');
 
-                    if (!isNaN(cotaVal) && !isNaN(va)) { 
-                        ai_actual = Number((cotaVal + va).toFixed(decs)); 
-                        aiNum.innerText = ai_actual.toFixed(decs); 
+                    if (!isNaN(cotaValInt) && !isNaN(vaInt)) { 
+                        aiActualInt = cotaValInt + vaInt; 
+                        aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                     } 
                     else { 
                         aiNum.innerText = "---"; 
-                        ai_actual = NaN; 
+                        aiActualInt = NaN; 
                     }
                 } else {
-                    if (!isNaN(ai_actual)) {
+                    if (!isNaN(aiActualInt)) {
                         if (isCotaActive || (isFijo && !isVdActive)) {
-                            let cotaVal = parseFloat(cotaInp.value);
-                            if (!isNaN(cotaVal)) {
-                                vd = Number((ai_actual - cotaVal).toFixed(decs)); 
-                                if (!isVdActive) inVd.value = vd.toFixed(decs);
-                                if (!isNaN(va)) { 
-                                    ai_actual = Number((cotaVal + va).toFixed(decs)); 
-                                    aiNum.innerText = ai_actual.toFixed(decs); 
+                            let cotaValInt = toScaledInt(cotaInp.value, decs);
+                            if (!isNaN(cotaValInt)) {
+                                vdInt = aiActualInt - cotaValInt; 
+                                if (!isVdActive) inVd.value = fromScaledInt(vdInt, decs).toFixed(decs);
+                                if (!isNaN(vaInt)) { 
+                                    aiActualInt = cotaValInt + vaInt; 
+                                    aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                                 } else { 
-                                    aiNum.innerText = ai_actual.toFixed(decs); 
+                                    aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                                 }
                             } else {
                                 if (!isVdActive) inVd.value = "";
-                                aiNum.innerText = ai_actual.toFixed(decs);
+                                aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs);
                             }
                         } else {
-                            if (!isNaN(vd)) {
-                                let cotaCalc = Number((ai_actual - vd).toFixed(decs)); 
+                            if (!isNaN(vdInt)) {
+                                let cotaCalcInt = aiActualInt - vdInt; 
                                 if (!isCotaActive) {
-                                    cotaInp.value = cotaCalc.toFixed(decs);
+                                    cotaInp.value = fromScaledInt(cotaCalcInt, decs).toFixed(decs);
                                     if(!inPto.dataset.bmAsignado) {
                                         cotaInp.dataset.fijo = "false";
                                         cotaInp.classList.remove('fijo');
                                     }
                                 }
-                                if (!isNaN(va)) { 
-                                    ai_actual = Number((cotaCalc + va).toFixed(decs)); 
-                                    aiNum.innerText = ai_actual.toFixed(decs); 
+                                if (!isNaN(vaInt)) { 
+                                    aiActualInt = cotaCalcInt + vaInt; 
+                                    aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                                 } else { 
-                                    aiNum.innerText = ai_actual.toFixed(decs); 
+                                    aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                                 }
-                            } else if (!isNaN(va)) {
+                            } else if (!isNaN(vaInt)) {
                                 // Protección contra "PC Roto": Tiene V.AT(+) pero olvidó poner V.AD(-) ni tiene Cota Fija
                                 if (!isCotaActive) cotaInp.value = "";
                                 inVd.classList.add('vd-faltante');
                                 aiNum.innerText = "FALTA VD";
-                                ai_actual = NaN;
+                                aiActualInt = NaN;
                             } else { 
                                 if (!isCotaActive && !isFijo) cotaInp.value = ""; 
-                                aiNum.innerText = ai_actual.toFixed(decs); 
+                                aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                             }
                         }
                     } else { 
                         // Si la estación anterior quedó rota pero en esta fila arranca de un nuevo BM Fijo con V.AT(+)
-                        let cotaValFija = parseFloat(cotaInp.value);
-                        if (isFijo && !isNaN(cotaValFija) && !isNaN(va)) {
-                            ai_actual = Number((cotaValFija + va).toFixed(decs));
-                            aiNum.innerText = ai_actual.toFixed(decs);
+                        let cotaValFijaInt = toScaledInt(cotaInp.value, decs);
+                        if (isFijo && !isNaN(cotaValFijaInt) && !isNaN(vaInt)) {
+                            aiActualInt = cotaValFijaInt + vaInt;
+                            aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs);
                         } else {
                             aiNum.innerText = "---"; 
                             if (!isCotaActive && !isFijo) cotaInp.value = "";
@@ -1382,26 +1452,27 @@
                     }
                 }
 
-                let currentCota = parseFloat(cotaInp.value);
-                if(!isNaN(currentCota)) {
-                    if(!isNaN(prevCotaCalculada)) {
-                        if(currentCota > prevCotaCalculada) iconTrend.innerHTML = '<span style="color:var(--success-color); font-size:1.2rem; font-weight:900;">▲</span>';
-                        else if(currentCota < prevCotaCalculada) iconTrend.innerHTML = '<span style="color:var(--danger-color); font-size:1.2rem; font-weight:900;">▼</span>';
+                let currentCotaInt = toScaledInt(cotaInp.value, decs);
+                if(!isNaN(currentCotaInt)) {
+                    if(!isNaN(prevCotaCalculadaInt)) {
+                        if(currentCotaInt > prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--success-color); font-size:1.2rem; font-weight:900;">▲</span>';
+                        else if(currentCotaInt < prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--danger-color); font-size:1.2rem; font-weight:900;">▼</span>';
                         else iconTrend.innerHTML = '<span style="color:gray; font-size:1.2rem; font-weight:900;">▶</span>';
                     } else {
                         iconTrend.innerHTML = '<span style="color:gray; font-size:1.2rem; font-weight:900;">●</span>';
                     }
-                    prevCotaCalculada = currentCota;
+                    prevCotaCalculadaInt = currentCotaInt;
 
                     if (badgeRas) {
-                        if (!isNaN(cotaPlantilla) && i > 0) {
-                            let diffRas = Number((cotaPlantilla - currentCota).toFixed(decs));
+                        if (!isNaN(cotaPlantillaInt) && i > 0) {
+                            let diffRasInt = cotaPlantillaInt - currentCotaInt;
+                            let diffRas = fromScaledInt(diffRasInt, decs);
                             badgeRas.style.display = 'block';
                             badgeRas.className = 'badge-rasante';
-                            if (Math.abs(diffRas) < 0.002) {
+                            if (diffRasInt === 0) {
                                 badgeRas.classList.add('badge-rasante-ok');
-                                badgeRas.innerText = `RASANTE OK (0.000)`;
-                            } else if (diffRas < 0) {
+                                badgeRas.innerText = `RASANTE OK (${(0).toFixed(decs)})`;
+                            } else if (diffRasInt < 0) {
                                 badgeRas.classList.add('badge-corte');
                                 badgeRas.innerText = `CORTE: ${diffRas.toFixed(decs)} m`;
                             } else {
@@ -1435,22 +1506,28 @@
             let cierreCaja = document.getElementById('cierreAviso');
             cierreCaja.style.display = 'none';
             let htmlCierres = "";
+            let p = obtenerProyectoActivo();
             
             for(let i = 1; i < trs.length; i++) {
                 let tr = trs[i];
                 let pto = tr.querySelector('.in-pto').value.toUpperCase().trim();
-                let cotaCalc = parseFloat(tr.querySelector('.in-cota').value);
-                let tieneVd = tr.querySelector('.in-vd').value !== "";
+                let cotaCalcInt = toScaledInt(tr.querySelector('.in-cota').value, decs);
+                let tieneVd = tr.querySelector('.in-vd').value.trim() !== "";
                 let esFijo = tr.querySelector('.in-cota').dataset.fijo === "true";
                 
-                if(pto !== "" && tieneVd && !isNaN(cotaCalc) && !esFijo) {
-                    let p = obtenerProyectoActivo();
-                    let bmRef = p.bms.find(b => b.nombre === pto);
+                if(pto !== "" && tieneVd && !isNaN(cotaCalcInt) && !esFijo) {
+                    let bmRef = p && p.bms ? p.bms.find(b => b.nombre === pto) : null;
                     if(bmRef) {
-                        let errorCierre = Number((cotaCalc - bmRef.cota).toFixed(decs));
+                        let bmRefInt = toScaledInt(bmRef.cota, decs);
+                        let errorCierreInt = cotaCalcInt - bmRefInt;
+                        let errorCierre = fromScaledInt(errorCierreInt, decs);
+                        if (errorCierreInt !== 0) tr.dataset.cierreCompensado = "false";
+
                         let claseColor = Math.abs(errorCierre) > 0.02 ? "error-alto" : "";
-                        let btnCompHTML = Math.abs(errorCierre) > 0 ? `<br><button class="btn-compensar-inline" onclick="compensarCierreSimple(${i}, ${errorCierre})">⚖️ Compensar Cierre en Libreta</button>` : `<br><span style="font-size:0.85rem; font-weight:800;">✓ CIERRE PERFECTO</span>`;
-                        htmlCierres += `<div class="cierre-aviso ${claseColor}" style="display:block;">🎯 <strong>CIERRE EN [${bmRef.nombre}]</strong><br>Error: ${errorCierre > 0 ? '+' : ''}${errorCierre.toFixed(decs)} m${btnCompHTML}</div>`;
+                        let btnCompHTML = errorCierreInt !== 0
+                            ? `<br><button class="btn-compensar-inline" onclick="compensarCierreSimple(${i}, ${errorCierreInt})">⚖️ Compensar Cierre en Libreta</button>`
+                            : `<br><span style="font-size:0.85rem; font-weight:800;">✓ CIERRE PERFECTO (${(0).toFixed(decs)} m)</span>`;
+                        htmlCierres += `<div class="cierre-aviso ${claseColor}" style="display:block;">🎯 <strong>CIERRE EN [${bmRef.nombre}]</strong><br>Error: ${errorCierreInt > 0 ? '+' : ''}${errorCierre.toFixed(decs)} m${btnCompHTML}</div>`;
                     }
                 }
             }
@@ -1469,21 +1546,23 @@
         }
 
         function mostrarEstadisticas() {
-            let max = -Infinity, min = Infinity, sum = 0, count = 0;
+            let decs = getDecs();
+            let maxInt = -Infinity, minInt = Infinity, sumInt = 0, count = 0;
             document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
                 let isFixed = tr.querySelector('.in-cota').dataset.fijo === "true";
-                let v = parseFloat(tr.querySelector('.in-cota').value);
-                if(!isNaN(v) && !isFixed) {
-                    if(v > max) max = v;
-                    if(v < min) min = v;
-                    sum += v; count++;
+                let vInt = toScaledInt(tr.querySelector('.in-cota').value, decs);
+                if(!isNaN(vInt) && !isFixed) {
+                    if(vInt > maxInt) maxInt = vInt;
+                    if(vInt < minInt) minInt = vInt;
+                    sumInt += vInt;
+                    count++;
                 }
             });
             if(count > 0) {
-                let avg = sum / count;
-                document.getElementById('statMax').innerText = max.toFixed(3);
-                document.getElementById('statMin').innerText = min.toFixed(3);
-                document.getElementById('statAvg').innerText = avg.toFixed(3);
+                let avgInt = Math.round(sumInt / count);
+                document.getElementById('statMax').innerText = fromScaledInt(maxInt, decs).toFixed(decs);
+                document.getElementById('statMin').innerText = fromScaledInt(minInt, decs).toFixed(decs);
+                document.getElementById('statAvg').innerText = fromScaledInt(avgInt, decs).toFixed(decs);
                 document.getElementById('panelEstadisticas').style.display = "grid";
                 document.getElementById('panelEstadisticas').scrollIntoView({ behavior: 'smooth' });
             } else {
@@ -1497,6 +1576,8 @@
             const tbody = document.getElementById('cuerpoTabla');
             const esPrimera = tbody.children.length === 0;
             const tr = document.createElement('tr');
+            tr.dataset.locked = "false";
+            tr.dataset.cierreCompensado = "false";
             
             tr.innerHTML = `
                 <td style="position:relative;">
@@ -1546,6 +1627,7 @@
             filas.forEach((f, i) => {
                 const tr = document.createElement('tr');
                 tr.dataset.locked = f.locked || "false";
+                tr.dataset.cierreCompensado = f.cierreCompensado || "false";
                 let lockIcon = (f.locked === "true") ? "🔒" : "🔓";
                 let disAttr = (f.locked === "true") ? "readonly" : "";
                 
@@ -1561,7 +1643,7 @@
                         <span class="btn-pin" onclick="abrirSelectorBM(this)">📍</span>
                     </td>
                     <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" value="${f.va}" ${disAttr} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
-                    <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" value="${f.vd}" ${i===0 ? 'disabled style="background:rgba(128,128,128,0.1)"' : ''} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
+                    <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" value="${f.vd}" ${i===0 ? 'disabled style="background:rgba(128,128,128,0.1)"' : disAttr} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
                     <td class="celda-combinada">
                         <div class="btn-ai-label" onclick="toggleLockAI(this)">${lockIcon} AI: <span class="val-ai-num">---</span></div>
                         <div class="cota-container" onclick="manejarCotaTap(this, event)">
@@ -1578,13 +1660,13 @@
 
         function exportarXLSX() {
             feedbackUI();
-            let p = obtenerProyectoActivo(); let decs = parseInt(globalConfig.decimales) || 3;
-            let cotaPlantilla = parseFloat(document.getElementById('cotaRasanteFija').value);
+            let p = obtenerProyectoActivo(); let decs = getDecs();
+            let cotaPlantillaInt = toScaledInt(document.getElementById('cotaRasanteFija').value, decs);
             let fechaHoy = new Date().toLocaleDateString('es-PE');
             let oper = globalConfig.operador || "COTA100";
             let eq = globalConfig.equipo || "Nivel Automático";
             let cabeceras = ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA TERRENO"];
-            if (!isNaN(cotaPlantilla)) {
+            if (!isNaN(cotaPlantillaInt)) {
                 cabeceras.push("COTA PLANTILLA", "CORTE (-) / RELLENO (+)");
             }
             cabeceras.push("OBSERVACIÓN");
@@ -1599,23 +1681,25 @@
             document.querySelectorAll('#cuerpoTabla tr').forEach((tr, idx) => {
                 let ptoVal = tr.querySelector('.in-pto').value;
                 let aiStr = tr.querySelector('.val-ai-num').innerText;
-                let cotaVal = parseFloat(tr.querySelector('.in-cota').value);
-                let vaVal = parseFloat(tr.querySelector('.in-va').value);
-                let vdVal = parseFloat(tr.querySelector('.in-vd').value);
-                if (!ptoVal && isNaN(vaVal) && isNaN(vdVal) && isNaN(cotaVal)) return;
+                let cotaInt = toScaledInt(tr.querySelector('.in-cota').value, decs);
+                let vaInt = toScaledInt(tr.querySelector('.in-va').value, decs);
+                let vdInt = toScaledInt(tr.querySelector('.in-vd').value, decs);
+                if (!ptoVal && isNaN(vaInt) && isNaN(vdInt) && isNaN(cotaInt)) return;
                 let obsPto = ""; let bmData = p.bms.find(b => b.nombre === ptoVal);
                 if(bmData && bmData.obs) obsPto = bmData.obs;
 
+                let aiInt = (aiStr !== "---" && aiStr !== "FALTA VD") ? toScaledInt(aiStr, decs) : NaN;
                 let fila = [
                     ptoVal,
-                    !isNaN(vaVal) ? Number(vaVal.toFixed(decs)) : "",
-                    (aiStr !== "---" && aiStr !== "FALTA VD") ? Number(parseFloat(aiStr).toFixed(decs)) : "",
-                    !isNaN(vdVal) ? Number(vdVal.toFixed(decs)) : "",
-                    !isNaN(cotaVal) ? Number(cotaVal.toFixed(decs)) : ""
+                    !isNaN(vaInt) ? fromScaledInt(vaInt, decs) : "",
+                    !isNaN(aiInt) ? fromScaledInt(aiInt, decs) : "",
+                    !isNaN(vdInt) ? fromScaledInt(vdInt, decs) : "",
+                    !isNaN(cotaInt) ? fromScaledInt(cotaInt, decs) : ""
                 ];
-                if (!isNaN(cotaPlantilla)) {
-                    if (!isNaN(cotaVal) && idx > 0) {
-                        fila.push(Number(cotaPlantilla.toFixed(decs)), Number((cotaPlantilla - cotaVal).toFixed(decs)));
+                if (!isNaN(cotaPlantillaInt)) {
+                    if (!isNaN(cotaInt) && idx > 0) {
+                        let diffInt = cotaPlantillaInt - cotaInt;
+                        fila.push(fromScaledInt(cotaPlantillaInt, decs), fromScaledInt(diffInt, decs));
                     } else {
                         fila.push("", "");
                     }
@@ -1632,7 +1716,15 @@
         function calcIn(v) { document.getElementById('calcDisplay').value += v; }
         function calcClear() { document.getElementById('calcDisplay').value = ''; }
         function calcDel() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
+        function calcEval() {
+            let decs = getDecs();
+            try {
+                let res = new Function('return ' + document.getElementById('calcDisplay').value)();
+                document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
+            } catch(e) {
+                document.getElementById('calcDisplay').value = 'Error';
+            }
+        }
     </script>
 </body>
 </html>

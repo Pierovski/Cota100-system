@@ -3,122 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>COTA100 - Carreteras y Vías</title>
+    <title>COTA100 SYSTEM - Nivelación de Carreteras</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <style>
         :root {
-            --bg-color: #ffffff; --text-color: #000000;
-            --primary-color: #FF6600; --border-color: rgba(0, 0, 0, 0.2); 
-            --table-header: #111; --danger-color: #d32f2f;
-            --panel-bg: rgba(255,255,255,0.85); --input-bg: rgba(255,255,255,0.9);
+            --bg-color: #f8f9fa; --text-color: #1a1e23; --primary-color: #FF5500;
+            --primary-glow: rgba(255, 85, 0, 0.3); --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 85, 0, 0.15); --border-color: rgba(0, 0, 0, 0.15);
+            --table-header: #1a1e23; --danger-color: #d32f2f; --excel-color: #1b5e20;
+            --input-bg: rgba(255,255,255,0.9); --success-bg: rgba(46, 204, 113, 0.2);
+            --success-text: #007E33; --izq-color: #1976d2; --der-color: #00897b;
         }
 
         body.dark-mode {
-            --bg-color: #121212; --text-color: #e0e0e0;
-            --border-color: rgba(255, 255, 255, 0.15); 
-            --panel-bg: rgba(30,30,30,0.9); --input-bg: rgba(45,45,45,0.9);
-            --table-header: #000;
+            --bg-color: #05070a; --text-color: #ffffff; --primary-glow: rgba(255, 85, 0, 0.4);
+            --card-bg: rgba(18, 22, 28, 0.85); --card-border: rgba(255, 85, 0, 0.25);
+            --border-color: rgba(255, 255, 255, 0.15); --input-bg: rgba(45,45,45,0.9);
+            --table-header: #000000; --success-bg: rgba(0, 200, 81, 0.15);
+            --success-text: #00C851; --izq-color: #64b5f6; --der-color: #4db6ac;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body { 
-            background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px;
-            background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23888888' stroke-opacity='0.05' fill='none'%3E%3Cpath d='M0,200 Q100,100 200,200 T400,200' stroke-width='4'/%3E%3Cline x1='0' y1='180' x2='400' y2='220' stroke-width='2' stroke-dasharray='10,10'/%3E%3C/g%3E%3C/svg%3E");
-            background-size: 400px 400px; background-attachment: fixed;
-            min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
+        body {
+            background-color: var(--bg-color); color: var(--text-color);
+            padding-bottom: 80px; transition: background-color 0.3s, color 0.3s;
+            position: relative; overflow-x: hidden; min-height: 100vh;
         }
 
-        /* --- CABECERA --- */
-        .top-bar { 
+        .fire-base { position: fixed; bottom: 0; left: 0; width: 100vw; height: 35vh; z-index: -2; pointer-events: none; overflow: hidden; }
+        .fire-wave {
+            position: absolute; bottom: 0; left: 0; width: 200vw; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cdefs%3E%3ClinearGradient id='fireGrad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF3300;stop-opacity:0.4' /%3E%3Cstop offset='50%25' style='stop-color:%23FF8C00;stop-opacity:0.7' /%3E%3Cstop offset='100%25' style='stop-color:%23FFD700;stop-opacity:0.9' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23fireGrad)' d='M0,128L48,138.7C96,149,192,171,288,160C384,149,480,107,576,117.3C672,128,768,192,864,197.3C960,203,1056,149,1152,133.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x;
+            background-size: 50% 100%; animation: waveFire 10s linear infinite;
+        }
+        .fire-wave.delay {
+            bottom: -15px; opacity: 0.6;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cdefs%3E%3ClinearGradient id='fireGrad2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF5500;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%23FFaa00;stop-opacity:0.6' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23fireGrad2)' d='M0,192L48,176C96,160,192,128,288,138.7C384,149,480,203,576,197.3C672,192,768,128,864,117.3C960,107,1056,149,1152,165.3C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x;
+            background-size: 50% 100%; animation: waveFire 7s linear infinite reverse;
+        }
+        @keyframes waveFire { 0% { transform: translateX(0); } 100% { transform: translateX(-50vw); } }
+
+        .top-bar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; border-bottom: 2px solid var(--border-color);
-            background-color: var(--panel-bg); 
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); height: 75px; 
+            padding: 15px 20px; border-bottom: 1px solid var(--card-border);
+            background-color: transparent; position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); height: 70px;
         }
-        .btn-volver-mini { background: rgba(128,128,128,0.1); border: 2px solid var(--border-color); color: var(--text-color); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: 0.2s; font-weight: 800; font-size: 1.5rem;}
-        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1;}
-        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.9rem;}
+        .nav-buttons-left { display: flex; gap: 8px; }
+        .btn-volver-mini {
+            background: transparent; border: none; color: var(--primary-color);
+            width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; text-decoration: none; transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 0 5px var(--primary-glow));
+        }
+        .btn-volver-mini:active { transform: scale(0.92); filter: drop-shadow(0 0 10px var(--primary-color)); }
+        .top-bar-title { color: var(--text-color); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; margin: 0; text-align: center; line-height: 1.1; }
+        .top-bar-title span { color: var(--primary-color); display: block; font-size: 0.85rem; }
 
-        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; }
+        .modulo-container { padding: 15px; animation: slideIn 0.3s ease-out forwards; overflow-x: hidden; position: relative; z-index: 10; max-width: 850px; margin: 0 auto; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- PANELES DE CONTROL --- */
-        .panel-control { border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--panel-bg); backdrop-filter: blur(8px); }
-        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 12px; border-bottom: 2px solid rgba(128,128,128,0.2); padding-bottom: 5px; }
-        .panel-titulo span { font-size: 0.8rem; color: var(--text-color); opacity: 0.7; float: right; margin-top: 3px; }
-        
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-group { display: flex; flex-direction: column; }
-        
-        label { font-weight: 800; color: var(--text-color); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 3px; opacity: 0.8;}
-        input { 
-            width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 800; text-align: center;
-            background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s;
+        .panel-control { border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .panel-titulo { color: var(--primary-color); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .btn-toggle-panel { background: none; border: none; font-size: 1.2rem; color: var(--text-color); pointer-events: none; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .input-group { display: flex; flex-direction: column; position: relative; }
+        .full-width { grid-column: 1 / -1; }
+
+        label { font-weight: 800; color: var(--text-color); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; opacity: 0.85; display: flex; align-items: center; justify-content: space-between; }
+        input { width: 100%; font-weight: 800; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); transition: 0.2s; text-align: center; padding: 12px; font-size: 1.05rem; }
+        input:focus { border-color: var(--primary-color); outline: none; background: transparent; }
+
+        .custom-select { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; text-align: left; }
+        .custom-select:active { border-color: var(--primary-color); background: rgba(255, 85, 0, 0.05); }
+
+        .bm-list { margin-top: 8px; max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; padding-bottom: 5px; }
+        .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid var(--border-color); background: var(--card-bg); transition: transform 0.1s, background-color 0.2s; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+        .bm-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; pointer-events: none; }
+        .bm-info { display: flex; flex-direction: column; text-align: left; }
+        .bm-info strong { font-size: 0.95rem; color: var(--text-color); }
+        .bm-info span { font-size: 0.82rem; color: var(--primary-color); font-weight: 700; }
+        .bm-actions { display: flex; gap: 6px; pointer-events: auto; }
+        .bm-actions button { background: none; border: none; border-radius: 4px; padding: 4px; font-size: 1.1rem; cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .bm-actions button:active { opacity: 1; transform: scale(0.9); }
+        .bm-obs { display: none; font-size: 0.8rem; color: #888; margin-top: 6px; text-align: left; background: rgba(128,128,128,0.05); padding: 6px; border-radius: 4px; border-left: 3px solid var(--primary-color); }
+
+        .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center; }
+        .btn-accion:active { background: var(--primary-color); transform: scale(0.98); }
+        .btn-auto { background: transparent; color: var(--text-color); border: 2px dashed var(--text-color); margin-bottom: 10px; }
+        .btn-excel { background: transparent; color: var(--excel-color); border: 2px solid var(--excel-color); margin-top: 15px; display: none; }
+        body.dark-mode .btn-excel { color: #81c784; border-color: #81c784; }
+
+        .chip-group { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .chip-btn { flex: 1; min-width: 85px; padding: 8px 6px; font-size: 0.82rem; font-weight: 800; border-radius: 8px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); cursor: pointer; text-align: center; text-transform: uppercase; transition: 0.2s; }
+        .chip-btn.activo { background: rgba(255, 85, 0, 0.15); border-color: var(--primary-color); color: var(--primary-color); }
+        .chip-btn:active { transform: scale(0.95); }
+
+        .info-icon { background: rgba(128,128,128,0.1); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; transition: 0.2s; margin-left: 5px; color: var(--primary-color); }
+        .info-icon:active { transform: scale(0.9); background: var(--primary-color); color: #fff; }
+        .th-info { display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border-radius: 50%; width: 14px; height: 14px; font-size: 0.6rem; margin-left: 3px; cursor: pointer; }
+
+        /* TABLA VIAL */
+        .seccion-tabla { display: none; margin-top: 15px; }
+        .table-wrapper { width: 100%; max-height: 60vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        table { width: 100%; min-width: 580px; border-collapse: separate; border-spacing: 0; }
+        th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.78rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border-color); }
+        td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 8px 4px; text-align: center; font-weight: 800; vertical-align: middle; }
+        td:last-child { border-right: none; }
+
+        .th-izq { background: #1565c0 !important; }
+        .th-eje { background: #d84315 !important; }
+        .th-der { background: #00695c !important; }
+
+        .val-mira { font-size: 1.18rem; font-weight: 900; color: var(--text-color); display: block; line-height: 1.1; }
+        .val-cota { font-size: 0.82rem; font-weight: 700; color: #888; display: block; margin-top: 2px; }
+        .val-corte-tag { font-size: 0.7rem; font-weight: 900; padding: 1px 4px; border-radius: 4px; display: inline-block; margin-top: 3px; }
+        .tag-corte { background: rgba(211,47,47,0.12); color: var(--danger-color); border: 1px solid rgba(211,47,47,0.3); }
+        .tag-relleno { background: rgba(25,118,210,0.12); color: var(--izq-color); border: 1px solid rgba(25,118,210,0.3); }
+        .tag-ok { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-text); }
+
+        .res-ai { text-align: center; font-size: 1.05rem; font-weight: 800; color: var(--text-color); margin: 15px 0 10px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px dashed var(--text-color); backdrop-filter: blur(5px); }
+        .res-ai span.ai-num { color: var(--primary-color); font-family: monospace; font-size: 1.4rem; }
+        .res-vial-meta { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 6px; font-size: 0.82rem; font-weight: 800; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); opacity: 0.9; }
+
+        .fila-ok td { background-color: var(--success-bg) !important; color: var(--success-text) !important; transition: background-color 0.2s, color 0.2s; border-bottom-color: rgba(46, 204, 113, 0.4); }
+        .fila-ok .val-mira, .fila-ok .val-cota { color: var(--success-text) !important; }
+        .fila-cierre-fin td { border-top: 2px solid var(--primary-color); background: rgba(255, 85, 0, 0.04); }
+
+        .celda-prog { cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
+        .btn-ctrl-terreno { font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; border: 1px dashed var(--primary-color); color: var(--primary-color); background: rgba(255,85,0,0.05); cursor: pointer; }
+        .btn-ctrl-terreno.con-dato { border-style: solid; background: rgba(255,85,0,0.15); }
+
+        /* TARJETA GIGANTE TRIPLE (IZQ - EJE - DER) */
+        #tarjetaGigante {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.96); z-index: 10000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px); padding: 15px;
         }
-        input:focus { border-color: var(--primary-color); outline: none; }
-        input::placeholder { color: #bbb; font-weight: 600; }
+        .tg-prog { font-size: 2.6rem; color: #fff; font-weight: 900; letter-spacing: 2px; margin-bottom: 10px; }
+        .tg-box { width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 12px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); }
+        .tg-side { text-align: left; }
+        .tg-side-lbl { font-size: 0.9rem; font-weight: 800; color: #aaa; letter-spacing: 2px; text-transform: uppercase; }
+        .tg-side-cota { font-size: 1.05rem; font-weight: 800; color: #fff; opacity: 0.8; }
+        .tg-mira-val { font-size: 3.6rem; font-weight: 900; line-height: 1; }
+        .tg-izq-color { color: #4fc3f7; text-shadow: 0 0 15px rgba(79,195,247,0.4); }
+        .tg-eje-color { color: #00FF00; text-shadow: 0 0 20px rgba(0,255,0,0.5); font-size: 4.2rem; }
+        .tg-der-color { color: #FFD700; text-shadow: 0 0 15px rgba(255,215,0,0.4); }
 
-        .res-ai { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--text-color); background: rgba(128,128,128,0.05); padding: 10px; border-radius: 8px; border: 1px dashed var(--text-color); margin-top: 10px;}
-        .res-ai span { color: var(--primary-color); font-family: monospace; font-size: 1.4rem;}
-        
-        .indicador-pendiente { text-align: center; font-size: 0.95rem; font-weight: 700; color: #1976d2; margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 8px; border: 1px solid #90caf9;}
-        body.dark-mode .indicador-pendiente { background: #0d2136; border-color: #1976d2; color: #e0e0e0; }
+        /* CALCULADORA */
+        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--card-bg); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; backdrop-filter: blur(5px); }
+        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--card-bg); border: 1px solid var(--primary-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 4px 20px var(--primary-glow); }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 800; color: var(--text-color); font-size: 0.85rem; }
+        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color); cursor: pointer; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .calc-grid button { padding: 12px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 8px; background: var(--input-bg); color: var(--text-color); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .calc-grid button:active { transform: scale(0.9); }
+        .calc-grid button.calc-op { color: var(--primary-color); background: rgba(255, 85, 0, 0.1); border-color: var(--card-border); }
+        .calc-grid button.calc-clear { color: var(--danger-color); border-color: rgba(211, 47, 47, 0.3); background: rgba(211, 47, 47, 0.05); }
+        .calc-grid button.calc-del { grid-column: span 2; background: rgba(128,128,128,0.1); }
+        .calc-grid button.calc-eval { grid-column: span 2; background: var(--primary-color); color: #fff; border: none; box-shadow: 0 2px 8px var(--primary-glow); }
+        #calcDisplay { width: 100%; height: 45px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 1px solid var(--card-border); border-radius: 8px; margin-bottom: 12px; padding: 4px 10px; background: var(--input-bg); color: var(--text-color); }
 
-        /* --- PANEL EN CONSTRUCCIÓN --- */
-        .panel-construccion {
-            background: #111;
-            color: #fff;
-            border: 2px dashed var(--primary-color);
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            margin-top: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        .panel-construccion svg { color: var(--primary-color); margin-bottom: 10px; }
-        .panel-construccion h3 { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-        .panel-construccion p { font-size: 0.9rem; color: #aaa; font-weight: 500; line-height: 1.4; }
+        /* TOAST Y MODALES */
+        #toast-container { position: fixed; top: 85px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; width: 90%; max-width: 350px; }
+        .toast { background: var(--card-bg); color: var(--text-color); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-weight: 700; font-size: 0.95rem; border-left: 5px solid var(--primary-color); animation: slideUpToast 0.3s ease-out forwards; backdrop-filter: blur(10px); text-align: center; border-right: 1px solid var(--border-color); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.success { border-left-color: #2e7d32; }
+        .toast.warning { border-left-color: #fbc02d; }
+        .toast.fade-out { animation: fadeOutToast 0.3s ease-in forwards; }
+        @keyframes slideUpToast { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
 
-        /* NAVEGACIÓN FLOTANTE */
-        .btn-nav-flotante { position: fixed; bottom: 15px; left: 15px; width: 55px; height: 55px; background: var(--table-header); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--border-color); cursor: pointer; z-index: 999; font-size: 1.4rem; transition: 0.2s;}
-        .btn-nav-flotante:active { transform: scale(0.9); }
-        .nav-modal { position: fixed; bottom: 80px; left: 15px; width: 220px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--input-bg); padding: 10px 5px; border-radius: 8px; text-decoration: none; color: var(--text-color); font-weight: 800; font-size: 0.75rem; border: 1px solid var(--border-color); text-transform: uppercase; transition: 0.2s; text-align: center;}
-        .nav-item:active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
-        .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
+        .overlay-select { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; display: none; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
+        .overlay-select.activo { opacity: 1; }
+        .modal-select { position: fixed; top: 50%; left: 50%; width: 92%; max-width: 360px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; z-index: 1001; transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.4); backdrop-filter: blur(15px); }
+        .modal-select.abierto { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
+        .confirm-msg { color: var(--text-color); font-size: 1.05rem; font-weight: 800; margin-bottom: 20px; line-height: 1.3; }
+        .confirm-btns { display: flex; gap: 10px; }
+        .confirm-btn { flex: 1; padding: 12px; font-weight: 800; border-radius: 8px; border: none; font-size: 0.95rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .confirm-btn:active { transform: scale(0.95); }
 
-        /* CALCULADORA FLOTANTE */
-        .btn-calculadora-flotante { position: fixed; bottom: 15px; right: 15px; width: 55px; height: 55px; background: var(--bg-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary-color); cursor: pointer; z-index: 999; font-size: 1.4rem; }
-        .calculadora-modal { position: fixed; bottom: 80px; right: 15px; width: 240px; background: var(--panel-bg); border: 2px solid var(--table-header); border-radius: 12px; padding: 12px; display: none; z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 800; color: var(--text-color); font-size: 0.85rem;}
-        .calc-header button { background: none; border: none; font-size: 1.2rem; font-weight: 800; color: var(--danger-color); cursor: pointer;}
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-grid button { padding: 10px 0; font-size: 1.2rem; font-weight: 800; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); cursor: pointer;}
-        #calcDisplay { width: 100%; height: 40px; text-align: right; font-size: 1.4rem; font-weight: 800; border: 2px solid var(--border-color); margin-bottom: 8px; padding: 4px; background: var(--input-bg); color: var(--text-color); }
+        .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left; }
+        .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important; }
+        .btn-opcion span.cota { color: var(--text-color); font-size: 0.9rem; font-weight: 700; }
 
-        @media (min-width: 768px) {
-            .grid-desktop { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .panel-control { margin-bottom: 0; }
-            .panel-construccion { grid-column: 1 / -1; }
-        }
         @media screen and (max-width: 480px) {
             html { font-size: 13px; }
-            input { padding: 10px; font-size: 1.1rem; }
-            .panel-control { padding: 12px; margin-bottom: 12px;}
-            .top-bar { padding: 5px 15px; height: 60px; }
-            .btn-volver-mini { width: 38px; height: 38px; font-size: 1.3rem;}
-            .btn-calculadora-flotante, .btn-nav-flotante { width: 45px; height: 45px; bottom: 10px;}
-            .btn-calculadora-flotante { right: 10px;}
-            .btn-nav-flotante { left: 10px;}
-            .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
-            .nav-modal { left: 10px; bottom: 65px; width: 200px;}
+            .btn-accion { padding: 10px; font-size: 0.95rem; }
+            input { padding: 9px 6px; font-size: 1.02rem; }
+            .panel-control { padding: 12px; margin-bottom: 12px; }
+            .top-bar { padding: 10px 15px; height: 65px; }
+            .btn-volver-mini { width: 38px; height: 38px; }
+            .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px; }
+            .calculadora-modal { right: 10px; bottom: 65px; width: 230px; }
         }
     </style>
 </head>
 <body onload="inicializarApp()">
+
+    <div class="fire-base">
+        <div class="fire-wave delay"></div>
+        <div class="fire-wave"></div>
+    </div>
 
     <script>
         try {
@@ -127,162 +219,1868 @@
         } catch(e) {}
     </script>
 
+    <!-- TARJETA GIGANTE TRIPLE (IZQUIERDA - EJE - DERECHA) -->
+    <div id="tarjetaGigante" onclick="this.style.display='none'">
+        <div style="font-size:0.9rem; color:#aaa; font-weight:800; letter-spacing:3px;">ESTACA / PROGRESIVA</div>
+        <div class="tg-prog" id="tgProg">0+000</div>
+
+        <div class="tg-box">
+            <div class="tg-side">
+                <div class="tg-side-lbl" id="tgLblIzq">⬅️ BORDE IZQ</div>
+                <div class="tg-side-cota" id="tgCotaIzq">Cota: ---</div>
+            </div>
+            <div class="tg-mira-val tg-izq-color" id="tgMiraIzq">0.000</div>
+        </div>
+
+        <div class="tg-box" style="border-color: rgba(0,255,0,0.4); background: rgba(0,255,0,0.05);">
+            <div class="tg-side">
+                <div class="tg-side-lbl" style="color:#00FF00;">🎯 EJE VIAL (CL)</div>
+                <div class="tg-side-cota" id="tgCotaEje">Cota: ---</div>
+            </div>
+            <div class="tg-mira-val tg-eje-color" id="tgMiraEje">0.000</div>
+        </div>
+
+        <div class="tg-box">
+            <div class="tg-side">
+                <div class="tg-side-lbl" id="tgLblDer">➡️ BORDE DER</div>
+                <div class="tg-side-cota" id="tgCotaDer">Cota: ---</div>
+            </div>
+            <div class="tg-mira-val tg-der-color" id="tgMiraDer">0.000</div>
+        </div>
+
+        <div style="margin-top:20px; font-weight:800; color:#fff; opacity:0.5; border: 1px solid #fff; padding: 6px 18px; border-radius:20px;">Toca para cerrar</div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- MODAL CONTROL DE PLANTILLADO / CACHACOS EN VIVO (IZQ - EJE - DER) -->
+    <div class="overlay-select" id="overlayCtrlTerr" onclick="cerrarModalCtrlTerr()"></div>
+    <div class="modal-select" id="modalCtrlTerr">
+        <h3 id="tituloCtrlTerr" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:6px; font-size:1.1rem; text-align:center;">⛏️ CONTROL DE PLANTILLA</h3>
+        <p style="font-size:0.8rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:12px;">Ingresa la <strong>Lectura de Mira V.AD(-)</strong> sobre el terreno o antepón <strong>#</strong> si digitas una Cota directa.</p>
+        <div class="form-grid-3">
+            <div class="input-group">
+                <label style="color:var(--izq-color); justify-content:center;">⬅️ IZQ</label>
+                <input type="text" id="inpTerrIzq" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+            </div>
+            <div class="input-group">
+                <label style="color:var(--primary-color); justify-content:center;">🎯 EJE</label>
+                <input type="text" id="inpTerrEje" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+            </div>
+            <div class="input-group">
+                <label style="color:var(--der-color); justify-content:center;">➡️ DER</label>
+                <input type="text" id="inpTerrDer" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+            </div>
+        </div>
+        <div id="previewCtrlTerrBox" style="font-size:0.78rem; font-weight:800; text-align:center; padding:8px; border-radius:6px; background:rgba(128,128,128,0.08); margin-bottom:10px;"></div>
+        <div class="confirm-btns" style="margin-top:10px;">
+            <button class="confirm-btn" style="background:var(--danger-color); color:#fff;" onclick="limpiarInputsCtrlTerr()">LIMPIAR</button>
+            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" onclick="guardarCtrlTerr()">CALCULAR</button>
+        </div>
+    </div>
+
+    <!-- MODAL CALCULADORA DE ESTACA LIBRE / SOBREANCHO / CUNETA -->
+    <div class="overlay-select" id="overlayEstacaLibre" onclick="cerrarEstacaLibre()"></div>
+    <div class="modal-select" id="modalEstacaLibre">
+        <h3 style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size:1.1rem; text-align:center;">🔍 ESTACA LIBRE / SOBREANCHO</h3>
+        <div class="form-grid">
+            <div class="input-group full-width">
+                <label>Progresiva a consultar (m)</label>
+                <input type="text" id="elProg" inputmode="decimal" placeholder="Ej: 125.50" oninput="formatDecimal(this); calcEstacaLibre()">
+            </div>
+            <div class="input-group">
+                <label>Dist. del Eje (m)</label>
+                <input type="text" id="elOffset" inputmode="decimal" placeholder="Ej: 4.20" oninput="formatDecimal(this); calcEstacaLibre()">
+            </div>
+            <div class="input-group">
+                <label>Pte. Transv. (%)</label>
+                <input type="text" id="elBombeo" inputmode="decimal" placeholder="Ej: -2.00" oninput="formatDecimal(this); calcEstacaLibre()">
+            </div>
+        </div>
+        <div id="resEstacaLibre" style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:15px; text-align:center; font-weight:800; font-size:0.95rem;">
+            Ingresa Progresiva y Distancia al Eje
+        </div>
+        <button class="confirm-btn" style="background:var(--table-header); color:#fff; width:100%;" onclick="cerrarEstacaLibre()">CERRAR</button>
+    </div>
+
+    <!-- MODALES ESTÁNDAR -->
+    <div class="overlay-select" id="customConfirmOverlay"></div>
+    <div class="modal-select" id="customConfirmModal">
+        <div class="confirm-msg" id="customConfirmMsg">¿Estás seguro?</div>
+        <div class="confirm-btns">
+            <button class="confirm-btn" style="background:rgba(128,128,128,0.2); color:var(--text-color);" id="btnConfirmCancel" onclick="btnConfirmCancelClick()">CANCELAR</button>
+            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" id="btnConfirmOk" onclick="btnConfirmOkClick()">ACEPTAR</button>
+        </div>
+    </div>
+
+    <div class="overlay-select" id="customAlertOverlay"></div>
+    <div class="modal-select" id="customAlertModal">
+        <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
+        <div class="confirm-msg" id="customAlertMsg" style="font-size:0.95rem; font-weight:600; text-align:left; color:var(--text-color); margin-bottom:15px;">Texto</div>
+        <div class="confirm-btns">
+            <button class="confirm-btn" style="background:var(--table-header); color:#fff; width:100%;" onclick="cerrarCustomAlert()">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <div class="overlay-select" id="customPromptOverlay"></div>
+    <div class="modal-select" id="customPromptModal">
+        <h3 id="customPromptTitle" style="color:var(--text-color); margin-bottom:10px; font-weight:900; text-transform:uppercase; font-size: 1.1rem;">INGRESO</h3>
+        <input type="text" id="customPromptInput" style="margin-bottom:15px; background:var(--input-bg); border:1px solid var(--primary-color); width:100%; padding:10px; font-weight:bold; border-radius:8px; color:var(--text-color);" onfocus="this.select()">
+        <div class="confirm-btns">
+            <button class="confirm-btn" style="background:var(--danger-color); color:#fff;" onclick="document.getElementById('customPromptInput').value=''; document.getElementById('customPromptInput').focus();">BORRAR</button>
+            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" id="btnPromptOk" onclick="btnPromptOkClick()">GUARDAR</button>
+        </div>
+    </div>
+
+    <div class="overlay-select" id="overlaySelect" onclick="cerrarModalSelect()"></div>
+    <div class="modal-select" id="modalSelect">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="modalSelectTitle" style="margin:0; color:var(--text-color); font-weight:800; font-size:1.15rem;">SELECCIONAR</h3>
+            <button onclick="cerrarModalSelect()" style="background:none; border:none; font-size:1.5rem; color:var(--danger-color); font-weight:800; cursor:pointer; padding:0 10px;">X</button>
+        </div>
+        <div id="modalSelectContent" style="max-height:300px; overflow-y:auto; margin-bottom:5px;"></div>
+    </div>
+
+    <input type="hidden" id="hdnSelectPerfil" value="">
+    <input type="hidden" id="hdnSelectBM" value="">
+
     <div class="top-bar">
-        <a href="nivelacion.html" class="btn-volver-mini" onclick="vibrar()">←</a>
-        <h2 class="top-bar-title">CARRETERAS <span>Control Transversal</span></h2>
-        <div style="width: 45px;"></div> 
-    </div>
-
-    <div class="modulo-container grid-desktop">
-
-        <div class="panel-control" style="border-left: 5px solid var(--primary-color);">
-            <div class="panel-titulo" style="color: var(--primary-color);">1. Estación de Control</div>
-            <div class="form-grid">
-                <div class="input-group"><label>Cota BM</label><input type="number" id="cotaBM" step="0.001" placeholder="Ej: 2851.000" oninput="calcularAI()" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Vista Atrás (+)</label><input type="number" id="vistaAtras" step="0.001" placeholder="Ej: 1.250" oninput="calcularAI()" onchange="formatearDecimales(this)"></div>
-            </div>
-            <div class="res-ai">AI Actual: <span id="txtAI">0.000</span></div>
+        <div class="nav-buttons-left">
+            <a href="index.html" class="btn-volver-mini" onclick="feedbackUI()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </a>
+            <a href="nivelacion.html" class="btn-volver-mini" onclick="feedbackUI()">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </a>
         </div>
-
-        <div class="panel-control" style="border-left: 5px solid #111;">
-            <div class="panel-titulo" style="color: var(--text-color);">2. Eje Longitudinal <span>(Subrasante)</span></div>
-            <div class="form-grid">
-                <div class="input-group"><label>Prog. Inicio</label><input type="number" id="progIni" step="0.001" placeholder="0+000" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Cota Inicio</label><input type="number" id="cotaIni" step="0.001" placeholder="Ej: 1500.000" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Prog. Final</label><input type="number" id="progFin" step="0.001" placeholder="0+100" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Cota Final</label><input type="number" id="cotaFin" step="0.001" placeholder="Ej: 1498.000" oninput="calcularPendiente()" onchange="formatearDecimales(this)"></div>
-            </div>
-            <div class="indicador-pendiente" id="txtPendiente">Pendiente del tramo: Esperando datos...</div>
-        </div>
-
-        <div class="panel-control" style="border-left: 5px solid #1976d2; grid-column: 1 / -1;">
-            <div class="panel-titulo" style="color: #1976d2;">3. Sección Típica <span>(Estructura)</span></div>
-            <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                <div class="input-group"><label>Ancho de Vía (m)</label><input type="number" id="anchoVia" step="0.01" placeholder="Ej: 7.20" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Bombeo (%)</label><input type="number" id="bombeo" step="0.01" placeholder="Ej: -2.00"></div>
-                <div class="input-group"><label>PQT. Estructural (m)</label><input type="number" id="espesorRasante" step="0.001" placeholder="Ej: 0.60" onchange="formatearDecimales(this)"></div>
-                <div class="input-group"><label>Esponjamiento (%)</label><input type="number" id="esponjamiento" step="0.1" placeholder="Ej: 20.0"></div>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--text-color); opacity: 0.7; font-weight: 600; margin-top: 10px; text-align: center;">
-                *El "PQT. Estructural" es la suma de Base + Subbase + Asfalto. El bombeo negativo (-) cae hacia las cunetas.
-            </p>
-        </div>
-
-        <div class="panel-construccion">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-            </svg>
-            <h3>Ingeniería en Proceso</h3>
-            <p>Estamos calibrando los algoritmos de interpolación para las secciones transversales. El panel de disparo de campo y cálculo de volumen estará disponible pronto para completar el diseño.</p>
-        </div>
-
-    </div>
-
-    <div class="btn-nav-flotante" onclick="toggleNav()">🧭</div>
-    <div class="nav-modal" id="navModal">
-        <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 10px; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-            IR A MÓDULO <button onclick="toggleNav()" style="background:none; border:none; color:var(--danger-color); font-weight:800; cursor:pointer; font-size: 1.2rem;">X</button>
-        </div>
-        <div class="nav-grid">
-            <a href="index.html" class="nav-item"><span>🏠</span> Inicio</a>
-            <a href="nivelacion.html" class="nav-item"><span>📏</span> Niveles</a>
-            <a href="poligonales.html" class="nav-item"><span>📐</span> Polígonos</a>
-            <a href="coordenadas.html" class="nav-item"><span>🌐</span> Coord.</a>
-            <a href="areas.html" class="nav-item"><span>⬛</span> Áreas</a>
-            <a href="ajustes.html" class="nav-item"><span>⚙️</span> Ajustes</a>
+        <h2 class="top-bar-title">CARRETERAS <span>Eje, Bombeo y Peralte</span></h2>
+        <div style="width: 90px; display: flex; justify-content: flex-end;">
+            <button class="btn-volver-mini" onclick="mostrarLeyenda()" title="Guía de Funciones" style="width: 45px; height: 45px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4"></path>
+                    <path d="M12 8h.01"></path>
+                </svg>
+            </button>
         </div>
     </div>
 
+    <div class="modulo-container">
+        <!-- PANEL 0: BASE DE DATOS Y BMs -->
+        <div class="panel-control" style="border-left: 4px solid var(--primary-color);">
+            <div class="panel-titulo" onclick="togglePanel('panelProyecto')">
+                <span>📁 Base de Datos / Proyectos Viales</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelProyecto">
+                <div class="project-selector" style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center;">
+                    <div class="custom-select" style="flex: 1;" onclick="abrirModalSelect('proyecto')">
+                        <span id="txtSelectProyecto">Cargando...</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--table-header); margin:0;" onclick="editarNombreProyecto()">✏️</button>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--primary-color); margin:0;" onclick="crearNuevoProyecto()">➕</button>
+                    <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--danger-color); margin:0;" onclick="eliminarProyecto()">🗑️</button>
+                </div>
+
+                <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+                    <label style="color: var(--primary-color);">+ Registrar BM Oficial</label>
+                    <div class="form-grid" style="margin-top: 4px;">
+                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-1)" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)" onblur="completarCerosInput(this)">
+                        <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar BM</button>
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar-bm')">🔗 Importar BMs</button>
+                    </div>
+                </div>
+
+                <label style="margin-top: 10px; display: block; font-size:0.75rem; opacity:0.7;">Mantén presionado para reordenar</label>
+                <div class="bm-list" id="listaBMs"></div>
+
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 12px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: var(--table-header); margin: 0;" onclick="exportarBackupVial()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--text-color); border: 1px solid var(--border-color); text-align: center; margin: 0; cursor: pointer;">
+                            📥 Restaurar
+                            <input type="file" id="importVialFile" accept=".json" style="display: none;" onchange="importarBackupVial()">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL 1: EJE LONGITUDINAL Y SECCIÓN TRANSVERSAL (BOMBEO / PERALTE) -->
+        <div class="panel-control" style="border-left: 4px solid #1976d2;">
+            <div class="panel-titulo" onclick="togglePanel('panelParametros')">
+                <span>1. Eje Vial, Bombeo y Peralte</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelParametros">
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label style="color: #1976d2; display: flex; justify-content: space-between;">
+                        Tramos Viales Guardados
+                        <span style="font-size: 0.8rem; cursor: pointer; font-weight:800; color: var(--primary-color);" onclick="limpiarCamposTramo()">[ + NUEVO TRAMO ]</span>
+                    </label>
+                    <div class="bm-list" id="listaPerfiles" style="max-height: 180px; margin-top: 5px;"></div>
+                </div>
+
+                <div style="display: flex; gap:8px;">
+                    <button class="btn-accion btn-auto" style="flex:1;" onclick="autocalcularTramoVial()">🪄 Deducir Dato Eje</button>
+                    <button class="btn-accion btn-auto" style="flex:1;" onclick="toggleCroquisSeccion()">👁️ Croquis Sección</button>
+                </div>
+
+                <canvas id="croquisCanvas" width="340" height="165" style="display:none; width:100%; border:1px solid var(--border-color); border-radius:8px; margin-bottom:12px; background: var(--card-bg);"></canvas>
+
+                <label style="color:var(--primary-color); margin-bottom:6px;">📐 Geometría Longitudinal (Eje)</label>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>
+                            Prog. Inicial (m)
+                            <span class="info-icon" onclick="showCustomAlert('Kilometraje de inicio de tu tramo en metros. Ejemplo: escribe <strong>0</strong> para 0+000 o <strong>1240</strong> para arrancar en 1+240.', 'PROGRESIVA INICIAL')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="progIni" value="0.000" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Longitud Tramo (m)
+                            <span class="info-icon" onclick="showCustomAlert('Distancia horizontal total del tramo a estacar o plantillar.', 'LONGITUD DEL TRAMO')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="distTotal" placeholder="Ej: 100.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Cota Eje Inicial
+                            <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje en la Progresiva Inicial.', 'COTA EJE INICIAL')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="Ej: 100.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Cota Eje Final
+                            <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje al terminar el tramo. Puedes dejarla en blanco y usar <strong>🪄 Deducir Dato Eje</strong> si ya tienes la pendiente.', 'COTA EJE FINAL')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="Ej: 101.500" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Pend. Eje (%) [+/-]
+                            <span class="info-icon" onclick="showCustomAlert('Pendiente longitudinal del eje vial.<br>• <strong>Positiva (+)</strong>: La vía SUBE.<br>• <strong>Negativa (-)</strong>: La vía BAJA.', 'PENDIENTE LONGITUDINAL')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="pteLong" placeholder="Ej: 1.500 o -1.500" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Offset Capa (m)
+                            <span class="info-icon" onclick="showCustomAlert('<strong>DESFASE DE ESTRUCTURA:</strong><br>Si tus cotas de eje son de Rasante (Acabado), pero estás plantillando <strong>Subrasante</strong> (ej: -0.450) o <strong>Base</strong> (ej: -0.050), escribe ese espesor aquí. Usa 0.000 para Rasante.', 'OFFSET DE CAPA')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="offsetCapa" value="0.000" placeholder="Ej: -0.200" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                </div>
+
+                <!-- SECCIÓN TRANSVERSAL: ANCHOS Y BOMBEO / PERALTE -->
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 8px;">
+                    <label style="color:var(--primary-color); margin-bottom:6px;">
+                        <span>🛣️ Sección Transversal (Bombeo / Peralte)</span>
+                        <span style="font-size:0.72rem; opacity:0.8;">(-) Baja | (+) Sube</span>
+                    </label>
+
+                    <div class="chip-group">
+                        <button type="button" class="chip-btn activo" id="chipBombeo" onclick="aplicarModoTransversal('bombeo')">💧 Bombeo (- / -)</button>
+                        <button type="button" class="chip-btn" id="chipPeralteIzq" onclick="aplicarModoTransversal('peralte-izq')">↪️ Peralte Izq (- / +)</button>
+                        <button type="button" class="chip-btn" id="chipPeralteDer" onclick="aplicarModoTransversal('peralte-der')">↩️ Peralte Der (+ / -)</button>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label style="color:var(--izq-color);">
+                                ⬅️ Ancho Carril Izq (m)
+                                <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde izquierdo de calzada.', 'ANCHO IZQUIERDO')">ℹ️</span>
+                            </label>
+                            <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        </div>
+                        <div class="input-group">
+                            <label style="color:var(--der-color);">
+                                ➡️ Ancho Carril Der (m)
+                                <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde derecho de calzada.', 'ANCHO DERECHO')">ℹ️</span>
+                            </label>
+                            <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        </div>
+                        <div class="input-group">
+                            <label style="color:var(--izq-color);">
+                                ⬅️ Bombeo/Peralte Izq (%)
+                                <span class="info-icon" onclick="showCustomAlert('Inclinación transversal izquierda respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE IZQ')">ℹ️</span>
+                            </label>
+                            <input type="text" inputmode="decimal" id="bombeoIzq" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        </div>
+                        <div class="input-group">
+                            <label style="color:var(--der-color);">
+                                ➡️ Bombeo/Peralte Der (%)
+                                <span class="info-icon" onclick="showCustomAlert('Inclinación transversal derecha respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE DER')">ℹ️</span>
+                            </label>
+                            <input type="text" inputmode="decimal" id="bombeoDer" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 8px;">
+                    <label style="color: var(--text-color);">💾 Guardar este Tramo Vial en el proyecto</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <input type="text" id="nombrePerfilNuevo" placeholder="Ej: KM 0+000 AL 0+200 (TANGENTE)" style="flex: 1; text-align: left; padding: 10px;" oninput="this.value = this.value.toUpperCase()">
+                        <button class="btn-accion" style="width: auto; padding: 10px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfilVial()">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL 2: ESTACIÓN DE CAMPO -->
+        <div class="panel-control" style="border-left: 4px solid var(--primary-color);" id="panelEstacionWrapper">
+            <div class="panel-titulo" onclick="togglePanel('panelEstacion')">
+                <span>2. Estación de Nivel en Campo</span>
+                <span class="btn-toggle-panel">▼</span>
+            </div>
+            <div id="panelEstacion">
+                <div class="form-grid">
+                    <div class="input-group full-width">
+                        <label>BM de Referencia</label>
+                        <div style="display: flex; gap: 8px;">
+                            <div class="custom-select" style="flex: 60%;" onclick="abrirModalSelect('bm')">
+                                <span id="txtSelectBM">-- ELEGIR BM --</span>
+                                <span class="arrow">▼</span>
+                            </div>
+                            <input type="text" inputmode="decimal" id="cotaBM" placeholder="Cota BM..." style="flex: 40%;" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Vista Atrás (+)
+                            <span class="info-icon" onclick="showCustomAlert('Lectura de mira sobre el BM de partida para obtener la Altura de Instrumento (AI).', 'VISTA ATRÁS')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.425" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            Estacado cada (m)
+                            <span class="info-icon" onclick="showCustomAlert('Intervalo entre progresivas (Ej: 20m en tangentes, 10m en curvas, 5m en rampa).', 'INTERVALO DE ESTACADO')">ℹ️</span>
+                        </label>
+                        <input type="text" inputmode="decimal" id="intervalo" value="20.000" placeholder="Ej: 20.000" oninput="formatDecimal(this); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                    </div>
+                    <div class="full-width" id="txtAlertaVA" style="color:var(--primary-color); font-weight:800; font-size:0.85rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 18px;">
+            <button class="btn-accion" style="background-color: var(--primary-color); font-size: 1.08rem; padding: 14px; width: 100%; box-shadow: 0 4px 12px var(--primary-glow);" onclick="generarLibretaVial()">🛣️ GENERAR PLANTILLADO VIAL (IZQ - EJE - DER)</button>
+        </div>
+
+        <!-- SECCIÓN DE LIBRETA GENERADA -->
+        <div class="seccion-tabla" id="seccionTabla">
+            <div class="res-ai" id="resAI">
+                AI (Altura Instrumento Inicial): <span class="ai-num" id="txtAI">0.000</span>
+                <div class="res-vial-meta" id="resVialMeta"></div>
+            </div>
+
+            <div style="display: flex; gap:8px; margin-bottom: 8px;">
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
+                    📍 Añadir PL
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Cambia la Altura de Instrumento a partir de una progresiva cuando muevas el nivel en campo.', 'AÑADIR PL')">ℹ️</span>
+                </button>
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="abrirEstacaLibre()">
+                    🔍 Estaca Libre
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>SOBREANCHO / CUNETA / PROG. INTERMEDIA:</strong><br>Calcula al instante la Cota y Lectura de Mira para cualquier progresiva y a cualquier distancia del eje (bermas, cunetas, sobreanchos).', 'ESTACA LIBRE')">ℹ️</span>
+                </button>
+            </div>
+
+            <div class="chip-group" style="margin-bottom:10px;">
+                <button type="button" class="chip-btn activo" id="btnVistaAmbos" onclick="cambiarModoVistaTabla('ambos')">👁️ Mira + Cota</button>
+                <button type="button" class="chip-btn" id="btnVistaMira" onclick="cambiarModoVistaTabla('mira')">🎯 Solo Mira</button>
+                <button type="button" class="chip-btn" id="btnVistaCota" onclick="cambiarModoVistaTabla('cota')">📐 Solo Cotas</button>
+                <button type="button" class="chip-btn" style="color:var(--danger-color); border-color:rgba(211,47,47,0.4);" onclick="limpiarPLs()">🗑️ Reset PLs</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="tablaCarreteras" style="user-select:none; -webkit-user-select:none;">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">PROGRESIVA</th>
+                            <th class="th-izq" style="width: 25%;">⬅️ IZQ <span id="thAnchoIzq" style="font-size:0.65rem; display:block; opacity:0.9;">-3.50m (-2%)</span></th>
+                            <th class="th-eje" style="width: 25%;">🎯 EJE VIAL <span id="thOffsetEje" style="font-size:0.65rem; display:block; opacity:0.9;">CL (0.00m)</span></th>
+                            <th class="th-der" style="width: 25%;">➡️ DER <span id="thAnchoDer" style="font-size:0.65rem; display:block; opacity:0.9;">+3.50m (-2%)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+            </div>
+            <button class="btn-accion btn-excel" id="btnExcel" onclick="exportarXLSX()">📥 Descargar Plantillado Vial (.xlsx)</button>
+        </div>
+    </div>
+
+    <!-- CALCULADORA FLOTANTE -->
     <div class="btn-calculadora-flotante" onclick="toggleCalculadora()">🧮</div>
     <div class="calculadora-modal" id="calculadoraModal">
         <div class="calc-header"><span>CÁLCULO RÁPIDO</span><button onclick="toggleCalculadora()">X</button></div>
         <input type="text" id="calcDisplay" disabled>
         <div class="calc-grid">
-            <button onclick="calcIn('7')">7</button><button onclick="calcIn('8')">8</button><button onclick="calcIn('9')">9</button><button onclick="calcIn('/')">÷</button>
-            <button onclick="calcIn('4')">4</button><button onclick="calcIn('5')">5</button><button onclick="calcIn('6')">6</button><button onclick="calcIn('*')">×</button>
-            <button onclick="calcIn('1')">1</button><button onclick="calcIn('2')">2</button><button onclick="calcIn('3')">3</button><button onclick="calcIn('-')">-</button>
-            <button onclick="calcClear()" style="color:var(--danger-color); border-color:var(--danger-color);">C</button><button onclick="calcIn('0')">0</button><button onclick="calcIn('.')">.</button><button onclick="calcIn('+')">+</button>
-            <button onclick="calcDel()" style="grid-column: span 2; background:rgba(128,128,128,0.1);">⌫</button><button onclick="calcEval()" style="grid-column: span 2; background:var(--primary-color); color:#fff;">=</button>
+            <button onclick="calcInput('7')">7</button>
+            <button onclick="calcInput('8')">8</button>
+            <button onclick="calcInput('9')">9</button>
+            <button onclick="calcInput('/')" class="calc-op">÷</button>
+            <button onclick="calcInput('4')">4</button>
+            <button onclick="calcInput('5')">5</button>
+            <button onclick="calcInput('6')">6</button>
+            <button onclick="calcInput('*')" class="calc-op">×</button>
+            <button onclick="calcInput('1')">1</button>
+            <button onclick="calcInput('2')">2</button>
+            <button onclick="calcInput('3')">3</button>
+            <button onclick="calcInput('-')" class="calc-op">-</button>
+            <button onclick="calcClear()" class="calc-clear">C</button>
+            <button onclick="calcInput('0')">0</button>
+            <button onclick="calcInput('.')">.</button>
+            <button onclick="calcInput('+')" class="calc-op">+</button>
+            <button onclick="calcBackspace()" class="calc-del">⌫</button>
+            <button onclick="calcEval()" class="calc-eval">=</button>
         </div>
     </div>
 
     <script>
-        let globalConfig = { darkMode: false, vibracion: true, decimales: "3", wakeLockEnabled: false };
-        let wakeLock = null;
+        /* --- FUNCIONES DE PRECISIÓN ENTERA Y CONFIGURACIÓN --- */
+        function getDecs() {
+            return parseInt(globalConfig.decimales) || 3;
+        }
 
-        function vibrar() { if (globalConfig.vibracion !== false && navigator.vibrate) navigator.vibrate(30); }
+        function toScaledInt(val, decs = getDecs()) {
+            if (val === null || val === undefined || val === "") return NaN;
+            let num = typeof val === "number" ? val : parseFloat(String(val).replace(',', '.'));
+            if (isNaN(num)) return NaN;
+            return Math.round(num * Math.pow(10, decs));
+        }
 
-        async function solicitarWakeLock() {
-            if ('wakeLock' in navigator) {
-                try { wakeLock = await navigator.wakeLock.request('screen'); }
-                catch (err) {}
+        function fromScaledInt(intVal, decs = getDecs()) {
+            if (isNaN(intVal)) return NaN;
+            return intVal / Math.pow(10, decs);
+        }
+
+        function normProgKey(prog) {
+            let n = typeof prog === "number" ? prog : parseFloat(String(prog).replace(',', '.'));
+            if (isNaN(n)) return "0";
+            return String(Math.round(n * 1000) / 1000);
+        }
+
+        /* --- UI: TOAST Y MODALES --- */
+        function showToast(message, type = "default") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => toast.remove()); }, 3000);
+        }
+
+        let confirmOkCallback = null, confirmCancelCallback = null, promptOkCallback = null;
+
+        function showCustomAlert(message, title = "INFORMACIÓN") {
+            document.getElementById('customAlertTitle').innerHTML = `ℹ️ ${title}`;
+            document.getElementById('customAlertMsg').innerHTML = message;
+            document.getElementById('customAlertOverlay').style.display = 'block';
+            setTimeout(() => { document.getElementById('customAlertOverlay').classList.add('activo'); document.getElementById('customAlertModal').classList.add('abierto'); }, 10);
+        }
+        function cerrarCustomAlert() {
+            document.getElementById('customAlertOverlay').classList.remove('activo'); document.getElementById('customAlertModal').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
+        }
+
+        function mostrarLeyenda() {
+            let html = `
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <span style="font-size:1.2rem; margin-right:10px;">💧</span>
+                    <div><strong style="color:var(--primary-color);">Bombeo y Peralte:</strong> Usa valores negativos (ej: <strong>-2.0%</strong>) cuando el carril cae hacia afuera del eje, y positivos (ej: <strong>+4.0%</strong>) cuando el carril se eleva en el peralte de una curva.</div>
+                </div>
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <span style="font-size:1.2rem; margin-right:10px;">🧱</span>
+                    <div><strong style="color:var(--primary-color);">Offset de Capa:</strong> Si tus cotas de eje son de Rasante pero estás plantillando Subrasante (-0.45m) o Base (-0.05m), ingresa ese desfase en <strong>Offset Capa</strong>.</div>
+                </div>
+                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <span style="font-size:1.2rem; margin-right:10px;">⛏️</span>
+                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca el botón bajo cada progresiva para meter las lecturas de mira reales en Izq, Eje y Der (o antepón <strong>#</strong> para Cota directa) y obtener el Corte (-) o Relleno (+) exacto.</div>
+                </div>
+                <div style="display:flex; align-items:flex-start;">
+                    <span style="font-size:1.2rem; margin-right:10px;">▶</span>
+                    <div><strong style="color:var(--primary-color);">Toque Simple y Doble:</strong> 1 toque pinta la estaca como lista (verde). 2 toques rápidos abren la <strong>TARJETA GIGANTE TRIPLE</strong> (Izq, Eje y Der).</div>
+                </div>
+            `;
+            showCustomAlert(html, "GUÍA DE CARRETERAS");
+        }
+
+        function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
+            document.getElementById('customConfirmMsg').innerHTML = message.replace(/\n/g, '<br>');
+            document.getElementById('btnConfirmOk').innerText = okText;
+            document.getElementById('btnConfirmCancel').innerText = cancelText;
+            confirmOkCallback = onOk; confirmCancelCallback = onCancel;
+            document.getElementById('customConfirmOverlay').style.display = 'block';
+            setTimeout(() => { document.getElementById('customConfirmOverlay').classList.add('activo'); document.getElementById('customConfirmModal').classList.add('abierto'); }, 10);
+        }
+        function cerrarCustomConfirm() {
+            document.getElementById('customConfirmOverlay').classList.remove('activo'); document.getElementById('customConfirmModal').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('customConfirmOverlay').style.display = 'none'; }, 300);
+        }
+        function btnConfirmOkClick() { cerrarCustomConfirm(); if (confirmOkCallback) confirmOkCallback(); }
+        function btnConfirmCancelClick() { cerrarCustomConfirm(); if (confirmCancelCallback) confirmCancelCallback(); }
+
+        function showCustomPrompt(title, defaultVal, onOk) {
+            document.getElementById('customPromptTitle').innerText = title;
+            let inp = document.getElementById('customPromptInput');
+            inp.value = defaultVal; promptOkCallback = onOk;
+            document.getElementById('customPromptOverlay').style.display = 'block';
+            setTimeout(() => { document.getElementById('customPromptOverlay').classList.add('activo'); document.getElementById('customPromptModal').classList.add('abierto'); inp.focus(); }, 10);
+        }
+        function cerrarCustomPrompt() {
+            document.getElementById('customPromptOverlay').classList.remove('activo'); document.getElementById('customPromptModal').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('customPromptOverlay').style.display = 'none'; }, 300);
+        }
+        function btnPromptOkClick() {
+            let val = document.getElementById('customPromptInput').value;
+            cerrarCustomPrompt(); if (promptOkCallback) promptOkCallback(val);
+        }
+
+        /* --- ESTADO Y PUENTE DE BMs --- */
+        let appDataVial = { activoId: 1, proyectos: [], contadorProyectos: 1 };
+        let globalConfig = { darkMode: false, vibracion: true, sonido: false, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
+        let modoVistaTabla = 'ambos';
+        let wakeLock = null, editandoBMIndex = -1, audioCtxVial = null;
+        let tipoModalActual = "", bmsExternosCache = [];
+        let ctrlTerrProgActiva = null;
+
+        function feedbackUI() {
+            if (globalConfig.vibracion !== false && navigator.vibrate) { try { navigator.vibrate(20); } catch(e) {} }
+            if (globalConfig.sonido) {
+                try {
+                    if (!audioCtxVial) audioCtxVial = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtxVial.state === 'suspended') audioCtxVial.resume();
+                    let osc = audioCtxVial.createOscillator(), gain = audioCtxVial.createGain();
+                    osc.connect(gain); gain.connect(audioCtxVial.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtxVial.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtxVial.currentTime);
+                    osc.start(); osc.stop(audioCtxVial.currentTime + 0.08);
+                } catch(e) {}
             }
         }
 
-        function toggleNav() {
-            vibrar();
-            const m = document.getElementById('navModal');
-            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        function formatDecimal(input) {
+            let decs = getDecs();
+            let val = input.value.replace(/,/g, '.').replace(/[^0-9.-]/g, '');
+            if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
+            if ((val.match(/-/g) || []).length > 1) val = '-' + val.replace(/-/g, '');
+            let parts = val.split('.');
+            if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+            if (parts.length === 2 && parts[1].length > decs) val = parts[0] + '.' + parts[1].substring(0, decs);
+            if (input.value !== val) input.value = val;
         }
+
+        function formatTerrInput(input) {
+            let v = input.value.replace(/,/g, '.').replace(/[^0-9.#-]/g, '');
+            if (v.indexOf('#') > 0) v = '#' + v.replace(/#/g, '');
+            if (input.value !== v) input.value = v;
+        }
+
+        function completarCerosInput(input) {
+            let decs = getDecs();
+            let val = input.value.trim();
+            if (val !== "" && val !== "-" && val !== ".") {
+                let intVal = toScaledInt(val, decs);
+                if (!isNaN(intVal)) input.value = fromScaledInt(intVal, decs).toFixed(decs);
+            }
+        }
+
+        /* --- FORMATEADOR DE PROGRESIVAS BLINDADO CONTRA BORDES DE KM --- */
+        function formatearProg(p) {
+            let num = typeof p === "number" ? p : parseFloat(p);
+            if (isNaN(num)) return "0+000";
+            let signo = num < 0 ? "-" : "";
+            let pRed = Math.round(Math.abs(num) * 100) / 100;
+            let km = Math.floor((pRed + 1e-9) / 1000);
+            let resto = Number((pRed - (km * 1000)).toFixed(2));
+            if (resto >= 1000) { km += 1; resto = 0; }
+            let esEntero = Math.abs(resto - Math.round(resto)) < 0.001;
+            let restoStr = esEntero ? Math.round(resto).toString().padStart(3, '0') : resto.toFixed(2).padStart(6, '0');
+            return `${signo}${km}+${restoStr}`;
+        }
+
+        async function solicitarWakeLock() { if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} } }
 
         function inicializarApp() {
+            localStorage.setItem('cota100_last_name', 'CARRETERAS');
+            localStorage.setItem('cota100_last_url', 'niv-carreteras.html');
+
             try {
                 let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
-                if(conf) {
+                if (conf) {
                     globalConfig = conf;
-                    if(globalConfig.darkMode) document.body.classList.add('dark-mode');
-                    if(globalConfig.wakeLockEnabled) solicitarWakeLock();
+                    if (globalConfig.darkMode) document.body.classList.add('dark-mode');
+                    if (globalConfig.wakeLockEnabled) solicitarWakeLock();
                 }
             } catch(e) {}
-        }
 
-        function formatearDecimales(input) { 
-            let decs = parseInt(globalConfig.decimales) || 3;
-            if(input.value !== "") input.value = parseFloat(input.value).toFixed(decs); 
-        }
-
-        function calcularAI() {
-            let decs = parseInt(globalConfig.decimales) || 3;
-            let bm = parseFloat(document.getElementById('cotaBM').value);
-            let va = parseFloat(document.getElementById('vistaAtras').value);
-            document.getElementById('txtAI').innerText = (!isNaN(bm) && !isNaN(va)) ? (bm + va).toFixed(decs) : "0.000";
-        }
-
-        function calcularPendiente() {
-            let decs = parseInt(globalConfig.decimales) || 3;
-            let pi = parseFloat(document.getElementById('progIni').value);
-            let ci = parseFloat(document.getElementById('cotaIni').value);
-            let pf = parseFloat(document.getElementById('progFin').value);
-            let cf = parseFloat(document.getElementById('cotaFin').value);
-            let txtPte = document.getElementById('txtPendiente');
-
-            if (!isNaN(pi) && !isNaN(ci) && !isNaN(pf) && !isNaN(cf)) {
-                let distancia = pf - pi;
-                if (distancia === 0) {
-                    txtPte.innerText = "Error: Distancia cero";
-                    txtPte.style.background = document.body.classList.contains('dark-mode') ? "rgba(211,47,47,0.1)" : "#ffebee"; 
-                    txtPte.style.borderColor = "var(--danger-color)";
-                    txtPte.style.color = "var(--danger-color)";
-                } else {
-                    let pte = ((cf - ci) / distancia) * 100;
-                    txtPte.innerText = "Pendiente Longitudinal: " + pte.toFixed(decs) + "%";
-                    txtPte.style.background = document.body.classList.contains('dark-mode') ? "rgba(46,125,50,0.1)" : "#e8f5e9"; 
-                    txtPte.style.borderColor = "var(--success-color)";
-                    txtPte.style.color = "var(--success-color)";
-                }
+            let stored = localStorage.getItem('cota100_db_vial_v1');
+            if (stored) {
+                appDataVial = JSON.parse(stored);
+                if (!appDataVial.contadorProyectos) appDataVial.contadorProyectos = appDataVial.proyectos.length;
             } else {
-                txtPte.innerText = "Pendiente del tramo: Esperando datos...";
-                txtPte.style.background = document.body.classList.contains('dark-mode') ? "#0d2136" : "#e3f2fd"; 
-                txtPte.style.borderColor = "#1976d2";
-                txtPte.style.color = "#1976d2";
+                appDataVial.contadorProyectos = 1;
+                let prefijo = JSON.parse(localStorage.getItem('cota100_ajustes'))?.proyecto || "TRAMO VIAL";
+                appDataVial.proyectos.push({ id: 1, nombre: `${prefijo} 1`, bms: [], perfiles: [], estadoActivo: { pls: {}, lockedRows: {}, cotasTerreno: {}, modoVista: 'ambos' } });
+                appDataVial.activoId = 1;
+            }
+
+            cargarProyectoActivo();
+            initTouchDragBM();
+        }
+
+        function obtenerProyectoActivo() { return appDataVial.proyectos.find(p => p.id === appDataVial.activoId); }
+        function guardarBD() { localStorage.setItem('cota100_db_vial_v1', JSON.stringify(appDataVial)); }
+
+        /* --- PUENTE DE BMs CON SIMPLE, ALCANTARILLADO Y SIMULTÁNEA --- */
+        function recopilarBMsExternos() {
+            let lista = [];
+            let pActual = obtenerProyectoActivo();
+            let nombresActuales = pActual ? pActual.bms.map(b => b.nombre) : [];
+
+            appDataVial.proyectos.forEach(proj => {
+                if (proj.id !== appDataVial.activoId && proj.bms) {
+                    proj.bms.forEach(bm => {
+                        if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
+                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Carreteras (${proj.nombre})` });
+                        }
+                    });
+                }
+            });
+
+            const fuentes = [
+                { key: 'cota100_db_poligonal_v11', label: 'Simultánea' },
+                { key: 'cota100_db_simple_v4', label: 'Niv. Simple' },
+                { key: 'cota100_db_alcan_v3', label: 'Alcantarillado' }
+            ];
+            fuentes.forEach(f => {
+                try {
+                    let dbExt = JSON.parse(localStorage.getItem(f.key));
+                    if (dbExt && dbExt.proyectos) {
+                        dbExt.proyectos.forEach(proj => {
+                            if (proj.bms) {
+                                proj.bms.forEach(bm => {
+                                    if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
+                                        lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De ${f.label}: ${proj.nombre}`, origen: `${f.label} (${proj.nombre})` });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch(e) {}
+            });
+            return lista;
+        }
+
+        function importarBMExterno(idx) {
+            let bm = bmsExternosCache[idx];
+            if (!bm) return;
+            let p = obtenerProyectoActivo();
+            if (p.bms.some(b => b.nombre === bm.nombre)) return showToast("Ese BM ya está en este proyecto", "warning");
+            p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`BM [${bm.nombre}] importado`, "success");
+        }
+
+        function importarTodosBMsExternos() {
+            let p = obtenerProyectoActivo();
+            let count = 0;
+            bmsExternosCache.forEach(bm => {
+                if (!p.bms.some(b => b.nombre === bm.nombre)) {
+                    p.bms.push({ nombre: bm.nombre, cota: Number(bm.cota), obs: bm.obs });
+                    count++;
+                }
+            });
+            guardarBD(); renderBMs(); cerrarModalSelect();
+            showToast(`${count} BMs importados con éxito`, "success");
+        }
+
+        function abrirModalSelect(tipo) {
+            tipoModalActual = tipo;
+            const titulo = document.getElementById('modalSelectTitle');
+            const contenido = document.getElementById('modalSelectContent');
+            contenido.innerHTML = "";
+            let p = obtenerProyectoActivo();
+            let decs = getDecs();
+
+            if (tipo === 'proyecto') {
+                titulo.innerText = "📁 SELECCIONAR PROYECTO VIAL";
+                appDataVial.proyectos.forEach(proj => {
+                    let isActivo = proj.id === appDataVial.activoId;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+                });
+            } else if (tipo === 'bm') {
+                titulo.innerText = "📍 SELECCIONAR BM";
+                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- ELEGIR BM --')"><span>-- ELEGIR BM --</span></button>`;
+                p.bms.forEach(bm => {
+                    let isActivo = document.getElementById('hdnSelectBM').value !== "" && Math.abs(parseFloat(document.getElementById('hdnSelectBM').value) - bm.cota) < 1e-6;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${bm.cota}', '${bm.nombre}')"><span>${bm.nombre}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
+                });
+            } else if (tipo === 'importar-bm') {
+                titulo.innerText = "🔗 PUENTE DE BMs";
+                bmsExternosCache = recopilarBMsExternos();
+                if (bmsExternosCache.length === 0) {
+                    contenido.innerHTML = `<div style="padding:15px; text-align:center; font-weight:700; opacity:0.7;">No se encontraron BMs nuevos en otros módulos.</div>`;
+                } else {
+                    contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternos()">📥 IMPORTAR TODOS (${bmsExternosCache.length})</button>`;
+                    bmsExternosCache.forEach((bm, idx) => {
+                        contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExterno(${idx})">
+                            <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                            <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
+                        </button>`;
+                    });
+                }
+            }
+
+            document.getElementById('overlaySelect').style.display = 'block';
+            setTimeout(() => { document.getElementById('overlaySelect').classList.add('activo'); document.getElementById('modalSelect').classList.add('abierto'); }, 10);
+        }
+
+        function cerrarModalSelect() {
+            document.getElementById('overlaySelect').classList.remove('activo');
+            document.getElementById('modalSelect').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
+        }
+
+        function seleccionarOpcionModal(valor, textoExtra) {
+            cerrarModalSelect();
+            if (tipoModalActual === 'proyecto') cambiarProyectoActivo(valor);
+            else if (tipoModalActual === 'bm') {
+                document.getElementById('hdnSelectBM').value = valor;
+                document.getElementById('txtSelectBM').innerText = textoExtra;
+                seleccionarBM(valor);
             }
         }
 
-        function toggleCalculadora() { vibrar(); const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function calcIn(v) { vibrar(); document.getElementById('calcDisplay').value += v; }
-        function calcClear() { vibrar(); document.getElementById('calcDisplay').value = ''; }
-        function calcDel() { vibrar(); let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { vibrar(); try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
+        /* --- GESTIÓN DE PROYECTOS Y ESTADO --- */
+        function guardarEstadoVial() {
+            let p = obtenerProyectoActivo(); if (!p) return;
+            p.estadoActivo = {
+                progIni: document.getElementById('progIni').value,
+                distTotal: document.getElementById('distTotal').value,
+                cotaIni: document.getElementById('cotaIni').value,
+                cotaFin: document.getElementById('cotaFin').value,
+                pteLong: document.getElementById('pteLong').value,
+                offsetCapa: document.getElementById('offsetCapa').value,
+                anchoIzq: document.getElementById('anchoIzq').value,
+                anchoDer: document.getElementById('anchoDer').value,
+                bombeoIzq: document.getElementById('bombeoIzq').value,
+                bombeoDer: document.getElementById('bombeoDer').value,
+                cotaBM: document.getElementById('cotaBM').value,
+                vistaAtras: document.getElementById('vistaAtras').value,
+                intervalo: document.getElementById('intervalo').value,
+                perfilSeleccionado: document.getElementById('hdnSelectPerfil').value,
+                bmSeleccionado: document.getElementById('hdnSelectBM').value,
+                modoVista: modoVistaTabla,
+                tablaVisible: document.getElementById('seccionTabla').style.display === 'block',
+                panelOculto: document.getElementById('panelEstacion').style.display === 'none',
+                pls: (p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {},
+                lockedRows: (p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {},
+                cotasTerreno: (p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}
+            };
+            sincronizarChipsTransversal();
+            guardarBD();
+        }
+
+        function cargarProyectoActivo() {
+            let p = obtenerProyectoActivo();
+            if (p && p.estadoActivo) {
+                document.getElementById('hdnSelectPerfil').value = p.estadoActivo.perfilSeleccionado || "";
+                document.getElementById('hdnSelectBM').value = p.estadoActivo.bmSeleccionado || "";
+                modoVistaTabla = p.estadoActivo.modoVista || 'ambos';
+            } else {
+                document.getElementById('hdnSelectPerfil').value = "";
+                document.getElementById('hdnSelectBM').value = "";
+                modoVistaTabla = 'ambos';
+            }
+
+            document.getElementById('btnVistaAmbos').classList.toggle('activo', modoVistaTabla === 'ambos');
+            document.getElementById('btnVistaMira').classList.toggle('activo', modoVistaTabla === 'mira');
+            document.getElementById('btnVistaCota').classList.toggle('activo', modoVistaTabla === 'cota');
+
+            renderSelectProyectos(); renderBMs(); renderPerfiles();
+
+            if (p && p.estadoActivo) {
+                if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
+                document.getElementById('progIni').value = p.estadoActivo.progIni ?? "0.000";
+                document.getElementById('distTotal').value = p.estadoActivo.distTotal || "";
+                document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || "";
+                document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
+                document.getElementById('pteLong').value = p.estadoActivo.pteLong || "";
+                document.getElementById('offsetCapa').value = p.estadoActivo.offsetCapa ?? "0.000";
+                document.getElementById('anchoIzq').value = p.estadoActivo.anchoIzq ?? "3.500";
+                document.getElementById('anchoDer').value = p.estadoActivo.anchoDer ?? "3.500";
+                document.getElementById('bombeoIzq').value = p.estadoActivo.bombeoIzq ?? "-2.000";
+                document.getElementById('bombeoDer').value = p.estadoActivo.bombeoDer ?? "-2.000";
+                document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || "";
+                document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
+                document.getElementById('intervalo').value = p.estadoActivo.intervalo || "20.000";
+
+                sincronizarChipsTransversal();
+                evaluarLimiteVA();
+
+                if (p.estadoActivo.tablaVisible) {
+                    generarLibretaVial(true);
+                    document.getElementById('panelEstacion').style.display = p.estadoActivo.panelOculto ? 'none' : 'block';
+                } else {
+                    document.getElementById('seccionTabla').style.display = 'none';
+                    document.getElementById('btnExcel').style.display = 'none';
+                    document.getElementById('panelEstacion').style.display = 'block';
+                }
+            }
+        }
+
+        function renderSelectProyectos() {
+            let p = obtenerProyectoActivo();
+            document.getElementById('txtSelectProyecto').innerText = p ? p.nombre : "Sin Nombre";
+        }
+
+        function crearNuevoProyecto() {
+            appDataVial.contadorProyectos = (appDataVial.contadorProyectos || appDataVial.proyectos.length) + 1;
+            let prefijo = JSON.parse(localStorage.getItem('cota100_ajustes'))?.proyecto || "TRAMO VIAL";
+            let nuevoId = Date.now();
+            appDataVial.proyectos.push({ id: nuevoId, nombre: `${prefijo} ${appDataVial.contadorProyectos}`, bms: [], perfiles: [], estadoActivo: { pls: {}, lockedRows: {}, cotasTerreno: {}, modoVista: 'ambos' } });
+            appDataVial.activoId = nuevoId;
+            guardarBD(); cargarProyectoActivo();
+            showToast("Proyecto vial creado", "success");
+        }
+
+        function eliminarProyecto() {
+            if (appDataVial.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning");
+            let p = obtenerProyectoActivo();
+            showCustomConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
+                appDataVial.proyectos = appDataVial.proyectos.filter(proj => proj.id !== p.id);
+                appDataVial.activoId = appDataVial.proyectos[0].id;
+                guardarBD(); cargarProyectoActivo();
+                showToast("Proyecto eliminado", "success");
+            });
+        }
+
+        function cambiarProyectoActivo(idStr) { appDataVial.activoId = parseInt(idStr); guardarBD(); cargarProyectoActivo(); }
+
+        function editarNombreProyecto() {
+            let p = obtenerProyectoActivo();
+            showCustomPrompt("EDITAR NOMBRE DEL PROYECTO VIAL", p.nombre, (newName) => {
+                if (newName && newName.trim() !== "") { p.nombre = newName.trim().toUpperCase(); guardarBD(); renderSelectProyectos(); showToast("Nombre actualizado", "success"); }
+            });
+        }
+
+        function exportarBackupVial() {
+            const backup = JSON.parse(localStorage.getItem('cota100_db_vial_v1'));
+            if (!backup || backup.proyectos.length === 0) return showToast("No hay datos para exportar.", "warning");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const a = document.createElement('a');
+            const fecha = new Date().toISOString().split('T')[0];
+            a.setAttribute("href", dataStr); a.setAttribute("download", `DB_NivCarreteras_${fecha}.json`);
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("Backup exportado con éxito", "success");
+        }
+
+        function importarBackupVial() {
+            const fileInput = document.getElementById('importVialFile');
+            if (fileInput.files.length === 0) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if (backup && backup.proyectos) {
+                        localStorage.setItem('cota100_db_vial_v1', JSON.stringify(backup));
+                        showToast("✅ Base de datos restaurada. Recargando...", "success");
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else showToast("❌ Archivo no válido.", "error");
+                } catch(err) { showToast("❌ Error al leer el archivo.", "error"); }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        /* --- BMs DRAG & DROP --- */
+        let draggingItemBM = null, dragTimer = null;
+        function initTouchDragBM() {
+            const list = document.getElementById('listaBMs');
+            list.addEventListener('touchstart', e => {
+                let item = e.target.closest('.bm-item');
+                if (item && !e.target.closest('button')) {
+                    dragTimer = setTimeout(() => {
+                        draggingItemBM = item; draggingItemBM.style.opacity = '0.5'; draggingItemBM.style.transform = 'scale(0.95)';
+                    }, 400);
+                }
+            }, {passive: true});
+            list.addEventListener('touchmove', e => {
+                if (!draggingItemBM) { clearTimeout(dragTimer); return; }
+                e.preventDefault(); const touch = e.touches[0]; const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.bm-item');
+                if (target && target !== draggingItemBM) {
+                    let rect = target.getBoundingClientRect(); let next = (touch.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                    list.insertBefore(draggingItemBM, next && target.nextSibling || target);
+                }
+            }, {passive: false});
+            list.addEventListener('touchend', () => {
+                clearTimeout(dragTimer);
+                if (!draggingItemBM) return;
+                draggingItemBM.style.opacity = '1'; draggingItemBM.style.transform = 'scale(1)'; draggingItemBM = null;
+                let p = obtenerProyectoActivo(); let nuevosBMs = [];
+                document.querySelectorAll('#listaBMs .bm-item').forEach(item => {
+                    let nombre = item.querySelector('.bm-info strong').innerText;
+                    let bmData = p.bms.find(b => b.nombre === nombre);
+                    if (bmData) nuevosBMs.push(bmData);
+                });
+                p.bms = nuevosBMs; guardarBD();
+            });
+        }
+
+        function clickEnBM(div, event) {
+            if (draggingItemBM) return;
+            if (!event.target.closest('button')) {
+                let obsDiv = div.closest('.bm-item').querySelector('.bm-obs');
+                if (obsDiv) obsDiv.style.display = obsDiv.style.display === "none" ? "block" : "none";
+            }
+        }
+
+        function addBM() {
+            const name = document.getElementById('newBMName').value.toUpperCase().trim();
+            const cota = parseFloat(document.getElementById('newBMCota').value.replace(',', '.'));
+            const obs = document.getElementById('newBMObs').value.trim();
+            if (!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
+            let decs = getDecs();
+            let cotaExacta = fromScaledInt(toScaledInt(cota, decs), decs);
+            let p = obtenerProyectoActivo();
+            const finalizar = () => {
+                document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; document.getElementById('newBMObs').value = "";
+                guardarBD(); renderBMs(); showToast("BM guardado", "success");
+            };
+            if (editandoBMIndex > -1) {
+                showCustomConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
+                    if (p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
+                    let oldCota = p.bms[editandoBMIndex].cota;
+                    p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
+                    editandoBMIndex = -1;
+                    let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
+                    finalizar();
+                    let currentSelect = document.getElementById('hdnSelectBM').value;
+                    if (currentSelect && Math.abs(parseFloat(currentSelect) - oldCota) < 1e-6) {
+                        document.getElementById('hdnSelectBM').value = cotaExacta.toString();
+                        document.getElementById('txtSelectBM').innerText = name;
+                        seleccionarBM(cotaExacta);
+                    }
+                });
+            } else {
+                if (p.bms.some(bm => bm.nombre === name)) return showToast("⚠️ Ya existe un BM con ese nombre.", "warning");
+                p.bms.push({ nombre: name, cota: cotaExacta, obs: obs }); finalizar();
+            }
+        }
+
+        function cargarEditBM(nombreBM) {
+            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if (idx === -1) return;
+            let bm = p.bms[idx];
+            document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
+            editandoBMIndex = idx; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar"; btn.style.background = "var(--primary-color)";
+        }
+
+        function deleteBM(nombreBM) {
+            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if (idx === -1) return;
+            showCustomConfirm(`⚠️ ¿Eliminar el BM "${nombreBM}"?`, () => { p.bms.splice(idx, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success"); });
+        }
+
+        function renderBMs() {
+            let decs = getDecs(); let p = obtenerProyectoActivo();
+            const list = document.getElementById('listaBMs');
+            let currentSelection = document.getElementById('hdnSelectBM').value; let txt = "-- ELEGIR BM --";
+            list.innerHTML = "";
+            p.bms.forEach(bm => {
+                list.innerHTML += `
+                <div class="bm-item" onclick="clickEnBM(this, event)">
+                    <div class="bm-item-header">
+                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                        <div class="bm-actions" onclick="event.stopPropagation()">
+                            <button onclick="cargarEditBM('${bm.nombre}')">✏️</button>
+                            <button style="color:var(--danger-color);" onclick="deleteBM('${bm.nombre}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div>
+                </div>`;
+                if (currentSelection && Math.abs(parseFloat(currentSelection) - bm.cota) < 1e-6) txt = bm.nombre;
+            });
+            document.getElementById('txtSelectBM').innerText = txt;
+        }
+
+        function seleccionarBM(cota) {
+            let decs = getDecs();
+            document.getElementById('cotaBM').value = (cota !== "" && cota !== null && cota !== undefined) ? parseFloat(cota).toFixed(decs) : "";
+            evaluarLimiteVA(); guardarEstadoVial();
+        }
+
+        /* --- MODOS DE BOMBEO Y PERALTE --- */
+        function aplicarModoTransversal(modo) {
+            feedbackUI();
+            let decs = getDecs();
+            let bIzq = Math.abs(parseFloat(document.getElementById('bombeoIzq').value) || 2.0);
+            let bDer = Math.abs(parseFloat(document.getElementById('bombeoDer').value) || 2.0);
+
+            if (modo === 'bombeo') {
+                document.getElementById('bombeoIzq').value = (-bIzq).toFixed(decs);
+                document.getElementById('bombeoDer').value = (-bDer).toFixed(decs);
+            } else if (modo === 'peralte-izq') {
+                document.getElementById('bombeoIzq').value = (-bIzq).toFixed(decs);
+                document.getElementById('bombeoDer').value = (+bDer).toFixed(decs);
+            } else if (modo === 'peralte-der') {
+                document.getElementById('bombeoIzq').value = (+bIzq).toFixed(decs);
+                document.getElementById('bombeoDer').value = (-bDer).toFixed(decs);
+            }
+            sincronizarChipsTransversal();
+            actualizarCroquisSiVisible();
+            evaluarLimiteVA();
+            guardarEstadoVial();
+        }
+
+        function sincronizarChipsTransversal() {
+            let bi = parseFloat(document.getElementById('bombeoIzq').value);
+            let bd = parseFloat(document.getElementById('bombeoDer').value);
+            document.getElementById('chipBombeo').classList.toggle('activo', bi <= 0 && bd <= 0);
+            document.getElementById('chipPeralteIzq').classList.toggle('activo', bi < 0 && bd > 0);
+            document.getElementById('chipPeralteDer').classList.toggle('activo', bi > 0 && bd < 0);
+        }
+
+        /* --- TRAMOS VIALES GUARDADOS --- */
+        function guardarPerfilVial() {
+            let p = obtenerProyectoActivo();
+            let nom = document.getElementById('nombrePerfilNuevo').value.trim();
+            let progIni = document.getElementById('progIni').value || "0.000";
+            let dist = document.getElementById('distTotal').value;
+            let ci = document.getElementById('cotaIni').value;
+            let cf = document.getElementById('cotaFin').value;
+            let pte = document.getElementById('pteLong').value;
+            let offset = document.getElementById('offsetCapa').value || "0.000";
+            let aIzq = document.getElementById('anchoIzq').value || "3.500";
+            let aDer = document.getElementById('anchoDer').value || "3.500";
+            let bIzq = document.getElementById('bombeoIzq').value || "-2.000";
+            let bDer = document.getElementById('bombeoDer').value || "-2.000";
+
+            if (!nom || ci === "" || cf === "" || dist === "" || pte === "") return showToast("⚠️ Completa los datos longitudinales y nombre.", "warning");
+            if (!p.perfiles) p.perfiles = [];
+            let nuevoObj = { nombre: nom, progIni, dist, ci, cf, pte, offset, aIzq, aDer, bIzq, bDer };
+            let idx = p.perfiles.findIndex(per => per.nombre === nom);
+            if (idx >= 0) {
+                showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => {
+                    p.perfiles[idx] = nuevoObj;
+                    document.getElementById('hdnSelectPerfil').value = idx.toString();
+                    finalizarGuardarPerfil();
+                });
+            } else {
+                p.perfiles.push(nuevoObj);
+                document.getElementById('hdnSelectPerfil').value = (p.perfiles.length - 1).toString();
+                finalizarGuardarPerfil();
+            }
+        }
+
+        function finalizarGuardarPerfil() {
+            guardarBD(); document.getElementById('nombrePerfilNuevo').value = "";
+            renderPerfiles(); showToast("✅ Tramo vial guardado", "success"); guardarEstadoVial();
+        }
+
+        function renderPerfiles() {
+            let p = obtenerProyectoActivo();
+            const list = document.getElementById('listaPerfiles');
+            let currentSelection = document.getElementById('hdnSelectPerfil').value;
+            list.innerHTML = "";
+            if (!p.perfiles || p.perfiles.length === 0) {
+                list.innerHTML = `<div style="padding: 12px; font-size: 0.88rem; opacity: 0.5; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px;">No hay tramos viales guardados</div>`;
+                return;
+            }
+            p.perfiles.forEach((per, index) => {
+                let isActivo = currentSelection === index.toString();
+                let bgStyle = isActivo ? "background: rgba(25, 118, 210, 0.12); border-left: 3px solid #1976d2;" : "";
+                let pIniNum = parseFloat(per.progIni) || 0;
+                let pFinNum = pIniNum + (parseFloat(per.dist) || 0);
+                list.innerHTML += `
+                <div class="bm-item" style="${bgStyle}" onclick="cargarPerfil('${index}')">
+                    <div class="bm-item-header">
+                        <div class="bm-info">
+                            <strong style="${isActivo ? 'color: #1976d2;' : ''}">${per.nombre}</strong>
+                            <span>${formatearProg(pIniNum)} a ${formatearProg(pFinNum)} | S: ${parseFloat(per.pte).toFixed(2)}% | B: ${parseFloat(per.bIzq).toFixed(1)}%/${parseFloat(per.bDer).toFixed(1)}%</span>
+                        </div>
+                        <div class="bm-actions" onclick="event.stopPropagation()">
+                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index}, '${per.nombre}')">🗑️</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function cargarPerfil(indexStr) {
+            let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)];
+            if (per) {
+                document.getElementById('hdnSelectPerfil').value = indexStr;
+                document.getElementById('progIni').value = per.progIni ?? "0.000";
+                document.getElementById('distTotal').value = per.dist;
+                document.getElementById('cotaIni').value = per.ci;
+                document.getElementById('cotaFin').value = per.cf;
+                document.getElementById('pteLong').value = per.pte;
+                document.getElementById('offsetCapa').value = per.offset ?? "0.000";
+                document.getElementById('anchoIzq').value = per.aIzq ?? "3.500";
+                document.getElementById('anchoDer').value = per.aDer ?? "3.500";
+                document.getElementById('bombeoIzq').value = per.bIzq ?? "-2.000";
+                document.getElementById('bombeoDer').value = per.bDer ?? "-2.000";
+                sincronizarChipsTransversal(); evaluarLimiteVA(); actualizarCroquisSiVisible(); guardarEstadoVial(); renderPerfiles();
+            }
+        }
+
+        function deletePerfil(index, nombre) {
+            let p = obtenerProyectoActivo();
+            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${nombre}"?`, () => {
+                p.perfiles.splice(index, 1);
+                let currentSelection = document.getElementById('hdnSelectPerfil').value;
+                if (currentSelection === index.toString()) {
+                    desmarcarPerfil();
+                } else if (currentSelection !== "" && parseInt(currentSelection) > index) {
+                    document.getElementById('hdnSelectPerfil').value = (parseInt(currentSelection) - 1).toString();
+                }
+                guardarBD(); renderPerfiles(); guardarEstadoVial();
+                showToast("Tramo eliminado", "success");
+            });
+        }
+
+        function desmarcarPerfil() {
+            if (document.getElementById('hdnSelectPerfil').value !== "") {
+                document.getElementById('hdnSelectPerfil').value = "";
+                renderPerfiles();
+            }
+        }
+
+        function limpiarCamposTramo() {
+            desmarcarPerfil();
+            document.getElementById('cotaIni').value = "";
+            document.getElementById('cotaFin').value = "";
+            document.getElementById('distTotal').value = "";
+            document.getElementById('pteLong').value = "";
+            evaluarLimiteVA();
+            guardarEstadoVial();
+            showToast("Campos listos para nuevo tramo", "default");
+        }
+
+        function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoVial(); }
+
+        /* --- DEDUCCIÓN AUTOMÁTICA LONGITUDINAL (+ SUBE / - BAJA) --- */
+        function autocalcularTramoVial() {
+            let decs = getDecs();
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let p = parseFloat(document.getElementById('pteLong').value);
+            let nulos = 0; if (isNaN(ci)) nulos++; if (isNaN(cf)) nulos++; if (isNaN(d)) nulos++; if (isNaN(p)) nulos++;
+            if (nulos !== 1) return showToast("⚠️ Deja exactamente UNA casilla del eje vacía para deducirla.", "warning");
+
+            if (isNaN(p)) {
+                if (d <= 0) return showToast("⚠️ La longitud debe ser mayor a 0.", "error");
+                let pteCalc = ((cf - ci) / d) * 100.0;
+                document.getElementById('pteLong').value = pteCalc.toFixed(decs);
+            } else if (isNaN(cf)) {
+                document.getElementById('cotaFin').value = (ci + ((p / 100.0) * d)).toFixed(decs);
+            } else if (isNaN(ci)) {
+                document.getElementById('cotaIni').value = (cf - ((p / 100.0) * d)).toFixed(decs);
+            } else if (isNaN(d)) {
+                if (Math.abs(p) < 1e-6) return showToast("⚠️ La pendiente no puede ser 0 para deducir longitud.", "error");
+                let desnivel = cf - ci;
+                if ((desnivel < 0 && p > 0) || (desnivel > 0 && p < 0)) {
+                    p = -p;
+                    document.getElementById('pteLong').value = p.toFixed(decs);
+                    showToast("⚠️ Signo de pendiente ajustado según cotas", "warning");
+                }
+                document.getElementById('distTotal').value = Math.abs((desnivel / (p / 100.0))).toFixed(decs);
+            }
+            showToast("✨ Dato longitudinal deducido", "success");
+            evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();
+        }
+
+        /* --- INTERPOLACIÓN LONGITUDINAL UNIFICADA EN ENTEROS (TABLA PRINCIPAL Y ESTACA LIBRE) --- */
+        function calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs = getDecs()) {
+            let ciInt = toScaledInt(ci, decs);
+            let cfInt = toScaledInt(cf, decs);
+            if (!isNaN(ciInt) && !isNaN(cfInt) && !isNaN(d) && d > 0) {
+                let pteExacta = ((cf - ci) / d) * 100.0;
+                let pasoMinPte = Math.pow(10, -decs);
+                // Si no hay pendiente o la pendiente ingresada coincide con las cotas inicial y final (dentro de la tolerancia de redondeo),
+                // interpolamos linealmente sobre los enteros escalados para cerrar con error 0.000m en la Cota Final.
+                if (isNaN(pte) || Math.abs(pte - pteExacta) <= Math.max(pasoMinPte * 2.0, 0.005)) {
+                    let deltaLongInt = Math.round((cfInt - ciInt) * (avance / d));
+                    return ciInt + deltaLongInt + offsetCapaInt;
+                }
+            }
+            let cotaSinOffsetInt = toScaledInt(ci + ((pte / 100.0) * avance), decs);
+            return cotaSinOffsetInt + offsetCapaInt;
+        }
+
+        function calcularDesnivelTransvInt(pendienteTransv, distEje, decs = getDecs()) {
+            let factor = Math.pow(10, decs);
+            return Math.round(((pendienteTransv / 100.0) * Math.abs(distEje)) * factor);
+        }
+
+        function obtenerAIEfectivaInt(prog, baseAIInt, pls, decs = getDecs()) {
+            let activePLProg = -Infinity;
+            let activePLKey = null;
+            if (pls) {
+                Object.keys(pls).forEach(k => {
+                    let pk = parseFloat(k);
+                    if (!isNaN(pk) && pk <= prog + 1e-6 && pk > activePLProg) {
+                        activePLProg = pk;
+                        activePLKey = k;
+                    }
+                });
+            }
+            if (activePLKey !== null && pls[activePLKey]) {
+                return {
+                    aiInt: toScaledInt(pls[activePLKey].bm, decs) + toScaledInt(pls[activePLKey].va, decs),
+                    plProg: activePLProg
+                };
+            }
+            return { aiInt: baseAIInt, plProg: -Infinity };
+        }
+
+        /* --- CROQUIS DINÁMICO DE SECCIÓN TRANSVERSAL --- */
+        function toggleCroquisSeccion() {
+            let cv = document.getElementById('croquisCanvas');
+            if (cv.style.display === 'block') { cv.style.display = 'none'; return; }
+            cv.style.display = 'block';
+            dibujarCroquisTransversal();
+        }
+
+        function actualizarCroquisSiVisible() {
+            let cv = document.getElementById('croquisCanvas');
+            if (cv && cv.style.display === 'block') dibujarCroquisTransversal();
+        }
+
+        function dibujarCroquisTransversal() {
+            let decs = getDecs();
+            let cv = document.getElementById('croquisCanvas');
+            let ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            let isDark = document.body.classList.contains('dark-mode');
+            let txtColor = isDark ? '#ffffff' : '#1a1e23';
+
+            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 3.5;
+            let aDer = parseFloat(document.getElementById('anchoDer').value) || 3.5;
+            let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
+            let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
+            let dIzq = fromScaledInt(calcularDesnivelTransvInt(bIzq, aIzq, decs), decs);
+            let dDer = fromScaledInt(calcularDesnivelTransvInt(bDer, aDer, decs), decs);
+
+            let centerX = 170, centerY = 82;
+            let scaleX = 115 / Math.max(aIzq, aDer, 1);
+            let xIzq = centerX - (aIzq * scaleX);
+            let xDer = centerX + (aDer * scaleX);
+            let yIzq = centerY - Math.max(-42, Math.min(42, bIzq * 7.5));
+            let yDer = centerY - Math.max(-42, Math.min(42, bDer * 7.5));
+
+            ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(25, centerY); ctx.lineTo(315, centerY); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(centerX, 20); ctx.lineTo(centerX, 145); ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.strokeStyle = '#1976d2'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(xIzq, yIzq); ctx.lineTo(centerX, centerY); ctx.stroke();
+
+            ctx.strokeStyle = '#00897b'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(xDer, yDer); ctx.stroke();
+
+            ctx.fillStyle = '#1976d2'; ctx.beginPath(); ctx.arc(xIzq, yIzq, 5, 0, 2*Math.PI); ctx.fill();
+            ctx.fillStyle = '#FF5500'; ctx.beginPath(); ctx.arc(centerX, centerY, 6, 0, 2*Math.PI); ctx.fill();
+            ctx.fillStyle = '#00897b'; ctx.beginPath(); ctx.arc(xDer, yDer, 5, 0, 2*Math.PI); ctx.fill();
+
+            ctx.fillStyle = txtColor; ctx.font = 'bold 12px Rajdhani';
+            ctx.textAlign = 'center';
+            ctx.fillText(`EJE VIAL (CL)`, centerX, 16);
+            ctx.fillStyle = '#1976d2';
+            ctx.fillText(`IZQ: ${aIzq.toFixed(2)}m (${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`, (xIzq + centerX)/2 - 10, yIzq < centerY ? yIzq - 10 : yIzq + 20);
+            ctx.fillText(`ΔH: ${dIzq > 0 ? '+' : ''}${dIzq.toFixed(decs)}m`, xIzq + 22, 152);
+            ctx.fillStyle = '#00897b';
+            ctx.fillText(`DER: ${aDer.toFixed(2)}m (${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`, (xDer + centerX)/2 + 10, yDer < centerY ? yDer - 10 : yDer + 20);
+            ctx.fillText(`ΔH: ${dDer > 0 ? '+' : ''}${dDer.toFixed(decs)}m`, xDer - 22, 152);
+        }
+
+        function evaluarLimiteVA() {
+            let decs = getDecs();
+            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let pte = parseFloat(document.getElementById('pteLong').value);
+            let offset = parseFloat(document.getElementById('offsetCapa').value) || 0;
+            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
+            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
+            let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
+            let bm = parseFloat(document.getElementById('cotaBM').value);
+            let alerta = document.getElementById('txtAlertaVA');
+
+            let cfEval = !isNaN(cf) ? cf : (!isNaN(ci) && !isNaN(pte) && !isNaN(d) ? ci + ((pte / 100.0) * d) : NaN);
+
+            if (!isNaN(ci) && !isNaN(cfEval) && !isNaN(bm)) {
+                let dIzq = (bIzq / 100.0) * aIzq;
+                let dDer = (bDer / 100.0) * aDer;
+                let minTransv = Math.min(0, dIzq, dDer);
+                let maxTransv = Math.max(0, dIzq, dDer);
+
+                let cotaMinimaSeccion = Math.min(ci, cfEval) + offset + minTransv;
+                let cotaMaximaSeccion = Math.max(ci, cfEval) + offset + maxTransv;
+
+                let maxVA = limiteMira - bm + cotaMinimaSeccion;
+                let minVA = Math.max(0, cotaMaximaSeccion - bm);
+
+                if (maxVA < 0 || maxVA < minVA) {
+                    alerta.style.color = "var(--danger-color)";
+                    alerta.innerText = maxVA < 0
+                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (requiere Punto de Liga).`
+                        : `⚠️ Desnivel del tramo excede mira de ${limiteMira}m en una sola estación.`;
+                } else {
+                    alerta.style.color = "var(--primary-color)";
+                    alerta.innerText = minVA > 0
+                        ? `Rango V.AT(+) recomendado: ${minVA.toFixed(decs)} m a ${maxVA.toFixed(decs)} m`
+                        : `Lectura V.AT(+) máx recomendada: ${maxVA.toFixed(decs)} m`;
+                }
+            } else {
+                alerta.innerText = "";
+            }
+        }
+
+        /* --- PUNTOS DE LIGA (PL) --- */
+        function gestionarPL() {
+            showCustomPrompt("PROGRESIVA DEL NUEVO PL (Ej: 120 o 1240)", "", (progStr) => {
+                let prog = parseFloat(progStr.replace(',', '.')); if (isNaN(prog)) return showToast("Progresiva no válida", "error");
+                showCustomPrompt("COTA DEL PUNTO DE APOYO (PL / BM)", "", (bmStr) => {
+                    let bm = parseFloat(bmStr.replace(',', '.')); if (isNaN(bm)) return showToast("Cota no válida", "error");
+                    showCustomPrompt("NUEVA VISTA ATRÁS (+) EN EL PL", "", (vaStr) => {
+                        let va = parseFloat(vaStr.replace(',', '.')); if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
+                        let p = obtenerProyectoActivo(); if (!p.estadoActivo) p.estadoActivo = {}; if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
+                        p.estadoActivo.pls[normProgKey(prog)] = { bm: bm, va: va };
+                        guardarBD(); generarLibretaVial(true); showToast("✅ PL insertado en " + formatearProg(prog), "success");
+                    });
+                });
+            });
+        }
+
+        function limpiarPLs() {
+            showCustomConfirm("¿Borrar todos los Puntos de Liga (PL) de este tramo?", () => {
+                let p = obtenerProyectoActivo();
+                if (p.estadoActivo && p.estadoActivo.pls) { p.estadoActivo.pls = {}; guardarBD(); generarLibretaVial(true); showToast("PLs eliminados", "success"); }
+            });
+        }
+
+        /* --- ESTACA LIBRE / SOBREANCHO / CUNETA (SINCRONIZADA AL MILÍMETRO CON LA LIBRETA) --- */
+        function abrirEstacaLibre() {
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let pte = parseFloat(document.getElementById('pteLong').value);
+            if (isNaN(ci) || (isNaN(pte) && (isNaN(cf) || isNaN(d)))) return showToast("Completa primero los datos del Eje", "warning");
+            document.getElementById('elProg').value = document.getElementById('progIni').value || "0.000";
+            document.getElementById('elOffset').value = document.getElementById('anchoDer').value || "3.500";
+            document.getElementById('elBombeo').value = document.getElementById('bombeoDer').value || "-2.000";
+            calcEstacaLibre();
+            document.getElementById('overlayEstacaLibre').style.display = 'block';
+            setTimeout(() => { document.getElementById('overlayEstacaLibre').classList.add('activo'); document.getElementById('modalEstacaLibre').classList.add('abierto'); }, 10);
+        }
+
+        function cerrarEstacaLibre() {
+            document.getElementById('overlayEstacaLibre').classList.remove('activo');
+            document.getElementById('modalEstacaLibre').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlayEstacaLibre').style.display = 'none'; }, 300);
+        }
+
+        function calcEstacaLibre() {
+            let decs = getDecs();
+            let pIni = parseFloat(document.getElementById('progIni').value) || 0;
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let pte = parseFloat(document.getElementById('pteLong').value);
+            let offsetCapaInt = toScaledInt(document.getElementById('offsetCapa').value || 0, decs);
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
+            let baseAIInt = bmInt + vaInt;
+
+            let prog = parseFloat(document.getElementById('elProg').value);
+            let distEje = parseFloat(document.getElementById('elOffset').value);
+            let bTransv = parseFloat(document.getElementById('elBombeo').value);
+            let box = document.getElementById('resEstacaLibre');
+
+            if (isNaN(prog) || isNaN(distEje) || isNaN(bTransv)) {
+                box.innerHTML = "Completa Progresiva, Distancia y Pendiente Transversal";
+                return;
+            }
+
+            let proj = obtenerProyectoActivo();
+            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
+            let aiInfo = obtenerAIEfectivaInt(prog, baseAIInt, pls, decs);
+            let aiEfectivoInt = aiInfo.aiInt;
+
+            let avance = prog - pIni;
+            let cotaEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
+            let desnivelTransvInt = calcularDesnivelTransvInt(bTransv, distEje, decs);
+            let cotaEstacaInt = cotaEjeInt + desnivelTransvInt;
+            let miraEstacaInt = aiEfectivoInt - cotaEstacaInt;
+            let miraEjeInt = aiEfectivoInt - cotaEjeInt;
+
+            box.innerHTML = `
+                <div style="color:var(--primary-color); font-size:1.05rem; margin-bottom:6px;">📍 PROG. ${formatearProg(prog)} (a ${distEje.toFixed(2)}m del Eje)</div>
+                <div style="display:flex; justify-content:space-around; border-top:1px dashed var(--border-color); padding-top:8px;">
+                    <div><span style="font-size:0.75rem; color:#888;">COTA EJE</span><br><strong>${fromScaledInt(cotaEjeInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.8rem; color:var(--success-text);">Mira: ${fromScaledInt(miraEjeInt, decs).toFixed(decs)}</span></div>
+                    <div><span style="font-size:0.75rem; color:#888;">COTA ESTACA</span><br><strong>${fromScaledInt(cotaEstacaInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.95rem; color:var(--primary-color);">Mira: ${fromScaledInt(miraEstacaInt, decs).toFixed(decs)}</span></div>
+                </div>
+            `;
+        }
+
+        /* --- CONTROL DE PLANTILLA / CACHACOS EN VIVO (RECALCULADO DINÁMICAMENTE CON AI VIGENTE) --- */
+        function abrirModalCtrlTerr(event, prog) {
+            event.stopPropagation();
+            feedbackUI();
+            ctrlTerrProgActiva = normProgKey(prog);
+            let p = obtenerProyectoActivo();
+            let reg = (p.estadoActivo && p.estadoActivo.cotasTerreno && p.estadoActivo.cotasTerreno[ctrlTerrProgActiva]) ? p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] : {};
+
+            document.getElementById('tituloCtrlTerr').innerText = `⛏️ PLANTILLA EN ${formatearProg(prog)}`;
+            document.getElementById('inpTerrIzq').value = reg.rawIzq || (reg.ctIzq !== undefined && !isNaN(reg.ctIzq) ? `#${reg.ctIzq}` : "");
+            document.getElementById('inpTerrEje').value = reg.rawEje || (reg.ctEje !== undefined && !isNaN(reg.ctEje) ? `#${reg.ctEje}` : "");
+            document.getElementById('inpTerrDer').value = reg.rawDer || (reg.ctDer !== undefined && !isNaN(reg.ctDer) ? `#${reg.ctDer}` : "");
+
+            previewCtrlTerr();
+            document.getElementById('overlayCtrlTerr').style.display = 'block';
+            setTimeout(() => { document.getElementById('overlayCtrlTerr').classList.add('activo'); document.getElementById('modalCtrlTerr').classList.add('abierto'); }, 10);
+        }
+
+        function cerrarModalCtrlTerr() {
+            document.getElementById('overlayCtrlTerr').classList.remove('activo');
+            document.getElementById('modalCtrlTerr').classList.remove('abierto');
+            setTimeout(() => { document.getElementById('overlayCtrlTerr').style.display = 'none'; }, 300);
+        }
+
+        function limpiarInputsCtrlTerr() {
+            document.getElementById('inpTerrIzq').value = "";
+            document.getElementById('inpTerrEje').value = "";
+            document.getElementById('inpTerrDer').value = "";
+            previewCtrlTerr();
+        }
+
+        function resolverCotaTerrenoVialInt(rawStr, legacyCt, currentAIInt, ciRef, decs = getDecs()) {
+            let s = String(rawStr || "").trim().replace(',', '.');
+            if (!s) {
+                if (legacyCt !== undefined && legacyCt !== null && !isNaN(parseFloat(legacyCt))) {
+                    return toScaledInt(legacyCt, decs);
+                }
+                return NaN;
+            }
+            let forzarCota = s.startsWith('#');
+            if (forzarCota) s = s.substring(1).trim();
+            let valInt = toScaledInt(s, decs);
+            if (isNaN(valInt)) return NaN;
+
+            if (forzarCota) {
+                return valInt;
+            }
+            // Si el usuario escribió sin '#' un número mayor a la longitud de cualquier mira (>10m) y cercano a la cota del proyecto
+            let valFloat = fromScaledInt(valInt, decs);
+            if (!isNaN(ciRef) && ciRef > 10 && valFloat > 10 && Math.abs(valFloat - ciRef) < 35) {
+                return valInt;
+            }
+            // En cualquier otro caso, es Lectura de Mira V.AD(-) y se descuenta de la AI activa en esa progresiva
+            return currentAIInt - valInt;
+        }
+
+        function normalizarRawTerreno(rawStr, ciRef, decs = getDecs()) {
+            let s = (rawStr || "").trim().replace(',', '.');
+            if (!s) return "";
+            let checkVal = s.startsWith('#') ? parseFloat(s.slice(1)) : parseFloat(s);
+            if (isNaN(checkVal)) return "";
+            if (!s.startsWith('#') && !isNaN(ciRef) && ciRef > 10 && checkVal > 10 && Math.abs(checkVal - ciRef) < 35) {
+                return `#${checkVal.toFixed(decs)}`;
+            }
+            return s;
+        }
+
+        function previewCtrlTerr() {
+            let box = document.getElementById('previewCtrlTerrBox');
+            if (!box || ctrlTerrProgActiva === null) return;
+            let decs = getDecs();
+            let progNum = parseFloat(ctrlTerrProgActiva);
+            let pIni = parseFloat(document.getElementById('progIni').value) || 0;
+            let d = parseFloat(document.getElementById('distTotal').value) || 1;
+            let ci = parseFloat(document.getElementById('cotaIni').value) || 0;
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let pte = parseFloat(document.getElementById('pteLong').value) || 0;
+            let offsetCapaInt = toScaledInt(document.getElementById('offsetCapa').value || 0, decs);
+            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
+            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
+            let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
+
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
+            let proj = obtenerProyectoActivo();
+            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
+            let currentAIInt = obtenerAIEfectivaInt(progNum, bmInt + vaInt, pls, decs).aiInt;
+
+            let avance = progNum - pIni;
+            let cEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
+            let cIzqInt = cEjeInt + calcularDesnivelTransvInt(bIzq, aIzq, decs);
+            let cDerInt = cEjeInt + calcularDesnivelTransvInt(bDer, aDer, decs);
+
+            let ctIzqInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrIzq').value, undefined, currentAIInt, ci, decs);
+            let ctEjeInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrEje').value, undefined, currentAIInt, ci, decs);
+            let ctDerInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrDer').value, undefined, currentAIInt, ci, decs);
+
+            let fmt = (cDisInt, cTerrInt) => {
+                if (isNaN(cTerrInt)) return "---";
+                let diff = fromScaledInt(cDisInt - cTerrInt, decs);
+                return (diff < 0 ? `C:${diff.toFixed(decs)}` : (diff > 0 ? `R:+${diff.toFixed(decs)}` : `OK 0.000`));
+            };
+            box.innerHTML = `AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)}m ➔ <strong>IZQ:</strong> ${fmt(cIzqInt, ctIzqInt)} | <strong>EJE:</strong> ${fmt(cEjeInt, ctEjeInt)} | <strong>DER:</strong> ${fmt(cDerInt, ctDerInt)}`;
+        }
+
+        function guardarCtrlTerr() {
+            let decs = getDecs();
+            let ciRef = parseFloat(document.getElementById('cotaIni').value);
+            let p = obtenerProyectoActivo();
+            if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
+
+            let rawIzq = normalizarRawTerreno(document.getElementById('inpTerrIzq').value, ciRef, decs);
+            let rawEje = normalizarRawTerreno(document.getElementById('inpTerrEje').value, ciRef, decs);
+            let rawDer = normalizarRawTerreno(document.getElementById('inpTerrDer').value, ciRef, decs);
+
+            if (!rawIzq && !rawEje && !rawDer) {
+                delete p.estadoActivo.cotasTerreno[ctrlTerrProgActiva];
+            } else {
+                p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] = { rawIzq, rawEje, rawDer };
+            }
+            cerrarModalCtrlTerr();
+            guardarBD();
+            generarLibretaVial(true);
+            showToast("Control de plantilla actualizado", "success");
+        }
+
+        function cambiarModoVistaTabla(modo) {
+            modoVistaTabla = modo;
+            document.getElementById('btnVistaAmbos').classList.toggle('activo', modo === 'ambos');
+            document.getElementById('btnVistaMira').classList.toggle('activo', modo === 'mira');
+            document.getElementById('btnVistaCota').classList.toggle('activo', modo === 'cota');
+            generarLibretaVial(true);
+        }
+
+        function manejarRowTapVial(tr, event, prog) {
+            if (event.target.closest('.btn-ctrl-terreno')) return;
+            let currentTime = new Date().getTime();
+            let tapLength = currentTime - (tr.dataset.lastTap || 0);
+            tr.dataset.lastTap = currentTime;
+
+            let lIzq = tr.dataset.lizq, cIzq = tr.dataset.cizq;
+            let lEje = tr.dataset.leje, cEje = tr.dataset.ceje;
+            let lDer = tr.dataset.lder, cDer = tr.dataset.cder;
+            let keyProg = normProgKey(prog);
+
+            if (tapLength < 350 && tapLength > 0) {
+                clearTimeout(tr.tapTimer);
+                let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 3.5;
+                let aDer = parseFloat(document.getElementById('anchoDer').value) || 3.5;
+                let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
+                let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
+
+                document.getElementById('tgProg').innerText = formatearProg(prog);
+                document.getElementById('tgLblIzq').innerText = `⬅️ IZQ (-${aIzq.toFixed(2)}m | ${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`;
+                document.getElementById('tgCotaIzq').innerText = `Cota: ${cIzq} m`;
+                document.getElementById('tgMiraIzq').innerText = lIzq;
+
+                document.getElementById('tgCotaEje').innerText = `Cota: ${cEje} m`;
+                document.getElementById('tgMiraEje').innerText = lEje;
+
+                document.getElementById('tgLblDer').innerText = `➡️ DER (+${aDer.toFixed(2)}m | ${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`;
+                document.getElementById('tgCotaDer').innerText = `Cota: ${cDer} m`;
+                document.getElementById('tgMiraDer').innerText = lDer;
+
+                document.getElementById('tarjetaGigante').style.display = "flex";
+            } else {
+                tr.tapTimer = setTimeout(() => {
+                    tr.classList.toggle('fila-ok');
+                    let isLocked = tr.classList.contains('fila-ok');
+                    let p = obtenerProyectoActivo();
+                    if (!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
+                    if (isLocked) {
+                        p.estadoActivo.lockedRows[keyProg] = true;
+                    } else {
+                        delete p.estadoActivo.lockedRows[keyProg];
+                    }
+                    guardarBD();
+                }, 360);
+            }
+        }
+
+        function crearTagCorteRellenoInt(cotaDisenoInt, cotaTerrenoInt, decs = getDecs()) {
+            if (isNaN(cotaTerrenoInt)) return "";
+            let diffInt = cotaDisenoInt - cotaTerrenoInt; // + Relleno (falta subir), - Corte (sobra terreno)
+            let diffMetros = fromScaledInt(diffInt, decs);
+            if (diffInt === 0) return `<span class="val-corte-tag tag-ok">OK ${(0).toFixed(decs)}</span>`;
+            if (diffInt < 0) return `<span class="val-corte-tag tag-corte">C: ${diffMetros.toFixed(decs)}m</span>`;
+            return `<span class="val-corte-tag tag-relleno">R: +${diffMetros.toFixed(decs)}m</span>`;
+        }
+
+        /* --- MOTOR GENERADOR DE LIBRETA VIAL (IZQUIERDA - EJE - DERECHA) --- */
+        function generarLibretaVial(silencioso = false) {
+            let decs = getDecs();
+            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
+
+            let pIni = parseFloat(document.getElementById('progIni').value) || 0;
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let pte = parseFloat(document.getElementById('pteLong').value);
+            let offsetCapa = parseFloat(document.getElementById('offsetCapa').value) || 0;
+            let offsetCapaInt = toScaledInt(offsetCapa, decs);
+
+            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
+            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
+            let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
+
+            if (isNaN(pte) && !isNaN(ci) && !isNaN(cf) && !isNaN(d) && d > 0) {
+                pte = ((cf - ci) / d) * 100.0;
+                document.getElementById('pteLong').value = pte.toFixed(decs);
+            } else if (isNaN(cf) && !isNaN(pte) && !isNaN(ci) && !isNaN(d) && d > 0) {
+                cf = ci + ((pte / 100.0) * d);
+                document.getElementById('cotaFin').value = cf.toFixed(decs);
+            }
+
+            if (isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) {
+                if (!silencioso) showToast("⚠️ Completa Longitud, Cota Inicial y Pendiente del Eje.", "warning");
+                return;
+            }
+
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
+            let intervalo = parseFloat(document.getElementById('intervalo').value);
+            if (isNaN(intervalo) || intervalo <= 0) intervalo = 20.0;
+            if (isNaN(bmInt) || isNaN(vaInt)) {
+                if (!silencioso) showToast("⚠️ Ingresa Cota de BM y Vista Atrás (+).", "warning");
+                return;
+            }
+
+            let baseAIInt = bmInt + vaInt;
+            document.getElementById('txtAI').innerText = fromScaledInt(baseAIInt, decs).toFixed(decs);
+            if (!silencioso) document.getElementById('panelEstacion').style.display = 'none';
+
+            // Cabeceras dinámicas
+            document.getElementById('thAnchoIzq').innerText = `-${aIzq.toFixed(2)}m (${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`;
+            document.getElementById('thOffsetEje').innerText = offsetCapaInt !== 0 ? `Offset ${offsetCapa > 0 ? '+' : ''}${offsetCapa.toFixed(2)}m` : `Rasante (0.00m)`;
+            document.getElementById('thAnchoDer').innerText = `+${aDer.toFixed(2)}m (${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`;
+
+            let deltaIzqInt = calcularDesnivelTransvInt(bIzq, aIzq, decs);
+            let deltaDerInt = calcularDesnivelTransvInt(bDer, aDer, decs);
+
+            let tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = "";
+
+            let proj = obtenerProyectoActivo();
+            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
+            let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
+            let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
+
+            // Generación de progresivas: soporta inicio fraccionado alineando a múltiplos cerrados del intervalo
+            let estaciones = [];
+            let pIniRed = Number(pIni.toFixed(3));
+            let pFin = Number((pIni + d).toFixed(3));
+            estaciones.push(pIniRed);
+
+            let residuoIni = ((pIniRed % intervalo) + intervalo) % intervalo;
+            let primeraCerrada = (residuoIni > 0.001 && Math.abs(residuoIni - intervalo) > 0.001)
+                ? Number((pIniRed + (intervalo - residuoIni)).toFixed(3))
+                : Number((pIniRed + intervalo).toFixed(3));
+
+            for (let pAct = primeraCerrada; pAct < pFin - 0.001; pAct = Number((pAct + intervalo).toFixed(3))) {
+                estaciones.push(pAct);
+            }
+            if (Math.abs(estaciones[estaciones.length - 1] - pFin) > 0.001) {
+                estaciones.push(pFin);
+            }
+
+            let prevActivePLProg = -Infinity;
+
+            estaciones.forEach((progActual, idx) => {
+                let keyProg = normProgKey(progActual);
+                let aiInfo = obtenerAIEfectivaInt(progActual, baseAIInt, pls, decs);
+                let currentAIInt = aiInfo.aiInt;
+                let activePLProg = aiInfo.plProg;
+
+                if (activePLProg !== -Infinity && activePLProg !== prevActivePLProg) {
+                    tbody.innerHTML += `<tr><td colspan="4" style="background:rgba(25, 118, 210, 0.12); color:#1976d2; font-size:0.8rem; padding:6px; font-weight:900;">📍 CAMBIO DE ESTACIÓN (PL) EN ${formatearProg(activePLProg)} (Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
+                    prevActivePLProg = activePLProg;
+                }
+
+                let avance = progActual - pIni;
+                let cotaEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
+                let cotaIzqInt = cotaEjeInt + deltaIzqInt;
+                let cotaDerInt = cotaEjeInt + deltaDerInt;
+
+                let leerIzqInt = currentAIInt - cotaIzqInt;
+                let leerEjeInt = currentAIInt - cotaEjeInt;
+                let leerDerInt = currentAIInt - cotaDerInt;
+
+                let leerIzq = fromScaledInt(leerIzqInt, decs);
+                let leerEje = fromScaledInt(leerEjeInt, decs);
+                let leerDer = fromScaledInt(leerDerInt, decs);
+
+                let cIzqStr = fromScaledInt(cotaIzqInt, decs).toFixed(decs);
+                let cEjeStr = fromScaledInt(cotaEjeInt, decs).toFixed(decs);
+                let cDerStr = fromScaledInt(cotaDerInt, decs).toFixed(decs);
+
+                let lIzqStr = leerIzq.toFixed(decs);
+                let lEjeStr = leerEje.toFixed(decs);
+                let lDerStr = leerDer.toFixed(decs);
+
+                let cssRow = '';
+                let esFinal = (idx === estaciones.length - 1 && idx > 0 && Math.abs((progActual - estaciones[idx - 1]) - intervalo) > 0.001);
+                if (esFinal) cssRow += ' fila-cierre-fin';
+                if (locked[keyProg] || locked[progActual]) cssRow += ' fila-ok';
+
+                let warnIzq = (leerIzq >= limiteMira || leerIzq <= 0) ? 'color:var(--danger-color);' : '';
+                let warnEje = (leerEje >= limiteMira || leerEje <= 0) ? 'color:var(--danger-color);' : '';
+                let warnDer = (leerDer >= limiteMira || leerDer <= 0) ? 'color:var(--danger-color);' : '';
+
+                let regTerr = cotasTerr[keyProg] || cotasTerr[progActual] || {};
+                let ctIzqInt = resolverCotaTerrenoVialInt(regTerr.rawIzq, regTerr.ctIzq, currentAIInt, ci, decs);
+                let ctEjeInt = resolverCotaTerrenoVialInt(regTerr.rawEje, regTerr.ctEje, currentAIInt, ci, decs);
+                let ctDerInt = resolverCotaTerrenoVialInt(regTerr.rawDer, regTerr.ctDer, currentAIInt, ci, decs);
+                let tieneTerr = !isNaN(ctIzqInt) || !isNaN(ctEjeInt) || !isNaN(ctDerInt);
+
+                let tagIzq = crearTagCorteRellenoInt(cotaIzqInt, ctIzqInt, decs);
+                let tagEje = crearTagCorteRellenoInt(cotaEjeInt, ctEjeInt, decs);
+                let tagDer = crearTagCorteRellenoInt(cotaDerInt, ctDerInt, decs);
+
+                let crIzqAttr = !isNaN(ctIzqInt) ? fromScaledInt(cotaIzqInt - ctIzqInt, decs).toFixed(decs) : "";
+                let crEjeAttr = !isNaN(ctEjeInt) ? fromScaledInt(cotaEjeInt - ctEjeInt, decs).toFixed(decs) : "";
+                let crDerAttr = !isNaN(ctDerInt) ? fromScaledInt(cotaDerInt - ctDerInt, decs).toFixed(decs) : "";
+
+                let showMira = (modoVistaTabla === 'ambos' || modoVistaTabla === 'mira');
+                let showCota = (modoVistaTabla === 'ambos' || modoVistaTabla === 'cota');
+
+                tbody.innerHTML += `<tr class="${cssRow.trim()}" data-prog="${progActual}" data-lizq="${lIzqStr}" data-cizq="${cIzqStr}" data-leje="${lEjeStr}" data-ceje="${cEjeStr}" data-lder="${lDerStr}" data-cder="${cDerStr}" data-crizq="${crIzqAttr}" data-creje="${crEjeAttr}" data-crder="${crDerAttr}" onclick="manejarRowTapVial(this, event, ${progActual})">
+                    <td class="celda-prog">
+                        <strong style="font-size:1.05rem;">${formatearProg(progActual)}</strong>
+                        <span class="btn-ctrl-terreno ${tieneTerr ? 'con-dato' : ''}" onclick="abrirModalCtrlTerr(event, ${progActual})">${tieneTerr ? '⛏️ Ver Corte' : '+ Plantilla'}</span>
+                    </td>
+                    <td>
+                        ${showMira ? `<span class="val-mira" style="${warnIzq}">${lIzqStr}</span>` : ''}
+                        ${showCota ? `<span class="val-cota">C: ${cIzqStr}</span>` : ''}
+                        ${tagIzq}
+                    </td>
+                    <td style="background:rgba(255,85,0,0.03);">
+                        ${showMira ? `<span class="val-mira" style="color:var(--primary-color); ${warnEje}">${lEjeStr}</span>` : ''}
+                        ${showCota ? `<span class="val-cota">C: ${cEjeStr}</span>` : ''}
+                        ${tagEje}
+                    </td>
+                    <td>
+                        ${showMira ? `<span class="val-mira" style="${warnDer}">${lDerStr}</span>` : ''}
+                        ${showCota ? `<span class="val-cota">C: ${cDerStr}</span>` : ''}
+                        ${tagDer}
+                    </td>
+                </tr>`;
+            });
+
+            let cotaEjeIniMetros = fromScaledInt(calcularCotaEjeInt(0, ci, cf, d, pte, 0, decs), decs);
+            let cotaEjeFinMetros = fromScaledInt(calcularCotaEjeInt(d, ci, cf, d, pte, 0, decs), decs);
+            let desnivelLong = cotaEjeFinMetros - cotaEjeIniMetros;
+            let pteEfectiva = (desnivelLong / d) * 100.0;
+            let deltaIzqMetros = fromScaledInt(deltaIzqInt, decs);
+            let deltaDerMetros = fromScaledInt(deltaDerInt, decs);
+
+            document.getElementById('resVialMeta').innerHTML = `
+                <span>📐 S. Eje: <strong>${pteEfectiva > 0 ? '+' : ''}${pteEfectiva.toFixed(decs)}% (ΔH: ${desnivelLong > 0 ? '+' : ''}${desnivelLong.toFixed(decs)}m)</strong></span>
+                <span>⬅️ ΔIzq: <strong>${deltaIzqMetros > 0 ? '+' : ''}${deltaIzqMetros.toFixed(decs)}m</strong></span>
+                <span>➡️ ΔDer: <strong>${deltaDerMetros > 0 ? '+' : ''}${deltaDerMetros.toFixed(decs)}m</strong></span>
+            `;
+
+            document.getElementById('seccionTabla').style.display = 'block';
+            document.getElementById('btnExcel').style.display = 'block';
+            guardarEstadoVial();
+            if (!silencioso) showToast("✅ Plantillado Vial Generado", "success");
+        }
+
+        function exportarXLSX() {
+            feedbackUI();
+            let p = obtenerProyectoActivo();
+            let decs = getDecs();
+            let fechaHoy = new Date().toLocaleDateString('es-PE');
+            let oper = globalConfig.operador || "COTA100";
+            let eq = globalConfig.equipo || "Nivel Automático";
+            let aIzq = document.getElementById('anchoIzq').value;
+            let aDer = document.getElementById('anchoDer').value;
+            let bIzq = document.getElementById('bombeoIzq').value;
+            let bDer = document.getElementById('bombeoDer').value;
+            let pte = document.getElementById('pteLong').value;
+            let offset = document.getElementById('offsetCapa').value;
+
+            let datos = [
+                ["REPORTE DE NIVELACIÓN Y PLANTILLADO DE CARRETERAS - COTA100"],
+                ["Proyecto:", p ? p.nombre : "Obra Vial", "", "Fecha:", fechaHoy],
+                ["Operador:", oper, "", "Equipo:", eq],
+                ["Pend. Longitudinal (%):", pte, "Offset Capa (m):", offset, "Anchos (Izq/Der):", `${aIzq}m / ${aDer}m`, "Bombeo/Peralte (%):", `${bIzq}% / ${bDer}%`],
+                [],
+                ["PROGRESIVA", "MIRA IZQ", "COTA IZQ", "MIRA EJE", "COTA EJE", "MIRA DER", "COTA DER", "C/R IZQ (m)", "C/R EJE (m)", "C/R DER (m)"]
+            ];
+
+            document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
+                if (tr.dataset.prog !== undefined) {
+                    let progNum = parseFloat(tr.dataset.prog);
+                    let cIzq = parseFloat(tr.dataset.cizq);
+                    let cEje = parseFloat(tr.dataset.ceje);
+                    let cDer = parseFloat(tr.dataset.cder);
+                    let crIzq = tr.dataset.crizq !== "" ? Number(parseFloat(tr.dataset.crizq).toFixed(decs)) : "";
+                    let crEje = tr.dataset.creje !== "" ? Number(parseFloat(tr.dataset.creje).toFixed(decs)) : "";
+                    let crDer = tr.dataset.crder !== "" ? Number(parseFloat(tr.dataset.crder).toFixed(decs)) : "";
+
+                    datos.push([
+                        formatearProg(progNum),
+                        Number(parseFloat(tr.dataset.lizq).toFixed(decs)),
+                        Number(cIzq.toFixed(decs)),
+                        Number(parseFloat(tr.dataset.leje).toFixed(decs)),
+                        Number(cEje.toFixed(decs)),
+                        Number(parseFloat(tr.dataset.lder).toFixed(decs)),
+                        Number(cDer.toFixed(decs)),
+                        crIzq, crEje, crDer
+                    ]);
+                } else {
+                    datos.push([tr.innerText.trim(), "", "", "", "", "", "", "", "", ""]);
+                }
+            });
+
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(datos), "Carreteras");
+            let nombreArchivo = p ? `${p.nombre.replace(/\s+/g, '_')}_Carreteras.xlsx` : "Plantillado_Carreteras.xlsx";
+            XLSX.writeFile(wb, nombreArchivo);
+            showToast("Reporte descargado", "success");
+        }
+
+        function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function calcInput(v) { document.getElementById('calcDisplay').value += v; }
+        function calcClear() { document.getElementById('calcDisplay').value = ''; }
+        function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calcEval() {
+            let decs = getDecs();
+            try {
+                let res = new Function('return ' + document.getElementById('calcDisplay').value)();
+                document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
+            } catch(e) {
+                document.getElementById('calcDisplay').value = 'Error';
+            }
+        }
     </script>
 </body>
 </html>

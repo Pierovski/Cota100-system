@@ -96,6 +96,7 @@
         .card-animar:nth-child(1) { animation: slideInUp 0.4s 0.1s forwards; }
         .card-animar:nth-child(2) { animation: slideInUp 0.4s 0.15s forwards; }
         .card-animar:nth-child(3) { animation: slideInUp 0.4s 0.2s forwards; }
+        .card-animar:nth-child(4) { animation: slideInUp 0.4s 0.25s forwards; }
 
         /* ESTADO ACTIVO: FUEGO METÁLICO */
         .tech-list-card:active { 
@@ -148,6 +149,7 @@
             let conf = JSON.parse(localStorage.getItem('cota100_ajustes'));
             if (conf && conf.darkMode) document.body.classList.add('dark-mode');
         } catch(e) {}
+
         function feedbackUI() {
             try {
                 let conf = JSON.parse(localStorage.getItem('cota100_ajustes')) || {};
@@ -168,19 +170,23 @@
         function obtenerResumenDB(key) {
             try {
                 let db = JSON.parse(localStorage.getItem(key));
-                if (!db || !db.proyectos || db.proyectos.length === 0) return "📁 Sin proyectos guardados";
+                if (!db || !Array.isArray(db.proyectos) || db.proyectos.length === 0) {
+                    return "📁 Sin proyectos guardados";
+                }
                 let totalProj = db.proyectos.length;
-                let totalBMs = db.proyectos.reduce((acc, p) => acc + (p.bms ? p.bms.length : 0), 0);
+                let totalBMs = db.proyectos.reduce((acc, p) => acc + (Array.isArray(p.bms) ? p.bms.length : 0), 0);
                 let act = db.proyectos.find(p => p.id === db.activoId) || db.proyectos[0];
-                return `📁 ${totalProj} Proy. | 📍 ${totalBMs} BMs | Activo: ${act.nombre}`;
+                let nombreAct = (act && act.nombre) ? act.nombre : "Proyecto 1";
+                return `📁 ${totalProj} Proy. | 📍 ${totalBMs} BMs | Activo: ${nombreAct}`;
             } catch(e) {
-                return "";
+                return "📁 Sin proyectos guardados";
             }
         }
 
         function cargarContadoresDB() {
             document.getElementById('badgeSimple').innerText = obtenerResumenDB('cota100_db_simple_v4');
             document.getElementById('badgeAlcan').innerText = obtenerResumenDB('cota100_db_alcan_v3');
+            document.getElementById('badgeVial').innerText = obtenerResumenDB('cota100_db_vial_v1');
             document.getElementById('badgePolig').innerText = obtenerResumenDB('cota100_db_poligonal_v11');
         }
     </script>
@@ -228,6 +234,23 @@
                 <h3>Redes de Alcantarillado</h3>
                 <p>Control exacto de cotas de zanja, corte de excavación y lomo de tubo.</p>
                 <span class="db-badge" id="badgeAlcan"></span>
+            </div>
+        </a>
+
+        <a href="niv-carreteras.html" class="tech-list-card card-animar" onclick="feedbackUI()">
+            <div class="icon-box">
+                <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19L8 5"/>
+                    <path d="M20 19L16 5"/>
+                    <line x1="12" y1="6" x2="12" y2="8"/>
+                    <line x1="12" y1="11" x2="12" y2="13"/>
+                    <line x1="12" y1="16" x2="12" y2="18"/>
+                </svg>
+            </div>
+            <div class="text-box">
+                <h3>Carreteras y Vías</h3>
+                <p>Plantillado de eje, bombeo, peraltes y control de corte/relleno.</p>
+                <span class="db-badge" id="badgeVial"></span>
             </div>
         </a>
 

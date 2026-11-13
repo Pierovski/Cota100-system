@@ -384,34 +384,35 @@
                 
                 <canvas id="croquisCanvas" width="300" height="150" style="display:none; width:100%; border:1px solid var(--border-color); border-radius:8px; margin-bottom:10px; background: var(--card-bg);"></canvas>
 
+                <!-- CORRECCIÓN 1: sincronizarParametros pasa a onblur para no pisar valores mientras escribes -->
                 <div class="form-grid">
                     <div class="input-group">
                         <label>
                             Cota F. Inicial 
-                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo del buzón de inicio del tramo (Aguas arriba).', 'COTA INICIAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo de zanja (excavación) en el buzón de inicio (Aguas arriba).<br><br><em>Nota: El sistema calcula C. Lomo = C. Zanja + Cama + Tubo.</em>', 'COTA INICIAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil();" onblur="completarCerosInput(this); sincronizarParametros('ci'); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota F. Final 
-                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo del buzón de llegada (Aguas abajo).', 'COTA FINAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo de zanja (excavación) en el buzón de llegada (Aguas abajo).', 'COTA FINAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil();" onblur="completarCerosInput(this); sincronizarParametros('cf'); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Distancia (m)
                             <span class="info-icon" onclick="showCustomAlert('Longitud horizontal total del tramo de tubería a nivelar. Si no es múltiplo del intervalo, el sistema incluirá automáticamente la progresiva exacta del buzón final.', 'DISTANCIA TOTAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil();" onblur="completarCerosInput(this); sincronizarParametros('dist'); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pendiente (%)
-                            <span class="info-icon" onclick="showCustomAlert('Caída porcentual del tubo. Si no la tienes, deja la casilla en blanco y presiona <strong>🪄 Deducir Dato</strong> para que se calcule sola.', 'PENDIENTE')">ℹ️</span>
+                            <span class="info-icon" onclick="showCustomAlert('Caída porcentual del tubo. Positiva (+) baja de Cota Inicial a Final. Si no la tienes, deja la casilla en blanco y presiona <strong>🪄 Deducir Dato</strong>.', 'PENDIENTE')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(this); desmarcarPerfil(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(this); desmarcarPerfil();" onblur="completarCerosInput(this); sincronizarParametros('pte'); evaluarLimiteVA(); guardarEstadoAlcan();">
                         <span id="alertaNorma" style="color:var(--danger-color); font-size:0.75rem; font-weight:800; display:none;">⚠️ Pend. Mínima</span>
                     </div>
                 </div>
@@ -453,16 +454,16 @@
                     <div class="input-group">
                         <label>
                             Cama (m)
-                            <span class="info-icon" onclick="showCustomAlert('Grosor de la arena o material de apoyo debajo de la tubería.', 'CAMA DE APOYO')">ℹ️</span>
+                            <span class="info-icon" onclick="showCustomAlert('Grosor de la arena de apoyo sobre el fondo de zanja. Se suma junto a la altura del tubo para obtener la Cota de Lomo.', 'CAMA DE APOYO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Tubo (m)
                             <span class="info-icon" onclick="showCustomAlert('Diámetro exterior de la tubería para calcular la cota del lomo (corona).', 'ALTURA DE TUBO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group full-width">
                         <label>
@@ -488,7 +489,7 @@
             <div style="display: flex; gap:8px; margin-bottom: 10px;">
                 <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
                     📍 Añadir PL 
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando ya no logras leer la mira y necesitas cambiar el nivel de posición. Ingresa la progresiva del cambio, la cota de tu punto de apoyo y la nueva Vista Atrás (+).', 'AÑADIR PL')">ℹ️</span>
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando necesitas cambiar el nivel de posición. Ingresa la progresiva del cambio, la Vista Adelante anteponiendo el signo menos (ej: <strong>-1.845</strong>) o la Cota directa del apoyo, y luego la nueva Vista Atrás (+). Se recalcula en cascada si ajustas tu BM.', 'AÑADIR PL')">ℹ️</span>
                 </button>
                 <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="interpolarProg()">
                     🔍 Interpolar 
@@ -546,6 +547,29 @@
     </div>
 
     <script>
+        /* --- FUNCIONES DE PRECISIÓN ENTERA Y CONFIGURACIÓN --- */
+        function getDecs() {
+            return parseInt(globalConfig.decimales) || 3;
+        }
+
+        function toScaledInt(val, decs = getDecs()) {
+            if (val === null || val === undefined || val === "") return NaN;
+            let num = typeof val === "number" ? val : parseFloat(String(val).replace(',', '.'));
+            if (isNaN(num)) return NaN;
+            return Math.round(num * Math.pow(10, decs));
+        }
+
+        function fromScaledInt(intVal, decs = getDecs()) {
+            if (isNaN(intVal)) return NaN;
+            return intVal / Math.pow(10, decs);
+        }
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
         /* --- SISTEMA DE UI: TOAST Y MODALS PERSONALIZADOS --- */
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
@@ -576,15 +600,15 @@
             let html = `
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">🔗</span> 
-                    <div><strong style="color:var(--primary-color);">Puente de BMs:</strong> Importa BMs desde Nivelación Simultánea o Simple sin volver a digitarlos.</div>
+                    <div><strong style="color:var(--primary-color);">Puente de BMs:</strong> Importa BMs desde Nivelación Simultánea, Simple o Carreteras sin volver a digitarlos.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">📏</span> 
-                    <div><strong style="color:var(--primary-color);">Corte de Zanja:</strong> Toca el botón <strong>+ Terreno</strong> debajo de cada progresiva para ingresar la Lectura de Mira en Terreno (o la Cota de Terreno Natural) y obtener la profundidad exacta de excavación.</div>
+                    <div><strong style="color:var(--primary-color);">Corte de Zanja Blindado:</strong> Toca el botón <strong>+ Terreno</strong> debajo de cada progresiva para ingresar la Lectura de Mira en Terreno (o antepón <strong>#</strong> para Cota de Terreno directa, ej: <code>#6.450</code>). La cota de terreno queda congelada aunque luego cambies de estación.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">🏁</span> 
-                    <div><strong style="color:var(--primary-color);">Buzón Final Exacto:</strong> Si el tramo mide 46.80m y vas cada 10m, el sistema cerrará siempre con la fila exacta 0+046.80.</div>
+                    <div><strong style="color:var(--primary-color);">Buzón Final Exacto:</strong> Si tienes Cota Inicial y Final, el sistema interpola con precisión total para cerrar al milímetro en el buzón de llegada.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">👆</span> 
@@ -641,42 +665,35 @@
             appDataAlcan.proyectos.forEach(proj => {
                 if (proj.id !== appDataAlcan.activoId && proj.bms) {
                     proj.bms.forEach(bm => {
-                        if (!nombresActuales.includes(bm.nombre)) {
+                        if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
                             lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Alcantarillado (${proj.nombre})` });
                         }
                     });
                 }
             });
 
-            try {
-                let dbPol = JSON.parse(localStorage.getItem('cota100_db_poligonal_v11'));
-                if (dbPol && dbPol.proyectos) {
-                    dbPol.proyectos.forEach(proj => {
-                        if (proj.bms) {
-                            proj.bms.forEach(bm => {
-                                if (!nombresActuales.includes(bm.nombre)) {
-                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simultánea: ${proj.nombre}`, origen: `Simultánea (${proj.nombre})` });
-                                }
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
+            const fuentes = [
+                { key: 'cota100_db_poligonal_v11', label: 'Simultánea' },
+                { key: 'cota100_db_simple_v4', label: 'Niv. Simple' },
+                { key: 'cota100_db_vial_v1', label: 'Carreteras' }
+            ];
 
-            try {
-                let dbSim = JSON.parse(localStorage.getItem('cota100_db_simple_v4'));
-                if (dbSim && dbSim.proyectos) {
-                    dbSim.proyectos.forEach(proj => {
-                        if (proj.bms) {
-                            proj.bms.forEach(bm => {
-                                if (!nombresActuales.includes(bm.nombre)) {
-                                    lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simple: ${proj.nombre}`, origen: `Niv. Simple (${proj.nombre})` });
-                                }
-                            });
-                        }
-                    });
-                }
-            } catch(e) {}
+            fuentes.forEach(f => {
+                try {
+                    let dbExt = JSON.parse(localStorage.getItem(f.key));
+                    if (dbExt && dbExt.proyectos) {
+                        dbExt.proyectos.forEach(proj => {
+                            if (proj.bms) {
+                                proj.bms.forEach(bm => {
+                                    if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
+                                        lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De ${f.label}: ${proj.nombre}`, origen: `${f.label} (${proj.nombre})` });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch(e) {}
+            });
 
             return lista;
         }
@@ -713,20 +730,20 @@
             const contenido = document.getElementById('modalSelectContent');
             contenido.innerHTML = "";
             let p = obtenerProyectoActivo();
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
 
             if(tipo === 'proyecto') {
                 titulo.innerText = "📁 SELECCIONAR PROYECTO";
                 appDataAlcan.proyectos.forEach(proj => {
                     let isActivo = proj.id === appDataAlcan.activoId;
-                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarProyectoModal(${proj.id})"><span>${escapeHTML(proj.nombre)}</span></button>`;
                 });
             } else if(tipo === 'bm') {
                 titulo.innerText = "📍 SELECCIONAR BM";
-                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- ELEGIR BM --')"><span>-- ELEGIR BM --</span></button>`;
-                p.bms.forEach(bm => {
-                    let isActivo = document.getElementById('hdnSelectBM').value === bm.cota.toString();
-                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${bm.cota}', '${bm.nombre}')"><span>${bm.nombre}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
+                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarBMModal(-1)"><span>-- ELEGIR BM --</span></button>`;
+                p.bms.forEach((bm, idx) => {
+                    let isActivo = document.getElementById('hdnSelectBM').value === bm.cota.toString() && document.getElementById('txtSelectBM').innerText === bm.nombre;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarBMModal(${idx})"><span>${escapeHTML(bm.nombre)}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
                 });
             } else if(tipo === 'importar-bm') {
                 titulo.innerText = "🔗 PUENTE DE BMs";
@@ -737,7 +754,7 @@
                     contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternos()">📥 IMPORTAR TODOS (${bmsExternosCache.length})</button>`;
                     bmsExternosCache.forEach((bm, idx) => {
                         contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExterno(${idx})">
-                            <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                            <div><strong>${escapeHTML(bm.nombre)}</strong><br><span style="font-size:0.75rem; color:#888;">${escapeHTML(bm.origen)}</span></div>
                             <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
                         </button>`;
                     });
@@ -754,13 +771,23 @@
             setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
         }
 
-        function seleccionarOpcionModal(valor, textoExtra) {
+        function seleccionarProyectoModal(projId) {
             cerrarModalSelect();
-            if(tipoModalActual === 'proyecto') { cambiarProyectoActivo(valor); } 
-            else if(tipoModalActual === 'bm') {
-                document.getElementById('hdnSelectBM').value = valor;
-                document.getElementById('txtSelectBM').innerText = textoExtra;
-                seleccionarBM(valor);
+            cambiarProyectoActivo(projId);
+        }
+
+        function seleccionarBMModal(idx) {
+            cerrarModalSelect();
+            let p = obtenerProyectoActivo();
+            if (idx === -1 || !p || !p.bms[idx]) {
+                document.getElementById('hdnSelectBM').value = "";
+                document.getElementById('txtSelectBM').innerText = "-- ELEGIR BM --";
+                seleccionarBM("");
+            } else {
+                let bm = p.bms[idx];
+                document.getElementById('hdnSelectBM').value = bm.cota.toString();
+                document.getElementById('txtSelectBM').innerText = bm.nombre;
+                seleccionarBM(bm.cota);
             }
         }
 
@@ -791,7 +818,7 @@
         }
 
         function formatDecimal(input) {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let val = input.value.replace(/,/g, '.');
             val = val.replace(/[^0-9.-]/g, ''); 
             if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
@@ -805,20 +832,27 @@
         }
 
         function completarCerosInput(input) {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let val = input.value.trim();
             if (val !== "" && val !== "-" && val !== ".") {
-                let floatVal = parseFloat(val);
-                if (!isNaN(floatVal)) input.value = floatVal.toFixed(decs);
+                let intVal = toScaledInt(val, decs);
+                if (!isNaN(intVal)) input.value = fromScaledInt(intVal, decs).toFixed(decs);
             }
         }
 
+        /* --- FORMATEADOR DE PROGRESIVAS BLINDADO EN CENTÍMETROS ENTEROS --- */
         function formatearProg(p) {
-            let km = Math.floor(p / 1000);
-            let resto = Number((p % 1000).toFixed(3));
-            let esEntero = Math.abs(resto - Math.round(resto)) < 0.001;
-            let restoStr = esEntero ? Math.round(resto).toString().padStart(3, '0') : resto.toFixed(2).padStart(6, '0');
-            return `${km}+${restoStr}`;
+            let num = Number(p);
+            if (isNaN(num)) return "0+000";
+            let signo = num < 0 ? "-" : "";
+            let totalCm = Math.round(Math.abs(num) * 100);
+            let km = Math.floor(totalCm / 100000);
+            let restoCm = totalCm % 100000;
+            let esEntero = (restoCm % 100 === 0);
+            let restoStr = esEntero
+                ? Math.floor(restoCm / 100).toString().padStart(3, '0')
+                : (restoCm / 100).toFixed(2).padStart(6, '0');
+            return `${signo}${km}+${restoStr}`;
         }
 
         async function solicitarWakeLock() { if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} } }
@@ -885,6 +919,18 @@
             reader.readAsText(fileInput.files[0]);
         }
 
+        function sincronizarEstadoConPerfilActivo() {
+            let p = obtenerProyectoActivo();
+            if (!p || !p.estadoActivo) return;
+            let idxStr = document.getElementById('hdnSelectPerfil').value;
+            if (idxStr !== "" && p.perfiles && p.perfiles[parseInt(idxStr)]) {
+                let per = p.perfiles[parseInt(idxStr)];
+                per.pls = JSON.parse(JSON.stringify(p.estadoActivo.pls || {}));
+                per.lockedRows = JSON.parse(JSON.stringify(p.estadoActivo.lockedRows || {}));
+                per.cotasTerreno = JSON.parse(JSON.stringify(p.estadoActivo.cotasTerreno || {}));
+            }
+        }
+
         function guardarEstadoAlcan() {
             let p = obtenerProyectoActivo(); if(!p) return;
             p.estadoActivo = {
@@ -901,21 +947,31 @@
                 lockedRows: (p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {},
                 cotasTerreno: (p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}
             };
+            sincronizarEstadoConPerfilActivo();
             guardarBD();
         }
 
         function cargarProyectoActivo() {
             let p = obtenerProyectoActivo();
+            if(p && p.estadoActivo) {
+                document.getElementById('hdnSelectPerfil').value = p.estadoActivo.perfilSeleccionado || ""; 
+                document.getElementById('hdnSelectBM').value = p.estadoActivo.bmSeleccionado || "";
+            } else {
+                document.getElementById('hdnSelectPerfil').value = "";
+                document.getElementById('hdnSelectBM').value = "";
+            }
+
             renderSelectProyectos(); renderBMs(); renderPerfiles();
-            if(p.estadoActivo) {
+
+            if(p && p.estadoActivo) {
                 if(!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
+                if(!p.estadoActivo.pls) p.estadoActivo.pls = {};
+                if(!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
                 document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || ""; document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
                 document.getElementById('distTotal').value = p.estadoActivo.distTotal || ""; document.getElementById('pte').value = p.estadoActivo.pte || "";
                 document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || ""; document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
                 document.getElementById('camaApoyo').value = p.estadoActivo.camaApoyo || ""; document.getElementById('alturaTubo').value = p.estadoActivo.alturaTubo || "";
                 document.getElementById('intervalo').value = p.estadoActivo.intervalo || "10.000";
-                document.getElementById('hdnSelectPerfil').value = p.estadoActivo.perfilSeleccionado || ""; 
-                document.getElementById('hdnSelectBM').value = p.estadoActivo.bmSeleccionado || "";
                 
                 evaluarLimiteVA(); evaluarNormativa(document.getElementById('pte'));
 
@@ -926,8 +982,6 @@
                     document.getElementById('seccionTabla').style.display = 'none'; document.getElementById('btnExcel').style.display = 'none';
                     document.getElementById('panelEstacion').style.display = 'block';
                 }
-            } else {
-                document.getElementById('hdnSelectPerfil').value = ""; document.getElementById('hdnSelectBM').value = "";
             }
         }
 
@@ -950,7 +1004,7 @@
         function eliminarProyecto() { 
             if(appDataAlcan.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning"); 
             let p = obtenerProyectoActivo(); 
-            showCustomConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
+            showCustomConfirm(`⚠️ ¿Borrar "${escapeHTML(p.nombre)}" permanentemente?`, () => {
                 appDataAlcan.proyectos = appDataAlcan.proyectos.filter(proj => proj.id !== p.id); 
                 appDataAlcan.activoId = appDataAlcan.proyectos[0].id; 
                 guardarBD(); cargarProyectoActivo(); 
@@ -998,10 +1052,13 @@
         function guardarOrdenBMs() {
             let p = obtenerProyectoActivo(); let nuevosBMs = [];
             document.querySelectorAll('#listaBMs .bm-item').forEach(item => {
-                let nombre = item.querySelector('.bm-info strong').innerText; let bmData = p.bms.find(b => b.nombre === nombre);
+                let nombre = item.dataset.bmname;
+                let bmData = p.bms.find(b => b.nombre === nombre);
                 if(bmData) nuevosBMs.push(bmData);
             });
-            p.bms = nuevosBMs; guardarBD();
+            if (nuevosBMs.length === p.bms.length) {
+                p.bms = nuevosBMs; guardarBD(); renderBMs();
+            }
         }
 
         function clickEnBM(div, event) {
@@ -1015,10 +1072,14 @@
         function addBM() {
             const name = document.getElementById('newBMName').value.toUpperCase().trim();
             const cotaInput = document.getElementById('newBMCota').value.replace(',', '.');
-            const cota = parseFloat(cotaInput); const obs = document.getElementById('newBMObs').value.trim();
+            const cota = parseFloat(cotaInput);
+            const obs = document.getElementById('newBMObs').value.trim();
             
             if(!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
+            let decs = getDecs();
+            let cotaExacta = fromScaledInt(toScaledInt(cota, decs), decs);
             let p = obtenerProyectoActivo();
+
             const finalizarGuardado = () => {
                 document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; document.getElementById('newBMObs').value = "";
                 guardarBD(); renderBMs(); showToast("BM guardado", "success");
@@ -1027,72 +1088,120 @@
             if(editandoBMIndex > -1) {
                 showCustomConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
                     if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
-                    p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
-                    editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
+                    let oldCota = p.bms[editandoBMIndex].cota;
+                    p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
+                    editandoBMIndex = -1;
+                    let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
                     finalizarGuardado();
                     let currentSelect = document.getElementById('hdnSelectBM').value;
-                    if(currentSelect && parseFloat(currentSelect) !== cota) { document.getElementById('hdnSelectBM').value = cota; seleccionarBM(cota); }
+                    if(currentSelect && Math.abs(parseFloat(currentSelect) - oldCota) < 1e-6) {
+                        document.getElementById('hdnSelectBM').value = cotaExacta.toString();
+                        document.getElementById('txtSelectBM').innerText = name;
+                        seleccionarBM(cotaExacta);
+                    }
                 });
             } else {
                 if(p.bms.some(bm => bm.nombre === name)) return showToast("⚠️ Ya existe un BM con ese nombre.", "warning");
-                p.bms.push({ nombre: name, cota: cota, obs: obs }); finalizarGuardado();
+                p.bms.push({ nombre: name, cota: cotaExacta, obs: obs }); finalizarGuardado();
             }
         }
 
-        function cargarEditBM(nombreBM) {
-            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if(idx === -1) return; let bm = p.bms[idx];
-            document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
-            editandoBMIndex = idx; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar"; btn.style.background = "var(--primary-color)";
+        function cargarEditBMByIndex(idx) {
+            let p = obtenerProyectoActivo();
+            if(idx < 0 || idx >= p.bms.length) return;
+            let bm = p.bms[idx];
+            document.getElementById('newBMName').value = bm.nombre;
+            document.getElementById('newBMCota').value = bm.cota.toFixed(getDecs());
+            document.getElementById('newBMObs').value = bm.obs || "";
+            editandoBMIndex = idx;
+            let btn = document.getElementById('btnGuardarBM');
+            btn.innerText = "Actualizar";
+            btn.style.background = "var(--primary-color)";
         }
 
-        function deleteBM(nombreBM) { 
-            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if(idx === -1) return;
-            showCustomConfirm(`⚠️ ¿Eliminar el BM "${nombreBM}"?`, () => {
+        function deleteBMByIndex(idx) { 
+            let p = obtenerProyectoActivo();
+            if(idx < 0 || idx >= p.bms.length) return;
+            let nombreBM = p.bms[idx].nombre;
+            showCustomConfirm(`⚠️ ¿Eliminar el BM "${escapeHTML(nombreBM)}"?`, () => {
                 p.bms.splice(idx, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success");
             }); 
         }
 
         function renderBMs() { 
-            let decs = parseInt(globalConfig.decimales) || 3; let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); 
+            let decs = getDecs(); let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); 
             let currentSelection = document.getElementById('hdnSelectBM').value; let txt = "-- ELEGIR BM --";
             list.innerHTML = ""; 
-            p.bms.forEach((bm) => { 
+            p.bms.forEach((bm, idx) => { 
                 list.innerHTML += `
-                <div class="bm-item" onclick="clickEnBM(this, event)">
+                <div class="bm-item" data-bmname="${escapeHTML(bm.nombre)}" onclick="clickEnBM(this, event)">
                     <div class="bm-item-header">
-                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                        <div class="bm-info"><strong>${escapeHTML(bm.nombre)}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
                         <div class="bm-actions" onclick="event.stopPropagation()">
-                            <button onclick="cargarEditBM('${bm.nombre}')">✏️</button>
-                            <button style="color:var(--danger-color);" onclick="deleteBM('${bm.nombre}')">🗑️</button>
+                            <button onclick="cargarEditBMByIndex(${idx})">✏️</button>
+                            <button style="color:var(--danger-color);" onclick="deleteBMByIndex(${idx})">🗑️</button>
                         </div>
                     </div>
-                    <div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div>
+                    <div class="bm-obs" style="width:100%;">${escapeHTML(bm.obs || 'Sin observaciones')}</div>
                 </div>`;
-                if (currentSelection && parseFloat(currentSelection) === bm.cota) { txt = bm.nombre; }
+                if (currentSelection && Math.abs(parseFloat(currentSelection) - bm.cota) < 1e-6) { txt = bm.nombre; }
             });
             document.getElementById('txtSelectBM').innerText = txt;
         }
 
         function seleccionarBM(cota) { 
-            let decs = parseInt(globalConfig.decimales) || 3;
-            if(cota) document.getElementById('cotaBM').value = parseFloat(cota).toFixed(decs); else document.getElementById('cotaBM').value = "";
+            let decs = getDecs();
+            if(cota !== "" && cota !== null && cota !== undefined) {
+                document.getElementById('cotaBM').value = parseFloat(cota).toFixed(decs);
+            } else {
+                document.getElementById('cotaBM').value = "";
+            }
             evaluarLimiteVA(); guardarEstadoAlcan(); 
         }
 
-        /* --- SISTEMA DE GESTIÓN DE PERFILES / TRAMOS --- */
+        /* --- CORRECCIÓN 1: SINCRONIZACIÓN DE PARÁMETROS GEOMÉTRICOS EN ONBLUR --- */
+        function sincronizarParametros(origen) {
+            let decs = getDecs();
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let pte = parseFloat(document.getElementById('pte').value);
+
+            if (origen === 'pte' && !isNaN(ci) && !isNaN(d) && d > 0 && !isNaN(pte)) {
+                let nuevaCf = ci - ((pte / 100.0) * d);
+                document.getElementById('cotaFin').value = nuevaCf.toFixed(decs);
+            } else if ((origen === 'cf' || origen === 'ci' || origen === 'dist') && !isNaN(ci) && !isNaN(cf) && !isNaN(d) && d > 0) {
+                let nuevaPte = ((ci - cf) / d) * 100.0;
+                document.getElementById('pte').value = nuevaPte.toFixed(decs);
+                evaluarNormativa(document.getElementById('pte'));
+            } else if (origen === 'dist' && !isNaN(ci) && isNaN(cf) && !isNaN(pte) && !isNaN(d) && d > 0) {
+                let nuevaCf = ci - ((pte / 100.0) * d);
+                document.getElementById('cotaFin').value = nuevaCf.toFixed(decs);
+            }
+        }
+
+        /* --- SISTEMA DE GESTIÓN DE PERFILES / TRAMOS (CON AISLAMIENTO DE DATOS DE CAMPO) --- */
         function guardarPerfil() { 
             let p = obtenerProyectoActivo(); let nom = document.getElementById('nombrePerfilNuevo').value.trim(); 
             let ci = document.getElementById('cotaIni').value; let cf = document.getElementById('cotaFin').value; let dist = document.getElementById('distTotal').value; let pte = document.getElementById('pte').value; 
             if(!nom || ci==="" || cf==="" || dist==="" || pte==="") return showToast("⚠️ Llena todos los datos de diseño.", "warning"); 
             if(!p.perfiles) p.perfiles = []; let idx = p.perfiles.findIndex(per => per.nombre === nom); 
+
+            let datosTramo = {
+                nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte,
+                pls: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {})),
+                lockedRows: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {})),
+                cotasTerreno: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}))
+            };
+
             if(idx >= 0) { 
                 showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => { 
-                    p.perfiles[idx] = {nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}; 
+                    p.perfiles[idx] = datosTramo; 
                     document.getElementById('hdnSelectPerfil').value = idx.toString();
                     finalizarGuardarPerfil(); 
                 });
             } else { 
-                p.perfiles.push({nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte}); 
+                p.perfiles.push(datosTramo); 
                 document.getElementById('hdnSelectPerfil').value = (p.perfiles.length - 1).toString();
                 finalizarGuardarPerfil(); 
             } 
@@ -1125,11 +1234,11 @@
                 <div class="bm-item" style="${bgStyle}" onclick="cargarPerfil('${index}')">
                     <div class="bm-item-header">
                         <div class="bm-info">
-                            <strong style="${isActivo ? 'color: #1976d2;' : ''}">${per.nombre}</strong>
+                            <strong style="${isActivo ? 'color: #1976d2;' : ''}">${escapeHTML(per.nombre)}</strong>
                             <span>L: ${parseFloat(per.dist).toFixed(2)}m | S: ${parseFloat(per.pte).toFixed(2)}%</span>
                         </div>
                         <div class="bm-actions" onclick="event.stopPropagation()">
-                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index}, '${per.nombre}')">🗑️</button>
+                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index})">🗑️</button>
                         </div>
                     </div>
                 </div>`;
@@ -1139,19 +1248,32 @@
         function cargarPerfil(indexStr) { 
             let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)]; 
             if(per) { 
+                sincronizarEstadoConPerfilActivo();
                 document.getElementById('hdnSelectPerfil').value = indexStr;
                 document.getElementById('cotaIni').value = per.ci; 
                 document.getElementById('cotaFin').value = per.cf; 
                 document.getElementById('distTotal').value = per.dist; 
                 document.getElementById('pte').value = per.pte; 
-                evaluarLimiteVA(); evaluarNormativa(document.getElementById('pte')); guardarEstadoAlcan(); 
+                if (!p.estadoActivo) p.estadoActivo = {};
+                p.estadoActivo.pls = JSON.parse(JSON.stringify(per.pls || {}));
+                p.estadoActivo.lockedRows = JSON.parse(JSON.stringify(per.lockedRows || {}));
+                p.estadoActivo.cotasTerreno = JSON.parse(JSON.stringify(per.cotasTerreno || {}));
+
+                evaluarLimiteVA(); evaluarNormativa(document.getElementById('pte'));
                 renderPerfiles();
+                if (document.getElementById('seccionTabla').style.display === 'block') {
+                    generarLibreta(true);
+                } else {
+                    guardarEstadoAlcan();
+                }
             } 
         }
 
-        function deletePerfil(index, nombre) {
+        function deletePerfil(index) {
             let p = obtenerProyectoActivo();
-            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${nombre}"?`, () => {
+            if (!p.perfiles || !p.perfiles[index]) return;
+            let nombre = p.perfiles[index].nombre;
+            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${escapeHTML(nombre)}"?`, () => {
                 p.perfiles.splice(index, 1);
                 let currentSelection = document.getElementById('hdnSelectPerfil').value;
                 if(currentSelection === index.toString()) {
@@ -1161,6 +1283,7 @@
                 }
                 guardarBD();
                 renderPerfiles();
+                guardarEstadoAlcan();
                 showToast("Tramo eliminado", "success");
             });
         }
@@ -1173,14 +1296,23 @@
         }
 
         function limpiarCamposPerfil() {
+            sincronizarEstadoConPerfilActivo();
             desmarcarPerfil();
+            let p = obtenerProyectoActivo();
+            if (p && p.estadoActivo) {
+                p.estadoActivo.pls = {};
+                p.estadoActivo.lockedRows = {};
+                p.estadoActivo.cotasTerreno = {};
+            }
             document.getElementById('cotaIni').value = ""; 
             document.getElementById('cotaFin').value = ""; 
             document.getElementById('distTotal').value = ""; 
             document.getElementById('pte').value = "";
+            document.getElementById('seccionTabla').style.display = 'none';
+            document.getElementById('btnExcel').style.display = 'none';
             evaluarLimiteVA();
             guardarEstadoAlcan();
-            showToast("Campos listos para nuevo ingreso", "default");
+            showToast("Mesa limpia para nuevo tramo", "default");
         }
         
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoAlcan(); }
@@ -1189,14 +1321,20 @@
         function evaluarNormativa(input) {
             let v = parseFloat(input.value);
             let alerta = document.getElementById('alertaNorma');
-            if(!isNaN(v) && v < 0.5 && v > 0) { input.style.borderColor = "var(--danger-color)"; alerta.style.display = "block"; } 
-            else { input.style.borderColor = "var(--border-color)"; alerta.style.display = "none"; }
+            if(!isNaN(v) && Math.abs(v) < 0.5 && Math.abs(v) > 0) {
+                input.style.borderColor = "var(--danger-color)";
+                alerta.style.display = "block";
+            } else {
+                input.style.borderColor = "var(--border-color)";
+                alerta.style.display = "none";
+            }
         }
 
         /* --- F3: MINI CROQUIS DE PERFIL CON SOPORTE MODO OSCURO --- */
         function toggleCroquis() {
             let cv = document.getElementById('croquisCanvas');
             if(cv.style.display === 'block') { cv.style.display = 'none'; return; }
+            let decs = getDecs();
             let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value);
             let dist = parseFloat(document.getElementById('distTotal').value); let pte = parseFloat(document.getElementById('pte').value);
             if(isNaN(ci) || isNaN(cf)) return showToast("Ingresa Cota Inicial y Final", "warning");
@@ -1228,65 +1366,174 @@
             ctx.beginPath(); ctx.arc(270, y2, 6, 0, 2*Math.PI); ctx.fill();
 
             ctx.fillStyle = txtColor; ctx.font = 'bold 13px Rajdhani'; 
-            ctx.textAlign = 'left'; ctx.fillText(`C.I: ${ci.toFixed(3)}`, 10, y1 - 15);
-            ctx.textAlign = 'right'; ctx.fillText(`C.F: ${cf.toFixed(3)}`, 290, y2 + 20);
+            ctx.textAlign = 'left'; ctx.fillText(`C.I: ${ci.toFixed(decs)}`, 10, y1 - 15);
+            ctx.textAlign = 'right'; ctx.fillText(`C.F: ${cf.toFixed(decs)}`, 290, y2 + 20);
             ctx.textAlign = 'center';
             if(!isNaN(dist)) ctx.fillText(`L = ${dist.toFixed(2)}m`, 150, 25);
             if(!isNaN(pte)) {
                 ctx.fillStyle = '#FF5500';
-                ctx.fillText(`Pend. = ${pte.toFixed(2)}% (${(pte*10).toFixed(1)}‰)`, 150, 140);
+                ctx.fillText(`Pend. = ${pte.toFixed(decs)}% (${(pte*10).toFixed(1)}‰)`, 150, 140);
             }
+        }
+
+        /* --- CÁLCULO UNIFICADO DE COTA DE ZANJA SIN DERIVA POR REDONDEO DE PENDIENTE --- */
+        function calcularCotaZanjaInt(prog, ci, cf, d, pte, decs = getDecs()) {
+            let ciInt = toScaledInt(ci, decs);
+            let cfInt = toScaledInt(cf, decs);
+            if (!isNaN(ciInt) && !isNaN(cfInt) && !isNaN(d) && d > 0) {
+                let pteExacta = ((ci - cf) / d) * 100.0;
+                let pasoMinPte = Math.pow(10, -decs);
+                if (isNaN(pte) || Math.abs(pte - pteExacta) <= (pasoMinPte * 1.5)) {
+                    let caidaInt = Math.round((ciInt - cfInt) * (prog / d));
+                    return ciInt - caidaInt;
+                }
+            }
+            let caidaPorPte = ((pte / 100.0) * prog);
+            return toScaledInt(ci - caidaPorPte, decs);
+        }
+
+        /* --- CORRECCIÓN 2: RECÁLCULO EN CASCADA DE PLs Y SOPORTE BIDIRECCIONAL --- */
+        function recalcularCascadaPLs(pls, baseAIInt, decs = getDecs()) {
+            if (!pls || isNaN(baseAIInt)) return;
+            let entries = Object.keys(pls).map(k => ({
+                prog: parseFloat(k),
+                key: k,
+                data: pls[k]
+            })).filter(e => !isNaN(e.prog) && e.data);
+
+            // Ordena por secuencia cronológica ('orden') si fue registrada, o por progresiva como respaldo
+            entries.sort((a, b) => {
+                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
+                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
+                return oa - ob;
+            });
+
+            let aiVigenteInt = baseAIInt;
+            entries.forEach(item => {
+                if (item.data.vad !== undefined && item.data.vad !== null && !isNaN(parseFloat(item.data.vad))) {
+                    let vadInt = toScaledInt(Math.abs(parseFloat(item.data.vad)), decs);
+                    let nuevaCotaBMInt = aiVigenteInt - vadInt;
+                    item.data.bm = fromScaledInt(nuevaCotaBMInt, decs);
+                }
+                let bmInt = toScaledInt(item.data.bm, decs);
+                let vaInt = toScaledInt(item.data.va, decs);
+                if (!isNaN(bmInt) && !isNaN(vaInt)) {
+                    aiVigenteInt = bmInt + vaInt;
+                }
+            });
+        }
+
+        function obtenerPLActivoParaProg(prog, pls) {
+            if (!pls) return null;
+            let keys = Object.keys(pls).map(k => parseFloat(k)).filter(k => !isNaN(k));
+            if (keys.length === 0) return null;
+
+            // Determina si los PLs fueron creados avanzando o retrocediendo en progresiva
+            let conOrden = keys.map(k => ({ prog: k, orden: pls[k].orden !== undefined ? pls[k].orden : k }))
+                               .sort((a, b) => a.orden - b.orden);
+            let sentidoReversa = conOrden.length >= 2 && (conOrden[conOrden.length - 1].prog < conOrden[0].prog);
+
+            if (!sentidoReversa) {
+                let activePLProg = -Infinity;
+                keys.forEach(pk => { if (pk <= prog && pk > activePLProg) activePLProg = pk; });
+                return activePLProg !== -Infinity ? activePLProg : null;
+            } else {
+                let activePLProg = Infinity;
+                keys.forEach(pk => { if (pk >= prog && pk < activePLProg) activePLProg = pk; });
+                return activePLProg !== Infinity ? activePLProg : null;
+            }
+        }
+
+        function obtenerUltimaAICronologicaInt(pls, baseAIInt, excludeProg = null, decs = getDecs()) {
+            if (!pls) return baseAIInt;
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+            let entries = Object.keys(pls)
+                .map(k => ({ prog: parseFloat(k), data: pls[k] }))
+                .filter(e => !isNaN(e.prog) && e.data && (excludeProg === null || Math.abs(e.prog - excludeProg) > 1e-6));
+            if (entries.length === 0) return baseAIInt;
+            entries.sort((a, b) => {
+                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
+                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
+                return oa - ob;
+            });
+            let ultimo = entries[entries.length - 1].data;
+            return toScaledInt(ultimo.bm, decs) + toScaledInt(ultimo.va, decs);
         }
 
         /* --- F4: INTERPOLADOR RÁPIDO Y LECTURA --- */
         function interpolarProg() {
-            let decs = parseInt(globalConfig.decimales) || 3;
-            let ci = parseFloat(document.getElementById('cotaIni').value); let p = parseFloat(document.getElementById('pte').value);
-            let aiTexto = document.getElementById('txtAI').innerText; let ai = parseFloat(aiTexto);
+            let decs = getDecs();
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let p = parseFloat(document.getElementById('pte').value);
+            let aiTexto = document.getElementById('txtAI').innerText;
+            let aiInt = toScaledInt(aiTexto, decs);
 
-            if(isNaN(ci) || isNaN(p) || isNaN(ai) || aiTexto === "0.000") return showToast("Genera la libreta o llena parámetros primero", "warning");
+            if(isNaN(ci) || (isNaN(p) && (isNaN(cf) || isNaN(d))) || isNaN(aiInt) || aiTexto === "0.000") {
+                return showToast("Genera la libreta o llena parámetros primero", "warning");
+            }
             
             showCustomPrompt("PROGRESIVA A INTERPOLAR (Ej: 12.50)", "", (val) => {
                 let prog = parseFloat(val.replace(',', '.')); if(isNaN(prog)) return;
                 
                 let proj = obtenerProyectoActivo();
                 let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
-                let activePLProg = -1;
-                Object.keys(pls).forEach(k => { let pk = parseFloat(k); if(pk <= prog && pk > activePLProg) activePLProg = pk; });
-                let aiEfectivo = activePLProg !== -1 ? (pls[activePLProg].bm + pls[activePLProg].va) : ai;
+                recalcularCascadaPLs(pls, aiInt, decs);
+                let activePLProg = obtenerPLActivoParaProg(prog, pls);
+                let aiEfectivoInt = activePLProg !== null
+                    ? (toScaledInt(pls[activePLProg].bm, decs) + toScaledInt(pls[activePLProg].va, decs))
+                    : aiInt;
 
-                let cotaZ = ci - ((p / 100) * prog);
-                let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
-                let cotaL = cotaZ + cama + altura;
+                let cotaZInt = calcularCotaZanjaInt(prog, ci, cf, d, p, decs);
+                let camaInt = toScaledInt(document.getElementById('camaApoyo').value || 0, decs);
+                let alturaInt = toScaledInt(document.getElementById('alturaTubo').value || 0, decs);
+                let cotaLInt = cotaZInt + camaInt + alturaInt;
                 
-                let lZanja = aiEfectivo - cotaZ;
-                let lLomo = aiEfectivo - cotaL;
+                let lZanjaInt = aiEfectivoInt - cotaZInt;
+                let lLomoInt = aiEfectivoInt - cotaLInt;
 
-                showCustomAlert(`🎯 <strong>INTERPOLACIÓN ${formatearProg(prog)}</strong><br><br>
-                Cota Zanja: <strong>${cotaZ.toFixed(decs)}</strong><br>
-                Lectura Zanja: <strong style="color:var(--success-text)">${lZanja.toFixed(decs)}</strong><br><br>
-                Cota Lomo: <strong>${cotaL.toFixed(decs)}</strong><br>
-                Lectura Lomo: <strong style="color:var(--success-text)">${lLomo.toFixed(decs)}</strong>`, "RESULTADO INTERPOLADO");
+                let avisoRango = (!isNaN(d) && (prog < 0 || prog > d))
+                    ? `<div style="color:var(--danger-color); font-size:0.8rem; margin-bottom:8px;">⚠️ Nota: Progresiva fuera del tramo (0.00 a ${d.toFixed(2)}m)</div>`
+                    : "";
+
+                showCustomAlert(`${avisoRango}🎯 <strong>INTERPOLACIÓN ${formatearProg(prog)}</strong><br>
+                <span style="font-size:0.8rem; opacity:0.75;">AI vigente: ${fromScaledInt(aiEfectivoInt, decs).toFixed(decs)} m</span><br><br>
+                Cota Zanja: <strong>${fromScaledInt(cotaZInt, decs).toFixed(decs)}</strong><br>
+                Lectura Zanja: <strong style="color:var(--success-text)">${fromScaledInt(lZanjaInt, decs).toFixed(decs)}</strong><br><br>
+                Cota Lomo: <strong>${fromScaledInt(cotaLInt, decs).toFixed(decs)}</strong><br>
+                Lectura Lomo: <strong style="color:var(--success-text)">${fromScaledInt(lLomoInt, decs).toFixed(decs)}</strong>`, "RESULTADO INTERPOLADO");
             });
         }
 
         function autocalcularTramo() {
-            let decs = parseInt(globalConfig.decimales) || 3;
-            let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let d = parseFloat(document.getElementById('distTotal').value); let p = parseFloat(document.getElementById('pte').value);
+            let decs = getDecs();
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let p = parseFloat(document.getElementById('pte').value);
             let nulos = 0; if(isNaN(ci)) nulos++; if(isNaN(cf)) nulos++; if(isNaN(d)) nulos++; if(isNaN(p)) nulos++;
             if (nulos !== 1) return showToast("⚠️ Deja exactamente UNA casilla vacía para deducir el dato.", "warning");
             
             if (isNaN(p)) {
                 if (d <= 0) return showToast("⚠️ La distancia debe ser mayor a 0.", "error");
-                let pteCalc = ((ci - cf) / d) * 100;
+                let pteCalc = ((ci - cf) / d) * 100.0;
                 document.getElementById('pte').value = pteCalc.toFixed(decs);
                 evaluarNormativa(document.getElementById('pte'));
             }
-            else if (isNaN(cf)) document.getElementById('cotaFin').value = (ci - ((p / 100) * d)).toFixed(decs); 
-            else if (isNaN(ci)) document.getElementById('cotaIni').value = (cf + ((p / 100) * d)).toFixed(decs); 
+            else if (isNaN(cf)) {
+                if (d <= 0) return showToast("⚠️ La distancia debe ser mayor a 0.", "error");
+                document.getElementById('cotaFin').value = (ci - ((p / 100.0) * d)).toFixed(decs); 
+            }
+            else if (isNaN(ci)) {
+                if (d <= 0) return showToast("⚠️ La distancia debe ser mayor a 0.", "error");
+                document.getElementById('cotaIni').value = (cf + ((p / 100.0) * d)).toFixed(decs); 
+            }
             else if (isNaN(d)) {
                 if (Math.abs(p) < 1e-6) return showToast("⚠️ La pendiente no puede ser 0 para deducir la distancia.", "error");
-                document.getElementById('distTotal').value = Math.abs(((ci - cf) / (p / 100))).toFixed(decs);
+                let distCalc = ((ci - cf) / (p / 100.0));
+                if (distCalc <= 0) return showToast("⚠️ El signo de la pendiente no coincide con el sentido de caída entre Cota Inicial y Final.", "error");
+                document.getElementById('distTotal').value = distCalc.toFixed(decs);
             }
             
             showToast("✨ Dato deducido con éxito.", "success");
@@ -1294,68 +1541,195 @@
         }
 
         function evaluarLimiteVA() {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
-            let ci = parseFloat(document.getElementById('cotaIni').value); let cf = parseFloat(document.getElementById('cotaFin').value); let bm = parseFloat(document.getElementById('cotaBM').value); let alerta = document.getElementById('txtAlertaVA');
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let pte = parseFloat(document.getElementById('pte').value);
+            let bm = parseFloat(document.getElementById('cotaBM').value);
+            let cama = parseFloat(document.getElementById('camaApoyo').value) || 0;
+            let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
+            let alerta = document.getElementById('txtAlertaVA');
+
+            if (isNaN(cf) && !isNaN(ci) && !isNaN(d) && !isNaN(pte) && d > 0) {
+                cf = ci - ((pte / 100.0) * d);
+            }
+
             if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) { 
-                let cotaMinima = Math.min(ci, cf); let limiteVA = limiteMira - bm + cotaMinima; 
-                if (limiteVA < 0) { alerta.style.color = "var(--danger-color)"; alerta.innerText = `⚠️ BM muy alto para regla de ${limiteMira}m.`; } 
-                else { alerta.style.color = "var(--primary-color)"; alerta.innerText = "Lectura máxima: " + limiteVA.toFixed(decs) + " m"; } 
-            } else { alerta.innerText = ""; }
+                let cotaMinimaZanja = Math.min(ci, cf);
+                let cotaMaximaLomo = Math.max(ci, cf) + cama + altura;
+                let maxVA = limiteMira - bm + cotaMinimaZanja;
+                let minVA = Math.max(0, cotaMaximaLomo - bm);
+
+                if (maxVA < 0 || maxVA < minVA) {
+                    alerta.style.color = "var(--danger-color)";
+                    alerta.innerText = maxVA < 0
+                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (requiere Punto de Liga).`
+                        : `⚠️ Desnivel excede mira de ${limiteMira}m en una sola armada.`;
+                } else {
+                    alerta.style.color = "var(--primary-color)";
+                    alerta.innerText = minVA > 0
+                        ? `Rango V.AT(+): ${minVA.toFixed(decs)} m a ${maxVA.toFixed(decs)} m`
+                        : `Lectura V.AT(+) máx: ${maxVA.toFixed(decs)} m`;
+                } 
+            } else {
+                alerta.innerText = "";
+            }
         }
 
-        /* --- F1: PUNTOS DE CAMBIO (PL) --- */
+        /* --- F1: PUNTOS DE CAMBIO (PL) CON CASCADA Y ORDEN CRONOLÓGICO --- */
         function gestionarPL() {
+            let decs = getDecs();
             showCustomPrompt("PROGRESIVA DEL NUEVO PL (m)", "", (progStr) => {
-                let prog = parseFloat(progStr.replace(',','.')); if(isNaN(prog)) return showToast("Progresiva no válida", "error");
-                showCustomPrompt("COTA DE BM PARA EL PL", "", (bmStr) => {
-                    let bm = parseFloat(bmStr.replace(',','.')); if(isNaN(bm)) return showToast("Cota BM no válida", "error");
-                    showCustomPrompt("VISTA ATRÁS (+) PARA EL PL", "", (vaStr) => {
-                        let va = parseFloat(vaStr.replace(',','.')); if(isNaN(va)) return showToast("Vista Atrás no válida", "error");
-                        
-                        let p = obtenerProyectoActivo(); if(!p.estadoActivo) p.estadoActivo = {}; if(!p.estadoActivo.pls) p.estadoActivo.pls = {};
-                        p.estadoActivo.pls[prog] = {bm: bm, va: va};
-                        guardarBD(); generarLibreta(); showToast("✅ PL Insertado", "success");
+                let prog = parseFloat(progStr.replace(',', '.'));
+                if (isNaN(prog)) return showToast("Progresiva no válida", "error");
+
+                let p = obtenerProyectoActivo();
+                let pls = (p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {};
+                let plExistente = pls[prog];
+                let valorSugerido = plExistente
+                    ? (plExistente.vad !== undefined && plExistente.vad !== null ? `-${Math.abs(plExistente.vad).toFixed(decs)}` : Number(plExistente.bm).toFixed(decs))
+                    : "";
+
+                showCustomPrompt("V. ADELANTE (antepón -) O COTA DIRECTA (Vacío = Borrar PL)", valorSugerido, (bmStr) => {
+                    let clean = bmStr.trim().replace(',', '.');
+                    if (clean === "") {
+                        if (p.estadoActivo && p.estadoActivo.pls && p.estadoActivo.pls[prog]) {
+                            delete p.estadoActivo.pls[prog];
+                            sincronizarEstadoConPerfilActivo();
+                            guardarBD(); generarLibreta(true);
+                            return showToast(`🗑️ PL en ${formatearProg(prog)} eliminado`, "warning");
+                        }
+                        return;
+                    }
+                    let val = parseFloat(clean);
+                    if (isNaN(val)) return showToast("Valor no válido", "error");
+
+                    let bmBaseInt = toScaledInt(document.getElementById('cotaBM').value, decs);
+                    let vaBaseInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
+                    let aiBaseInt = (!isNaN(bmBaseInt) && !isNaN(vaBaseInt))
+                        ? (bmBaseInt + vaBaseInt)
+                        : toScaledInt(document.getElementById('txtAI').innerText, decs);
+
+                    let cotaPL = val;
+                    let vadGuardada = null;
+                    if (clean.startsWith('-') && val < 0) {
+                        vadGuardada = Math.abs(val);
+                        let aiVigenteInt = obtenerUltimaAICronologicaInt(pls, aiBaseInt, prog, decs);
+                        cotaPL = fromScaledInt(aiVigenteInt - toScaledInt(vadGuardada, decs), decs);
+                    }
+
+                    let vaSugerida = plExistente && plExistente.va !== undefined ? Number(plExistente.va).toFixed(decs) : "";
+                    showCustomPrompt(`COTA PL: ${cotaPL.toFixed(decs)} | INGRESA V. ATRÁS (+)`, vaSugerida, (vaStr) => {
+                        let va = parseFloat(vaStr.replace(',', '.'));
+                        if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
+                        if (!p.estadoActivo) p.estadoActivo = {};
+                        if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
+
+                        let ordenPL = (plExistente && plExistente.orden !== undefined) ? plExistente.orden : Date.now();
+                        p.estadoActivo.pls[prog] = {
+                            bm: cotaPL,
+                            va: va,
+                            vad: vadGuardada,
+                            orden: ordenPL
+                        };
+                        recalcularCascadaPLs(p.estadoActivo.pls, aiBaseInt, decs);
+                        sincronizarEstadoConPerfilActivo();
+                        guardarBD(); generarLibreta(true);
+                        showToast(`✅ PL en ${formatearProg(prog)} (Cota: ${Number(p.estadoActivo.pls[prog].bm).toFixed(decs)})`, "success");
                     });
                 });
             });
         }
+
         function limpiarPLs() {
             showCustomConfirm("¿Borrar todos los Puntos de Cambio (PL) de esta libreta?", () => {
-                let p = obtenerProyectoActivo(); if(p.estadoActivo && p.estadoActivo.pls) { p.estadoActivo.pls = {}; guardarBD(); generarLibreta(); showToast("PLs reseteados", "success"); }
+                let p = obtenerProyectoActivo();
+                if(p.estadoActivo && p.estadoActivo.pls) {
+                    p.estadoActivo.pls = {};
+                    sincronizarEstadoConPerfilActivo();
+                    guardarBD();
+                    generarLibreta(true);
+                    showToast("PLs reseteados", "success");
+                }
             });
         }
 
-        /* --- CONTROL DE EXCAVACIÓN / PROFUNDIDAD DE CORTE EN ZANJA (SEGURO EN COSTA Y SIERRA) --- */
-        function registrarCotaTerreno(btn, event, prog, aiEfectivo) {
+        /* --- CORRECCIÓN 3: RESOLUCIÓN DE TERRENO 100% EXPLÍCITA (# = COTA DIRECTA, NORMAL = MIRA) --- */
+        function resolverCotaTerrenoInt(entry, currentAIInt, decs = getDecs()) {
+            if (entry === undefined || entry === null || entry === "") return NaN;
+            if (typeof entry === "object" && entry.cotaInt !== undefined && !isNaN(entry.cotaInt)) {
+                return Number(entry.cotaInt);
+            }
+            if (typeof entry === "number") {
+                return toScaledInt(entry, decs);
+            }
+            let rawStr = typeof entry === "object" ? String(entry.raw || "").trim() : String(entry).trim();
+            if (!rawStr) return NaN;
+
+            let cleanStr = rawStr.replace(',', '.');
+            let forzarCota = cleanStr.startsWith('#');
+            if (forzarCota) cleanStr = cleanStr.substring(1).trim();
+
+            let valInt = toScaledInt(cleanStr, decs);
+            if (isNaN(valInt)) return NaN;
+
+            return forzarCota ? valInt : (currentAIInt - valInt);
+        }
+
+        function obtenerRawTerreno(entry) {
+            if (entry === undefined || entry === null) return "";
+            if (typeof entry === "number") return `#${entry}`;
+            if (typeof entry === "object") return String(entry.raw || "");
+            return String(entry);
+        }
+
+        function registrarCotaTerreno(btn, event, prog, currentAIInt) {
             event.stopPropagation();
             feedbackUI();
-            let decs = parseInt(globalConfig.decimales) || 3;
-            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
+            let decs = getDecs();
             let p = obtenerProyectoActivo();
             if (!p.estadoActivo) p.estadoActivo = {};
             if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
-            let actual = p.estadoActivo.cotasTerreno[prog] || "";
+            let actualRaw = obtenerRawTerreno(p.estadoActivo.cotasTerreno[prog]);
 
-            showCustomPrompt(`MIRA V.AD(-) O COTA TERRENO (${formatearProg(prog)})`, actual, (valStr) => {
+            showCustomPrompt(`MIRA V.AD(-) O #COTA TERRENO (${formatearProg(prog)})`, actualRaw, (valStr) => {
                 let strClean = valStr.trim().replace(',', '.');
-                let forzarCota = strClean.startsWith('#');
-                if (forzarCota) strClean = strClean.substring(1).trim();
-
-                let v = parseFloat(strClean);
-                if (strClean === "" || isNaN(v)) {
+                if (strClean === "") {
                     delete p.estadoActivo.cotasTerreno[prog];
+                    sincronizarEstadoConPerfilActivo();
                     guardarBD();
                     generarLibreta(true);
                     return;
                 }
-                // Si el valor ingresado es positivo, menor o igual al límite de la mira (4m o 5m) y menor que la AI, se interpreta como Lectura de Mira V.AD(-)
-                let esLecturaMira = (!forzarCota && v > 0 && v <= limiteMira && Math.abs(aiEfectivo - v) > 0.05 && aiEfectivo > v);
-                let cotaTerrFinal = esLecturaMira ? Number((aiEfectivo - v).toFixed(decs)) : Number(v.toFixed(decs));
-                p.estadoActivo.cotasTerreno[prog] = cotaTerrFinal;
+                let esCotaExplicita = strClean.startsWith('#');
+                let numStr = esCotaExplicita ? strClean.slice(1).trim() : strClean;
+                let checkVal = parseFloat(numStr);
+                if (isNaN(checkVal)) return showToast("Valor de terreno inválido", "error");
+
+                let valInt = toScaledInt(numStr, decs);
+                let cotaTerrInt;
+                let modoInterpretado;
+
+                if (esCotaExplicita) {
+                    cotaTerrInt = valInt;
+                    strClean = `#${fromScaledInt(valInt, decs).toFixed(decs)}`;
+                    modoInterpretado = "Cota Directa (#)";
+                } else {
+                    cotaTerrInt = currentAIInt - valInt;
+                    strClean = fromScaledInt(valInt, decs).toFixed(decs);
+                    modoInterpretado = "Lectura de Mira";
+                }
+
+                p.estadoActivo.cotasTerreno[prog] = {
+                    raw: strClean,
+                    cotaInt: cotaTerrInt
+                };
+                sincronizarEstadoConPerfilActivo();
                 guardarBD();
                 generarLibreta(true);
-                showToast(`${esLecturaMira ? 'Mira convertida -> ' : ''}Terreno: ${cotaTerrFinal.toFixed(decs)}m`, "success");
+                showToast(`${modoInterpretado} -> C. Terr: ${fromScaledInt(cotaTerrInt, decs).toFixed(decs)} m`, "success");
             });
         }
 
@@ -1367,7 +1741,9 @@
             let tr = span.closest('tr');
             if(tr.classList.contains('fila-ok')) {
                 let p = obtenerProyectoActivo(); let prog = parseFloat(tr.dataset.prog);
-                if(p.estadoActivo.lockedRows[prog]) p.estadoActivo.lockedRows[prog].terr = nxt; guardarBD();
+                if(p.estadoActivo.lockedRows[prog]) p.estadoActivo.lockedRows[prog].terr = nxt;
+                sincronizarEstadoConPerfilActivo();
+                guardarBD();
             }
         }
 
@@ -1390,35 +1766,55 @@
                     if(isLocked) {
                         p.estadoActivo.lockedRows[prog] = { lz: tr.dataset.lz, ll: tr.dataset.ll, cz: tr.dataset.cz, cl: tr.dataset.cl, terr: tr.querySelector('.icono-terr').innerText };
                     } else { delete p.estadoActivo.lockedRows[prog]; }
+                    sincronizarEstadoConPerfilActivo();
                     guardarBD();
                 }, 360);
             }
         }
 
-        /* --- GENERADOR DE LIBRETA CON RESUMEN HIDRÁULICO Y CORTE PROMEDIO --- */
+        /* --- GENERADOR DE LIBRETA CON INTERPOLACIÓN EXACTA Y ENTEROS ESCALADOS --- */
         function generarLibreta(silencioso = false) {
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
 
-            let ci = parseFloat(document.getElementById('cotaIni').value); let d = parseFloat(document.getElementById('distTotal').value); let pte = parseFloat(document.getElementById('pte').value);
+            let ci = parseFloat(document.getElementById('cotaIni').value);
+            let cf = parseFloat(document.getElementById('cotaFin').value);
+            let d = parseFloat(document.getElementById('distTotal').value);
+            let pte = parseFloat(document.getElementById('pte').value);
+
+            // Deducción automática si llenó 3 de los 4 datos de diseño
+            if (isNaN(pte) && !isNaN(ci) && !isNaN(cf) && !isNaN(d) && d > 0) {
+                pte = ((ci - cf) / d) * 100.0;
+                document.getElementById('pte').value = pte.toFixed(decs);
+                evaluarNormativa(document.getElementById('pte'));
+            } else if (isNaN(cf) && !isNaN(ci) && !isNaN(pte) && !isNaN(d) && d > 0) {
+                cf = ci - ((pte / 100.0) * d);
+                document.getElementById('cotaFin').value = cf.toFixed(decs);
+            } else if (isNaN(ci) && !isNaN(cf) && !isNaN(pte) && !isNaN(d) && d > 0) {
+                ci = cf + ((pte / 100.0) * d);
+                document.getElementById('cotaIni').value = ci.toFixed(decs);
+            }
+
             if(isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) {
                 if(!silencioso) showToast("⚠️ Faltan datos válidos de Diseño.", "warning");
                 return;
             }
             
-            let bm = parseFloat(document.getElementById('cotaBM').value); let va = parseFloat(document.getElementById('vistaAtras').value);
-            let cama = parseFloat(document.getElementById('camaApoyo').value) || 0; let altura = parseFloat(document.getElementById('alturaTubo').value) || 0;
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
+            let camaInt = toScaledInt(document.getElementById('camaApoyo').value || 0, decs);
+            let alturaInt = toScaledInt(document.getElementById('alturaTubo').value || 0, decs);
             let intervalo = parseFloat(document.getElementById('intervalo').value);
             if(isNaN(intervalo) || intervalo <= 0) intervalo = 10.0;
-            if(isNaN(bm) || isNaN(va)) {
-                if(!silencioso) showToast("⚠️ Faltan datos de Campo.", "warning");
+            if(isNaN(bmInt) || isNaN(vaInt)) {
+                if(!silencioso) showToast("⚠️ Faltan datos de Campo (BM y Vista Atrás).", "warning");
                 return;
             }
 
-            let baseAI = Number((bm + va).toFixed(decs));
-            document.getElementById('txtAI').innerText = baseAI.toFixed(decs);
+            let baseAIInt = bmInt + vaInt;
+            document.getElementById('txtAI').innerText = fromScaledInt(baseAIInt, decs).toFixed(decs);
             if(!silencioso) document.getElementById('panelEstacion').style.display = 'none';
-            document.getElementById('infoTubo').innerText = `Cama ${cama.toFixed(2)} + Tubo ${altura.toFixed(2)}`;
+            document.getElementById('infoTubo').innerText = `Cama ${fromScaledInt(camaInt, decs).toFixed(2)} + Tubo ${fromScaledInt(alturaInt, decs).toFixed(2)}`;
             let tbody = document.getElementById('cuerpoTabla'); tbody.innerHTML = "";
 
             let proj = obtenerProyectoActivo();
@@ -1426,68 +1822,85 @@
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
             let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
 
+            // Recalcular en cascada cualquier PL que dependa de V.Ad(-) antes de dibujar la tabla
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+
             let estaciones = [];
-            let pasos = Math.floor(d / intervalo);
+            let pasos = Math.floor((d + 1e-7) / intervalo);
             for (let k = 0; k <= pasos; k++) {
                 let pVal = Number((k * intervalo).toFixed(3));
-                if (pVal <= d) estaciones.push(pVal);
+                if (pVal <= d + 1e-7) estaciones.push(Math.min(pVal, Number(d.toFixed(3))));
             }
             if (estaciones.length === 0 || Math.abs(estaciones[estaciones.length - 1] - d) > 0.001) {
                 estaciones.push(Number(d.toFixed(3)));
             }
 
-            let currentAI = baseAI;
-            let prevActivePLProg = -1;
-            let sumaCortes = 0;
+            let currentAIInt = baseAIInt;
+            let prevActivePLProg = null;
+            let sumaCortesInt = 0;
             let conteoCortes = 0;
 
             estaciones.forEach((i, idx) => {
-                let activePLProg = -1;
-                Object.keys(pls).forEach(k => { let pk = parseFloat(k); if(pk <= i && pk > activePLProg) activePLProg = pk; });
-                if(activePLProg !== -1) currentAI = Number((pls[activePLProg].bm + pls[activePLProg].va).toFixed(decs));
-                else currentAI = baseAI;
+                let activePLProg = obtenerPLActivoParaProg(i, pls);
+                if(activePLProg !== null) {
+                    currentAIInt = toScaledInt(pls[activePLProg].bm, decs) + toScaledInt(pls[activePLProg].va, decs);
+                } else {
+                    currentAIInt = baseAIInt;
+                }
 
-                if (activePLProg !== -1 && activePLProg !== prevActivePLProg) {
-                    tbody.innerHTML += `<tr><td colspan="5" style="background:rgba(25, 118, 210, 0.12); color:#1976d2; font-size:0.8rem; padding:5px; font-weight:900;">📍 NUEVO PL EN ${formatearProg(activePLProg)} (Nueva AI: ${currentAI.toFixed(decs)} m)</td></tr>`;
+                if (activePLProg !== null && activePLProg !== prevActivePLProg) {
+                    tbody.innerHTML += `<tr><td colspan="5" style="background:rgba(25, 118, 210, 0.12); color:#1976d2; font-size:0.8rem; padding:5px; font-weight:900;">📍 PL EN ${formatearProg(activePLProg)} (Cota PL: ${Number(pls[activePLProg].bm).toFixed(decs)} | Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
                     prevActivePLProg = activePLProg;
                 }
 
-                let cotaZanja = Number((ci - ((pte / 100) * i)).toFixed(decs));
-                let cotaLomo = Number((cotaZanja + cama + altura).toFixed(decs));
+                let cotaZanjaInt = calcularCotaZanjaInt(i, ci, cf, d, pte, decs);
+                let cotaLomoInt = cotaZanjaInt + camaInt + alturaInt;
                 
-                let leerZanja, leerLomo, czStr, clStr, terrIcon = '➖', cssRow = '';
-                let esBuzonFinal = (idx === estaciones.length - 1 && Math.abs(i - d) < 0.001 && (d % intervalo !== 0));
+                let leerZanja, leerLomo, czStr, clStr, czIntFinal, terrIcon = '➖', cssRow = '';
+                let esBuzonFinal = (idx === estaciones.length - 1 && Math.abs(i - d) < 0.001 && Math.abs(d % intervalo) > 0.001);
                 if (esBuzonFinal) cssRow += ' fila-cierre-bz';
 
                 if(locked[i]) {
-                    leerZanja = parseFloat(locked[i].lz); leerLomo = parseFloat(locked[i].ll);
-                    czStr = parseFloat(locked[i].cz).toFixed(decs); clStr = parseFloat(locked[i].cl).toFixed(decs);
-                    terrIcon = locked[i].terr || '➖'; cssRow += ' fila-ok';
+                    leerZanja = parseFloat(locked[i].lz);
+                    leerLomo = parseFloat(locked[i].ll);
+                    czIntFinal = toScaledInt(locked[i].cz, decs);
+                    czStr = fromScaledInt(czIntFinal, decs).toFixed(decs);
+                    clStr = fromScaledInt(toScaledInt(locked[i].cl, decs), decs).toFixed(decs);
+                    terrIcon = locked[i].terr || '➖';
+                    cssRow += ' fila-ok';
                 } else {
-                    leerZanja = Number((currentAI - cotaZanja).toFixed(decs)); 
-                    leerLomo = Number((currentAI - cotaLomo).toFixed(decs));
-                    czStr = cotaZanja.toFixed(decs); clStr = cotaLomo.toFixed(decs);
+                    let leerZanjaInt = currentAIInt - cotaZanjaInt;
+                    let leerLomoInt = currentAIInt - cotaLomoInt;
+                    leerZanja = fromScaledInt(leerZanjaInt, decs);
+                    leerLomo = fromScaledInt(leerLomoInt, decs);
+                    czIntFinal = cotaZanjaInt;
+                    czStr = fromScaledInt(cotaZanjaInt, decs).toFixed(decs);
+                    clStr = fromScaledInt(cotaLomoInt, decs).toFixed(decs);
                 }
 
-                let styleZanja = (leerZanja >= limiteMira || leerZanja <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
-                let styleLomo = (leerLomo >= limiteMira || leerLomo <= 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+                let styleZanja = (leerZanja > limiteMira || leerZanja < 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
+                let styleLomo = (leerLomo > limiteMira || leerLomo < 0) ? 'color: var(--danger-color); font-weight: 900;' : '';
                 
-                let lzStr = leerZanja.toFixed(decs); let llStr = leerLomo.toFixed(decs);
+                let lzStr = leerZanja.toFixed(decs);
+                let llStr = leerLomo.toFixed(decs);
                 let progTexto = formatearProg(i);
 
-                let ctVal = cotasTerr[i];
+                let ctInt = resolverCotaTerrenoInt(cotasTerr[i], currentAIInt, decs);
                 let btnCorteHTML = "";
                 let dataCtAttr = "";
                 let dataProfAttr = "";
-                if (ctVal !== undefined && !isNaN(parseFloat(ctVal))) {
-                    let profCorte = Number((parseFloat(ctVal) - parseFloat(czStr)).toFixed(decs));
-                    sumaCortes += profCorte;
+                if (!isNaN(ctInt)) {
+                    let profCorteInt = ctInt - czIntFinal;
+                    sumaCortesInt += profCorteInt;
                     conteoCortes++;
-                    dataCtAttr = parseFloat(ctVal).toFixed(decs);
-                    dataProfAttr = profCorte.toFixed(decs);
-                    btnCorteHTML = `<span class="btn-corte-zanja con-dato" onclick="registrarCotaTerreno(this, event, ${i}, ${currentAI})">⛏️ H: ${profCorte.toFixed(2)}m</span>`;
+                    let ctMetros = fromScaledInt(ctInt, decs);
+                    let profMetros = fromScaledInt(profCorteInt, decs);
+                    dataCtAttr = ctMetros.toFixed(decs);
+                    dataProfAttr = profMetros.toFixed(decs);
+                    let etiquetaProf = profMetros >= 0 ? `⛏️ H: ${profMetros.toFixed(2)}m` : `⚠️ Rell: ${Math.abs(profMetros).toFixed(2)}m`;
+                    btnCorteHTML = `<span class="btn-corte-zanja con-dato" onclick="registrarCotaTerreno(this, event, ${i}, ${currentAIInt})">${etiquetaProf}</span>`;
                 } else {
-                    btnCorteHTML = `<span class="btn-corte-zanja" onclick="registrarCotaTerreno(this, event, ${i}, ${currentAI})">+ Terreno</span>`;
+                    btnCorteHTML = `<span class="btn-corte-zanja" onclick="registrarCotaTerreno(this, event, ${i}, ${currentAIInt})">+ Terreno</span>`;
                 }
 
                 tbody.innerHTML += `<tr class="${cssRow.trim()}" data-prog="${i}" data-lz="${lzStr}" data-ll="${llStr}" data-cz="${czStr}" data-cl="${clStr}" data-ct="${dataCtAttr}" data-prof="${dataProfAttr}" onclick="manejarRowTap(this, event, ${i}, '${lzStr}', '${llStr}')">
@@ -1502,16 +1915,21 @@
                 </tr>`;
             });
 
-            let desnivelTotal = (pte / 100.0) * d;
-            let ptePorMil = pte * 10.0;
-            let txtCorteProm = conteoCortes > 0 ? `<span>⛏️ H. Prom: <strong style="color:var(--danger-color);">${(sumaCortes / conteoCortes).toFixed(2)} m</strong></span>` : '';
+            let cotaFinEfectiva = fromScaledInt(calcularCotaZanjaInt(d, ci, cf, d, pte, decs), decs);
+            let desnivelTotal = ci - cotaFinEfectiva;
+            let pteReal = (desnivelTotal / d) * 100.0;
+            let ptePorMil = pteReal * 10.0;
+            let txtCorteProm = conteoCortes > 0
+                ? `<span>⛏️ H. Prom: <strong style="color:var(--danger-color);">${fromScaledInt(Math.round(sumaCortesInt / conteoCortes), decs).toFixed(2)} m</strong></span>`
+                : '';
             document.getElementById('resHidraulico').innerHTML = `
                 <span>📉 ΔH Tramo: <strong>${desnivelTotal.toFixed(decs)} m</strong></span>
-                <span>📐 S: <strong>${pte.toFixed(2)}% (${ptePorMil.toFixed(1)}‰)</strong></span>
+                <span>📐 S: <strong>${pteReal.toFixed(decs)}% (${ptePorMil.toFixed(1)}‰)</strong></span>
                 ${txtCorteProm}
             `;
 
-            document.getElementById('seccionTabla').style.display = 'block'; document.getElementById('btnExcel').style.display = 'block';
+            document.getElementById('seccionTabla').style.display = 'block';
+            document.getElementById('btnExcel').style.display = 'block';
             guardarEstadoAlcan();
             if(!silencioso) showToast("✅ Libreta Generada", "success");
         }
@@ -1519,7 +1937,7 @@
         function exportarXLSX() { 
             feedbackUI();
             let p = obtenerProyectoActivo();
-            let decs = parseInt(globalConfig.decimales) || 3;
+            let decs = getDecs();
             let fechaHoy = new Date().toLocaleDateString('es-PE');
             let oper = globalConfig.operador || "COTA100";
             let eq = globalConfig.equipo || "Nivel Automático";
@@ -1559,11 +1977,26 @@
             XLSX.writeFile(wb, nombreArchivo); 
             showToast("Reporte descargado", "success");
         }
+
         function toggleCalculadora() { const m = document.getElementById('calculadoraModal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function calcInput(v) { document.getElementById('calcDisplay').value += v; }
         function calcClear() { document.getElementById('calcDisplay').value = ''; }
         function calcBackspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-        function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
+        function calcEval() {
+            let decs = getDecs();
+            try {
+                let expr = document.getElementById('calcDisplay').value.replace(/[^0-9+\-*/.()]/g, '');
+                if (!expr) return;
+                let res = new Function('return ' + expr)();
+                if (!isFinite(res)) {
+                    document.getElementById('calcDisplay').value = 'Error';
+                    return;
+                }
+                document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
+            } catch(e) {
+                document.getElementById('calcDisplay').value = 'Error';
+            }
+        }
     </script>
 </body>
 </html>

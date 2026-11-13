@@ -15,8 +15,24 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-/* --- FUNCIONES GLOBALES CONECTADAS A AJUSTES --- */
+/* --- FUNCIONES DE PRECISIÓN ENTERA Y CONFIGURACIÓN --- */
 let audioCtxPol = null;
+
+function getDecs() {
+    return parseInt(globalConfig.decimales) || 3;
+}
+
+function toScaledInt(val, decs = getDecs()) {
+    if (val === null || val === undefined || val === "") return NaN;
+    let num = typeof val === "number" ? val : parseFloat(String(val).replace(',', '.'));
+    if (isNaN(num)) return NaN;
+    return Math.round(num * Math.pow(10, decs));
+}
+
+function fromScaledInt(intVal, decs = getDecs()) {
+    if (isNaN(intVal)) return NaN;
+    return intVal / Math.pow(10, decs);
+}
 
 function vibrar() {
     if (globalConfig.vibracion !== false && navigator.vibrate) {
@@ -38,7 +54,7 @@ function vibrar() {
 
 // Bloqueador dinámico según decimales de Ajustes (3 o 4 decimales)
 function formatDecimal(input) {
-    let decs = parseInt(globalConfig.decimales) || 3;
+    let decs = getDecs();
     let val = input.value.replace(/,/g, '.');
     val = val.replace(/[^0-9.-]/g, ''); 
     if (val.indexOf('-') > 0) val = val.replace(/-/g, '');
@@ -53,13 +69,13 @@ function formatDecimal(input) {
 
 // Autocompletar ceros al quitar el foco respetando precisión global
 function completarCeros(input) {
-    let decs = parseInt(globalConfig.decimales) || 3;
+    let decs = getDecs();
     validarLecturaFisica(input);
     let val = input.value.trim();
     if (val === "" || val === "-" || val === ".") return;
-    let floatVal = parseFloat(val);
-    if (!isNaN(floatVal)) {
-        input.value = floatVal.toFixed(decs);
+    let intVal = toScaledInt(val, decs);
+    if (!isNaN(intVal)) {
+        input.value = fromScaledInt(intVal, decs).toFixed(decs);
         guardarBD();
     }
 }
@@ -112,19 +128,19 @@ function mostrarLeyenda() {
     let html = `
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
             <span style="font-size:1.2rem; margin-right:10px;">🔄</span> 
-            <div><strong style="color:var(--primary-color);">Independencia:</strong> En Pata de Gallo, ambas líneas avanzan. Las lecturas de L1 y L2 son totalmente independientes; solo se sincroniza el nombre de la estación.</div>
+            <div><strong style="color:var(--primary-color);">Independencia:</strong> En Pata de Gallo, ambas líneas avanzan. Las lecturas de L1 y L2 son independientes; solo se sincroniza el nombre de la estación.</div>
+        </div>
+        <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+            <span style="font-size:1.2rem; margin-right:10px;">📏</span> 
+            <div><strong style="color:var(--primary-color);">Distancia del Circuito:</strong> Ingresa la longitud horizontal real del recorrido para evaluar la tolerancia $T = m\\sqrt{K}$ sin inflar el margen permisible.</div>
         </div>
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
             <span style="font-size:1.2rem; margin-right:10px;">⚠️</span> 
-            <div><strong style="color:var(--primary-color);">HUD Δ PC:</strong> El error milimétrico por armada se calcula con la diferencia entre la V.AD (L1-L2) y la V.AT (L1-L2) del mismo PC. Si el alarife mueve la placa, esto explotará en rojo.</div>
-        </div>
-        <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">💾</span> 
-            <div><strong style="color:var(--primary-color);">Guardar BMs Compensados:</strong> En Opciones de Exportación puedes guardar automáticamente las cotas compensadas en la Base de Datos de BMs para usarlas en Niv. Simple o Alcantarillado.</div>
+            <div><strong style="color:var(--primary-color);">HUD Δ PC:</strong> El error milimétrico por armada compara el desnivel entre miras al llegar (V.AD) y al salir (V.AT) del mismo PC. Si el alarife mueve la placa, saltará en rojo.</div>
         </div>
         <div style="display:flex; align-items:flex-start;">
             <span style="font-size:1.2rem; margin-right:10px;">📊</span> 
-            <div><strong style="color:var(--primary-color);">Exportación Camuflada:</strong> Genera reportes en Excel (Real o Ida y Vuelta con simulación realista de altura de instrumento) y cuadro de compensación incluido.</div>
+            <div><strong style="color:var(--primary-color);">Exportación y BMs:</strong> Guarda los BMs compensados directo en la DB o exporta a Excel (Líneas Gemelas o Ida y Vuelta continua con simulación realista de trípode).</div>
         </div>
     `;
     showCustomAlert(html, "GUÍA DE FUNCIONES");
@@ -176,7 +192,7 @@ function btnPromptOkClick() {
     cerrarCustomPrompt(); if (promptOkCallback) promptOkCallback(val);
 }
 
-/* --- MODAL PRUEBA DE 2 ESTACAS --- */
+/* --- MODAL PRUEBA DE 2 ESTACAS (COLIMACIÓN) --- */
 function abrirPruebaDosEstacas() {
     document.getElementById('peA1').value = '';
     document.getElementById('peB1').value = '';
@@ -197,23 +213,27 @@ function cerrarPrueba() {
 }
 
 function calcPrueba() {
-    let decs = parseInt(globalConfig.decimales) || 3;
-    let a1 = parseFloat(document.getElementById('peA1').value);
-    let b1 = parseFloat(document.getElementById('peB1').value);
-    let a2 = parseFloat(document.getElementById('peA2').value);
-    let b2 = parseFloat(document.getElementById('peB2').value);
+    let decs = getDecs();
+    let a1Int = toScaledInt(document.getElementById('peA1').value, 4);
+    let b1Int = toScaledInt(document.getElementById('peB1').value, 4);
+    let a2Int = toScaledInt(document.getElementById('peA2').value, 4);
+    let b2Int = toScaledInt(document.getElementById('peB2').value, 4);
     
     let resDiv = document.getElementById('resPrueba');
-    if(!isNaN(a1) && !isNaN(b1) && !isNaN(a2) && !isNaN(b2)) {
-        let deltaReal = a1 - b1; 
-        let a2Teorico = b2 + deltaReal; 
-        let error = a2 - a2Teorico;
-        let errorMM = error * 1000;
+    if(!isNaN(a1Int) && !isNaN(b1Int) && !isNaN(a2Int) && !isNaN(b2Int)) {
+        // Estación 1 al centro (libre de colimación): ΔH verdadero = A1 - B1
+        let deltaRealInt = a1Int - b1Int; 
+        let a2SinErrorInt = b2Int + deltaRealInt; 
+        let errorInt = a2Int - a2SinErrorInt;
+        let errorMM = fromScaledInt(errorInt, 4) * 1000;
+        let a2Corregido = fromScaledInt(a2SinErrorInt, 4);
         
-        let color = Math.abs(errorMM) <= 3 ? 'var(--success-text)' : 'var(--danger-color)';
+        let color = Math.abs(errorMM) <= 3.0 ? 'var(--success-text)' : 'var(--danger-color)';
         let signo = errorMM > 0 ? '+' : '';
-        let estadoCal = Math.abs(errorMM) <= 3 ? '✓ Nivel Calibrado (OK)' : `🔧 Calibrar retículo en mira A a: <strong>${a2Teorico.toFixed(decs)} m</strong>`;
-        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error de Colimación (e):</span>
+        let estadoCal = Math.abs(errorMM) <= 3.0
+            ? '✓ Nivel Calibrado (OK)'
+            : `🔧 Ajustar retículo en mira lejana (A2) a: <strong>${a2Corregido.toFixed(decs)} m</strong>`;
+        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error en visual larga (e):</span>
             <span style="color:${color}; font-size:1.8rem; letter-spacing:1px;">${signo}${errorMM.toFixed(1)} mm</span>
             <div style="font-size:0.85rem; margin-top:6px; padding:6px; border-radius:6px; background:rgba(128,128,128,0.08); color:var(--text-color);">${estadoCal}</div>`;
     } else {
@@ -254,18 +274,19 @@ function guardarCompensadasEnDB() {
 
     let p = obtenerProyectoActivo();
     if (!p) return;
+    let decs = getDecs();
     let nuevos = 0;
     let actualizados = 0;
 
     compRows.forEach((tr, idx) => {
         let tds = tr.querySelectorAll('td');
         let nombreBM = tds[0].innerText.trim().toUpperCase();
-        let cotaComp = parseFloat(tds[4].innerText);
-        if (!nombreBM || isNaN(cotaComp)) return;
+        let cotaCompInt = toScaledInt(tds[4].innerText, decs);
+        if (!nombreBM || isNaN(cotaCompInt)) return;
+        let cotaComp = fromScaledInt(cotaCompInt, decs);
 
         let existenteIdx = p.bms.findIndex(b => b.nombre === nombreBM);
         if (existenteIdx > -1) {
-            // No sobreescribimos la cota del BM de partida (idx === 0) para mantener intacto el origen oficial
             if (idx > 0) {
                 p.bms[existenteIdx].cota = cotaComp;
                 if (!p.bms[existenteIdx].obs) p.bms[existenteIdx].obs = "Compensado en Circuito";
@@ -282,6 +303,11 @@ function guardarCompensadasEnDB() {
     showToast(`✅ ${nuevos} BMs creados y ${actualizados} actualizados en la DB`, "success");
 }
 
+// Alias compatible con el botón directo de niv-poligonal.html
+function guardarBMsCompensadosEnDB() {
+    guardarCompensadasEnDB();
+}
+
 /* --- UI: MODAL SELECTOR GENÉRICO --- */
 let tipoModalActual = "";
 
@@ -293,6 +319,7 @@ function abrirModalSelect(tipo) {
     contenido.innerHTML = ""; extra.innerHTML = "";
     
     let p = obtenerProyectoActivo();
+    let decs = getDecs();
 
     if(tipo === 'proyecto') {
         titulo.innerText = "📁 SELECCIONAR PROYECTO";
@@ -315,7 +342,6 @@ function abrirModalSelect(tipo) {
         });
     } else if(tipo === 'bm-tabla') {
         titulo.innerText = "📍 SELECCIONAR PTO BASE";
-        let decs = parseInt(globalConfig.decimales) || 3;
         p.bms.forEach(bm => {
             contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('${bm.nombre}', '')">
                 <span>${bm.nombre}</span>
@@ -325,7 +351,6 @@ function abrirModalSelect(tipo) {
         extra.innerHTML = `<button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px; margin-top:10px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>`;
     } else if(tipo === 'importar-bm') {
         titulo.innerText = "🔗 PUENTE DE BMs";
-        let decs = parseInt(globalConfig.decimales) || 3;
         bmsExternosPolCache = recopilarBMsExternosPol();
         if (bmsExternosPolCache.length === 0) {
             contenido.innerHTML = `<div style="padding:15px; text-align:center; font-weight:700; opacity:0.7;">No se encontraron BMs nuevos en otros módulos o proyectos.</div>`;
@@ -610,6 +635,8 @@ function addBM() {
     const cota = parseFloat(cotaInput); const obs = document.getElementById('newBMObs').value.trim();
 
     if(!name || isNaN(cota)) return showToast("Datos de nombre y cota inválidos.", "error");
+    let decs = getDecs();
+    let cotaExacta = fromScaledInt(toScaledInt(cota, decs), decs);
     let p = obtenerProyectoActivo();
     
     const finalizarGuardado = () => {
@@ -621,23 +648,23 @@ function addBM() {
         showCustomConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
             let oldName = p.bms[editandoBMIndex].nombre;
             if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
-            p.bms[editandoBMIndex] = { nombre: name, cota: cota, obs: obs };
+            p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
 
             let trIda0 = document.getElementById('cuerpoIda').children[0];
             if (trIda0) {
                 let inPto = trIda0.querySelector('.in-pto');
-                if (inPto.dataset.bmAsignado === oldName) {
+                if (inPto.dataset.bmAsignado === oldName || inPto.value.trim().toUpperCase() === oldName) {
                     inPto.dataset.bmAsignado = name; inPto.value = name;
-                    document.getElementById('cotaBM').value = cota.toFixed(parseInt(globalConfig.decimales) || 3);
-                    procesarDobleLiga();
+                    syncBM(inPto);
+                    document.getElementById('cotaBM').value = cotaExacta.toFixed(decs);
                 }
             }
             editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
-            guardarBD(); finalizarGuardado();
+            procesarDobleLiga(); guardarBD(); finalizarGuardado();
         });
     } else {
         if(p.bms.some(bm => bm.nombre === name)) return showToast("Ya existe un BM con ese nombre.", "warning");
-        p.bms.push({ nombre: name, cota: cota, obs: obs }); finalizarGuardado();
+        p.bms.push({ nombre: name, cota: cotaExacta, obs: obs }); finalizarGuardado();
     }
 }
 
@@ -649,11 +676,11 @@ function cargarEditBM(i) {
 
 function deleteBM(i) { 
     let p = obtenerProyectoActivo();
-    showCustomConfirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`, () => { p.bms.splice(i, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success"); });
+    showCustomConfirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`, () => { p.bms.splice(i, 1); guardarBD(); renderBMs(); procesarDobleLiga(); showToast("BM eliminado", "success"); });
 }
 
 function renderBMs() {
-    let decs = parseInt(globalConfig.decimales) || 3; let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
+    let decs = getDecs(); let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
     p.bms.forEach((bm, i) => { 
         list.innerHTML += `
         <div class="bm-item" onclick="clickEnBM(this, event)">
@@ -686,8 +713,8 @@ function activarTecladoManual() {
 }
 
 function verificarBM(input) {
-    const val = input.value.toUpperCase(); input.value = val; 
-    let decs = parseInt(globalConfig.decimales) || 3; let p = obtenerProyectoActivo(); const bmEncontrado = p.bms.find(b => b.nombre === val);
+    const val = input.value.toUpperCase().trim(); input.value = val; 
+    let decs = getDecs(); let p = obtenerProyectoActivo(); const bmEncontrado = p.bms.find(b => b.nombre === val);
     const tr = input.closest('tr'); const tbody = document.getElementById('cuerpoIda');
     let rowIndex = Array.from(tbody.children).indexOf(tr);
 
@@ -755,42 +782,35 @@ function recopilarBMsExternosPol() {
     appData.proyectos.forEach(proj => {
         if (proj.id !== appData.activoId && proj.bms) {
             proj.bms.forEach(bm => {
-                if (!nombresActuales.includes(bm.nombre)) {
+                if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
                     lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De: ${proj.nombre}`, origen: `Simultánea (${proj.nombre})` });
                 }
             });
         }
     });
 
-    try {
-        let dbSim = JSON.parse(localStorage.getItem('cota100_db_simple_v4'));
-        if (dbSim && dbSim.proyectos) {
-            dbSim.proyectos.forEach(proj => {
-                if (proj.bms) {
-                    proj.bms.forEach(bm => {
-                        if (!nombresActuales.includes(bm.nombre)) {
-                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Simple: ${proj.nombre}`, origen: `Niv. Simple (${proj.nombre})` });
-                        }
-                    });
-                }
-            });
-        }
-    } catch(e) {}
+    const fuentes = [
+        { key: 'cota100_db_simple_v4', label: 'Niv. Simple' },
+        { key: 'cota100_db_alcan_v3', label: 'Alcantarillado' },
+        { key: 'cota100_db_vial_v1', label: 'Carreteras' }
+    ];
 
-    try {
-        let dbAlc = JSON.parse(localStorage.getItem('cota100_db_alcan_v3'));
-        if (dbAlc && dbAlc.proyectos) {
-            dbAlc.proyectos.forEach(proj => {
-                if (proj.bms) {
-                    proj.bms.forEach(bm => {
-                        if (!nombresActuales.includes(bm.nombre)) {
-                            lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De Alcan: ${proj.nombre}`, origen: `Alcantarillado (${proj.nombre})` });
-                        }
-                    });
-                }
-            });
-        }
-    } catch(e) {}
+    fuentes.forEach(f => {
+        try {
+            let dbExt = JSON.parse(localStorage.getItem(f.key));
+            if (dbExt && dbExt.proyectos) {
+                dbExt.proyectos.forEach(proj => {
+                    if (proj.bms) {
+                        proj.bms.forEach(bm => {
+                            if (!nombresActuales.includes(bm.nombre) && !lista.some(x => x.nombre === bm.nombre)) {
+                                lista.push({ nombre: bm.nombre, cota: bm.cota, obs: bm.obs || `De ${f.label}: ${proj.nombre}`, origen: `${f.label} (${proj.nombre})` });
+                            }
+                        });
+                    }
+                });
+            }
+        } catch(e) {}
+    });
 
     return lista;
 }
@@ -952,36 +972,65 @@ function getErrorHUDStyles(pct) {
     return {c: 'var(--success-text)', b: 'var(--success-bg)'};
 }
 
-function procesarDobleLiga() {
-    let decs = parseInt(globalConfig.decimales) || 3;
-    let cotaBM = parseFloat(document.getElementById('cotaBM').value); let distM = parseFloat(document.getElementById('distanciaM').value);
-    let tolTramoMM = parseFloat(document.getElementById('tolTramo').value) || 2; let multiplicador = parseFloat(document.getElementById('ordenNiv').value);
+function obtenerCotaOficialEstacion(ptoNombre, idxEstacion, ultimoIndice, cotaBMInicial, cotaLlegadaInput, p, ptoInicioNombre) {
+    if (idxEstacion === 0) return cotaBMInicial;
+    if (idxEstacion === ultimoIndice) {
+        if (!isNaN(cotaLlegadaInput)) return cotaLlegadaInput;
+        if (ptoNombre && ptoInicioNombre && ptoNombre === ptoInicioNombre) return cotaBMInicial;
+    }
+    if (p && Array.isArray(p.bms)) {
+        let bmMatch = p.bms.find(b => b.nombre === ptoNombre);
+        if (bmMatch) return bmMatch.cota;
+    }
+    return NaN;
+}
 
-    let filasIda = document.querySelectorAll('#cuerpoIda tr'); let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
+/* --- MOTOR MATEMÁTICO DE DOBLE LIGA EN ENTEROS ESCALADOS --- */
+function procesarDobleLiga() {
+    let decs = getDecs();
+    let factorMM = 1000 / Math.pow(10, decs);
+    let cotaBM = parseFloat(document.getElementById('cotaBM').value);
+    let cotaBMInt = toScaledInt(cotaBM, decs);
+    let distM = parseFloat(document.getElementById('distanciaM').value);
+    let tolTramoMM = parseFloat(document.getElementById('tolTramo').value) || 2;
+    let multiplicador = parseFloat(document.getElementById('ordenNiv').value);
+
+    let filasIda = document.querySelectorAll('#cuerpoIda tr');
+    let filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
     if(filasIda.length === 0) return;
 
     procesarAutoNombrar();
+    reconstruirSincronizacion();
 
-    let cotaActIda = 0; let aiIda = 0; let cotaActVuelta = 0; let aiVuelta = 0; let habilitarSiguiente = true; 
+    let cotaActIdaInt = NaN, aiIdaInt = NaN;
+    let cotaActVueltaInt = NaN, aiVueltaInt = NaN;
+    let ultimaCotaIdaValida = NaN, ultimaCotaVueltaValida = NaN;
+    let habilitarSiguiente = true; 
 
-    for(let i=0; i<filasIda.length; i++) {
-        
-        if (habilitarSiguiente) { filasIda[i].classList.remove('fila-inactiva'); filasVuelta[i].classList.remove('fila-inactiva'); } 
-        else {
-            filasIda[i].classList.add('fila-inactiva'); filasVuelta[i].classList.add('fila-inactiva');
+    for(let i = 0; i < filasIda.length; i++) {
+        if (habilitarSiguiente) {
+            filasIda[i].classList.remove('fila-inactiva');
+            filasVuelta[i].classList.remove('fila-inactiva');
+        } else {
+            filasIda[i].classList.add('fila-inactiva');
+            filasVuelta[i].classList.add('fila-inactiva');
             filasIda[i].querySelector('.out-cota').innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
             filasVuelta[i].querySelector('.out-cota').innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
-            filasIda[i].style.boxShadow = "none"; filasVuelta[i].style.backgroundColor = "transparent";
+            filasIda[i].style.boxShadow = "none";
+            filasVuelta[i].style.backgroundColor = "transparent";
             continue; 
         }
 
-        let vaIda = parseFloat(filasIda[i].querySelector('.in-va').value); let vdIda = parseFloat(filasIda[i].querySelector('.in-vd').value);
-        let vaVuelta = parseFloat(filasVuelta[i].querySelector('.in-va').value); let vdVuelta = parseFloat(filasVuelta[i].querySelector('.in-vd').value);
+        let vaIdaInt = toScaledInt(filasIda[i].querySelector('.in-va').value, decs);
+        let vdIdaInt = toScaledInt(filasIda[i].querySelector('.in-vd').value, decs);
+        let vaVueltaInt = toScaledInt(filasVuelta[i].querySelector('.in-va').value, decs);
+        let vdVueltaInt = toScaledInt(filasVuelta[i].querySelector('.in-vd').value, decs);
         
-        let celdaIda = filasIda[i].querySelector('.out-cota'); let celdaVuelta = filasVuelta[i].querySelector('.out-cota');
+        let celdaIda = filasIda[i].querySelector('.out-cota');
+        let celdaVuelta = filasVuelta[i].querySelector('.out-cota');
         let badgeInvisible = `<div class="badge-tramo badge-oculto">_</div>`;
 
-        let agresteIda = (!isNaN(vaIda) && !isNaN(vdIda) && Math.abs(vaIda - vdIda) > 2.50);
+        let agresteIda = (!isNaN(vaIdaInt) && !isNaN(vdIdaInt) && Math.abs(fromScaledInt(vaIdaInt - vdIdaInt, decs)) > 2.50);
         if(agresteIda) {
             filasIda[i].style.boxShadow = "inset 0 0 0 2px #fbc02d";
             filasIda[i].title = "Riesgo de visual corta en siguiente armada";
@@ -992,63 +1041,89 @@ function procesarDobleLiga() {
 
         // --- CÁLCULO DE COTAS LÍNEA 1 (IZQ) ---
         if (i === 0) {
-            cotaActIda = isNaN(cotaBM) ? NaN : cotaBM;
-            if (!isNaN(cotaActIda)) {
-                if (!isNaN(vaIda)) { aiIda = cotaActIda + vaIda; celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`; } 
-                else { celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`; }
-            } else { celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`; }
+            cotaActIdaInt = cotaBMInt;
+            if (!isNaN(cotaActIdaInt)) {
+                let cotaMetros = fromScaledInt(cotaActIdaInt, decs);
+                ultimaCotaIdaValida = cotaMetros;
+                if (!isNaN(vaIdaInt)) {
+                    aiIdaInt = cotaActIdaInt + vaIdaInt;
+                    let aiMetros = fromScaledInt(aiIdaInt, decs);
+                    celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiMetros.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${badgeInvisible}`;
+                } else {
+                    celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${badgeInvisible}`;
+                }
+            } else {
+                celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`;
+            }
         } else {
-            if (!isNaN(vdIda)) {
-                cotaActIda = aiIda - vdIda;
-                if (!isNaN(vaIda)) { aiIda = cotaActIda + vaIda; celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiIda.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`; } 
-                else { celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActIda}">${cotaActIda.toFixed(decs)}</div>${badgeInvisible}`; }
-            } else { celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`; }
+            if (!isNaN(vdIdaInt) && !isNaN(aiIdaInt)) {
+                cotaActIdaInt = aiIdaInt - vdIdaInt;
+                let cotaMetros = fromScaledInt(cotaActIdaInt, decs);
+                ultimaCotaIdaValida = cotaMetros;
+                if (!isNaN(vaIdaInt)) {
+                    aiIdaInt = cotaActIdaInt + vaIdaInt;
+                    let aiMetros = fromScaledInt(aiIdaInt, decs);
+                    celdaIda.innerHTML = `<div style="font-size:0.75rem; color:#1976d2;">AI: ${aiMetros.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${badgeInvisible}`;
+                } else {
+                    celdaIda.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${badgeInvisible}`;
+                }
+            } else {
+                celdaIda.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>${badgeInvisible}`;
+            }
         }
 
         // --- CÁLCULO DE COTAS Y HUD DE ERROR - LÍNEA 2 (DER) ---
         let hudHTML = '';
-        let isPC = filasIda[i].querySelector('.in-pto').value.toUpperCase().startsWith("PC");
+        let isPC = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim().startsWith("PC");
 
         if (i === 0) {
-            cotaActVuelta = isNaN(cotaBM) ? NaN : cotaBM;
-            if (!isNaN(vaIda) && !isNaN(vaVuelta)) {
-                let errorMM = Math.abs(vaIda - vaVuelta) * 1000;
+            cotaActVueltaInt = cotaBMInt;
+            if (!isNaN(vaIdaInt) && !isNaN(vaVueltaInt)) {
+                let errorMM = Math.abs(vaIdaInt - vaVueltaInt) * factorMM;
                 let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
                 let st = getErrorHUDStyles(pct);
                 let alert = pct > 100 ? ' ⚠️' : '';
                 hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ Arranque: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
                 filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
             }
-            if (!isNaN(cotaActVuelta)) {
-                if (!isNaN(vaVuelta)) { 
-                    aiVuelta = cotaActVuelta + vaVuelta; 
-                    celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiVuelta.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>${hudHTML}`; 
-                } 
-                else { celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>${hudHTML}`; }
-            } else { celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`; }
+            if (!isNaN(cotaActVueltaInt)) {
+                let cotaMetros = fromScaledInt(cotaActVueltaInt, decs);
+                ultimaCotaVueltaValida = cotaMetros;
+                if (!isNaN(vaVueltaInt)) { 
+                    aiVueltaInt = cotaActVueltaInt + vaVueltaInt; 
+                    let aiMetros = fromScaledInt(aiVueltaInt, decs);
+                    celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiMetros.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${hudHTML}`; 
+                } else {
+                    celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${hudHTML}`;
+                }
+            } else {
+                celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
+            }
         } else {
-            if (!isNaN(vdVuelta)) {
-                cotaActVuelta = aiVuelta - vdVuelta;
-                if (!isNaN(vaVuelta)) aiVuelta = cotaActVuelta + vaVuelta;
+            if (!isNaN(vdVueltaInt) && !isNaN(aiVueltaInt)) {
+                cotaActVueltaInt = aiVueltaInt - vdVueltaInt;
+                let cotaMetros = fromScaledInt(cotaActVueltaInt, decs);
+                ultimaCotaVueltaValida = cotaMetros;
+                if (!isNaN(vaVueltaInt)) aiVueltaInt = cotaActVueltaInt + vaVueltaInt;
 
                 if (isPC) {
-                    if (!isNaN(vdIda) && !isNaN(vdVuelta) && !isNaN(vaIda) && !isNaN(vaVuelta)) {
-                        let diffVD = vdIda - vdVuelta;
-                        let diffVA = vaIda - vaVuelta;
-                        let errorMM = Math.abs(diffVD - diffVA) * 1000;
+                    if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt) && !isNaN(vaIdaInt) && !isNaN(vaVueltaInt)) {
+                        let diffVDInt = vdIdaInt - vdVueltaInt;
+                        let diffVAInt = vaIdaInt - vaVueltaInt;
+                        let errorMM = Math.abs(diffVDInt - diffVAInt) * factorMM;
                         let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
                         let st = getErrorHUDStyles(pct);
                         let alert = pct > 100 ? ' ⚠️' : '';
                         hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ PC: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
                         filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
-                    } else if (!isNaN(vdIda) && !isNaN(vdVuelta)) {
-                        let diffVD = Math.abs(vdIda - vdVuelta) * 1000;
-                        hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:#1976d2; background:rgba(25,118,210,0.1); border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Dif. Lectura: ${diffVD.toFixed(1)}mm</div>`;
+                    } else if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt)) {
+                        let diffVDMM = Math.abs(vdIdaInt - vdVueltaInt) * factorMM;
+                        hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:#1976d2; background:rgba(25,118,210,0.1); border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Dif. Lectura: ${diffVDMM.toFixed(1)}mm</div>`;
                         filasVuelta[i].style.backgroundColor = 'transparent';
                     }
                 } else {
-                    if (!isNaN(vdIda) && !isNaN(vdVuelta)) {
-                        let errorMM = Math.abs(cotaActIda - cotaActVuelta) * 1000;
+                    if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt) && !isNaN(cotaActIdaInt)) {
+                        let errorMM = Math.abs(cotaActIdaInt - cotaActVueltaInt) * factorMM;
                         let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
                         let st = getErrorHUDStyles(pct);
                         let alert = pct > 100 ? ' ⚠️' : '';
@@ -1057,49 +1132,68 @@ function procesarDobleLiga() {
                     }
                 }
 
-                if (!isNaN(vaVuelta)) {
-                    celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiVuelta.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>${hudHTML}`;
+                if (!isNaN(vaVueltaInt)) {
+                    let aiMetros = fromScaledInt(aiVueltaInt, decs);
+                    celdaVuelta.innerHTML = `<div style="font-size:0.75rem; color:var(--corte-color);">AI: ${aiMetros.toFixed(decs)}</div><div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${hudHTML}`;
                 } else {
-                    celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaActVuelta}">${cotaActVuelta.toFixed(decs)}</div>${hudHTML}`;
+                    celdaVuelta.innerHTML = `<div style="font-size:1.05rem; font-weight:900;" data-cota="${cotaMetros}">${cotaMetros.toFixed(decs)}</div>${hudHTML}`;
                 }
-            } else { celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`; }
+            } else {
+                celdaVuelta.innerHTML = `<div style="color:var(--text-color); opacity:0.5;">---</div>`;
+            }
         }
 
-        if (i === 0) { if (isNaN(vaIda) || isNaN(vaVuelta) || isNaN(cotaBM)) habilitarSiguiente = false; } 
-        else { if (isNaN(vaIda) || isNaN(vdIda) || isNaN(vaVuelta) || isNaN(vdVuelta)) habilitarSiguiente = false; }
+        if (i === 0) {
+            if (isNaN(vaIdaInt) || isNaN(vaVueltaInt) || isNaN(cotaBMInt)) habilitarSiguiente = false;
+        } else {
+            if (isNaN(vaIdaInt) || isNaN(vdIdaInt) || isNaN(vaVueltaInt) || isNaN(vdVueltaInt)) habilitarSiguiente = false;
+        }
     }
 
     document.getElementById('contenedorCompensadas').style.display = 'none';
 
-    if(!isNaN(cotaBM) && !isNaN(distM) && distM > 0 && filasIda.length > 0) {
+    if(!isNaN(cotaBM) && !isNaN(distM) && distM > 0 && filasIda.length > 0 && !isNaN(ultimaCotaIdaValida) && !isNaN(ultimaCotaVueltaValida)) {
         let p = obtenerProyectoActivo();
         let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
-        let anchors = []; let filledRows = 0;
-        for(let i=0; i<filasIda.length; i++) {
-            if (filasIda[i].classList.contains('fila-inactiva')) continue;
-            let pto = filasIda[i].querySelector('.in-pto').value.trim().toUpperCase();
-            if(pto !== "") { filledRows++; if(!pto.startsWith("PC")) anchors.push(i); }
-        }
-
+        let anchors = [];
+        let filledRows = 0;
         let ultimoLleno = -1;
-        for(let i = filasIda.length - 1; i >= 0; i--) {
-            if (filasIda[i].classList.contains('fila-inactiva')) continue;
-            if(filasIda[i].querySelector('.in-pto').value.trim() !== "") { ultimoLleno = i; break; }
-        }
-        if(ultimoLleno > anchors[anchors.length - 1]) anchors.push(ultimoLleno);
 
-        let htmlSeg = ""; let todosCumplen = true;
+        for(let i = 0; i < filasIda.length; i++) {
+            if (filasIda[i].classList.contains('fila-inactiva')) continue;
+            let divIda = filasIda[i].querySelector('.out-cota div[data-cota]');
+            let divVuelta = filasVuelta[i].querySelector('.out-cota div[data-cota]');
+            if (!divIda || !divVuelta) continue;
+
+            let pto = filasIda[i].querySelector('.in-pto').value.trim().toUpperCase();
+            if(pto !== "") {
+                filledRows++;
+                ultimoLleno = i;
+                if(i === 0 || !pto.startsWith("PC")) anchors.push(i);
+            }
+        }
+
+        if(ultimoLleno > 0 && (anchors.length === 0 || ultimoLleno > anchors[anchors.length - 1])) {
+            anchors.push(ultimoLleno);
+        }
+
+        let htmlSeg = "";
+        let todosCumplen = true;
+        let ptoInicioNombre = filasIda[0].querySelector('.in-pto').value.toUpperCase().trim();
 
         if(anchors.length > 1) {
             let distPerSetup = distM / (filledRows > 1 ? filledRows - 1 : 1);
 
-            for(let k=0; k<anchors.length-1; k++) {
-                let start = anchors[k]; let end = anchors[k+1];
+            for(let k = 0; k < anchors.length - 1; k++) {
+                let start = anchors[k];
+                let end = anchors[k+1];
                 let ptoStart = filasIda[start].querySelector('.in-pto').value.toUpperCase().trim();
                 let ptoEnd = filasIda[end].querySelector('.in-pto').value.toUpperCase().trim();
 
-                let divIda = filasIda[end].querySelector('.out-cota div[data-cota]'); let cotaIdaEnd = divIda ? parseFloat(divIda.getAttribute('data-cota')) : NaN;
-                let divVuelta = filasVuelta[end].querySelector('.out-cota div[data-cota]'); let cotaVueltaEnd = divVuelta ? parseFloat(divVuelta.getAttribute('data-cota')) : NaN;
+                let divIda = filasIda[end].querySelector('.out-cota div[data-cota]');
+                let cotaIdaEnd = divIda ? parseFloat(divIda.getAttribute('data-cota')) : NaN;
+                let divVuelta = filasVuelta[end].querySelector('.out-cota div[data-cota]');
+                let cotaVueltaEnd = divVuelta ? parseFloat(divVuelta.getAttribute('data-cota')) : NaN;
 
                 if(!isNaN(cotaIdaEnd) && !isNaN(cotaVueltaEnd)) {
                     let errLineas = Math.abs(cotaIdaEnd - cotaVueltaEnd);
@@ -1108,26 +1202,21 @@ function procesarDobleLiga() {
                     let distTramo = setups * distPerSetup;
                     let tolTramo = multiplicador * Math.sqrt(distTramo / 1000);
 
-                    // Verificar si ptoEnd tiene Cota Oficial en DB o es el último punto con Cota de Llegada
-                    let bmOficialEnd = (p && p.bms) ? p.bms.find(b => b.nombre === ptoEnd) : null;
-                    let cotaOficialTarget = NaN;
-                    if (k === anchors.length - 2 && !isNaN(cotaLlegadaInput)) {
-                        cotaOficialTarget = cotaLlegadaInput;
-                    } else if (bmOficialEnd && end > 0) {
-                        cotaOficialTarget = bmOficialEnd.cota;
-                    }
-
+                    let cotaOficialTarget = obtenerCotaOficialEstacion(ptoEnd, end, ultimoLleno, cotaBM, cotaLlegadaInput, p, ptoInicioNombre);
                     let errContraBM = !isNaN(cotaOficialTarget) ? Math.abs(promEnd - cotaOficialTarget) : NaN;
-                    let cumple = (errLineas <= tolTramo) && (isNaN(errContraBM) || errContraBM <= tolTramo);
+                    let cumple = (errLineas <= tolTramo + 1e-7) && (isNaN(errContraBM) || errContraBM <= tolTramo + 1e-7);
                     if(!cumple) todosCumplen = false;
 
-                    let bgCumple = document.body.classList.contains('dark-mode') ? 'rgba(46,125,50,0.1)' : '#f1f8e9'; let bgFalla = document.body.classList.contains('dark-mode') ? 'rgba(211,47,47,0.1)' : '#ffebee';
-                    let borderCumple = document.body.classList.contains('dark-mode') ? 'var(--success-color)' : '#a5d6a7'; let borderFalla = document.body.classList.contains('dark-mode') ? 'var(--danger-color)' : '#ef9a9a';
+                    let bgCumple = document.body.classList.contains('dark-mode') ? 'rgba(46,125,50,0.1)' : '#f1f8e9';
+                    let bgFalla = document.body.classList.contains('dark-mode') ? 'rgba(211,47,47,0.1)' : '#ffebee';
+                    let borderCumple = document.body.classList.contains('dark-mode') ? 'var(--success-text)' : '#a5d6a7';
+                    let borderFalla = document.body.classList.contains('dark-mode') ? 'var(--danger-color)' : '#ef9a9a';
 
+                    let diffFirmadoBM = !isNaN(cotaOficialTarget) ? (promEnd - cotaOficialTarget) : 0;
                     let lineaExtraBM = !isNaN(errContraBM)
                         ? `<div style="font-size:0.85rem; margin-top:4px; padding-top:4px; border-top:1px dashed rgba(128,128,128,0.3); display:flex; justify-content:space-between;">
                              <span>Cota BM Oficial: <strong>${cotaOficialTarget.toFixed(decs)} m</strong></span>
-                             <span>Err. vs BM: <strong>${(promEnd - cotaOficialTarget > 0 ? '+' : '') + (promEnd - cotaOficialTarget).toFixed(4)} m</strong></span>
+                             <span>Err. vs BM: <strong>${(diffFirmadoBM > 0 ? '+' : '') + diffFirmadoBM.toFixed(4)} m</strong></span>
                            </div>`
                         : '';
 
@@ -1149,23 +1238,30 @@ function procesarDobleLiga() {
         
         let distKm = distM / 1000; 
         let toleranciaGlobal = multiplicador * Math.sqrt(distKm);
-        let errorCierreGlobal = 0;
+        let discrepanciaGlobalLineas = Math.abs(ultimaCotaIdaValida - ultimaCotaVueltaValida);
+        let ptoFinalNombre = ultimoLleno >= 0 ? filasIda[ultimoLleno].querySelector('.in-pto').value.toUpperCase().trim() : "";
+        let cotaRefFinalGlobal = ultimoLleno > 0
+            ? obtenerCotaOficialEstacion(ptoFinalNombre, ultimoLleno, ultimoLleno, cotaBM, cotaLlegadaInput, p, ptoInicioNombre)
+            : NaN;
 
-        if(!isNaN(cotaLlegadaInput)) {
-            let promedioFinal = (cotaActIda + cotaActVuelta) / 2;
-            errorCierreGlobal = Math.abs(promedioFinal - cotaLlegadaInput);
-        } else {
-            errorCierreGlobal = Math.abs(cotaActIda - cotaActVuelta); 
+        let errorCierreGlobal = discrepanciaGlobalLineas;
+        if(!isNaN(cotaRefFinalGlobal)) {
+            let promedioFinal = (ultimaCotaIdaValida + ultimaCotaVueltaValida) / 2.0;
+            errorCierreGlobal = Math.abs(promedioFinal - cotaRefFinalGlobal);
         }
 
-        document.getElementById('resError').innerText = errorCierreGlobal.toFixed(4) + " m"; document.getElementById('resTol').innerText = "±" + toleranciaGlobal.toFixed(4) + " m";
+        document.getElementById('resError').innerText = errorCierreGlobal.toFixed(4) + " m";
+        document.getElementById('resTol').innerText = "±" + toleranciaGlobal.toFixed(4) + " m";
 
         let estadoTag = document.getElementById('resEstado');
-        if(errorCierreGlobal <= toleranciaGlobal && todosCumplen) {
-            estadoTag.innerText = "✓ CUMPLE ESPECIFICACIONES"; estadoTag.className = "estado-cumple";
+        let globalCumple = (errorCierreGlobal <= toleranciaGlobal + 1e-7) && (discrepanciaGlobalLineas <= toleranciaGlobal + 1e-7) && todosCumplen;
+        if(globalCumple) {
+            estadoTag.innerText = "✓ CUMPLE ESPECIFICACIONES";
+            estadoTag.className = "estado-cumple";
             document.getElementById('btnCompensar').style.display = 'block';
         } else {
-            estadoTag.innerText = "❌ RECHAZADO (REVISAR TRAMOS)"; estadoTag.className = "estado-falla";
+            estadoTag.innerText = "❌ RECHAZADO (REVISAR TRAMOS)";
+            estadoTag.className = "estado-falla";
             document.getElementById('btnCompensar').style.display = 'none';
         }
         document.getElementById('panelResultados').style.display = 'block';
@@ -1174,80 +1270,114 @@ function procesarDobleLiga() {
     }
 }
 
-// COMPENSACIÓN (5 COLUMNAS VISUALES)
-function generarCompensadas() {
-    let decs = parseInt(globalConfig.decimales) || 3;
+/* --- COMPENSACIÓN RIGUROSA POR TRAMOS ENTRE BMs DE CONTROL --- */
+function calcularEstacionesCompensadas() {
+    let decs = getDecs();
+    let p = obtenerProyectoActivo();
     const cotaBM = parseFloat(document.getElementById('cotaBM').value);
     const cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
-    
     const filasIda = document.querySelectorAll('#cuerpoIda tr'); 
     const filasVuelta = document.querySelectorAll('#cuerpoVuelta tr');
-    
-    const tablaCompensada = document.getElementById('tablaCompensada');
-    tablaCompensada.querySelector('thead').innerHTML = `<tr><th>PUNTO</th><th>COTA L1</th><th>COTA L2</th><th>PROMEDIO</th><th>COMPENSADA</th></tr>`;
-    
-    const cuerpoCompensadas = document.getElementById('cuerpoCompensadas'); 
-    cuerpoCompensadas.innerHTML = "";
 
     let datosEstaciones = [];
     for(let i = 0; i < filasIda.length; i++) {
         if (filasIda[i].classList.contains('fila-inactiva')) continue;
-        let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim(); if (!pto) continue;
+        let pto = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim();
+        if (!pto) continue;
         let cotaIda = NaN, cotaVuelta = NaN;
         
         if (i === 0) { 
             cotaIda = isNaN(cotaBM) ? NaN : cotaBM; 
             cotaVuelta = isNaN(cotaBM) ? NaN : cotaBM; 
         } else {
-            let divCotaIda = filasIda[i].querySelector('.out-cota div[data-cota]'); if (divCotaIda) cotaIda = parseFloat(divCotaIda.getAttribute('data-cota'));
-            let divCotaVuelta = filasVuelta[i].querySelector('.out-cota div[data-cota]'); if (divCotaVuelta) cotaVuelta = parseFloat(divCotaVuelta.getAttribute('data-cota'));
+            let divCotaIda = filasIda[i].querySelector('.out-cota div[data-cota]');
+            if (divCotaIda) cotaIda = parseFloat(divCotaIda.getAttribute('data-cota'));
+            let divCotaVuelta = filasVuelta[i].querySelector('.out-cota div[data-cota]');
+            if (divCotaVuelta) cotaVuelta = parseFloat(divCotaVuelta.getAttribute('data-cota'));
         }
 
-        if (!isNaN(cotaIda) && !isNaN(cotaVuelta)) { datosEstaciones.push({ pto: pto, cotaIda: cotaIda, cotaVuelta: cotaVuelta, esPC: pto.startsWith("PC") }); }
+        if (!isNaN(cotaIda) && !isNaN(cotaVuelta)) {
+            let promCrudo = (cotaIda + cotaVuelta) / 2.0;
+            datosEstaciones.push({
+                pto: pto,
+                cotaIda: cotaIda,
+                cotaVuelta: cotaVuelta,
+                promCrudo: promCrudo,
+                cotaCompensada: promCrudo,
+                esPC: pto.startsWith("PC")
+            });
+        }
     }
 
-    if (datosEstaciones.length < 2) return;
-    let N = datosEstaciones.length - 1; 
-    
-    let esCircuitoCerrado = (datosEstaciones[0].pto === datosEstaciones[N].pto);
-    let tieneCotaLlegada = !isNaN(cotaLlegadaInput);
-    let cotaReferenciaFinal = NaN;
+    if (datosEstaciones.length < 2) return [];
+    let N = datosEstaciones.length - 1;
+    let ptoInicioNombre = datosEstaciones[0].pto;
 
-    if (esCircuitoCerrado) {
-        cotaReferenciaFinal = datosEstaciones[0].cotaIda;
-    } else if (tieneCotaLlegada) {
-        cotaReferenciaFinal = cotaLlegadaInput;
-    }
-
-    let errorCierreOficial = 0;
-    if (!isNaN(cotaReferenciaFinal)) {
-        let promedioFinalCrudo = (datosEstaciones[N].cotaIda + datosEstaciones[N].cotaVuelta) / 2;
-        errorCierreOficial = promedioFinalCrudo - cotaReferenciaFinal;
-    }
-
+    // Identificar estaciones con Cota Oficial fija (Inicio, BMs oficiales intermedios y Cierre final conocido)
+    let controles = [];
     for (let i = 0; i <= N; i++) {
-        let data = datosEstaciones[i]; 
-        let factorProporcional = i / N; 
-        
-        let promedioCrudo = (data.cotaIda + data.cotaVuelta) / 2;
-        let cotaCompensadaFinal = promedioCrudo;
-
-        if (!isNaN(cotaReferenciaFinal)) {
-            cotaCompensadaFinal = promedioCrudo - (errorCierreOficial * factorProporcional);
+        if (i > 0 && datosEstaciones[i].esPC) continue;
+        let cotaOficial = obtenerCotaOficialEstacion(datosEstaciones[i].pto, i, N, cotaBM, cotaLlegadaInput, p, ptoInicioNombre);
+        if (!isNaN(cotaOficial)) {
+            controles.push({
+                idx: i,
+                target: cotaOficial,
+                err: datosEstaciones[i].promCrudo - cotaOficial
+            });
         }
+    }
 
+    if (controles.length >= 2) {
+        for (let c = 0; c < controles.length - 1; c++) {
+            let ctrlA = controles[c];
+            let ctrlB = controles[c + 1];
+            let span = ctrlB.idx - ctrlA.idx;
+            for (let i = ctrlA.idx; i <= ctrlB.idx; i++) {
+                let frac = span > 0 ? (i - ctrlA.idx) / span : 0;
+                let errInterpolado = ctrlA.err + frac * (ctrlB.err - ctrlA.err);
+                let compVal = datosEstaciones[i].promCrudo - errInterpolado;
+                datosEstaciones[i].cotaCompensada = fromScaledInt(toScaledInt(compVal, decs), decs);
+            }
+        }
+        // Si quedaron estaciones después del último BM oficial conocido, arrastran la corrección fija del último control
+        let ultimoCtrl = controles[controles.length - 1];
+        for (let i = ultimoCtrl.idx + 1; i <= N; i++) {
+            let compVal = datosEstaciones[i].promCrudo - ultimoCtrl.err;
+            datosEstaciones[i].cotaCompensada = fromScaledInt(toScaledInt(compVal, decs), decs);
+        }
+    } else {
+        for (let i = 0; i <= N; i++) {
+            datosEstaciones[i].cotaCompensada = fromScaledInt(toScaledInt(datosEstaciones[i].promCrudo, decs), decs);
+        }
+    }
+
+    return datosEstaciones;
+}
+
+function generarCompensadas() {
+    let decs = getDecs();
+    let datosEstaciones = calcularEstacionesCompensadas();
+    if (datosEstaciones.length < 2) return;
+
+    const tablaCompensada = document.getElementById('tablaCompensada');
+    tablaCompensada.querySelector('thead').innerHTML = `<tr><th>PUNTO</th><th>COTA L1</th><th>COTA L2</th><th>PROMEDIO</th><th>COMPENSADA</th></tr>`;
+    
+    const cuerpoCompensadas = document.getElementById('cuerpoCompensadas'); 
+    cuerpoCompensadas.innerHTML = "";
+
+    datosEstaciones.forEach(data => {
         if (!data.esPC) {
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="color:var(--primary-color); font-weight: 900;">${data.pto}</td>
                 <td>${data.cotaIda.toFixed(decs)}</td>
                 <td>${data.cotaVuelta.toFixed(decs)}</td>
-                <td style="color:#1976d2; font-weight: 700;">${promedioCrudo.toFixed(decs)}</td>
-                <td style="color:var(--success-text); font-weight: 900; background: rgba(46,125,50,0.05);">${cotaCompensadaFinal.toFixed(decs)}</td>
+                <td style="color:#1976d2; font-weight: 700;">${data.promCrudo.toFixed(decs)}</td>
+                <td style="color:var(--success-text); font-weight: 900; background: rgba(46,125,50,0.05);">${data.cotaCompensada.toFixed(decs)}</td>
             `;
             cuerpoCompensadas.appendChild(tr);
         }
-    }
+    });
 
     document.getElementById('contenedorCompensadas').style.display = 'block';
     setTimeout(() => { document.getElementById('contenedorCompensadas').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
@@ -1259,7 +1389,7 @@ function exportarCSVparaCivil3D() {
     let compRows = document.querySelectorAll('#cuerpoCompensadas tr');
     if(compRows.length === 0) return showToast("Primero debes obtener cotas compensadas.", "warning");
     
-    let decs = parseInt(globalConfig.decimales) || 3;
+    let decs = getDecs();
     let delim = globalConfig.delimitadorCSV || ",";
     let csvContent = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
     let ptoCount = 1;
@@ -1285,30 +1415,31 @@ function exportarCSVparaCivil3D() {
 }
 
 // Función auxiliar para generar variación realista de altura de instrumento en Vuelta Camuflada
-function calcularShiftTripodeSeguro(vaOriginal, vdOriginal, indiceSemilla, limiteMira) {
+function calcularShiftTripodeSeguroInt(vaOrigInt, vdOrigInt, indiceSemilla, limiteMira, decs = getDecs()) {
     let posiblesOffsets = [-0.142, 0.118, -0.087, 0.164, -0.113, 0.092, -0.156, 0.131, -0.074, 0.148];
-    let delta = posiblesOffsets[indiceSemilla % posiblesOffsets.length];
-    let minSeguro = 0.350;
-    let maxSeguro = (limiteMira || 5.0) - 0.150;
+    let deltaInt = toScaledInt(posiblesOffsets[indiceSemilla % posiblesOffsets.length], decs);
+    let minSeguroInt = toScaledInt(0.350, decs);
+    let maxSeguroInt = toScaledInt((limiteMira || 5.0) - 0.150, decs);
 
-    if ((vaOriginal + delta) < minSeguro || (vdOriginal + delta) < minSeguro) {
-        delta = Math.abs(delta);
+    if ((vaOrigInt + deltaInt) < minSeguroInt || (vdOrigInt + deltaInt) < minSeguroInt) {
+        deltaInt = Math.abs(deltaInt);
     }
-    if ((vaOriginal + delta) > maxSeguro || (vdOriginal + delta) > maxSeguro) {
-        delta = -Math.abs(delta);
+    if ((vaOrigInt + deltaInt) > maxSeguroInt || (vdOrigInt + deltaInt) > maxSeguroInt) {
+        deltaInt = -Math.abs(deltaInt);
     }
-    if ((vaOriginal + delta) < minSeguro || (vdOriginal + delta) < minSeguro ||
-        (vaOriginal + delta) > maxSeguro || (vdOriginal + delta) > maxSeguro) {
-        delta = 0.000;
+    if ((vaOrigInt + deltaInt) < minSeguroInt || (vdOrigInt + deltaInt) < minSeguroInt ||
+        (vaOrigInt + deltaInt) > maxSeguroInt || (vdOrigInt + deltaInt) > maxSeguroInt) {
+        deltaInt = 0;
     }
-    return delta;
+    return deltaInt;
 }
 
-/* --- EL MOTOR DE EXPORTACIÓN MAESTRO (EXCEL CON CAMUFLAJE DE ALTURA DE INSTRUMENTO Y TABLA COMPENSADA) --- */
+/* --- MOTOR DE EXPORTACIÓN MAESTRO (EXCEL CONTINUO EN IDA Y VUELTA Y TABLA COMPENSADA) --- */
 function exportarExcelPlantilla(modo) {
     cerrarModalSelect();
     let p = obtenerProyectoActivo();
-    let decs = parseInt(globalConfig.decimales) || 3;
+    let decs = getDecs();
+    let numFmtStr = "0." + "0".repeat(decs);
     let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
     let wb = XLSX.utils.book_new();
     
@@ -1322,11 +1453,11 @@ function exportarExcelPlantilla(modo) {
     let headVuelta = { fill: { fgColor: { rgb: "FFFFA000" } }, font: { bold: true, color: {rgb: "FF000000"} }, alignment: { horizontal: "center", vertical: "center" } };
     
     let cellCenter = { alignment: { horizontal: "center", vertical: "center" } };
-    let cellDec = { alignment: { horizontal: "center", vertical: "center" }, numFmt: "0.000" };
-    let cellCota = { alignment: { horizontal: "center", vertical: "center" }, numFmt: "0.000" };
+    let cellDec = { alignment: { horizontal: "center", vertical: "center" }, numFmt: numFmtStr };
+    let cellCota = { alignment: { horizontal: "center", vertical: "center" }, numFmt: numFmtStr };
     
-    let cellSum = { fill: { fgColor: { rgb: "FFFFA000" } }, font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, numFmt: "0.000" };
-    let cellSumDiff = { fill: { fgColor: { rgb: "FFFFD54F" } }, font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, numFmt: "0.000" };
+    let cellSum = { fill: { fgColor: { rgb: "FFFFA000" } }, font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, numFmt: numFmtStr };
+    let cellSumDiff = { fill: { fgColor: { rgb: "FFFFD54F" } }, font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, numFmt: numFmtStr };
 
     let wsData = [];
     wsData.push([{v: tituloRep, s: styleTit}, null, null, null, null, null, null, null, null, null, null, null, null]);
@@ -1353,163 +1484,196 @@ function exportarExcelPlantilla(modo) {
     let dataL1 = []; let dataL2 = [];
     
     let cotaBM = parseFloat(document.getElementById('cotaBM').value);
-    let ai1 = 0, cota1 = cotaBM; let ai2 = 0, cota2 = cotaBM;
+    let cotaBMInt = toScaledInt(cotaBM, decs);
+    let ai1Int = 0, cota1Int = cotaBMInt;
+    let ai2Int = 0, cota2Int = cotaBMInt;
 
     for (let i = 0; i < filasIda.length; i++) {
         if (filasIda[i].classList.contains('fila-inactiva')) continue;
-        let pto = filasIda[i].querySelector('.in-pto').value || ""; if (!pto) continue;
+        let pto = filasIda[i].querySelector('.in-pto').value.trim().toUpperCase() || "";
+        if (!pto) continue;
         
-        let va1 = parseFloat(filasIda[i].querySelector('.in-va').value);
-        let vd1 = parseFloat(filasIda[i].querySelector('.in-vd').value);
-        let va2 = parseFloat(filasVuelta[i].querySelector('.in-va').value);
-        let vd2 = parseFloat(filasVuelta[i].querySelector('.in-vd').value);
+        let va1Int = toScaledInt(filasIda[i].querySelector('.in-va').value, decs);
+        let vd1Int = toScaledInt(filasIda[i].querySelector('.in-vd').value, decs);
+        let va2Int = toScaledInt(filasVuelta[i].querySelector('.in-va').value, decs);
+        let vd2Int = toScaledInt(filasVuelta[i].querySelector('.in-vd').value, decs);
         
         let bmObj = p.bms.find(b => b.nombre === pto);
         let obs1 = bmObj ? (bmObj.obs || "") : "";
         
         if (i === 0) {
-            cota1 = cotaBM; cota2 = cotaBM;
-            ai1 = cota1 + va1; ai2 = cota2 + va2;
-            dataL1.push({ pto, va: va1, ai: ai1, vd: NaN, cota: cota1, obs: obs1 });
-            dataL2.push({ pto, va: va2, ai: ai2, vd: NaN, cota: cota2, obs: obs1 });
+            cota1Int = cotaBMInt; cota2Int = cotaBMInt;
+            ai1Int = cota1Int + va1Int; ai2Int = cota2Int + va2Int;
+            dataL1.push({ pto, vaInt: va1Int, aiInt: ai1Int, vdInt: NaN, cotaInt: cota1Int, obs: obs1 });
+            dataL2.push({ pto, vaInt: va2Int, aiInt: ai2Int, vdInt: NaN, cotaInt: cota2Int, obs: obs1 });
         } else {
-            cota1 = ai1 - vd1; cota2 = ai2 - vd2;
-            let currentAi1 = isNaN(va1) ? NaN : (cota1 + va1);
-            let currentAi2 = isNaN(va2) ? NaN : (cota2 + va2);
-            dataL1.push({ pto, va: va1, ai: currentAi1, vd: vd1, cota: cota1, obs: obs1 });
-            dataL2.push({ pto, va: va2, ai: currentAi2, vd: vd2, cota: cota2, obs: obs1 });
-            ai1 = currentAi1; ai2 = currentAi2;
+            if (isNaN(vd1Int) || isNaN(vd2Int)) continue;
+            cota1Int = ai1Int - vd1Int; cota2Int = ai2Int - vd2Int;
+            let currentAi1Int = isNaN(va1Int) ? NaN : (cota1Int + va1Int);
+            let currentAi2Int = isNaN(va2Int) ? NaN : (cota2Int + va2Int);
+            dataL1.push({ pto, vaInt: va1Int, aiInt: currentAi1Int, vdInt: vd1Int, cotaInt: cota1Int, obs: obs1 });
+            dataL2.push({ pto, vaInt: va2Int, aiInt: currentAi2Int, vdInt: vd2Int, cotaInt: cota2Int, obs: obs1 });
+            ai1Int = currentAi1Int; ai2Int = currentAi2Int;
         }
     }
     
     let exportL2 = [];
     if (isCamuflaje && dataL2.length > 0) {
         let N = dataL2.length - 1;
-        let cotaRetorno = dataL2[N].cota; 
-        let currentAiRet = 0;
+        // La Vuelta parte exactamente de la Cota Final a la que llegó la Ida (dataL1[N].cotaInt)
+        // para que la libreta sea 100% continua y el error de cierre aparezca al llegar de regreso al BM inicial.
+        let cotaRetornoInt = dataL1[N].cotaInt; 
+        let currentAiRetInt = 0;
         let pcCount = 1;
         
-        let shiftsArmada = [];
+        let shiftsArmadaInt = [];
         for (let k = 0; k < N; k++) {
-            let srcVa = dataL2[N - k].vd;
-            let srcVd = dataL2[N - k - 1].va;
-            shiftsArmada.push(calcularShiftTripodeSeguro(srcVa, srcVd, k, limiteMira));
+            let srcVaInt = dataL2[N - k].vdInt;
+            let srcVdInt = dataL2[N - k - 1].vaInt;
+            shiftsArmadaInt.push(calcularShiftTripodeSeguroInt(srcVaInt, srcVdInt, k, limiteMira, decs));
         }
         
         for (let i = 0; i <= N; i++) {
             let src = N - i; 
+            let ptoOrig = dataL1[src].pto;
             let ptoNombre = "";
-            if (i === 0) ptoNombre = dataL1[N].pto; 
-            else if (i === N) ptoNombre = dataL1[0].pto; 
-            else { ptoNombre = "PC-" + pcCount; pcCount++; } 
+            if (i === 0 || i === N || !ptoOrig.startsWith("PC")) {
+                ptoNombre = ptoOrig;
+            } else {
+                ptoNombre = "PC-" + pcCount;
+                pcCount++;
+            }
             
             if (i === 0) {
-                let vaRet = Number((dataL2[src].vd + shiftsArmada[0]).toFixed(decs));
-                currentAiRet = Number((cotaRetorno + vaRet).toFixed(decs));
-                exportL2.push({ pto: ptoNombre, va: vaRet, ai: currentAiRet, vd: NaN, cota: cotaRetorno, obs: dataL2[src].obs });
+                let vaRetInt = dataL2[src].vdInt + shiftsArmadaInt[0];
+                currentAiRetInt = cotaRetornoInt + vaRetInt;
+                exportL2.push({ pto: ptoNombre, vaInt: vaRetInt, aiInt: currentAiRetInt, vdInt: NaN, cotaInt: cotaRetornoInt, obs: dataL2[src].obs });
             } else if (i === N) {
-                let vdRet = Number((dataL2[src].va + shiftsArmada[N - 1]).toFixed(decs));
-                let cotaLlegadaRet = Number((currentAiRet - vdRet).toFixed(decs));
-                exportL2.push({ pto: ptoNombre, va: NaN, ai: NaN, vd: vdRet, cota: cotaLlegadaRet, obs: dataL2[src].obs });
+                let vdRetInt = dataL2[src].vaInt + shiftsArmadaInt[N - 1];
+                let cotaLlegadaRetInt = currentAiRetInt - vdRetInt;
+                exportL2.push({ pto: ptoNombre, vaInt: NaN, aiInt: NaN, vdInt: vdRetInt, cotaInt: cotaLlegadaRetInt, obs: dataL2[src].obs });
             } else {
-                let vdRet = Number((dataL2[src].va + shiftsArmada[i - 1]).toFixed(decs));
-                let vaRet = Number((dataL2[src].vd + shiftsArmada[i]).toFixed(decs));
-                let cotaIntermedia = Number((currentAiRet - vdRet).toFixed(decs));
-                currentAiRet = Number((cotaIntermedia + vaRet).toFixed(decs));
-                exportL2.push({ pto: ptoNombre, va: vaRet, ai: currentAiRet, vd: vdRet, cota: cotaIntermedia, obs: dataL2[src].obs });
+                let vdRetInt = dataL2[src].vaInt + shiftsArmadaInt[i - 1];
+                let vaRetInt = dataL2[src].vdInt + shiftsArmadaInt[i];
+                let cotaIntermediaInt = currentAiRetInt - vdRetInt;
+                currentAiRetInt = cotaIntermediaInt + vaRetInt;
+                exportL2.push({ pto: ptoNombre, vaInt: vaRetInt, aiInt: currentAiRetInt, vdInt: vdRetInt, cotaInt: cotaIntermediaInt, obs: dataL2[src].obs });
             }
         }
-    } else { exportL2 = dataL2; }
+    } else {
+        exportL2 = dataL2;
+    }
     
-    let sumVaIda = 0, sumVdIda = 0, sumVaVuelta = 0, sumVdVuelta = 0;
-    
+    let sumVaIdaInt = 0, sumVdIdaInt = 0, sumVaVueltaInt = 0, sumVdVueltaInt = 0;
+    let NLast = dataL1.length - 1;
+    for (let i = 0; i <= NLast; i++) {
+        // En Pata de Gallo o Ida/Vuelta, solo se suman las lecturas que forman parte del circuito (0 a N-1 para VA, 1 a N para VD)
+        if (i < NLast && !isNaN(dataL1[i].vaInt)) sumVaIdaInt += dataL1[i].vaInt;
+        if (i > 0 && !isNaN(dataL1[i].vdInt)) sumVdIdaInt += dataL1[i].vdInt;
+        if (i < NLast && !isNaN(exportL2[i].vaInt)) sumVaVueltaInt += exportL2[i].vaInt;
+        if (i > 0 && !isNaN(exportL2[i].vdInt)) sumVdVueltaInt += exportL2[i].vdInt;
+    }
+
     let rowCount = Math.max(dataL1.length, exportL2.length);
     for (let i = 0; i < rowCount; i++) {
-        let r1 = dataL1[i] || {pto:"", va:NaN, ai:NaN, vd:NaN, cota:NaN, obs:""};
-        let r2 = exportL2[i] || {pto:"", va:NaN, ai:NaN, vd:NaN, cota:NaN, obs:""};
+        let r1 = dataL1[i] || {pto:"", vaInt:NaN, aiInt:NaN, vdInt:NaN, cotaInt:NaN, obs:""};
+        let r2 = exportL2[i] || {pto:"", vaInt:NaN, aiInt:NaN, vdInt:NaN, cotaInt:NaN, obs:""};
         
-        if(!isNaN(r1.va)) sumVaIda += r1.va; if(!isNaN(r1.vd)) sumVdIda += r1.vd;
-        if(!isNaN(r2.va)) sumVaVuelta += r2.va; if(!isNaN(r2.vd)) sumVdVuelta += r2.vd;
-        
+        let va1Out = (i === NLast && isCamuflaje) ? NaN : r1.vaInt;
+        let ai1Out = (i === NLast && isCamuflaje) ? NaN : r1.aiInt;
+        let va2Out = (i === NLast) ? NaN : r2.vaInt;
+        let ai2Out = (i === NLast) ? NaN : r2.aiInt;
+
         wsData.push([
             {v: r1.pto, s: cellCenter}, 
-            isNaN(r1.va) ? {v: ""} : {v: Number(r1.va.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r1.ai) ? {v: "-"} : {v: Number(r1.ai.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r1.vd) ? {v: ""} : {v: Number(r1.vd.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r1.cota) ? {v: ""} : {v: Number(r1.cota.toFixed(decs)), t: 'n', s: cellCota},
+            isNaN(va1Out) ? {v: ""} : {v: fromScaledInt(va1Out, decs), t: 'n', s: cellDec},
+            isNaN(ai1Out) ? {v: "-"} : {v: fromScaledInt(ai1Out, decs), t: 'n', s: cellDec},
+            isNaN(r1.vdInt) ? {v: ""} : {v: fromScaledInt(r1.vdInt, decs), t: 'n', s: cellDec},
+            isNaN(r1.cotaInt) ? {v: ""} : {v: fromScaledInt(r1.cotaInt, decs), t: 'n', s: cellCota},
             {v: r1.obs}, null, 
             {v: r2.pto, s: cellCenter}, 
-            isNaN(r2.va) ? {v: ""} : {v: Number(r2.va.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r2.ai) ? {v: "-"} : {v: Number(r2.ai.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r2.vd) ? {v: ""} : {v: Number(r2.vd.toFixed(decs)), t: 'n', s: cellDec},
-            isNaN(r2.cota) ? {v: ""} : {v: Number(r2.cota.toFixed(decs)), t: 'n', s: cellCota},
+            isNaN(va2Out) ? {v: ""} : {v: fromScaledInt(va2Out, decs), t: 'n', s: cellDec},
+            isNaN(ai2Out) ? {v: "-"} : {v: fromScaledInt(ai2Out, decs), t: 'n', s: cellDec},
+            isNaN(r2.vdInt) ? {v: ""} : {v: fromScaledInt(r2.vdInt, decs), t: 'n', s: cellDec},
+            isNaN(r2.cotaInt) ? {v: ""} : {v: fromScaledInt(r2.cotaInt, decs), t: 'n', s: cellCota},
             {v: r2.obs}
         ]);
     }
     
-    let diffIda = sumVaIda - sumVdIda;
-    let diffVuelta = sumVaVuelta - sumVdVuelta;
-    let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
-    let discrepanciaLineas = isCamuflaje ? (diffIda + diffVuelta) : (diffIda - diffVuelta);
-    let errorCierre = discrepanciaLineas;
+    let diffIdaInt = sumVaIdaInt - sumVdIdaInt;
+    let diffVueltaInt = sumVaVueltaInt - sumVdVueltaInt;
+    let discrepanciaLineasInt = isCamuflaje ? (diffIdaInt + diffVueltaInt) : (diffIdaInt - diffVueltaInt);
+    let discrepanciaLineas = fromScaledInt(discrepanciaLineasInt, decs);
 
-    if (!isNaN(cotaLlegadaInput) && dataL1.length > 0 && dataL2.length > 0) {
-        let cotaFin1 = dataL1[dataL1.length - 1].cota;
-        let cotaFin2 = dataL2[dataL2.length - 1].cota;
-        let promFinal = (cotaFin1 + cotaFin2) / 2.0;
-        errorCierre = promFinal - cotaLlegadaInput;
+    let cotaLlegadaInput = parseFloat(document.getElementById('cotaLlegada').value);
+    let ptoInicioNombre = dataL1.length > 0 ? dataL1[0].pto : "";
+    let ptoFinalNombre = dataL1.length > 0 ? dataL1[NLast].pto : "";
+    let cotaRefFinal = dataL1.length > 1
+        ? obtenerCotaOficialEstacion(ptoFinalNombre, NLast, NLast, cotaBM, cotaLlegadaInput, p, ptoInicioNombre)
+        : NaN;
+
+    let errorCierre = discrepanciaLineas;
+    if (!isNaN(cotaRefFinal) && dataL1.length > 0 && dataL2.length > 0) {
+        let promFinal = (fromScaledInt(dataL1[NLast].cotaInt, decs) + fromScaledInt(dataL2[NLast].cotaInt, decs)) / 2.0;
+        errorCierre = promFinal - cotaRefFinal;
     }
 
     let distM = parseFloat(document.getElementById('distanciaM').value) || 0;
     let multiplicador = parseFloat(document.getElementById('ordenNiv').value) || 0.020;
     let tolerancia = multiplicador * Math.sqrt(distM / 1000);
 
-    let isErrorAceptable = Math.abs(errorCierre) <= tolerancia;
+    let isErrorAceptable = (Math.abs(errorCierre) <= tolerancia + 1e-7) && (Math.abs(discrepanciaLineas) <= tolerancia + 1e-7);
     let errorColor = isErrorAceptable ? "FF00C851" : "FFD32F2F"; 
 
     wsData.push([
         {v: "SUMAS", s: cellCenter}, 
-        {v: Number(sumVaIda.toFixed(decs)), t: 'n', s: cellSum}, {v: Number(diffIda.toFixed(decs)), t: 'n', s: cellSumDiff}, {v: Number(sumVdIda.toFixed(decs)), t: 'n', s: cellSum}, null, null, null,
-        {v: "DISC. L1/L2", s: cellCenter},
-        {v: Number(sumVaVuelta.toFixed(decs)), t: 'n', s: cellSum}, {v: Number(diffVuelta.toFixed(decs)), t: 'n', s: cellSumDiff}, {v: Number(sumVdVuelta.toFixed(decs)), t: 'n', s: cellSum}, null, 
-        {v: Number(discrepanciaLineas.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: "0.000"}}
+        {v: fromScaledInt(sumVaIdaInt, decs), t: 'n', s: cellSum},
+        {v: fromScaledInt(diffIdaInt, decs), t: 'n', s: cellSumDiff},
+        {v: fromScaledInt(sumVdIdaInt, decs), t: 'n', s: cellSum},
+        null, null, null,
+        {v: isCamuflaje ? "ERR. I+V" : "DISC. L1/L2", s: cellCenter},
+        {v: fromScaledInt(sumVaVueltaInt, decs), t: 'n', s: cellSum},
+        {v: fromScaledInt(diffVueltaInt, decs), t: 'n', s: cellSumDiff},
+        {v: fromScaledInt(sumVdVueltaInt, decs), t: 'n', s: cellSum},
+        null, 
+        {v: Number(discrepanciaLineas.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: numFmtStr}}
     ]);
 
-    if (!isNaN(cotaLlegadaInput) && dataL1.length > 0 && dataL2.length > 0) {
-        let promFinal = (dataL1[dataL1.length - 1].cota + dataL2[dataL2.length - 1].cota) / 2.0;
+    if (!isNaN(cotaRefFinal) && dataL1.length > 0 && dataL2.length > 0) {
+        let promFinal = (fromScaledInt(dataL1[NLast].cotaInt, decs) + fromScaledInt(dataL2[NLast].cotaInt, decs)) / 2.0;
         wsData.push([
             {v: "CIERRE BM", s: headIda},
-            {v: "COTA LLEGADA:", s: cellCenter},
-            {v: Number(cotaLlegadaInput.toFixed(decs)), t: 'n', s: cellCota},
+            {v: "COTA OFICIAL:", s: cellCenter},
+            {v: Number(cotaRefFinal.toFixed(decs)), t: 'n', s: cellCota},
             {v: "PROM. MEDIDO:", s: cellCenter},
             {v: Number(promFinal.toFixed(decs)), t: 'n', s: cellCota},
             {v: "ERROR VS BM:", s: cellCenter},
             null,
-            {v: Number(errorCierre.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: "0.000"}},
+            {v: Number(errorCierre.toFixed(decs)), t: 'n', s: {fill: {fgColor: {rgb: errorColor}}, font: {bold: true, color: {rgb: "FFFFFFFF"}}, alignment: {horizontal: "center"}, numFmt: numFmtStr}},
             null, null, null, null, null
         ]);
     }
 
-    // Agregar Cuadro Resumen de Cotas Compensadas debajo si existen en la tabla
-    let compRows = document.querySelectorAll('#cuerpoCompensadas tr');
-    if (compRows.length > 0) {
+    // Agregar Cuadro Resumen de Cotas Compensadas debajo (calculándolo al vuelo si aún no estaba desplegado)
+    let estacionesComp = calcularEstacionesCompensadas();
+    let bmsComp = estacionesComp.filter(e => !e.esPC);
+    if (bmsComp.length > 0) {
         wsData.push([null, null, null, null, null, null, null, null, null, null, null, null, null]);
         wsData.push([
             {v: "PUNTO / BM", s: headIda},
-            {v: "COTA L1", s: headIda},
-            {v: "COTA L2", s: headIda},
+            {v: isCamuflaje ? "COTA IDA" : "COTA L1", s: headIda},
+            {v: isCamuflaje ? "COTA VUELTA" : "COTA L2", s: headIda},
             {v: "PROMEDIO", s: headIda},
             {v: "COTA COMPENSADA", s: headIda},
             null, null, null, null, null, null, null, null
         ]);
-        compRows.forEach(tr => {
-            let tds = tr.querySelectorAll('td');
+        bmsComp.forEach(item => {
             wsData.push([
-                {v: tds[0].innerText.trim(), s: cellCenter},
-                {v: Number(parseFloat(tds[1].innerText).toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(parseFloat(tds[2].innerText).toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(parseFloat(tds[3].innerText).toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(parseFloat(tds[4].innerText).toFixed(decs)), t: 'n', s: cellSumDiff},
+                {v: item.pto, s: cellCenter},
+                {v: Number(item.cotaIda.toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(item.cotaVuelta.toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(item.promCrudo.toFixed(decs)), t: 'n', s: cellCota},
+                {v: Number(item.cotaCompensada.toFixed(decs)), t: 'n', s: cellSumDiff},
                 null, null, null, null, null, null, null, null
             ]);
         });
@@ -1532,4 +1696,12 @@ function toggleCalculadora() { const m = document.getElementById('calculadoraMod
 function calcIn(v) { document.getElementById('calcDisplay').value += v; }
 function calcClear() { document.getElementById('calcDisplay').value = ''; }
 function calcDel() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
-function calcEval() { try { let res = new Function('return ' + document.getElementById('calcDisplay').value)(); document.getElementById('calcDisplay').value = (res % 1 !== 0) ? res.toFixed(3) : res; } catch(e) { document.getElementById('calcDisplay').value = 'Error'; } }
+function calcEval() {
+    let decs = getDecs();
+    try {
+        let res = new Function('return ' + document.getElementById('calcDisplay').value)();
+        document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
+    } catch(e) {
+        document.getElementById('calcDisplay').value = 'Error';
+    }
+}
