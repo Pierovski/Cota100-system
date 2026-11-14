@@ -15,6 +15,7 @@
             --table-header: #1a1e23; --danger-color: #d32f2f; --excel-color: #1b5e20;
             --input-bg: rgba(255,255,255,0.9); --success-bg: rgba(46, 204, 113, 0.2);
             --success-text: #007E33; --izq-color: #1976d2; --der-color: #00897b;
+            --blue-accent: #1976d2;
         }
 
         body.dark-mode {
@@ -23,6 +24,7 @@
             --border-color: rgba(255, 255, 255, 0.15); --input-bg: rgba(45,45,45,0.9);
             --table-header: #000000; --success-bg: rgba(0, 200, 81, 0.15);
             --success-text: #00C851; --izq-color: #64b5f6; --der-color: #4db6ac;
+            --blue-accent: #42a5f5;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -82,16 +84,56 @@
         .custom-select { width: 100%; padding: 12px; font-size: 1.05rem; font-weight: 800; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; text-align: left; }
         .custom-select:active { border-color: var(--primary-color); background: rgba(255, 85, 0, 0.05); }
 
-        .bm-list { margin-top: 8px; max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; padding-bottom: 5px; }
+        /* BANNER DE TRAMO ACTIVO EN PARÁMETROS */
+        .tramo-status-banner {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;
+            border: 1px solid var(--border-color); transition: all 0.25s ease;
+        }
+        .tramo-status-banner.modo-manual {
+            background: rgba(255, 85, 0, 0.08);
+            border-left: 4px solid var(--primary-color);
+        }
+        .tramo-status-banner.modo-guardado {
+            background: rgba(25, 118, 210, 0.12);
+            border-left: 4px solid var(--blue-accent);
+        }
+        .tramo-badge-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; display: block; }
+        .tramo-badge-title { font-size: 1.05rem; font-weight: 900; color: var(--text-color); }
+        .modo-guardado .tramo-badge-title { color: var(--blue-accent); }
+        .modo-manual .tramo-badge-title { color: var(--primary-color); }
+
+        .bm-list { margin-top: 6px; max-height: 190px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; background: transparent; padding-bottom: 4px; }
         .bm-item { display: flex; flex-direction: column; padding: 8px 10px; border-bottom: 1px solid var(--border-color); background: var(--card-bg); transition: transform 0.1s, background-color 0.2s; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+        .bm-item.tramo-activo-item {
+            background: rgba(25, 118, 210, 0.14) !important;
+            border-left: 4px solid var(--blue-accent);
+        }
         .bm-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; pointer-events: none; }
         .bm-info { display: flex; flex-direction: column; text-align: left; }
-        .bm-info strong { font-size: 0.95rem; color: var(--text-color); }
+        .bm-info strong { font-size: 0.95rem; color: var(--text-color); display: flex; align-items: center; gap: 6px; }
         .bm-info span { font-size: 0.82rem; color: var(--primary-color); font-weight: 700; }
         .bm-actions { display: flex; gap: 6px; pointer-events: auto; }
-        .bm-actions button { background: none; border: none; border-radius: 4px; padding: 4px; font-size: 1.1rem; cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .bm-actions button { background: none; border: none; border-radius: 4px; padding: 4px; font-size: 1.1rem; cursor: pointer; opacity: 0.65; transition: 0.2s; }
         .bm-actions button:active { opacity: 1; transform: scale(0.9); }
         .bm-obs { display: none; font-size: 0.8rem; color: #888; margin-top: 6px; text-align: left; background: rgba(128,128,128,0.05); padding: 6px; border-radius: 4px; border-left: 3px solid var(--primary-color); }
+
+        .tag-en-uso {
+            font-size: 0.65rem; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+            background: var(--blue-accent); color: #fff; text-transform: uppercase;
+        }
+
+        /* CONTENEDOR COLAPSABLE PARA REGISTRAR BM */
+        .form-bm-collapsible {
+            display: none;
+            background: rgba(255, 85, 0, 0.04);
+            border: 1px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            animation: slideIn 0.2s ease-out forwards;
+        }
 
         .btn-accion { width: 100%; padding: 12px; font-weight: 800; font-size: 1rem; text-transform: uppercase; background: var(--table-header); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center; }
         .btn-accion:active { background: var(--primary-color); transform: scale(0.98); }
@@ -257,7 +299,7 @@
     <div class="overlay-select" id="overlayCtrlTerr" onclick="cerrarModalCtrlTerr()"></div>
     <div class="modal-select" id="modalCtrlTerr">
         <h3 id="tituloCtrlTerr" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:6px; font-size:1.1rem; text-align:center;">⛏️ CONTROL DE PLANTILLA</h3>
-        <p style="font-size:0.8rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:12px;">Ingresa la <strong>Lectura de Mira V.AD(-)</strong> sobre el terreno o antepón <strong>#</strong> si digitas una Cota directa.</p>
+        <p style="font-size:0.8rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:12px;">Ingresa la <strong>Lectura de Mira V.AD(-)</strong> sobre el terreno o antepón <strong>#</strong> si digitas una Cota Directa (ej: <code>#102.450</code>).</p>
         <div class="form-grid-3">
             <div class="input-group">
                 <label style="color:var(--izq-color); justify-content:center;">⬅️ IZQ</label>
@@ -275,7 +317,7 @@
         <div id="previewCtrlTerrBox" style="font-size:0.78rem; font-weight:800; text-align:center; padding:8px; border-radius:6px; background:rgba(128,128,128,0.08); margin-bottom:10px;"></div>
         <div class="confirm-btns" style="margin-top:10px;">
             <button class="confirm-btn" style="background:var(--danger-color); color:#fff;" onclick="limpiarInputsCtrlTerr()">LIMPIAR</button>
-            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" onclick="guardarCtrlTerr()">CALCULAR</button>
+            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" onclick="guardarCtrlTerr()">GUARDAR</button>
         </div>
     </div>
 
@@ -389,26 +431,38 @@
                     <button class="btn-accion" style="width: 42px; padding: 10px; background: var(--danger-color); margin:0;" onclick="eliminarProyecto()">🗑️</button>
                 </div>
 
+                <!-- BOTONES DE ACCIÓN BM (OCULTA EL FORMULARIO POR DEFECTO PARA AHORRAR ESPACIO) -->
                 <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
-                    <label style="color: var(--primary-color);">+ Registrar BM Oficial</label>
-                    <div class="form-grid" style="margin-top: 4px;">
-                        <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-1)" oninput="this.value = this.value.toUpperCase()">
-                        <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)" onblur="completarCerosInput(this)">
-                        <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
-                    </div>
                     <div style="display: flex; gap: 8px;">
-                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1;" onclick="addBM()">Guardar BM</button>
-                        <button class="btn-accion" style="padding: 10px; font-size: 0.9rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar-bm')">🔗 Importar BMs</button>
+                        <button id="btnToggleFormBM" class="btn-accion" style="padding: 9px; font-size: 0.88rem; flex: 1; background: var(--table-header);" onclick="toggleFormBM()">➕ Registrar Nuevo BM</button>
+                        <button class="btn-accion" style="padding: 9px; font-size: 0.88rem; flex: 1; background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color);" onclick="abrirModalSelect('importar-bm')">🔗 Importar BMs</button>
+                    </div>
+
+                    <!-- FORMULARIO COLAPSABLE DE REGISTRO / EDICIÓN DE BM -->
+                    <div id="boxRegistroBM" class="form-bm-collapsible">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span id="tituloFormBM" style="font-size:0.8rem; font-weight:900; color:var(--primary-color); text-transform:uppercase;">Nuevo BM</span>
+                            <button onclick="cerrarFormBM()" style="background:none; border:none; color:var(--danger-color); font-weight:900; font-size:0.9rem; cursor:pointer;">✕ Cerrar</button>
+                        </div>
+                        <div class="form-grid" style="margin-bottom: 8px;">
+                            <input type="text" id="newBMName" placeholder="Nombre (Ej: BM-1)" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" inputmode="decimal" id="newBMCota" placeholder="Cota (m)" oninput="formatDecimal(this)" onblur="completarCerosInput(this)">
+                            <input type="text" id="newBMObs" class="full-width" placeholder="Observación (opcional)">
+                        </div>
+                        <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; background: var(--primary-color);" onclick="addBM()">💾 Guardar BM</button>
                     </div>
                 </div>
 
-                <label style="margin-top: 10px; display: block; font-size:0.75rem; opacity:0.7;">Mantén presionado para reordenar</label>
+                <label style="margin-top: 8px; display: flex; justify-content: space-between; font-size:0.73rem; opacity:0.75;">
+                    <span>Lista de BMs del Proyecto</span>
+                    <span>Mantén presionado para ordenar</span>
+                </label>
                 <div class="bm-list" id="listaBMs"></div>
 
-                <div style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 12px;">
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px;">
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: var(--table-header); margin: 0;" onclick="exportarBackupVial()">📤 Backup DB</button>
-                        <label class="btn-accion" style="padding: 10px; font-size: 0.85rem; background: transparent; color: var(--text-color); border: 1px solid var(--border-color); text-align: center; margin: 0; cursor: pointer;">
+                        <button class="btn-accion" style="padding: 9px; font-size: 0.82rem; background: var(--table-header); margin: 0;" onclick="exportarBackupVial()">📤 Backup DB</button>
+                        <label class="btn-accion" style="padding: 9px; font-size: 0.82rem; background: transparent; color: var(--text-color); border: 1px solid var(--border-color); text-align: center; margin: 0; cursor: pointer;">
                             📥 Restaurar
                             <input type="file" id="importVialFile" accept=".json" style="display: none;" onchange="importarBackupVial()">
                         </label>
@@ -418,21 +472,32 @@
         </div>
 
         <!-- PANEL 1: EJE LONGITUDINAL Y SECCIÓN TRANSVERSAL (BOMBEO / PERALTE) -->
-        <div class="panel-control" style="border-left: 4px solid #1976d2;">
+        <div class="panel-control" style="border-left: 4px solid var(--blue-accent);">
             <div class="panel-titulo" onclick="togglePanel('panelParametros')">
                 <span>1. Eje Vial, Bombeo y Peralte</span>
                 <span class="btn-toggle-panel">▼</span>
             </div>
             <div id="panelParametros">
-                <div class="input-group full-width" style="margin-bottom: 12px;">
-                    <label style="color: #1976d2; display: flex; justify-content: space-between;">
-                        Tramos Viales Guardados
-                        <span style="font-size: 0.8rem; cursor: pointer; font-weight:800; color: var(--primary-color);" onclick="limpiarCamposTramo()">[ + NUEVO TRAMO ]</span>
-                    </label>
-                    <div class="bm-list" id="listaPerfiles" style="max-height: 180px; margin-top: 5px;"></div>
+
+                <!-- BANNER DE ESTADO DEL TRAMO VIAL ACTUAL -->
+                <div id="bannerTramoActivo" class="tramo-status-banner modo-manual">
+                    <div>
+                        <span class="tramo-badge-label" id="lblEstadoTramo">TRABAJO ACTUAL EN PANTALLA</span>
+                        <div class="tramo-badge-title" id="txtNombreTramoActivo">⚡ MODO MANUAL (SIN GUARDAR)</div>
+                    </div>
+                    <button class="btn-accion" style="width:auto; padding:6px 10px; font-size:0.78rem; background:var(--table-header); margin:0;" onclick="limpiarCamposTramo()">🧹 Nuevo / Limpiar</button>
                 </div>
 
-                <div style="display: flex; gap:8px;">
+                <!-- LISTA DE TRAMOS GUARDADOS -->
+                <div class="input-group full-width" style="margin-bottom: 12px;">
+                    <label style="color: var(--blue-accent); display: flex; justify-content: space-between;">
+                        <span>📂 Tramos Viales Guardados</span>
+                        <span id="contadorTramos" style="font-size:0.75rem; opacity:0.8;">0 tramos</span>
+                    </label>
+                    <div class="bm-list" id="listaPerfiles" style="max-height: 165px;"></div>
+                </div>
+
+                <div style="display: flex; gap:8px; margin-bottom: 4px;">
                     <button class="btn-accion btn-auto" style="flex:1;" onclick="autocalcularTramoVial()">🪄 Deducir Dato Eje</button>
                     <button class="btn-accion btn-auto" style="flex:1;" onclick="toggleCroquisSeccion()">👁️ Croquis Sección</button>
                 </div>
@@ -446,42 +511,42 @@
                             Prog. Inicial (m)
                             <span class="info-icon" onclick="showCustomAlert('Kilometraje de inicio de tu tramo en metros. Ejemplo: escribe <strong>0</strong> para 0+000 o <strong>1240</strong> para arrancar en 1+240.', 'PROGRESIVA INICIAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="progIni" value="0.000" placeholder="0.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="progIni" value="0.000" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Longitud Tramo (m)
                             <span class="info-icon" onclick="showCustomAlert('Distancia horizontal total del tramo a estacar o plantillar.', 'LONGITUD DEL TRAMO')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="distTotal" placeholder="Ej: 100.000" oninput="formatDecimal(this); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="distTotal" placeholder="Ej: 100.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota Eje Inicial
                             <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje en la Progresiva Inicial.', 'COTA EJE INICIAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="Ej: 100.000" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="Ej: 100.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota Eje Final
                             <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje al terminar el tramo. Puedes dejarla en blanco y usar <strong>🪄 Deducir Dato Eje</strong> si ya tienes la pendiente.', 'COTA EJE FINAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="Ej: 101.500" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="Ej: 101.500" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pend. Eje (%) [+/-]
                             <span class="info-icon" onclick="showCustomAlert('Pendiente longitudinal del eje vial.<br>• <strong>Positiva (+)</strong>: La vía SUBE.<br>• <strong>Negativa (-)</strong>: La vía BAJA.', 'PENDIENTE LONGITUDINAL')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="pteLong" placeholder="Ej: 1.500 o -1.500" oninput="formatDecimal(this); evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="pteLong" placeholder="Ej: 1.500 o -1.500" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Offset Capa (m)
                             <span class="info-icon" onclick="showCustomAlert('<strong>DESFASE DE ESTRUCTURA:</strong><br>Si tus cotas de eje son de Rasante (Acabado), pero estás plantillando <strong>Subrasante</strong> (ej: -0.450) o <strong>Base</strong> (ej: -0.050), escribe ese espesor aquí. Usa 0.000 para Rasante.', 'OFFSET DE CAPA')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="offsetCapa" value="0.000" placeholder="Ej: -0.200" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="offsetCapa" value="0.000" placeholder="Ej: -0.200" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                 </div>
 
@@ -504,37 +569,37 @@
                                 ⬅️ Ancho Carril Izq (m)
                                 <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde izquierdo de calzada.', 'ANCHO IZQUIERDO')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--der-color);">
                                 ➡️ Ancho Carril Der (m)
                                 <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde derecho de calzada.', 'ANCHO DERECHO')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--izq-color);">
                                 ⬅️ Bombeo/Peralte Izq (%)
                                 <span class="info-icon" onclick="showCustomAlert('Inclinación transversal izquierda respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE IZQ')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="bombeoIzq" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="bombeoIzq" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); sincronizarChipsTransversal(); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--der-color);">
                                 ➡️ Bombeo/Peralte Der (%)
                                 <span class="info-icon" onclick="showCustomAlert('Inclinación transversal derecha respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE DER')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="bombeoDer" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="bombeoDer" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); sincronizarChipsTransversal(); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                     </div>
                 </div>
 
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 8px;">
-                    <label style="color: var(--text-color);">💾 Guardar este Tramo Vial en el proyecto</label>
+                    <label style="color: var(--text-color);">💾 Guardar / Actualizar Tramo Vial en el Proyecto</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
                         <input type="text" id="nombrePerfilNuevo" placeholder="Ej: KM 0+000 AL 0+200 (TANGENTE)" style="flex: 1; text-align: left; padding: 10px;" oninput="this.value = this.value.toUpperCase()">
-                        <button class="btn-accion" style="width: auto; padding: 10px 15px; background: #1976d2; margin: 0;" onclick="guardarPerfilVial()">Guardar</button>
+                        <button class="btn-accion" style="width: auto; padding: 10px 15px; background: var(--blue-accent); margin: 0;" onclick="guardarPerfilVial()">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -591,7 +656,7 @@
             <div style="display: flex; gap:8px; margin-bottom: 8px;">
                 <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
                     📍 Añadir PL
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Cambia la Altura de Instrumento a partir de una progresiva cuando muevas el nivel en campo.', 'AÑADIR PL')">ℹ️</span>
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando cambies el nivel de posición. Ingresa la progresiva del cambio, la Vista Adelante anteponiendo el signo menos (ej: <strong>-1.845</strong>) o la Cota directa del apoyo, y luego la nueva Vista Atrás (+). Se recalcula en cascada si ajustas tu BM.', 'AÑADIR PL')">ℹ️</span>
                 </button>
                 <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="abrirEstacaLibre()">
                     🔍 Estaca Libre
@@ -674,6 +739,12 @@
             return String(Math.round(n * 1000) / 1000);
         }
 
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
         /* --- UI: TOAST Y MODALES --- */
         function showToast(message, type = "default") {
             const container = document.getElementById('toast-container');
@@ -704,16 +775,16 @@
                     <div><strong style="color:var(--primary-color);">Bombeo y Peralte:</strong> Usa valores negativos (ej: <strong>-2.0%</strong>) cuando el carril cae hacia afuera del eje, y positivos (ej: <strong>+4.0%</strong>) cuando el carril se eleva en el peralte de una curva.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">🧱</span>
-                    <div><strong style="color:var(--primary-color);">Offset de Capa:</strong> Si tus cotas de eje son de Rasante pero estás plantillando Subrasante (-0.45m) o Base (-0.05m), ingresa ese desfase en <strong>Offset Capa</strong>.</div>
+                    <span style="font-size:1.2rem; margin-right:10px;">📍</span>
+                    <div><strong style="color:var(--primary-color);">PL con V. Adelante (-):</strong> Al añadir un Punto de Liga, puedes ingresar la lectura de mira anteponiendo <strong>-</strong> (ej: <code>-1.640</code>) o la cota directa del apoyo.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
                     <span style="font-size:1.2rem; margin-right:10px;">⛏️</span>
-                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca el botón bajo cada progresiva para meter las lecturas de mira reales en Izq, Eje y Der (o antepón <strong>#</strong> para Cota directa) y obtener el Corte (-) o Relleno (+) exacto.</div>
+                    <div><strong style="color:var(--primary-color);">Control de Cachacos Blindado:</strong> Toca <strong>+ Plantilla</strong> para meter lecturas de mira en Izq, Eje y Der (o antepón <strong>#</strong> para Cota Directa, ej: <code>#102.450</code>). La cota de terreno queda congelada aunque luego insertes un PL.</div>
                 </div>
                 <div style="display:flex; align-items:flex-start;">
                     <span style="font-size:1.2rem; margin-right:10px;">▶</span>
-                    <div><strong style="color:var(--primary-color);">Toque Simple y Doble:</strong> 1 toque pinta la estaca como lista (verde). 2 toques rápidos abren la <strong>TARJETA GIGANTE TRIPLE</strong> (Izq, Eje y Der).</div>
+                    <div><strong style="color:var(--primary-color);">Toque Simple y Doble:</strong> 1 toque pinta la estaca en verde y congela sus lecturas. 2 toques abren la <strong>TARJETA GIGANTE TRIPLE</strong>.</div>
                 </div>
             `;
             showCustomAlert(html, "GUÍA DE CARRETERAS");
@@ -799,17 +870,18 @@
             }
         }
 
-        /* --- FORMATEADOR DE PROGRESIVAS BLINDADO CONTRA BORDES DE KM --- */
+        /* --- FORMATEADOR DE PROGRESIVAS BLINDADO EN CENTÍMETROS ENTEROS --- */
         function formatearProg(p) {
-            let num = typeof p === "number" ? p : parseFloat(p);
+            let num = Number(p);
             if (isNaN(num)) return "0+000";
             let signo = num < 0 ? "-" : "";
-            let pRed = Math.round(Math.abs(num) * 100) / 100;
-            let km = Math.floor((pRed + 1e-9) / 1000);
-            let resto = Number((pRed - (km * 1000)).toFixed(2));
-            if (resto >= 1000) { km += 1; resto = 0; }
-            let esEntero = Math.abs(resto - Math.round(resto)) < 0.001;
-            let restoStr = esEntero ? Math.round(resto).toString().padStart(3, '0') : resto.toFixed(2).padStart(6, '0');
+            let totalCm = Math.round(Math.abs(num) * 100);
+            let km = Math.floor(totalCm / 100000);
+            let restoCm = totalCm % 100000;
+            let esEntero = (restoCm % 100 === 0);
+            let restoStr = esEntero
+                ? Math.floor(restoCm / 100).toString().padStart(3, '0')
+                : (restoCm / 100).toFixed(2).padStart(6, '0');
             return `${signo}${km}+${restoStr}`;
         }
 
@@ -921,14 +993,14 @@
                 titulo.innerText = "📁 SELECCIONAR PROYECTO VIAL";
                 appDataVial.proyectos.forEach(proj => {
                     let isActivo = proj.id === appDataVial.activoId;
-                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarProyectoModal(${proj.id})"><span>${escapeHTML(proj.nombre)}</span></button>`;
                 });
             } else if (tipo === 'bm') {
                 titulo.innerText = "📍 SELECCIONAR BM";
-                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('', '-- ELEGIR BM --')"><span>-- ELEGIR BM --</span></button>`;
-                p.bms.forEach(bm => {
-                    let isActivo = document.getElementById('hdnSelectBM').value !== "" && Math.abs(parseFloat(document.getElementById('hdnSelectBM').value) - bm.cota) < 1e-6;
-                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${bm.cota}', '${bm.nombre}')"><span>${bm.nombre}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
+                contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarBMModal(-1)"><span>-- ELEGIR BM --</span></button>`;
+                p.bms.forEach((bm, idx) => {
+                    let isActivo = document.getElementById('hdnSelectBM').value === bm.cota.toString() && document.getElementById('txtSelectBM').innerText === bm.nombre;
+                    contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarBMModal(${idx})"><span>${escapeHTML(bm.nombre)}</span><span class="cota" style="${isActivo ? 'color:#fff;' : ''}">${bm.cota.toFixed(decs)}</span></button>`;
                 });
             } else if (tipo === 'importar-bm') {
                 titulo.innerText = "🔗 PUENTE DE BMs";
@@ -939,7 +1011,7 @@
                     contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternos()">📥 IMPORTAR TODOS (${bmsExternosCache.length})</button>`;
                     bmsExternosCache.forEach((bm, idx) => {
                         contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExterno(${idx})">
-                            <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                            <div><strong>${escapeHTML(bm.nombre)}</strong><br><span style="font-size:0.75rem; color:#888;">${escapeHTML(bm.origen)}</span></div>
                             <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
                         </button>`;
                     });
@@ -956,13 +1028,36 @@
             setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
         }
 
-        function seleccionarOpcionModal(valor, textoExtra) {
+        function seleccionarProyectoModal(projId) {
             cerrarModalSelect();
-            if (tipoModalActual === 'proyecto') cambiarProyectoActivo(valor);
-            else if (tipoModalActual === 'bm') {
-                document.getElementById('hdnSelectBM').value = valor;
-                document.getElementById('txtSelectBM').innerText = textoExtra;
-                seleccionarBM(valor);
+            cambiarProyectoActivo(projId);
+        }
+
+        function seleccionarBMModal(idx) {
+            cerrarModalSelect();
+            let p = obtenerProyectoActivo();
+            if (idx === -1 || !p || !p.bms[idx]) {
+                document.getElementById('hdnSelectBM').value = "";
+                document.getElementById('txtSelectBM').innerText = "-- ELEGIR BM --";
+                seleccionarBM("");
+            } else {
+                let bm = p.bms[idx];
+                document.getElementById('hdnSelectBM').value = bm.cota.toString();
+                document.getElementById('txtSelectBM').innerText = bm.nombre;
+                seleccionarBM(bm.cota);
+            }
+        }
+
+        /* --- AISLAMIENTO DE DATOS DE CAMPO POR TRAMO VIAL --- */
+        function sincronizarEstadoConPerfilActivo() {
+            let p = obtenerProyectoActivo();
+            if (!p || !p.estadoActivo) return;
+            let idxStr = document.getElementById('hdnSelectPerfil').value;
+            if (idxStr !== "" && p.perfiles && p.perfiles[parseInt(idxStr)]) {
+                let per = p.perfiles[parseInt(idxStr)];
+                per.pls = JSON.parse(JSON.stringify(p.estadoActivo.pls || {}));
+                per.lockedRows = JSON.parse(JSON.stringify(p.estadoActivo.lockedRows || {}));
+                per.cotasTerreno = JSON.parse(JSON.stringify(p.estadoActivo.cotasTerreno || {}));
             }
         }
 
@@ -993,6 +1088,7 @@
                 cotasTerreno: (p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}
             };
             sincronizarChipsTransversal();
+            sincronizarEstadoConPerfilActivo();
             guardarBD();
         }
 
@@ -1012,10 +1108,13 @@
             document.getElementById('btnVistaMira').classList.toggle('activo', modoVistaTabla === 'mira');
             document.getElementById('btnVistaCota').classList.toggle('activo', modoVistaTabla === 'cota');
 
+            cerrarFormBM();
             renderSelectProyectos(); renderBMs(); renderPerfiles();
 
             if (p && p.estadoActivo) {
                 if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
+                if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
+                if (!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
                 document.getElementById('progIni').value = p.estadoActivo.progIni ?? "0.000";
                 document.getElementById('distTotal').value = p.estadoActivo.distTotal || "";
                 document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || "";
@@ -1032,6 +1131,7 @@
 
                 sincronizarChipsTransversal();
                 evaluarLimiteVA();
+                actualizarBannerTramoActivo();
 
                 if (p.estadoActivo.tablaVisible) {
                     generarLibretaVial(true);
@@ -1062,7 +1162,7 @@
         function eliminarProyecto() {
             if (appDataVial.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning");
             let p = obtenerProyectoActivo();
-            showCustomConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
+            showCustomConfirm(`⚠️ ¿Borrar "${escapeHTML(p.nombre)}" permanentemente?`, () => {
                 appDataVial.proyectos = appDataVial.proyectos.filter(proj => proj.id !== p.id);
                 appDataVial.activoId = appDataVial.proyectos[0].id;
                 guardarBD(); cargarProyectoActivo();
@@ -1107,6 +1207,46 @@
             reader.readAsText(fileInput.files[0]);
         }
 
+        /* --- FORMULARIO DESPLEGABLE PARA REGISTRAR / EDITAR BM --- */
+        function toggleFormBM() {
+            const box = document.getElementById('boxRegistroBM');
+            if (box.style.display === 'block') {
+                cerrarFormBM();
+            } else {
+                abrirFormBM();
+            }
+        }
+
+        function abrirFormBM(modoEdicion = false) {
+            const box = document.getElementById('boxRegistroBM');
+            const btnToggle = document.getElementById('btnToggleFormBM');
+            const titulo = document.getElementById('tituloFormBM');
+            box.style.display = 'block';
+            btnToggle.style.background = 'var(--primary-color)';
+            if (!modoEdicion) {
+                editandoBMIndex = -1;
+                titulo.innerText = "➕ Registrar Nuevo BM";
+                document.getElementById('btnGuardarBM').innerText = "💾 Guardar BM";
+                document.getElementById('newBMName').value = "";
+                document.getElementById('newBMCota').value = "";
+                document.getElementById('newBMObs').value = "";
+                document.getElementById('newBMName').focus();
+            }
+        }
+
+        function cerrarFormBM() {
+            const box = document.getElementById('boxRegistroBM');
+            const btnToggle = document.getElementById('btnToggleFormBM');
+            if (!box || !btnToggle) return;
+            box.style.display = 'none';
+            btnToggle.style.background = 'var(--table-header)';
+            editandoBMIndex = -1;
+            document.getElementById('newBMName').value = "";
+            document.getElementById('newBMCota').value = "";
+            document.getElementById('newBMObs').value = "";
+            document.getElementById('btnGuardarBM').innerText = "💾 Guardar BM";
+        }
+
         /* --- BMs DRAG & DROP --- */
         let draggingItemBM = null, dragTimer = null;
         function initTouchDragBM() {
@@ -1133,11 +1273,13 @@
                 draggingItemBM.style.opacity = '1'; draggingItemBM.style.transform = 'scale(1)'; draggingItemBM = null;
                 let p = obtenerProyectoActivo(); let nuevosBMs = [];
                 document.querySelectorAll('#listaBMs .bm-item').forEach(item => {
-                    let nombre = item.querySelector('.bm-info strong').innerText;
+                    let nombre = item.dataset.bmname;
                     let bmData = p.bms.find(b => b.nombre === nombre);
                     if (bmData) nuevosBMs.push(bmData);
                 });
-                p.bms = nuevosBMs; guardarBD();
+                if (nuevosBMs.length === p.bms.length) {
+                    p.bms = nuevosBMs; guardarBD(); renderBMs();
+                }
             });
         }
 
@@ -1158,7 +1300,7 @@
             let cotaExacta = fromScaledInt(toScaledInt(cota, decs), decs);
             let p = obtenerProyectoActivo();
             const finalizar = () => {
-                document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; document.getElementById('newBMObs').value = "";
+                cerrarFormBM();
                 guardarBD(); renderBMs(); showToast("BM guardado", "success");
             };
             if (editandoBMIndex > -1) {
@@ -1166,8 +1308,6 @@
                     if (p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
                     let oldCota = p.bms[editandoBMIndex].cota;
                     p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
-                    editandoBMIndex = -1;
-                    let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
                     finalizar();
                     let currentSelect = document.getElementById('hdnSelectBM').value;
                     if (currentSelect && Math.abs(parseFloat(currentSelect) - oldCota) < 1e-6) {
@@ -1182,16 +1322,26 @@
             }
         }
 
-        function cargarEditBM(nombreBM) {
-            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if (idx === -1) return;
+        function cargarEditBMByIndex(idx) {
+            let p = obtenerProyectoActivo();
+            if (idx < 0 || idx >= p.bms.length) return;
             let bm = p.bms[idx];
-            document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
-            editandoBMIndex = idx; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar"; btn.style.background = "var(--primary-color)";
+            abrirFormBM(true);
+            editandoBMIndex = idx;
+            document.getElementById('tituloFormBM').innerText = `✏️ Editando: ${bm.nombre}`;
+            document.getElementById('newBMName').value = bm.nombre;
+            document.getElementById('newBMCota').value = bm.cota.toFixed(getDecs());
+            document.getElementById('newBMObs').value = bm.obs || "";
+            document.getElementById('btnGuardarBM').innerText = "💾 Actualizar BM";
         }
 
-        function deleteBM(nombreBM) {
-            let p = obtenerProyectoActivo(); let idx = p.bms.findIndex(b => b.nombre === nombreBM); if (idx === -1) return;
-            showCustomConfirm(`⚠️ ¿Eliminar el BM "${nombreBM}"?`, () => { p.bms.splice(idx, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success"); });
+        function deleteBMByIndex(idx) {
+            let p = obtenerProyectoActivo();
+            if (idx < 0 || idx >= p.bms.length) return;
+            let nombreBM = p.bms[idx].nombre;
+            showCustomConfirm(`⚠️ ¿Eliminar el BM "${escapeHTML(nombreBM)}"?`, () => {
+                p.bms.splice(idx, 1); guardarBD(); renderBMs(); showToast("BM eliminado", "success");
+            });
         }
 
         function renderBMs() {
@@ -1199,20 +1349,24 @@
             const list = document.getElementById('listaBMs');
             let currentSelection = document.getElementById('hdnSelectBM').value; let txt = "-- ELEGIR BM --";
             list.innerHTML = "";
-            p.bms.forEach(bm => {
-                list.innerHTML += `
-                <div class="bm-item" onclick="clickEnBM(this, event)">
-                    <div class="bm-item-header">
-                        <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
-                        <div class="bm-actions" onclick="event.stopPropagation()">
-                            <button onclick="cargarEditBM('${bm.nombre}')">✏️</button>
-                            <button style="color:var(--danger-color);" onclick="deleteBM('${bm.nombre}')">🗑️</button>
+            if (!p.bms || p.bms.length === 0) {
+                list.innerHTML = `<div style="padding:10px; text-align:center; font-size:0.85rem; opacity:0.5;">Sin BMs registrados. Toca "➕ Registrar Nuevo BM".</div>`;
+            } else {
+                p.bms.forEach((bm, idx) => {
+                    list.innerHTML += `
+                    <div class="bm-item" data-bmname="${escapeHTML(bm.nombre)}" onclick="clickEnBM(this, event)">
+                        <div class="bm-item-header">
+                            <div class="bm-info"><strong>${escapeHTML(bm.nombre)}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                            <div class="bm-actions" onclick="event.stopPropagation()">
+                                <button onclick="cargarEditBMByIndex(${idx})">✏️</button>
+                                <button style="color:var(--danger-color);" onclick="deleteBMByIndex(${idx})">🗑️</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div>
-                </div>`;
-                if (currentSelection && Math.abs(parseFloat(currentSelection) - bm.cota) < 1e-6) txt = bm.nombre;
-            });
+                        <div class="bm-obs" style="width:100%;">${escapeHTML(bm.obs || 'Sin observaciones')}</div>
+                    </div>`;
+                    if (currentSelection && Math.abs(parseFloat(currentSelection) - bm.cota) < 1e-6) txt = bm.nombre;
+                });
+            }
             document.getElementById('txtSelectBM').innerText = txt;
         }
 
@@ -1241,6 +1395,7 @@
             }
             sincronizarChipsTransversal();
             actualizarCroquisSiVisible();
+            alModificarParametroManual();
             evaluarLimiteVA();
             guardarEstadoVial();
         }
@@ -1253,7 +1408,43 @@
             document.getElementById('chipPeralteDer').classList.toggle('activo', bi > 0 && bd < 0);
         }
 
-        /* --- TRAMOS VIALES GUARDADOS --- */
+        /* --- CONTROL VISUAL DE TRAMO VIAL ACTIVO Y PERFILES CON AISLAMIENTO TOTAL --- */
+        function actualizarBannerTramoActivo() {
+            let p = obtenerProyectoActivo();
+            let idxStr = document.getElementById('hdnSelectPerfil').value;
+            let banner = document.getElementById('bannerTramoActivo');
+            let lbl = document.getElementById('lblEstadoTramo');
+            let txt = document.getElementById('txtNombreTramoActivo');
+
+            if (idxStr !== "" && p && p.perfiles && p.perfiles[parseInt(idxStr)]) {
+                let per = p.perfiles[parseInt(idxStr)];
+                let pIniNum = parseFloat(per.progIni) || 0;
+                let pFinNum = pIniNum + (parseFloat(per.dist) || 0);
+                banner.className = "tramo-status-banner modo-guardado";
+                lbl.innerText = "📌 TRAMO VIAL CARGADO EN USO";
+                txt.innerText = `${per.nombre} (${formatearProg(pIniNum)} a ${formatearProg(pFinNum)})`;
+                document.getElementById('nombrePerfilNuevo').value = per.nombre;
+            } else {
+                banner.className = "tramo-status-banner modo-manual";
+                lbl.innerText = "TRABAJO ACTUAL EN PANTALLA";
+                txt.innerText = "⚡ MODO MANUAL / MODIFICADO";
+            }
+        }
+
+        function alModificarParametroManual() {
+            let p = obtenerProyectoActivo();
+            let idxStr = document.getElementById('hdnSelectPerfil').value;
+            if (idxStr !== "" && p && p.perfiles && p.perfiles[parseInt(idxStr)]) {
+                let nombreAnterior = p.perfiles[parseInt(idxStr)].nombre;
+                document.getElementById('hdnSelectPerfil').value = "";
+                renderPerfiles();
+                actualizarBannerTramoActivo();
+                showToast(`Editando fuera de "${nombreAnterior}" (Modo Manual)`, "warning");
+            } else {
+                actualizarBannerTramoActivo();
+            }
+        }
+
         function guardarPerfilVial() {
             let p = obtenerProyectoActivo();
             let nom = document.getElementById('nombrePerfilNuevo').value.trim();
@@ -1268,51 +1459,67 @@
             let bIzq = document.getElementById('bombeoIzq').value || "-2.000";
             let bDer = document.getElementById('bombeoDer').value || "-2.000";
 
-            if (!nom || ci === "" || cf === "" || dist === "" || pte === "") return showToast("⚠️ Completa los datos longitudinales y nombre.", "warning");
+            if (!nom || ci === "" || cf === "" || dist === "" || pte === "") return showToast("⚠️ Completa las 4 casillas del Eje (usa 🪄 Deducir Dato Eje si falta 1) y el nombre.", "warning");
             if (!p.perfiles) p.perfiles = [];
-            let nuevoObj = { nombre: nom, progIni, dist, ci, cf, pte, offset, aIzq, aDer, bIzq, bDer };
+
+            let nuevoObj = {
+                nombre: nom, progIni, dist, ci, cf, pte, offset, aIzq, aDer, bIzq, bDer,
+                pls: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {})),
+                lockedRows: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {})),
+                cotasTerreno: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}))
+            };
+
             let idx = p.perfiles.findIndex(per => per.nombre === nom);
             if (idx >= 0) {
-                showCustomConfirm("Ya existe un tramo con ese nombre. ¿Sobreescribir?", () => {
+                showCustomConfirm(`¿Actualizar el tramo "${escapeHTML(nom)}" con estos nuevos datos?`, () => {
                     p.perfiles[idx] = nuevoObj;
                     document.getElementById('hdnSelectPerfil').value = idx.toString();
-                    finalizarGuardarPerfil();
+                    finalizarGuardarPerfil(nom);
                 });
             } else {
                 p.perfiles.push(nuevoObj);
                 document.getElementById('hdnSelectPerfil').value = (p.perfiles.length - 1).toString();
-                finalizarGuardarPerfil();
+                finalizarGuardarPerfil(nom);
             }
         }
 
-        function finalizarGuardarPerfil() {
-            guardarBD(); document.getElementById('nombrePerfilNuevo').value = "";
-            renderPerfiles(); showToast("✅ Tramo vial guardado", "success"); guardarEstadoVial();
+        function finalizarGuardarPerfil(nom) {
+            guardarBD();
+            renderPerfiles();
+            actualizarBannerTramoActivo();
+            showToast(`✅ Tramo [${nom}] activo y guardado`, "success");
+            guardarEstadoVial();
         }
 
         function renderPerfiles() {
             let p = obtenerProyectoActivo();
             const list = document.getElementById('listaPerfiles');
+            const cont = document.getElementById('contadorTramos');
             let currentSelection = document.getElementById('hdnSelectPerfil').value;
             list.innerHTML = "";
+
+            let total = (p && p.perfiles) ? p.perfiles.length : 0;
+            if (cont) cont.innerText = `${total} ${total === 1 ? 'tramo' : 'tramos'}`;
+
             if (!p.perfiles || p.perfiles.length === 0) {
-                list.innerHTML = `<div style="padding: 12px; font-size: 0.88rem; opacity: 0.5; text-align: center; border: 1px dashed var(--border-color); border-radius: 8px;">No hay tramos viales guardados</div>`;
+                list.innerHTML = `<div style="padding: 12px; font-size: 0.85rem; opacity: 0.5; text-align: center;">No hay tramos viales guardados aún</div>`;
                 return;
             }
             p.perfiles.forEach((per, index) => {
                 let isActivo = currentSelection === index.toString();
-                let bgStyle = isActivo ? "background: rgba(25, 118, 210, 0.12); border-left: 3px solid #1976d2;" : "";
+                let itemClass = isActivo ? "bm-item tramo-activo-item" : "bm-item";
+                let badge = isActivo ? `<span class="tag-en-uso">EN USO</span>` : "";
                 let pIniNum = parseFloat(per.progIni) || 0;
                 let pFinNum = pIniNum + (parseFloat(per.dist) || 0);
                 list.innerHTML += `
-                <div class="bm-item" style="${bgStyle}" onclick="cargarPerfil('${index}')">
+                <div class="${itemClass}" onclick="cargarPerfil('${index}')">
                     <div class="bm-item-header">
                         <div class="bm-info">
-                            <strong style="${isActivo ? 'color: #1976d2;' : ''}">${per.nombre}</strong>
+                            <strong style="${isActivo ? 'color: var(--blue-accent);' : ''}">${escapeHTML(per.nombre)} ${badge}</strong>
                             <span>${formatearProg(pIniNum)} a ${formatearProg(pFinNum)} | S: ${parseFloat(per.pte).toFixed(2)}% | B: ${parseFloat(per.bIzq).toFixed(1)}%/${parseFloat(per.bDer).toFixed(1)}%</span>
                         </div>
                         <div class="bm-actions" onclick="event.stopPropagation()">
-                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index}, '${per.nombre}')">🗑️</button>
+                            <button style="color:var(--danger-color);" onclick="deletePerfil(${index})">🗑️</button>
                         </div>
                     </div>
                 </div>`;
@@ -1322,6 +1529,8 @@
         function cargarPerfil(indexStr) {
             let p = obtenerProyectoActivo(); let per = p.perfiles[parseInt(indexStr)];
             if (per) {
+                feedbackUI();
+                sincronizarEstadoConPerfilActivo();
                 document.getElementById('hdnSelectPerfil').value = indexStr;
                 document.getElementById('progIni').value = per.progIni ?? "0.000";
                 document.getElementById('distTotal').value = per.dist;
@@ -1333,75 +1542,127 @@
                 document.getElementById('anchoDer').value = per.aDer ?? "3.500";
                 document.getElementById('bombeoIzq').value = per.bIzq ?? "-2.000";
                 document.getElementById('bombeoDer').value = per.bDer ?? "-2.000";
-                sincronizarChipsTransversal(); evaluarLimiteVA(); actualizarCroquisSiVisible(); guardarEstadoVial(); renderPerfiles();
+                document.getElementById('nombrePerfilNuevo').value = per.nombre;
+
+                if (!p.estadoActivo) p.estadoActivo = {};
+                p.estadoActivo.pls = JSON.parse(JSON.stringify(per.pls || {}));
+                p.estadoActivo.lockedRows = JSON.parse(JSON.stringify(per.lockedRows || {}));
+                p.estadoActivo.cotasTerreno = JSON.parse(JSON.stringify(per.cotasTerreno || {}));
+
+                sincronizarChipsTransversal();
+                evaluarLimiteVA();
+                actualizarCroquisSiVisible();
+                renderPerfiles();
+                actualizarBannerTramoActivo();
+                showToast(`📌 Tramo cargado: ${per.nombre}`, "success");
+
+                if (document.getElementById('seccionTabla').style.display === 'block') {
+                    generarLibretaVial(true);
+                } else {
+                    guardarEstadoVial();
+                }
             }
         }
 
-        function deletePerfil(index, nombre) {
+        function deletePerfil(index) {
             let p = obtenerProyectoActivo();
-            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${nombre}"?`, () => {
+            if (!p.perfiles || !p.perfiles[index]) return;
+            let nombre = p.perfiles[index].nombre;
+            showCustomConfirm(`⚠️ ¿Eliminar el tramo "${escapeHTML(nombre)}"?`, () => {
                 p.perfiles.splice(index, 1);
                 let currentSelection = document.getElementById('hdnSelectPerfil').value;
                 if (currentSelection === index.toString()) {
-                    desmarcarPerfil();
+                    document.getElementById('hdnSelectPerfil').value = "";
                 } else if (currentSelection !== "" && parseInt(currentSelection) > index) {
                     document.getElementById('hdnSelectPerfil').value = (parseInt(currentSelection) - 1).toString();
                 }
-                guardarBD(); renderPerfiles(); guardarEstadoVial();
+                guardarBD();
+                renderPerfiles();
+                actualizarBannerTramoActivo();
+                guardarEstadoVial();
                 showToast("Tramo eliminado", "success");
             });
         }
 
-        function desmarcarPerfil() {
-            if (document.getElementById('hdnSelectPerfil').value !== "") {
-                document.getElementById('hdnSelectPerfil').value = "";
-                renderPerfiles();
-            }
-        }
-
         function limpiarCamposTramo() {
-            desmarcarPerfil();
+            sincronizarEstadoConPerfilActivo();
+            document.getElementById('hdnSelectPerfil').value = "";
+            let p = obtenerProyectoActivo();
+            if (p && p.estadoActivo) {
+                p.estadoActivo.pls = {};
+                p.estadoActivo.lockedRows = {};
+                p.estadoActivo.cotasTerreno = {};
+            }
             document.getElementById('cotaIni').value = "";
             document.getElementById('cotaFin').value = "";
             document.getElementById('distTotal').value = "";
             document.getElementById('pteLong').value = "";
+            document.getElementById('nombrePerfilNuevo').value = "";
+            document.getElementById('seccionTabla').style.display = 'none';
+            document.getElementById('btnExcel').style.display = 'none';
+            renderPerfiles();
+            actualizarBannerTramoActivo();
             evaluarLimiteVA();
             guardarEstadoVial();
-            showToast("Campos listos para nuevo tramo", "default");
+            showToast("🧹 Mesa limpia para nuevo tramo vial", "default");
         }
 
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoVial(); }
 
         /* --- DEDUCCIÓN AUTOMÁTICA LONGITUDINAL (+ SUBE / - BAJA) --- */
         function autocalcularTramoVial() {
+            feedbackUI();
             let decs = getDecs();
             let ci = parseFloat(document.getElementById('cotaIni').value);
             let cf = parseFloat(document.getElementById('cotaFin').value);
             let d = parseFloat(document.getElementById('distTotal').value);
             let p = parseFloat(document.getElementById('pteLong').value);
-            let nulos = 0; if (isNaN(ci)) nulos++; if (isNaN(cf)) nulos++; if (isNaN(d)) nulos++; if (isNaN(p)) nulos++;
-            if (nulos !== 1) return showToast("⚠️ Deja exactamente UNA casilla del eje vacía para deducirla.", "warning");
 
+            let nulos = 0;
+            if (isNaN(ci)) nulos++;
+            if (isNaN(cf)) nulos++;
+            if (isNaN(d)) nulos++;
+            if (isNaN(p)) nulos++;
+
+            if (nulos === 0) {
+                if (d <= 0) return showToast("⚠️ La longitud debe ser mayor a 0.", "error");
+                let pteCalc = ((cf - ci) / d) * 100.0;
+                document.getElementById('pteLong').value = pteCalc.toFixed(decs);
+                evaluarLimiteVA();
+                alModificarParametroManual();
+                guardarEstadoVial();
+                return showToast(`✨ Pendiente actualizada: ${pteCalc.toFixed(decs)}%`, "success");
+            }
+
+            if (nulos !== 1) return showToast("⚠️ Llena 3 casillas del Eje y deja 1 vacía para deducirla.", "warning");
+
+            let datoCalculado = "";
             if (isNaN(p)) {
                 if (d <= 0) return showToast("⚠️ La longitud debe ser mayor a 0.", "error");
                 let pteCalc = ((cf - ci) / d) * 100.0;
                 document.getElementById('pteLong').value = pteCalc.toFixed(decs);
+                datoCalculado = `Pendiente Eje = ${pteCalc.toFixed(decs)}%`;
             } else if (isNaN(cf)) {
-                document.getElementById('cotaFin').value = (ci + ((p / 100.0) * d)).toFixed(decs);
+                if (d <= 0) return showToast("⚠️ La longitud debe ser mayor a 0.", "error");
+                let cfCalc = ci + ((p / 100.0) * d);
+                document.getElementById('cotaFin').value = cfCalc.toFixed(decs);
+                datoCalculado = `Cota Final = ${cfCalc.toFixed(decs)} m`;
             } else if (isNaN(ci)) {
-                document.getElementById('cotaIni').value = (cf - ((p / 100.0) * d)).toFixed(decs);
+                if (d <= 0) return showToast("⚠️ La longitud debe ser mayor a 0.", "error");
+                let ciCalc = cf - ((p / 100.0) * d);
+                document.getElementById('cotaIni').value = ciCalc.toFixed(decs);
+                datoCalculado = `Cota Inicial = ${ciCalc.toFixed(decs)} m`;
             } else if (isNaN(d)) {
                 if (Math.abs(p) < 1e-6) return showToast("⚠️ La pendiente no puede ser 0 para deducir longitud.", "error");
-                let desnivel = cf - ci;
-                if ((desnivel < 0 && p > 0) || (desnivel > 0 && p < 0)) {
-                    p = -p;
-                    document.getElementById('pteLong').value = p.toFixed(decs);
-                    showToast("⚠️ Signo de pendiente ajustado según cotas", "warning");
-                }
-                document.getElementById('distTotal').value = Math.abs((desnivel / (p / 100.0))).toFixed(decs);
+                let distCalc = (cf - ci) / (p / 100.0);
+                if (distCalc <= 0) return showToast("⚠️ El signo de la pendiente no coincide con el sentido entre Cota Inicial y Final.", "error");
+                document.getElementById('distTotal').value = distCalc.toFixed(decs);
+                datoCalculado = `Longitud = ${distCalc.toFixed(decs)} m`;
             }
-            showToast("✨ Dato longitudinal deducido", "success");
-            evaluarLimiteVA(); desmarcarPerfil(); guardarEstadoVial();
+            evaluarLimiteVA();
+            alModificarParametroManual();
+            guardarEstadoVial();
+            showToast(`🪄 Deducido: ${datoCalculado}`, "success");
         }
 
         /* --- INTERPOLACIÓN LONGITUDINAL UNIFICADA EN ENTEROS (TABLA PRINCIPAL Y ESTACA LIBRE) --- */
@@ -1411,8 +1672,6 @@
             if (!isNaN(ciInt) && !isNaN(cfInt) && !isNaN(d) && d > 0) {
                 let pteExacta = ((cf - ci) / d) * 100.0;
                 let pasoMinPte = Math.pow(10, -decs);
-                // Si no hay pendiente o la pendiente ingresada coincide con las cotas inicial y final (dentro de la tolerancia de redondeo),
-                // interpolamos linealmente sobre los enteros escalados para cerrar con error 0.000m en la Cota Final.
                 if (isNaN(pte) || Math.abs(pte - pteExacta) <= Math.max(pasoMinPte * 2.0, 0.005)) {
                     let deltaLongInt = Math.round((cfInt - ciInt) * (avance / d));
                     return ciInt + deltaLongInt + offsetCapaInt;
@@ -1427,25 +1686,89 @@
             return Math.round(((pendienteTransv / 100.0) * Math.abs(distEje)) * factor);
         }
 
-        function obtenerAIEfectivaInt(prog, baseAIInt, pls, decs = getDecs()) {
-            let activePLProg = -Infinity;
-            let activePLKey = null;
-            if (pls) {
-                Object.keys(pls).forEach(k => {
-                    let pk = parseFloat(k);
-                    if (!isNaN(pk) && pk <= prog + 1e-6 && pk > activePLProg) {
-                        activePLProg = pk;
-                        activePLKey = k;
-                    }
+        /* --- RECÁLCULO EN CASCADA DE PLs Y SOPORTE BIDIRECCIONAL --- */
+        function recalcularCascadaPLs(pls, baseAIInt, decs = getDecs()) {
+            if (!pls || isNaN(baseAIInt)) return;
+            let entries = Object.keys(pls).map(k => ({
+                prog: parseFloat(k),
+                key: k,
+                data: pls[k]
+            })).filter(e => !isNaN(e.prog) && e.data);
+
+            entries.sort((a, b) => {
+                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
+                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
+                return oa - ob;
+            });
+
+            let aiVigenteInt = baseAIInt;
+            entries.forEach(item => {
+                if (item.data.vad !== undefined && item.data.vad !== null && !isNaN(parseFloat(item.data.vad))) {
+                    let vadInt = toScaledInt(Math.abs(parseFloat(item.data.vad)), decs);
+                    let nuevaCotaBMInt = aiVigenteInt - vadInt;
+                    item.data.bm = fromScaledInt(nuevaCotaBMInt, decs);
+                }
+                let bmInt = toScaledInt(item.data.bm, decs);
+                let vaInt = toScaledInt(item.data.va, decs);
+                if (!isNaN(bmInt) && !isNaN(vaInt)) {
+                    aiVigenteInt = bmInt + vaInt;
+                }
+            });
+        }
+
+        function obtenerPLActivoParaProg(prog, pls) {
+            if (!pls) return null;
+            let entries = Object.keys(pls).map(k => ({ prog: parseFloat(k), key: k, data: pls[k] })).filter(e => !isNaN(e.prog) && e.data);
+            if (entries.length === 0) return null;
+
+            let conOrden = entries.slice().sort((a, b) => {
+                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
+                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
+                return oa - ob;
+            });
+            let sentidoReversa = conOrden.length >= 2 && (conOrden[conOrden.length - 1].prog < conOrden[0].prog);
+
+            if (!sentidoReversa) {
+                let active = null;
+                entries.forEach(e => {
+                    if (e.prog <= prog + 1e-6 && (!active || e.prog > active.prog)) active = e;
                 });
+                return active;
+            } else {
+                let active = null;
+                entries.forEach(e => {
+                    if (e.prog >= prog - 1e-6 && (!active || e.prog < active.prog)) active = e;
+                });
+                return active;
             }
-            if (activePLKey !== null && pls[activePLKey]) {
+        }
+
+        function obtenerAIEfectivaInt(prog, baseAIInt, pls, decs = getDecs()) {
+            let active = obtenerPLActivoParaProg(prog, pls);
+            if (active && active.data) {
                 return {
-                    aiInt: toScaledInt(pls[activePLKey].bm, decs) + toScaledInt(pls[activePLKey].va, decs),
-                    plProg: activePLProg
+                    aiInt: toScaledInt(active.data.bm, decs) + toScaledInt(active.data.va, decs),
+                    plProg: active.prog,
+                    plCota: active.data.bm
                 };
             }
-            return { aiInt: baseAIInt, plProg: -Infinity };
+            return { aiInt: baseAIInt, plProg: null, plCota: null };
+        }
+
+        function obtenerUltimaAICronologicaInt(pls, baseAIInt, excludeKey = null, decs = getDecs()) {
+            if (!pls) return baseAIInt;
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+            let entries = Object.keys(pls)
+                .map(k => ({ key: k, prog: parseFloat(k), data: pls[k] }))
+                .filter(e => !isNaN(e.prog) && e.data && (excludeKey === null || e.key !== excludeKey));
+            if (entries.length === 0) return baseAIInt;
+            entries.sort((a, b) => {
+                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
+                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
+                return oa - ob;
+            });
+            let ultimo = entries[entries.length - 1].data;
+            return toScaledInt(ultimo.bm, decs) + toScaledInt(ultimo.va, decs);
         }
 
         /* --- CROQUIS DINÁMICO DE SECCIÓN TRANSVERSAL --- */
@@ -1555,17 +1878,67 @@
             }
         }
 
-        /* --- PUNTOS DE LIGA (PL) --- */
+        /* --- PUNTOS DE LIGA (PL) CON SOPORTE DE VISTA ADELANTE (-) Y CASCADA --- */
         function gestionarPL() {
+            let decs = getDecs();
             showCustomPrompt("PROGRESIVA DEL NUEVO PL (Ej: 120 o 1240)", "", (progStr) => {
-                let prog = parseFloat(progStr.replace(',', '.')); if (isNaN(prog)) return showToast("Progresiva no válida", "error");
-                showCustomPrompt("COTA DEL PUNTO DE APOYO (PL / BM)", "", (bmStr) => {
-                    let bm = parseFloat(bmStr.replace(',', '.')); if (isNaN(bm)) return showToast("Cota no válida", "error");
-                    showCustomPrompt("NUEVA VISTA ATRÁS (+) EN EL PL", "", (vaStr) => {
-                        let va = parseFloat(vaStr.replace(',', '.')); if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
-                        let p = obtenerProyectoActivo(); if (!p.estadoActivo) p.estadoActivo = {}; if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
-                        p.estadoActivo.pls[normProgKey(prog)] = { bm: bm, va: va };
-                        guardarBD(); generarLibretaVial(true); showToast("✅ PL insertado en " + formatearProg(prog), "success");
+                let prog = parseFloat(progStr.replace(',', '.'));
+                if (isNaN(prog)) return showToast("Progresiva no válida", "error");
+                let keyProg = normProgKey(prog);
+
+                let p = obtenerProyectoActivo();
+                let pls = (p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {};
+                let plExistente = pls[keyProg];
+                let valorSugerido = plExistente
+                    ? (plExistente.vad !== undefined && plExistente.vad !== null ? `-${Math.abs(plExistente.vad).toFixed(decs)}` : Number(plExistente.bm).toFixed(decs))
+                    : "";
+
+                showCustomPrompt("V. ADELANTE (antepón -) O COTA DIRECTA (Vacío = Borrar PL)", valorSugerido, (bmStr) => {
+                    let clean = bmStr.trim().replace(',', '.');
+                    if (clean === "") {
+                        if (p.estadoActivo && p.estadoActivo.pls && p.estadoActivo.pls[keyProg]) {
+                            delete p.estadoActivo.pls[keyProg];
+                            sincronizarEstadoConPerfilActivo();
+                            guardarBD(); generarLibretaVial(true);
+                            return showToast(`🗑️ PL en ${formatearProg(prog)} eliminado`, "warning");
+                        }
+                        return;
+                    }
+                    let val = parseFloat(clean);
+                    if (isNaN(val)) return showToast("Valor no válido", "error");
+
+                    let bmBaseInt = toScaledInt(document.getElementById('cotaBM').value, decs);
+                    let vaBaseInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
+                    let aiBaseInt = (!isNaN(bmBaseInt) && !isNaN(vaBaseInt))
+                        ? (bmBaseInt + vaBaseInt)
+                        : toScaledInt(document.getElementById('txtAI').innerText, decs);
+
+                    let cotaPL = val;
+                    let vadGuardada = null;
+                    if (clean.startsWith('-') && val < 0) {
+                        vadGuardada = Math.abs(val);
+                        let aiVigenteInt = obtenerUltimaAICronologicaInt(pls, aiBaseInt, keyProg, decs);
+                        cotaPL = fromScaledInt(aiVigenteInt - toScaledInt(vadGuardada, decs), decs);
+                    }
+
+                    let vaSugerida = plExistente && plExistente.va !== undefined ? Number(plExistente.va).toFixed(decs) : "";
+                    showCustomPrompt(`COTA PL: ${cotaPL.toFixed(decs)} | INGRESA V. ATRÁS (+)`, vaSugerida, (vaStr) => {
+                        let va = parseFloat(vaStr.replace(',', '.'));
+                        if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
+                        if (!p.estadoActivo) p.estadoActivo = {};
+                        if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
+
+                        let ordenPL = (plExistente && plExistente.orden !== undefined) ? plExistente.orden : Date.now();
+                        p.estadoActivo.pls[keyProg] = {
+                            bm: cotaPL,
+                            va: va,
+                            vad: vadGuardada,
+                            orden: ordenPL
+                        };
+                        recalcularCascadaPLs(p.estadoActivo.pls, aiBaseInt, decs);
+                        sincronizarEstadoConPerfilActivo();
+                        guardarBD(); generarLibretaVial(true);
+                        showToast(`✅ PL en ${formatearProg(prog)} (Cota: ${Number(p.estadoActivo.pls[keyProg].bm).toFixed(decs)})`, "success");
                     });
                 });
             });
@@ -1574,7 +1947,13 @@
         function limpiarPLs() {
             showCustomConfirm("¿Borrar todos los Puntos de Liga (PL) de este tramo?", () => {
                 let p = obtenerProyectoActivo();
-                if (p.estadoActivo && p.estadoActivo.pls) { p.estadoActivo.pls = {}; guardarBD(); generarLibretaVial(true); showToast("PLs eliminados", "success"); }
+                if (p.estadoActivo && p.estadoActivo.pls) {
+                    p.estadoActivo.pls = {};
+                    sincronizarEstadoConPerfilActivo();
+                    guardarBD();
+                    generarLibretaVial(true);
+                    showToast("PLs eliminados", "success");
+                }
             });
         }
 
@@ -1623,6 +2002,7 @@
 
             let proj = obtenerProyectoActivo();
             let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
+            recalcularCascadaPLs(pls, baseAIInt, decs);
             let aiInfo = obtenerAIEfectivaInt(prog, baseAIInt, pls, decs);
             let aiEfectivoInt = aiInfo.aiInt;
 
@@ -1635,6 +2015,7 @@
 
             box.innerHTML = `
                 <div style="color:var(--primary-color); font-size:1.05rem; margin-bottom:6px;">📍 PROG. ${formatearProg(prog)} (a ${distEje.toFixed(2)}m del Eje)</div>
+                <div style="font-size:0.75rem; opacity:0.75; margin-bottom:6px;">AI vigente: ${fromScaledInt(aiEfectivoInt, decs).toFixed(decs)} m</div>
                 <div style="display:flex; justify-content:space-around; border-top:1px dashed var(--border-color); padding-top:8px;">
                     <div><span style="font-size:0.75rem; color:#888;">COTA EJE</span><br><strong>${fromScaledInt(cotaEjeInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.8rem; color:var(--success-text);">Mira: ${fromScaledInt(miraEjeInt, decs).toFixed(decs)}</span></div>
                     <div><span style="font-size:0.75rem; color:#888;">COTA ESTACA</span><br><strong>${fromScaledInt(cotaEstacaInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.95rem; color:var(--primary-color);">Mira: ${fromScaledInt(miraEstacaInt, decs).toFixed(decs)}</span></div>
@@ -1642,7 +2023,7 @@
             `;
         }
 
-        /* --- CONTROL DE PLANTILLA / CACHACOS EN VIVO (RECALCULADO DINÁMICAMENTE CON AI VIGENTE) --- */
+        /* --- CONTROL DE PLANTILLA / CACHACOS BLINDADO CON COTA CONGELADA (cotaInt) --- */
         function abrirModalCtrlTerr(event, prog) {
             event.stopPropagation();
             feedbackUI();
@@ -1673,40 +2054,43 @@
             previewCtrlTerr();
         }
 
-        function resolverCotaTerrenoVialInt(rawStr, legacyCt, currentAIInt, ciRef, decs = getDecs()) {
+        function parsearInputTerrenoExplicit(rawStr, currentAIInt, decs = getDecs()) {
             let s = String(rawStr || "").trim().replace(',', '.');
-            if (!s) {
-                if (legacyCt !== undefined && legacyCt !== null && !isNaN(parseFloat(legacyCt))) {
-                    return toScaledInt(legacyCt, decs);
-                }
-                return NaN;
-            }
-            let forzarCota = s.startsWith('#');
-            if (forzarCota) s = s.substring(1).trim();
-            let valInt = toScaledInt(s, decs);
-            if (isNaN(valInt)) return NaN;
+            if (!s) return { raw: "", cotaInt: NaN };
+            let esCotaExplicita = s.startsWith('#');
+            let numStr = esCotaExplicita ? s.substring(1).trim() : s;
+            let valInt = toScaledInt(numStr, decs);
+            if (isNaN(valInt)) return { raw: "", cotaInt: NaN };
 
-            if (forzarCota) {
-                return valInt;
+            if (esCotaExplicita) {
+                return {
+                    raw: `#${fromScaledInt(valInt, decs).toFixed(decs)}`,
+                    cotaInt: valInt
+                };
+            } else {
+                return {
+                    raw: fromScaledInt(valInt, decs).toFixed(decs),
+                    cotaInt: currentAIInt - valInt
+                };
             }
-            // Si el usuario escribió sin '#' un número mayor a la longitud de cualquier mira (>10m) y cercano a la cota del proyecto
-            let valFloat = fromScaledInt(valInt, decs);
-            if (!isNaN(ciRef) && ciRef > 10 && valFloat > 10 && Math.abs(valFloat - ciRef) < 35) {
-                return valInt;
-            }
-            // En cualquier otro caso, es Lectura de Mira V.AD(-) y se descuenta de la AI activa en esa progresiva
-            return currentAIInt - valInt;
         }
 
-        function normalizarRawTerreno(rawStr, ciRef, decs = getDecs()) {
-            let s = (rawStr || "").trim().replace(',', '.');
-            if (!s) return "";
-            let checkVal = s.startsWith('#') ? parseFloat(s.slice(1)) : parseFloat(s);
-            if (isNaN(checkVal)) return "";
-            if (!s.startsWith('#') && !isNaN(ciRef) && ciRef > 10 && checkVal > 10 && Math.abs(checkVal - ciRef) < 35) {
-                return `#${checkVal.toFixed(decs)}`;
+        function resolverCotaTerrenoGuardadaInt(reg, lado, currentAIInt, decs = getDecs()) {
+            if (!reg) return NaN;
+            let cotaIntProp = `cotaInt${lado}`;
+            let rawProp = `raw${lado}`;
+            let legacyProp = `ct${lado}`;
+
+            if (reg[cotaIntProp] !== undefined && reg[cotaIntProp] !== null && !isNaN(reg[cotaIntProp])) {
+                return Number(reg[cotaIntProp]);
             }
-            return s;
+            if (reg[legacyProp] !== undefined && reg[legacyProp] !== null && !isNaN(parseFloat(reg[legacyProp]))) {
+                return toScaledInt(reg[legacyProp], decs);
+            }
+            if (reg[rawProp]) {
+                return parsearInputTerrenoExplicit(reg[rawProp], currentAIInt, decs).cotaInt;
+            }
+            return NaN;
         }
 
         function previewCtrlTerr() {
@@ -1727,18 +2111,20 @@
 
             let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
             let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
+            let baseAIInt = bmInt + vaInt;
             let proj = obtenerProyectoActivo();
             let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
-            let currentAIInt = obtenerAIEfectivaInt(progNum, bmInt + vaInt, pls, decs).aiInt;
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+            let currentAIInt = obtenerAIEfectivaInt(progNum, baseAIInt, pls, decs).aiInt;
 
             let avance = progNum - pIni;
             let cEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
             let cIzqInt = cEjeInt + calcularDesnivelTransvInt(bIzq, aIzq, decs);
             let cDerInt = cEjeInt + calcularDesnivelTransvInt(bDer, aDer, decs);
 
-            let ctIzqInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrIzq').value, undefined, currentAIInt, ci, decs);
-            let ctEjeInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrEje').value, undefined, currentAIInt, ci, decs);
-            let ctDerInt = resolverCotaTerrenoVialInt(document.getElementById('inpTerrDer').value, undefined, currentAIInt, ci, decs);
+            let ctIzqInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrIzq').value, currentAIInt, decs).cotaInt;
+            let ctEjeInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrEje').value, currentAIInt, decs).cotaInt;
+            let ctDerInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrDer').value, currentAIInt, decs).cotaInt;
 
             let fmt = (cDisInt, cTerrInt) => {
                 if (isNaN(cTerrInt)) return "---";
@@ -1750,23 +2136,39 @@
 
         function guardarCtrlTerr() {
             let decs = getDecs();
-            let ciRef = parseFloat(document.getElementById('cotaIni').value);
+            let progNum = parseFloat(ctrlTerrProgActiva);
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
+            let baseAIInt = bmInt + vaInt;
+
             let p = obtenerProyectoActivo();
+            if (!p.estadoActivo) p.estadoActivo = {};
             if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
+            let pls = p.estadoActivo.pls || {};
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+            let currentAIInt = obtenerAIEfectivaInt(progNum, baseAIInt, pls, decs).aiInt;
 
-            let rawIzq = normalizarRawTerreno(document.getElementById('inpTerrIzq').value, ciRef, decs);
-            let rawEje = normalizarRawTerreno(document.getElementById('inpTerrEje').value, ciRef, decs);
-            let rawDer = normalizarRawTerreno(document.getElementById('inpTerrDer').value, ciRef, decs);
+            let pIzq = parsearInputTerrenoExplicit(document.getElementById('inpTerrIzq').value, currentAIInt, decs);
+            let pEje = parsearInputTerrenoExplicit(document.getElementById('inpTerrEje').value, currentAIInt, decs);
+            let pDer = parsearInputTerrenoExplicit(document.getElementById('inpTerrDer').value, currentAIInt, decs);
 
-            if (!rawIzq && !rawEje && !rawDer) {
+            if (!pIzq.raw && !pEje.raw && !pDer.raw) {
                 delete p.estadoActivo.cotasTerreno[ctrlTerrProgActiva];
             } else {
-                p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] = { rawIzq, rawEje, rawDer };
+                p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] = {
+                    rawIzq: pIzq.raw,
+                    rawEje: pEje.raw,
+                    rawDer: pDer.raw,
+                    cotaIntIzq: isNaN(pIzq.cotaInt) ? null : pIzq.cotaInt,
+                    cotaIntEje: isNaN(pEje.cotaInt) ? null : pEje.cotaInt,
+                    cotaIntDer: isNaN(pDer.cotaInt) ? null : pDer.cotaInt
+                };
             }
             cerrarModalCtrlTerr();
+            sincronizarEstadoConPerfilActivo();
             guardarBD();
             generarLibretaVial(true);
-            showToast("Control de plantilla actualizado", "success");
+            showToast("Control de plantilla blindado y guardado", "success");
         }
 
         function cambiarModoVistaTabla(modo) {
@@ -1777,6 +2179,7 @@
             generarLibretaVial(true);
         }
 
+        /* --- TOQUE EN FILA: CONGELA LECTURAS AL MARCAR EN VERDE Y ABRE TARJETA GIGANTE --- */
         function manejarRowTapVial(tr, event, prog) {
             if (event.target.closest('.btn-ctrl-terreno')) return;
             let currentTime = new Date().getTime();
@@ -1815,10 +2218,15 @@
                     let p = obtenerProyectoActivo();
                     if (!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
                     if (isLocked) {
-                        p.estadoActivo.lockedRows[keyProg] = true;
+                        p.estadoActivo.lockedRows[keyProg] = {
+                            lizq: lIzq, cizq: cIzq,
+                            leje: lEje, ceje: cEje,
+                            lder: lDer, cder: cDer
+                        };
                     } else {
                         delete p.estadoActivo.lockedRows[keyProg];
                     }
+                    sincronizarEstadoConPerfilActivo();
                     guardarBD();
                 }, 360);
             }
@@ -1857,6 +2265,15 @@
             } else if (isNaN(cf) && !isNaN(pte) && !isNaN(ci) && !isNaN(d) && d > 0) {
                 cf = ci + ((pte / 100.0) * d);
                 document.getElementById('cotaFin').value = cf.toFixed(decs);
+            } else if (isNaN(ci) && !isNaN(cf) && !isNaN(pte) && !isNaN(d) && d > 0) {
+                ci = cf - ((pte / 100.0) * d);
+                document.getElementById('cotaIni').value = ci.toFixed(decs);
+            } else if (isNaN(d) && !isNaN(ci) && !isNaN(cf) && !isNaN(pte) && Math.abs(pte) > 1e-6) {
+                let dCalc = (cf - ci) / (pte / 100.0);
+                if (dCalc > 0) {
+                    d = dCalc;
+                    document.getElementById('distTotal').value = d.toFixed(decs);
+                }
             }
 
             if (isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) {
@@ -1877,7 +2294,6 @@
             document.getElementById('txtAI').innerText = fromScaledInt(baseAIInt, decs).toFixed(decs);
             if (!silencioso) document.getElementById('panelEstacion').style.display = 'none';
 
-            // Cabeceras dinámicas
             document.getElementById('thAnchoIzq').innerText = `-${aIzq.toFixed(2)}m (${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`;
             document.getElementById('thOffsetEje').innerText = offsetCapaInt !== 0 ? `Offset ${offsetCapa > 0 ? '+' : ''}${offsetCapa.toFixed(2)}m` : `Rasante (0.00m)`;
             document.getElementById('thAnchoDer').innerText = `+${aDer.toFixed(2)}m (${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`;
@@ -1893,7 +2309,8 @@
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
             let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
 
-            // Generación de progresivas: soporta inicio fraccionado alineando a múltiplos cerrados del intervalo
+            recalcularCascadaPLs(pls, baseAIInt, decs);
+
             let estaciones = [];
             let pIniRed = Number(pIni.toFixed(3));
             let pFin = Number((pIni + d).toFixed(3));
@@ -1911,7 +2328,7 @@
                 estaciones.push(pFin);
             }
 
-            let prevActivePLProg = -Infinity;
+            let prevActivePLProg = null;
 
             estaciones.forEach((progActual, idx) => {
                 let keyProg = normProgKey(progActual);
@@ -1919,8 +2336,8 @@
                 let currentAIInt = aiInfo.aiInt;
                 let activePLProg = aiInfo.plProg;
 
-                if (activePLProg !== -Infinity && activePLProg !== prevActivePLProg) {
-                    tbody.innerHTML += `<tr><td colspan="4" style="background:rgba(25, 118, 210, 0.12); color:#1976d2; font-size:0.8rem; padding:6px; font-weight:900;">📍 CAMBIO DE ESTACIÓN (PL) EN ${formatearProg(activePLProg)} (Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
+                if (activePLProg !== null && activePLProg !== prevActivePLProg) {
+                    tbody.innerHTML += `<tr><td colspan="4" style="background:rgba(25, 118, 210, 0.12); color:var(--blue-accent); font-size:0.8rem; padding:6px; font-weight:900;">📍 PL EN ${formatearProg(activePLProg)} (Cota PL: ${Number(aiInfo.plCota).toFixed(decs)} | Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
                     prevActivePLProg = activePLProg;
                 }
 
@@ -1929,44 +2346,63 @@
                 let cotaIzqInt = cotaEjeInt + deltaIzqInt;
                 let cotaDerInt = cotaEjeInt + deltaDerInt;
 
-                let leerIzqInt = currentAIInt - cotaIzqInt;
-                let leerEjeInt = currentAIInt - cotaEjeInt;
-                let leerDerInt = currentAIInt - cotaDerInt;
-
-                let leerIzq = fromScaledInt(leerIzqInt, decs);
-                let leerEje = fromScaledInt(leerEjeInt, decs);
-                let leerDer = fromScaledInt(leerDerInt, decs);
-
-                let cIzqStr = fromScaledInt(cotaIzqInt, decs).toFixed(decs);
-                let cEjeStr = fromScaledInt(cotaEjeInt, decs).toFixed(decs);
-                let cDerStr = fromScaledInt(cotaDerInt, decs).toFixed(decs);
-
-                let lIzqStr = leerIzq.toFixed(decs);
-                let lEjeStr = leerEje.toFixed(decs);
-                let lDerStr = leerDer.toFixed(decs);
-
+                let leerIzq, leerEje, leerDer, cIzqStr, cEjeStr, cDerStr, lIzqStr, lEjeStr, lDerStr;
+                let cotaIzqIntFinal = cotaIzqInt, cotaEjeIntFinal = cotaEjeInt, cotaDerIntFinal = cotaDerInt;
                 let cssRow = '';
                 let esFinal = (idx === estaciones.length - 1 && idx > 0 && Math.abs((progActual - estaciones[idx - 1]) - intervalo) > 0.001);
                 if (esFinal) cssRow += ' fila-cierre-fin';
-                if (locked[keyProg] || locked[progActual]) cssRow += ' fila-ok';
 
-                let warnIzq = (leerIzq >= limiteMira || leerIzq <= 0) ? 'color:var(--danger-color);' : '';
-                let warnEje = (leerEje >= limiteMira || leerEje <= 0) ? 'color:var(--danger-color);' : '';
-                let warnDer = (leerDer >= limiteMira || leerDer <= 0) ? 'color:var(--danger-color);' : '';
+                let lockEntry = locked[keyProg] || locked[progActual];
+                if (lockEntry && typeof lockEntry === "object" && lockEntry.leje !== undefined) {
+                    leerIzq = parseFloat(lockEntry.lizq);
+                    leerEje = parseFloat(lockEntry.leje);
+                    leerDer = parseFloat(lockEntry.lder);
+                    cotaIzqIntFinal = toScaledInt(lockEntry.cizq, decs);
+                    cotaEjeIntFinal = toScaledInt(lockEntry.ceje, decs);
+                    cotaDerIntFinal = toScaledInt(lockEntry.cder, decs);
+                    cIzqStr = fromScaledInt(cotaIzqIntFinal, decs).toFixed(decs);
+                    cEjeStr = fromScaledInt(cotaEjeIntFinal, decs).toFixed(decs);
+                    cDerStr = fromScaledInt(cotaDerIntFinal, decs).toFixed(decs);
+                    lIzqStr = leerIzq.toFixed(decs);
+                    lEjeStr = leerEje.toFixed(decs);
+                    lDerStr = leerDer.toFixed(decs);
+                    cssRow += ' fila-ok';
+                } else {
+                    let leerIzqInt = currentAIInt - cotaIzqInt;
+                    let leerEjeInt = currentAIInt - cotaEjeInt;
+                    let leerDerInt = currentAIInt - cotaDerInt;
 
-                let regTerr = cotasTerr[keyProg] || cotasTerr[progActual] || {};
-                let ctIzqInt = resolverCotaTerrenoVialInt(regTerr.rawIzq, regTerr.ctIzq, currentAIInt, ci, decs);
-                let ctEjeInt = resolverCotaTerrenoVialInt(regTerr.rawEje, regTerr.ctEje, currentAIInt, ci, decs);
-                let ctDerInt = resolverCotaTerrenoVialInt(regTerr.rawDer, regTerr.ctDer, currentAIInt, ci, decs);
+                    leerIzq = fromScaledInt(leerIzqInt, decs);
+                    leerEje = fromScaledInt(leerEjeInt, decs);
+                    leerDer = fromScaledInt(leerDerInt, decs);
+
+                    cIzqStr = fromScaledInt(cotaIzqInt, decs).toFixed(decs);
+                    cEjeStr = fromScaledInt(cotaEjeInt, decs).toFixed(decs);
+                    cDerStr = fromScaledInt(cotaDerInt, decs).toFixed(decs);
+
+                    lIzqStr = leerIzq.toFixed(decs);
+                    lEjeStr = leerEje.toFixed(decs);
+                    lDerStr = leerDer.toFixed(decs);
+                    if (lockEntry) cssRow += ' fila-ok';
+                }
+
+                let warnIzq = (leerIzq > limiteMira || leerIzq < 0) ? 'color:var(--danger-color);' : '';
+                let warnEje = (leerEje > limiteMira || leerEje < 0) ? 'color:var(--danger-color);' : '';
+                let warnDer = (leerDer > limiteMira || leerDer < 0) ? 'color:var(--danger-color);' : '';
+
+                let regTerr = cotasTerr[keyProg] || cotasTerr[progActual] || null;
+                let ctIzqInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Izq', currentAIInt, decs);
+                let ctEjeInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Eje', currentAIInt, decs);
+                let ctDerInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Der', currentAIInt, decs);
                 let tieneTerr = !isNaN(ctIzqInt) || !isNaN(ctEjeInt) || !isNaN(ctDerInt);
 
-                let tagIzq = crearTagCorteRellenoInt(cotaIzqInt, ctIzqInt, decs);
-                let tagEje = crearTagCorteRellenoInt(cotaEjeInt, ctEjeInt, decs);
-                let tagDer = crearTagCorteRellenoInt(cotaDerInt, ctDerInt, decs);
+                let tagIzq = crearTagCorteRellenoInt(cotaIzqIntFinal, ctIzqInt, decs);
+                let tagEje = crearTagCorteRellenoInt(cotaEjeIntFinal, ctEjeInt, decs);
+                let tagDer = crearTagCorteRellenoInt(cotaDerIntFinal, ctDerInt, decs);
 
-                let crIzqAttr = !isNaN(ctIzqInt) ? fromScaledInt(cotaIzqInt - ctIzqInt, decs).toFixed(decs) : "";
-                let crEjeAttr = !isNaN(ctEjeInt) ? fromScaledInt(cotaEjeInt - ctEjeInt, decs).toFixed(decs) : "";
-                let crDerAttr = !isNaN(ctDerInt) ? fromScaledInt(cotaDerInt - ctDerInt, decs).toFixed(decs) : "";
+                let crIzqAttr = !isNaN(ctIzqInt) ? fromScaledInt(cotaIzqIntFinal - ctIzqInt, decs).toFixed(decs) : "";
+                let crEjeAttr = !isNaN(ctEjeInt) ? fromScaledInt(cotaEjeIntFinal - ctEjeInt, decs).toFixed(decs) : "";
+                let crDerAttr = !isNaN(ctDerInt) ? fromScaledInt(cotaDerIntFinal - ctDerInt, decs).toFixed(decs) : "";
 
                 let showMira = (modoVistaTabla === 'ambos' || modoVistaTabla === 'mira');
                 let showCota = (modoVistaTabla === 'ambos' || modoVistaTabla === 'cota');
@@ -2026,10 +2462,11 @@
             let bDer = document.getElementById('bombeoDer').value;
             let pte = document.getElementById('pteLong').value;
             let offset = document.getElementById('offsetCapa').value;
+            let tramoNombre = document.getElementById('txtNombreTramoActivo').innerText || "Manual";
 
             let datos = [
                 ["REPORTE DE NIVELACIÓN Y PLANTILLADO DE CARRETERAS - COTA100"],
-                ["Proyecto:", p ? p.nombre : "Obra Vial", "", "Fecha:", fechaHoy],
+                ["Proyecto:", p ? p.nombre : "Obra Vial", "Tramo:", tramoNombre, "Fecha:", fechaHoy],
                 ["Operador:", oper, "", "Equipo:", eq],
                 ["Pend. Longitudinal (%):", pte, "Offset Capa (m):", offset, "Anchos (Izq/Der):", `${aIzq}m / ${aDer}m`, "Bombeo/Peralte (%):", `${bIzq}% / ${bDer}%`],
                 [],
@@ -2075,7 +2512,13 @@
         function calcEval() {
             let decs = getDecs();
             try {
-                let res = new Function('return ' + document.getElementById('calcDisplay').value)();
+                let expr = document.getElementById('calcDisplay').value.replace(/[^0-9+\-*/.()]/g, '');
+                if (!expr) return;
+                let res = new Function('return ' + expr)();
+                if (!isFinite(res)) {
+                    document.getElementById('calcDisplay').value = 'Error';
+                    return;
+                }
                 document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
             } catch(e) {
                 document.getElementById('calcDisplay').value = 'Error';

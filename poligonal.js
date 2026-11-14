@@ -15,9 +15,18 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-/* --- FUNCIONES DE PRECISIÓN ENTERA Y CONFIGURACIÓN --- */
+/* --- VARIABLES GLOBALES UNIFICADAS (SIN DUPLICADOS) --- */
+let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
+let globalConfig = { darkMode: false, vibracion: true, sonido: false, decimales: "3", alertaMira: "5", wakeLockEnabled: false };
+let inputPtoActivo = null; 
+let tablaBloqueada = false;
+let wakeLock = null;
+let editandoBMIndex = -1;
 let audioCtxPol = null;
+let tipoModalActual = "";
+let bmsExternosPolCache = [];
 
+/* --- FUNCIONES DE PRECISIÓN ENTERA Y CONFIGURACIÓN --- */
 function getDecs() {
     return parseInt(globalConfig.decimales) || 3;
 }
@@ -32,6 +41,12 @@ function toScaledInt(val, decs = getDecs()) {
 function fromScaledInt(intVal, decs = getDecs()) {
     if (isNaN(intVal)) return NaN;
     return intVal / Math.pow(10, decs);
+}
+
+function escapeHTML(str) {
+    return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
 }
 
 function vibrar() {
@@ -72,10 +87,15 @@ function completarCeros(input) {
     let decs = getDecs();
     validarLecturaFisica(input);
     let val = input.value.trim();
-    if (val === "" || val === "-" || val === ".") return;
+    if (val === "" || val === "-" || val === ".") {
+        procesarDobleLiga();
+        guardarBD();
+        return;
+    }
     let intVal = toScaledInt(val, decs);
     if (!isNaN(intVal)) {
         input.value = fromScaledInt(intVal, decs).toFixed(decs);
+        procesarDobleLiga();
         guardarBD();
     }
 }
@@ -127,16 +147,16 @@ function cerrarCustomAlert() {
 function mostrarLeyenda() {
     let html = `
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">🔄</span> 
-            <div><strong style="color:var(--primary-color);">Independencia:</strong> En Pata de Gallo, ambas líneas avanzan. Las lecturas de L1 y L2 son independientes; solo se sincroniza el nombre de la estación.</div>
+            <span style="font-size:1.2rem; margin-right:10px;">📍</span> 
+            <div><strong style="color:var(--primary-color);">Selector de BMs en cualquier fila:</strong> Toca el pin 📍 en cualquier estación (inicio, control intermedio o cierre final) para inyectar un BM de tu Base de Datos.</div>
         </div>
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">📏</span> 
-            <div><strong style="color:var(--primary-color);">Distancia del Circuito:</strong> Ingresa la longitud horizontal real del recorrido para evaluar la tolerancia $T = m\\sqrt{K}$ sin inflar el margen permisible.</div>
+            <span style="font-size:1.2rem; margin-right:10px;">🔄</span> 
+            <div><strong style="color:var(--primary-color);">Auto-Nombrado Inteligente:</strong> Si una fila tiene V.AD(-) y V.AT(+) se nombra sola como <strong>PC-1, PC-2...</strong> Si es la última estación de cierre (solo V.AD), se trata como BM/Estación de llegada para incluirse en la compensación.</div>
         </div>
         <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
             <span style="font-size:1.2rem; margin-right:10px;">⚠️</span> 
-            <div><strong style="color:var(--primary-color);">HUD Δ PC:</strong> El error milimétrico por armada compara el desnivel entre miras al llegar (V.AD) y al salir (V.AT) del mismo PC. Si el alarife mueve la placa, saltará en rojo.</div>
+            <div><strong style="color:var(--primary-color);">HUD Δ PC y Δ Cierre:</strong> Evalúa al milímetro si el alarife movió el sapo en un cambio (Δ PC) o la discrepancia entre líneas en un BM (Δ Cierre).</div>
         </div>
         <div style="display:flex; align-items:flex-start;">
             <span style="font-size:1.2rem; margin-right:10px;">📊</span> 
@@ -192,8 +212,14 @@ function btnPromptOkClick() {
     cerrarCustomPrompt(); if (promptOkCallback) promptOkCallback(val);
 }
 
-/* --- MODAL PRUEBA DE 2 ESTACAS (COLIMACIÓN) --- */
+/* --- MODAL PRUEBA DE 2 ESTACAS (MÉTODO RIGUROSO CON DISTANCIAS DE CAMPO) --- */
 function abrirPruebaDosEstacas() {
+    if (document.getElementById('peDistAB') && !document.getElementById('peDistAB').value) {
+        document.getElementById('peDistAB').value = '30.000';
+    }
+    if (document.getElementById('peDistB2') && !document.getElementById('peDistB2').value) {
+        document.getElementById('peDistB2').value = '2.000';
+    }
     document.getElementById('peA1').value = '';
     document.getElementById('peB1').value = '';
     document.getElementById('peA2').value = '';
@@ -214,26 +240,38 @@ function cerrarPrueba() {
 
 function calcPrueba() {
     let decs = getDecs();
+    let dAB = parseFloat(document.getElementById('peDistAB')?.value) || 30.0;
+    let dB2 = parseFloat(document.getElementById('peDistB2')?.value);
+    if (isNaN(dB2) || dB2 < 0) dB2 = 0.0;
+
     let a1Int = toScaledInt(document.getElementById('peA1').value, 4);
     let b1Int = toScaledInt(document.getElementById('peB1').value, 4);
     let a2Int = toScaledInt(document.getElementById('peA2').value, 4);
     let b2Int = toScaledInt(document.getElementById('peB2').value, 4);
     
     let resDiv = document.getElementById('resPrueba');
-    if(!isNaN(a1Int) && !isNaN(b1Int) && !isNaN(a2Int) && !isNaN(b2Int)) {
+    if(!isNaN(a1Int) && !isNaN(b1Int) && !isNaN(a2Int) && !isNaN(b2Int) && dAB > 0) {
         // Estación 1 al centro (libre de colimación): ΔH verdadero = A1 - B1
-        let deltaRealInt = a1Int - b1Int; 
-        let a2SinErrorInt = b2Int + deltaRealInt; 
-        let errorInt = a2Int - a2SinErrorInt;
-        let errorMM = fromScaledInt(errorInt, 4) * 1000;
-        let a2Corregido = fromScaledInt(a2SinErrorInt, 4);
+        // Estación 2 exterior a dB2 de B y a (dAB + dB2) de A:
+        // Desnivel aparente en Est 2 = A2 - B2. La diferencia entre ambos desniveles ocurre a lo largo de la distancia dAB.
+        let deltaReal = fromScaledInt(a1Int - b1Int, 4);
+        let deltaAparente2 = fromScaledInt(a2Int - b2Int, 4);
+        let errorEnTramoAB = deltaAparente2 - deltaReal; // m en dAB metros
+        let pendienteColimacion = errorEnTramoAB / dAB; // rad (m/m)
+        let errorMM = errorEnTramoAB * 1000; // mm en la distancia entre estacas A-B
+        let errorPorMetroMM = pendienteColimacion * 1000; // mm/m
+
+        // Lectura corregida en la mira lejana A2 (ubicada a distancia dAB + dB2 del nivel):
+        let a2Real = fromScaledInt(a2Int, 4);
+        let a2Corregido = a2Real - (pendienteColimacion * (dAB + dB2));
+        let b2Corregido = fromScaledInt(b2Int, 4) - (pendienteColimacion * dB2);
         
         let color = Math.abs(errorMM) <= 3.0 ? 'var(--success-text)' : 'var(--danger-color)';
         let signo = errorMM > 0 ? '+' : '';
         let estadoCal = Math.abs(errorMM) <= 3.0
-            ? '✓ Nivel Calibrado (OK)'
-            : `🔧 Ajustar retículo en mira lejana (A2) a: <strong>${a2Corregido.toFixed(decs)} m</strong>`;
-        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error en visual larga (e):</span>
+            ? '✓ Nivel Calibrado (Dentro de tolerancia ≤ 3.0 mm)'
+            : `🔧 Ajustar retículo en mira lejana (A2) a: <strong>${a2Corregido.toFixed(decs)} m</strong><br><span style="font-size:0.75rem; opacity:0.8;">(En mira cercana B2 corresponde: ${b2Corregido.toFixed(decs)} m)</span>`;
+        resDiv.innerHTML = `<span style="font-size:0.8rem; display:block; color:var(--text-color);">Error de colimación en ${dAB.toFixed(1)}m (${signo}${errorPorMetroMM.toFixed(3)} mm/m):</span>
             <span style="color:${color}; font-size:1.8rem; letter-spacing:1px;">${signo}${errorMM.toFixed(1)} mm</span>
             <div style="font-size:0.85rem; margin-top:6px; padding:6px; border-radius:6px; background:rgba(128,128,128,0.08); color:var(--text-color);">${estadoCal}</div>`;
     } else {
@@ -303,14 +341,11 @@ function guardarCompensadasEnDB() {
     showToast(`✅ ${nuevos} BMs creados y ${actualizados} actualizados en la DB`, "success");
 }
 
-// Alias compatible con el botón directo de niv-poligonal.html
 function guardarBMsCompensadosEnDB() {
     guardarCompensadasEnDB();
 }
 
 /* --- UI: MODAL SELECTOR GENÉRICO --- */
-let tipoModalActual = "";
-
 function abrirModalSelect(tipo) {
     tipoModalActual = tipo;
     const titulo = document.getElementById('modalSelectTitle');
@@ -325,7 +360,7 @@ function abrirModalSelect(tipo) {
         titulo.innerText = "📁 SELECCIONAR PROYECTO";
         appData.proyectos.forEach(proj => {
             let isActivo = proj.id === appData.activoId;
-            contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarOpcionModal('${proj.id}', '${proj.nombre}')"><span>${proj.nombre}</span></button>`;
+            contenido.innerHTML += `<button class="btn-opcion" style="${isActivo ? 'background:var(--primary-color); color:#fff;' : ''}" onclick="seleccionarProyectoModal(${proj.id})"><span>${escapeHTML(proj.nombre)}</span></button>`;
         });
     } else if(tipo === 'orden') {
         titulo.innerText = "⚙️ ORDEN DE NIVELACIÓN";
@@ -342,13 +377,13 @@ function abrirModalSelect(tipo) {
         });
     } else if(tipo === 'bm-tabla') {
         titulo.innerText = "📍 SELECCIONAR PTO BASE";
-        p.bms.forEach(bm => {
-            contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarOpcionModal('${bm.nombre}', '')">
-                <span>${bm.nombre}</span>
+        p.bms.forEach((bm, idx) => {
+            contenido.innerHTML += `<button class="btn-opcion" onclick="seleccionarBMTablaModal(${idx})">
+                <span>${escapeHTML(bm.nombre)}</span>
                 <span class="cota">Cota: ${bm.cota.toFixed(decs)}</span>
             </button>`;
         });
-        extra.innerHTML = `<button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.1rem; padding:15px; margin-top:10px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>`;
+        extra.innerHTML = `<button class="btn-accion" style="background:var(--table-header); color:#fff; font-size:1.05rem; padding:12px; margin-top:8px;" onclick="activarTecladoManual()">⌨️ TECLADO MANUAL</button>`;
     } else if(tipo === 'importar-bm') {
         titulo.innerText = "🔗 PUENTE DE BMs";
         bmsExternosPolCache = recopilarBMsExternosPol();
@@ -358,7 +393,7 @@ function abrirModalSelect(tipo) {
             contenido.innerHTML += `<button class="btn-accion" style="background:var(--primary-color); margin-bottom:10px; padding:10px; font-size:0.9rem;" onclick="importarTodosBMsExternosPol()">📥 IMPORTAR TODOS (${bmsExternosPolCache.length})</button>`;
             bmsExternosPolCache.forEach((bm, idx) => {
                 contenido.innerHTML += `<button class="btn-opcion" onclick="importarBMExternoPol(${idx})">
-                    <div><strong>${bm.nombre}</strong><br><span style="font-size:0.75rem; color:#888;">${bm.origen}</span></div>
+                    <div><strong>${escapeHTML(bm.nombre)}</strong><br><span style="font-size:0.75rem; color:#888;">${escapeHTML(bm.origen)}</span></div>
                     <span class="cota">${Number(bm.cota).toFixed(decs)} m</span>
                 </button>`;
             });
@@ -375,6 +410,22 @@ function cerrarModalSelect() {
     setTimeout(() => { document.getElementById('overlaySelect').style.display = 'none'; }, 300);
 }
 
+function seleccionarProyectoModal(projId) {
+    cerrarModalSelect();
+    cambiarProyectoActivo(projId);
+}
+
+function seleccionarBMTablaModal(idx) {
+    cerrarModalSelect();
+    let p = obtenerProyectoActivo();
+    if (p && p.bms[idx] && inputPtoActivo) {
+        inputPtoActivo.value = p.bms[idx].nombre;
+        verificarBM(inputPtoActivo);
+        syncBM(inputPtoActivo);
+        guardarBD();
+    }
+}
+
 function seleccionarOpcionModal(valor, textoExtra) {
     cerrarModalSelect();
     if(tipoModalActual === 'proyecto') {
@@ -383,21 +434,10 @@ function seleccionarOpcionModal(valor, textoExtra) {
         document.getElementById('ordenNiv').value = valor;
         document.getElementById('txtSelectOrden').innerText = textoExtra;
         actualizarOrdenTxt(); guardarBD(); procesarDobleLiga();
-    } else if(tipoModalActual === 'bm-tabla') {
-        if(inputPtoActivo) {
-            inputPtoActivo.value = valor; verificarBM(inputPtoActivo); syncBM(inputPtoActivo); guardarBD();
-        }
     }
 }
 
 /* --- SISTEMA PRINCIPAL --- */
-let appData = { activoId: 1, proyectos: [], contadorProyectos: 1 };
-let globalConfig = { darkMode: false, vibracion: false, decimales: "3", wakeLockEnabled: false };
-let inputPtoActivo = null; 
-let tablaBloqueada = false;
-let wakeLock = null;
-let editandoBMIndex = -1;
-
 async function solicitarWakeLock() { if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} } }
 
 function toggleBloqueoTabla(forceLock = false) {
@@ -469,11 +509,15 @@ function guardarBD() {
 
     for (let i = 0; i < filasIda.length; i++) {
         p.tablaIda.push({
-            pto: filasIda[i].querySelector('.in-pto').value, bmAsignado: i === 0 ? (filasIda[i].querySelector('.in-pto').dataset.bmAsignado || "") : "",
-            va: filasIda[i].querySelector('.in-va').value, vd: filasIda[i].querySelector('.in-vd').value
+            pto: filasIda[i].querySelector('.in-pto').value,
+            bmAsignado: filasIda[i].querySelector('.in-pto').dataset.bmAsignado || "",
+            va: filasIda[i].querySelector('.in-va').value,
+            vd: filasIda[i].querySelector('.in-vd').value
         });
         p.tablaVuelta.push({
-            pto: filasVuelta[i].querySelector('.in-pto').value, va: filasVuelta[i].querySelector('.in-va').value, vd: filasVuelta[i].querySelector('.in-vd').value
+            pto: filasVuelta[i].querySelector('.in-pto').value,
+            va: filasVuelta[i].querySelector('.in-va').value,
+            vd: filasVuelta[i].querySelector('.in-vd').value
         });
     }
     localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(appData)); 
@@ -498,7 +542,7 @@ function crearNuevoProyecto() {
 function eliminarProyecto() {
     if(appData.proyectos.length === 1) return showToast("Crea otro proyecto antes de borrar el último.", "warning");
     let p = obtenerProyectoActivo();
-    showCustomConfirm(`⚠️ ¿Borrar "${p.nombre}" permanentemente?`, () => {
+    showCustomConfirm(`⚠️ ¿Borrar "${escapeHTML(p.nombre)}" permanentemente?`, () => {
         appData.proyectos = appData.proyectos.filter(proj => proj.id !== p.id);
         appData.activoId = appData.proyectos[0].id; 
         guardarBD(); renderSelectProyectos(); cargarProyectoActivo();
@@ -519,8 +563,51 @@ function editarNombreProyecto() {
     });
 }
 
+/* --- FORMULARIO DESPLEGABLE PARA REGISTRAR / EDITAR BM --- */
+function toggleFormBM() {
+    const box = document.getElementById('boxRegistroBM');
+    if (!box) return;
+    if (box.style.display === 'block') {
+        cerrarFormBM();
+    } else {
+        abrirFormBM();
+    }
+}
+
+function abrirFormBM(modoEdicion = false) {
+    const box = document.getElementById('boxRegistroBM');
+    const btnToggle = document.getElementById('btnToggleFormBM');
+    const titulo = document.getElementById('tituloFormBM');
+    if (!box) return;
+    box.style.display = 'block';
+    if (btnToggle) btnToggle.style.background = 'var(--primary-color)';
+    if (!modoEdicion) {
+        editandoBMIndex = -1;
+        if (titulo) titulo.innerText = "➕ Registrar Nuevo BM";
+        document.getElementById('btnGuardarBM').innerText = "💾 Guardar BM";
+        document.getElementById('newBMName').value = "";
+        document.getElementById('newBMCota').value = "";
+        document.getElementById('newBMObs').value = "";
+        document.getElementById('newBMName').focus();
+    }
+}
+
+function cerrarFormBM() {
+    const box = document.getElementById('boxRegistroBM');
+    const btnToggle = document.getElementById('btnToggleFormBM');
+    if (!box) return;
+    box.style.display = 'none';
+    if (btnToggle) btnToggle.style.background = 'var(--table-header)';
+    editandoBMIndex = -1;
+    document.getElementById('newBMName').value = "";
+    document.getElementById('newBMCota').value = "";
+    document.getElementById('newBMObs').value = "";
+    document.getElementById('btnGuardarBM').innerText = "💾 Guardar BM";
+}
+
 function cargarProyectoActivo() {
     let p = obtenerProyectoActivo();
+    cerrarFormBM();
     document.getElementById('cotaBM').value = p.params.cotaBM || "";
     document.getElementById('cotaLlegada').value = p.params.cotaLlegada || "";
     document.getElementById('ordenNiv').value = p.params.orden;
@@ -546,7 +633,7 @@ function cargarProyectoActivo() {
             let trIda = tbodyIda.children[i]; let trVuelta = tbodyVuelta.children[i];
             
             trIda.querySelector('.in-pto').value = p.tablaIda[i].pto;
-            if(i === 0) trIda.querySelector('.in-pto').dataset.bmAsignado = p.tablaIda[i].bmAsignado;
+            trIda.querySelector('.in-pto').dataset.bmAsignado = p.tablaIda[i].bmAsignado || "";
             
             trIda.querySelector('.in-va').value = p.tablaIda[i].va; trIda.querySelector('.in-vd').value = p.tablaIda[i].vd;
             trVuelta.querySelector('.in-pto').value = p.tablaVuelta[i].pto; trVuelta.querySelector('.in-va').value = p.tablaVuelta[i].va; trVuelta.querySelector('.in-vd').value = p.tablaVuelta[i].vd;
@@ -615,10 +702,12 @@ function initTouchDragBM() {
 function guardarOrdenBMs() {
     let p = obtenerProyectoActivo(); let nuevosBMs = [];
     document.querySelectorAll('#listaBMs .bm-item').forEach(item => {
-        let nombre = item.querySelector('.bm-info strong').innerText; let bmData = p.bms.find(b => b.nombre === nombre);
+        let nombre = item.dataset.bmname; let bmData = p.bms.find(b => b.nombre === nombre);
         if(bmData) nuevosBMs.push(bmData);
     });
-    p.bms = nuevosBMs; guardarBD();
+    if (nuevosBMs.length === p.bms.length) {
+        p.bms = nuevosBMs; guardarBD(); renderBMs();
+    }
 }
 
 function clickEnBM(div, event) {
@@ -640,7 +729,7 @@ function addBM() {
     let p = obtenerProyectoActivo();
     
     const finalizarGuardado = () => {
-        document.getElementById('newBMName').value = ""; document.getElementById('newBMCota').value = ""; document.getElementById('newBMObs').value = "";
+        cerrarFormBM();
         guardarBD(); renderBMs(); showToast("BM guardado", "success");
     };
 
@@ -650,16 +739,14 @@ function addBM() {
             if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
             p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
 
-            let trIda0 = document.getElementById('cuerpoIda').children[0];
-            if (trIda0) {
-                let inPto = trIda0.querySelector('.in-pto');
+            document.querySelectorAll('#cuerpoIda tr').forEach((trIda, rIdx) => {
+                let inPto = trIda.querySelector('.in-pto');
                 if (inPto.dataset.bmAsignado === oldName || inPto.value.trim().toUpperCase() === oldName) {
                     inPto.dataset.bmAsignado = name; inPto.value = name;
-                    syncBM(inPto);
-                    document.getElementById('cotaBM').value = cotaExacta.toFixed(decs);
+                    if (rIdx === 0) document.getElementById('cotaBM').value = cotaExacta.toFixed(decs);
                 }
-            }
-            editandoBMIndex = -1; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Guardar BM"; btn.style.background = "var(--table-header)";
+            });
+            reconstruirSincronizacion();
             procesarDobleLiga(); guardarBD(); finalizarGuardado();
         });
     } else {
@@ -670,37 +757,57 @@ function addBM() {
 
 function cargarEditBM(i) {
     let p = obtenerProyectoActivo(); let bm = p.bms[i];
-    document.getElementById('newBMName').value = bm.nombre; document.getElementById('newBMCota').value = bm.cota; document.getElementById('newBMObs').value = bm.obs || "";
-    editandoBMIndex = i; let btn = document.getElementById('btnGuardarBM'); btn.innerText = "Actualizar BM"; btn.style.background = "var(--primary-color)";
+    if (!bm) return;
+    abrirFormBM(true);
+    editandoBMIndex = i;
+    let titulo = document.getElementById('tituloFormBM');
+    if (titulo) titulo.innerText = `✏️ Editando: ${bm.nombre}`;
+    document.getElementById('newBMName').value = bm.nombre;
+    document.getElementById('newBMCota').value = bm.cota.toFixed(getDecs());
+    document.getElementById('newBMObs').value = bm.obs || "";
+    let btn = document.getElementById('btnGuardarBM');
+    btn.innerText = "💾 Actualizar BM";
 }
 
 function deleteBM(i) { 
     let p = obtenerProyectoActivo();
-    showCustomConfirm(`⚠️ ¿Eliminar BM "${p.bms[i].nombre}"?`, () => { p.bms.splice(i, 1); guardarBD(); renderBMs(); procesarDobleLiga(); showToast("BM eliminado", "success"); });
+    if (!p.bms[i]) return;
+    showCustomConfirm(`⚠️ ¿Eliminar BM "${escapeHTML(p.bms[i].nombre)}"?`, () => { p.bms.splice(i, 1); guardarBD(); renderBMs(); procesarDobleLiga(); showToast("BM eliminado", "success"); });
 }
 
 function renderBMs() {
     let decs = getDecs(); let p = obtenerProyectoActivo(); const list = document.getElementById('listaBMs'); list.innerHTML = ""; 
+    if (!p.bms || p.bms.length === 0) {
+        list.innerHTML = `<div style="padding:10px; text-align:center; font-size:0.85rem; opacity:0.5;">Sin BMs registrados. Toca "➕ Registrar Nuevo BM".</div>`;
+        return;
+    }
     p.bms.forEach((bm, i) => { 
         list.innerHTML += `
-        <div class="bm-item" onclick="clickEnBM(this, event)">
+        <div class="bm-item" data-bmname="${escapeHTML(bm.nombre)}" onclick="clickEnBM(this, event)">
             <div class="bm-item-header">
-                <div class="bm-info"><strong>${bm.nombre}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                <div class="bm-info"><strong>${escapeHTML(bm.nombre)}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
                 <div class="bm-actions" onclick="event.stopPropagation()">
                     <button onclick="cargarEditBM(${i})">✏️</button>
                     <button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button>
                 </div>
             </div>
-            <div class="bm-obs" style="width:100%;">${bm.obs || 'Sin observaciones'}</div>
+            <div class="bm-obs" style="width:100%;">${escapeHTML(bm.obs || 'Sin observaciones')}</div>
         </div>`;
     });
 }
 
-function abrirSelectorBM(input) {
-    let p = obtenerProyectoActivo(); inputPtoActivo = input;
-    let tr = input.closest('tr'); let tbodyIda = document.getElementById('cuerpoIda');
-    if (tr.parentNode !== tbodyIda || Array.from(tbodyIda.children).indexOf(tr) !== 0) return; 
-    if (p.bms.length === 0) { activarTecladoManual(); return; }
+/* --- SELECTOR DE BM HABILITADO EN CUALQUIER FILA (INICIO, INTERMEDIO O CIERRE) --- */
+function abrirSelectorBM(el) {
+    if (tablaBloqueada) return;
+    let tr = el.closest('tr');
+    if (!tr) return;
+    let input = tr.querySelector('.in-pto');
+    let p = obtenerProyectoActivo();
+    inputPtoActivo = input;
+    if (!p.bms || p.bms.length === 0) {
+        activarTecladoManual();
+        return;
+    }
     abrirModalSelect('bm-tabla');
 }
 
@@ -718,26 +825,48 @@ function verificarBM(input) {
     const tr = input.closest('tr'); const tbody = document.getElementById('cuerpoIda');
     let rowIndex = Array.from(tbody.children).indexOf(tr);
 
-    if (rowIndex === 0) {
-        const inCotaBM = document.getElementById('cotaBM');
-        if (bmEncontrado) { input.dataset.bmAsignado = val; inCotaBM.value = bmEncontrado.cota.toFixed(decs); } 
-        else { input.dataset.bmAsignado = ""; }
+    if (bmEncontrado) {
+        input.dataset.bmAsignado = val;
+        if (rowIndex === 0) {
+            document.getElementById('cotaBM').value = bmEncontrado.cota.toFixed(decs);
+        }
+    } else {
+        input.dataset.bmAsignado = "";
     }
     procesarDobleLiga(); guardarBD();
 }
 
+/* --- AUTO-NOMBRADO CORREGIDO: SOLO NOMBRA "PC-X" CUANDO TIENE V.AD Y V.AT --- */
 function procesarAutoNombrar() {
     let trs = document.querySelectorAll('#cuerpoIda tr');
+    let trsVuelta = document.querySelectorAll('#cuerpoVuelta tr');
     let pcCount = 1;
-    for(let i=1; i<trs.length; i++) {
+    for(let i = 1; i < trs.length; i++) {
         let inPto = trs[i].querySelector('.in-pto');
-        let va = trs[i].querySelector('.in-va').value;
-        let vd = trs[i].querySelector('.in-vd').value;
-        
-        if(inPto.value.trim() === "" && (va !== "" || vd !== "") && document.activeElement !== inPto) {
-            inPto.value = "PC-" + pcCount;
+        let va1 = trs[i].querySelector('.in-va').value.trim();
+        let vd1 = trs[i].querySelector('.in-vd').value.trim();
+        let va2 = trsVuelta[i] ? trsVuelta[i].querySelector('.in-va').value.trim() : "";
+        let vd2 = trsVuelta[i] ? trsVuelta[i].querySelector('.in-vd').value.trim() : "";
+
+        let tieneVD = (vd1 !== "" || vd2 !== "");
+        let tieneVA = (va1 !== "" || va2 !== "");
+        let ptoActual = inPto.value.trim().toUpperCase();
+
+        if (document.activeElement !== inPto) {
+            if (tieneVD && tieneVA) {
+                if (ptoActual === "" || ptoActual === "BM-FIN") {
+                    inPto.value = "PC-" + pcCount;
+                    ptoActual = inPto.value;
+                }
+            } else if (tieneVD && !tieneVA) {
+                // Estación terminal (cierre): si estaba vacía o se había auto-nombrado PC antes de borrar VA, le pone BM-FIN
+                if (ptoActual === "") {
+                    inPto.value = "BM-FIN";
+                    ptoActual = inPto.value;
+                }
+            }
         }
-        if(inPto.value.startsWith("PC-")) pcCount++;
+        if (ptoActual.startsWith("PC-")) pcCount++;
     }
 }
 
@@ -765,14 +894,12 @@ function reconstruirSincronizacion() {
 function borrarFilaEspecifica(btn) {
     let trIda = btn.closest('tr'); let tbodyIda = trIda.parentNode; let idx = Array.from(tbodyIda.children).indexOf(trIda);
     let pto = trIda.querySelector('.in-pto').value.trim() || `Estación ${idx + 1}`;
-    showCustomConfirm(`⚠️ ¿Eliminar la lectura del punto: ${pto}? Se recalculará todo el circuito.`, () => {
+    showCustomConfirm(`⚠️ ¿Eliminar la lectura del punto: ${escapeHTML(pto)}? Se recalculará todo el circuito.`, () => {
         let tbodyVuelta = document.getElementById('cuerpoVuelta');
         tbodyIda.removeChild(trIda); tbodyVuelta.removeChild(tbodyVuelta.children[idx]);
         reconstruirSincronizacion(); procesarDobleLiga(); guardarBD(); showToast("Lectura eliminada", "success");
     });
 }
-
-let bmsExternosPolCache = [];
 
 function recopilarBMsExternosPol() {
     let lista = [];
@@ -881,13 +1008,13 @@ function agregarFila(isAuto = false, scrollDown = false) {
     
     const trIda = document.createElement('tr');
     if (idx === 0) {
-        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+        trIda.innerHTML = `<td class="sticky-col" style="position:relative;"><input type="text" class="in-pto bm-selector" placeholder="BM..." readonly onclick="abrirSelectorBM(this)" onkeydown="manejarEnterDobleLiga(event, this)" style="padding-right:22px;"><span class="btn-pin-pol" onclick="abrirSelectorBM(this)" title="Elegir BM">📍</span></td>
             <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="td-readonly"><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" disabled></td>
             <td class="out-cota" style="padding: 2px;">---</td>
             <td style="background: rgba(128,128,128,0.02); padding: 0;"></td>`;
     } else {
-        trIda.innerHTML = `<td class="sticky-col"><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); syncBM(this); procesarDobleLiga(); guardarBD();" onkeydown="manejarEnterDobleLiga(event, this)"></td>
+        trIda.innerHTML = `<td class="sticky-col" style="position:relative;"><input type="text" class="in-pto" placeholder="Pto..." oninput="this.value = this.value.toUpperCase(); verificarBM(this); syncBM(this); guardarBD();" onkeydown="manejarEnterDobleLiga(event, this)" style="padding-right:22px;"><span class="btn-pin-pol" onclick="abrirSelectorBM(this)" title="Elegir BM">📍</span></td>
             <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" oninput="formatDecimal(this); syncBM(this); procesarDobleLiga();" onblur="completarCeros(this)" onkeydown="manejarEnterDobleLiga(event, this)"></td>
             <td class="out-cota">---</td>
@@ -974,13 +1101,13 @@ function getErrorHUDStyles(pct) {
 
 function obtenerCotaOficialEstacion(ptoNombre, idxEstacion, ultimoIndice, cotaBMInicial, cotaLlegadaInput, p, ptoInicioNombre) {
     if (idxEstacion === 0) return cotaBMInicial;
-    if (idxEstacion === ultimoIndice) {
-        if (!isNaN(cotaLlegadaInput)) return cotaLlegadaInput;
-        if (ptoNombre && ptoInicioNombre && ptoNombre === ptoInicioNombre) return cotaBMInicial;
-    }
     if (p && Array.isArray(p.bms)) {
         let bmMatch = p.bms.find(b => b.nombre === ptoNombre);
         if (bmMatch) return bmMatch.cota;
+    }
+    if (idxEstacion === ultimoIndice) {
+        if (!isNaN(cotaLlegadaInput)) return cotaLlegadaInput;
+        if (ptoNombre && ptoInicioNombre && ptoNombre === ptoInicioNombre) return cotaBMInicial;
     }
     return NaN;
 }
@@ -1074,7 +1201,9 @@ function procesarDobleLiga() {
 
         // --- CÁLCULO DE COTAS Y HUD DE ERROR - LÍNEA 2 (DER) ---
         let hudHTML = '';
-        let isPC = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim().startsWith("PC");
+        let ptoStr = filasIda[i].querySelector('.in-pto').value.toUpperCase().trim();
+        let tieneAmbosVA = !isNaN(vaIdaInt) && !isNaN(vaVueltaInt);
+        let isPC = ptoStr.startsWith("PC") && tieneAmbosVA;
 
         if (i === 0) {
             cotaActVueltaInt = cotaBMInt;
@@ -1107,29 +1236,21 @@ function procesarDobleLiga() {
                 if (!isNaN(vaVueltaInt)) aiVueltaInt = cotaActVueltaInt + vaVueltaInt;
 
                 if (isPC) {
-                    if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt) && !isNaN(vaIdaInt) && !isNaN(vaVueltaInt)) {
-                        let diffVDInt = vdIdaInt - vdVueltaInt;
-                        let diffVAInt = vaIdaInt - vaVueltaInt;
-                        let errorMM = Math.abs(diffVDInt - diffVAInt) * factorMM;
-                        let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
-                        let st = getErrorHUDStyles(pct);
-                        let alert = pct > 100 ? ' ⚠️' : '';
-                        hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ PC: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
-                        filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
-                    } else if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt)) {
-                        let diffVDMM = Math.abs(vdIdaInt - vdVueltaInt) * factorMM;
-                        hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:#1976d2; background:rgba(25,118,210,0.1); border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Dif. Lectura: ${diffVDMM.toFixed(1)}mm</div>`;
-                        filasVuelta[i].style.backgroundColor = 'transparent';
-                    }
-                } else {
-                    if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt) && !isNaN(cotaActIdaInt)) {
-                        let errorMM = Math.abs(cotaActIdaInt - cotaActVueltaInt) * factorMM;
-                        let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
-                        let st = getErrorHUDStyles(pct);
-                        let alert = pct > 100 ? ' ⚠️' : '';
-                        hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ Cierre: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
-                        filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
-                    }
+                    let diffVDInt = vdIdaInt - vdVueltaInt;
+                    let diffVAInt = vaIdaInt - vaVueltaInt;
+                    let errorMM = Math.abs(diffVDInt - diffVAInt) * factorMM;
+                    let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
+                    let st = getErrorHUDStyles(pct);
+                    let alert = pct > 100 ? ' ⚠️' : '';
+                    hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ PC: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
+                    filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
+                } else if (!isNaN(vdIdaInt) && !isNaN(vdVueltaInt) && !isNaN(cotaActIdaInt)) {
+                    let errorMM = Math.abs(cotaActIdaInt - cotaActVueltaInt) * factorMM;
+                    let pct = tolTramoMM > 0 ? (errorMM / tolTramoMM) * 100 : 0;
+                    let st = getErrorHUDStyles(pct);
+                    let alert = pct > 100 ? ' ⚠️' : '';
+                    hudHTML = `<div style="font-size:0.75rem; font-weight:900; color:${st.c}; background:${st.b}; border-radius:4px; padding:2px 4px; display:inline-block; margin-top:2px; letter-spacing:0.5px;">Δ Cierre: ${errorMM.toFixed(1)}mm | ${pct.toFixed(0)}%${alert}</div>`;
+                    filasVuelta[i].style.backgroundColor = pct > 100 ? 'rgba(211,47,47,0.05)' : 'transparent';
                 }
 
                 if (!isNaN(vaVueltaInt)) {
@@ -1222,7 +1343,7 @@ function procesarDobleLiga() {
 
                     htmlSeg += `
                         <div style="border: 2px solid ${cumple ? borderCumple : borderFalla}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? bgCumple : bgFalla};">
-                            <div style="font-weight: 900; color: var(--text-color); margin-bottom: 5px;">📍 ${ptoStart} ➔ ${ptoEnd} <span style="float:right; font-size:0.8rem; opacity:0.8;">(${setups} armadas)</span></div>
+                            <div style="font-weight: 900; color: var(--text-color); margin-bottom: 5px;">📍 ${escapeHTML(ptoStart)} ➔ ${escapeHTML(ptoEnd)} <span style="float:right; font-size:0.8rem; opacity:0.8;">(${setups} armadas)</span></div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-color); opacity: 0.9;">
                                 <span>Discrepancia (L1 vs L2): <strong>${errLineas.toFixed(4)} m</strong></span>
                                 <span>Tol: <strong>±${tolTramo.toFixed(4)} m</strong></span>
@@ -1297,6 +1418,9 @@ function calcularEstacionesCompensadas() {
         }
 
         if (!isNaN(cotaIda) && !isNaN(cotaVuelta)) {
+            let vaIdaVal = filasIda[i].querySelector('.in-va').value.trim();
+            let vaVueltaVal = filasVuelta[i].querySelector('.in-va').value.trim();
+            let tieneVA = (vaIdaVal !== "" && vaVueltaVal !== "");
             let promCrudo = (cotaIda + cotaVuelta) / 2.0;
             datosEstaciones.push({
                 pto: pto,
@@ -1304,19 +1428,20 @@ function calcularEstacionesCompensadas() {
                 cotaVuelta: cotaVuelta,
                 promCrudo: promCrudo,
                 cotaCompensada: promCrudo,
-                esPC: pto.startsWith("PC")
+                esPC: pto.startsWith("PC") && tieneVA
             });
         }
     }
 
     if (datosEstaciones.length < 2) return [];
     let N = datosEstaciones.length - 1;
+    // La estación final del circuito siempre se incluye en el cuadro de compensadas aunque se haya llamado PC
+    datosEstaciones[N].esPC = false;
     let ptoInicioNombre = datosEstaciones[0].pto;
 
-    // Identificar estaciones con Cota Oficial fija (Inicio, BMs oficiales intermedios y Cierre final conocido)
     let controles = [];
     for (let i = 0; i <= N; i++) {
-        if (i > 0 && datosEstaciones[i].esPC) continue;
+        if (i > 0 && i < N && datosEstaciones[i].esPC) continue;
         let cotaOficial = obtenerCotaOficialEstacion(datosEstaciones[i].pto, i, N, cotaBM, cotaLlegadaInput, p, ptoInicioNombre);
         if (!isNaN(cotaOficial)) {
             controles.push({
@@ -1339,7 +1464,6 @@ function calcularEstacionesCompensadas() {
                 datosEstaciones[i].cotaCompensada = fromScaledInt(toScaledInt(compVal, decs), decs);
             }
         }
-        // Si quedaron estaciones después del último BM oficial conocido, arrastran la corrección fija del último control
         let ultimoCtrl = controles[controles.length - 1];
         for (let i = ultimoCtrl.idx + 1; i <= N; i++) {
             let compVal = datosEstaciones[i].promCrudo - ultimoCtrl.err;
@@ -1369,7 +1493,7 @@ function generarCompensadas() {
         if (!data.esPC) {
             let tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="color:var(--primary-color); font-weight: 900;">${data.pto}</td>
+                <td style="color:var(--primary-color); font-weight: 900;">${escapeHTML(data.pto)}</td>
                 <td>${data.cotaIda.toFixed(decs)}</td>
                 <td>${data.cotaVuelta.toFixed(decs)}</td>
                 <td style="color:#1976d2; font-weight: 700;">${data.promCrudo.toFixed(decs)}</td>
@@ -1520,8 +1644,6 @@ function exportarExcelPlantilla(modo) {
     let exportL2 = [];
     if (isCamuflaje && dataL2.length > 0) {
         let N = dataL2.length - 1;
-        // La Vuelta parte exactamente de la Cota Final a la que llegó la Ida (dataL1[N].cotaInt)
-        // para que la libreta sea 100% continua y el error de cierre aparezca al llegar de regreso al BM inicial.
         let cotaRetornoInt = dataL1[N].cotaInt; 
         let currentAiRetInt = 0;
         let pcCount = 1;
@@ -1567,7 +1689,6 @@ function exportarExcelPlantilla(modo) {
     let sumVaIdaInt = 0, sumVdIdaInt = 0, sumVaVueltaInt = 0, sumVdVueltaInt = 0;
     let NLast = dataL1.length - 1;
     for (let i = 0; i <= NLast; i++) {
-        // En Pata de Gallo o Ida/Vuelta, solo se suman las lecturas que forman parte del circuito (0 a N-1 para VA, 1 a N para VD)
         if (i < NLast && !isNaN(dataL1[i].vaInt)) sumVaIdaInt += dataL1[i].vaInt;
         if (i > 0 && !isNaN(dataL1[i].vdInt)) sumVdIdaInt += dataL1[i].vdInt;
         if (i < NLast && !isNaN(exportL2[i].vaInt)) sumVaVueltaInt += exportL2[i].vaInt;
@@ -1654,7 +1775,6 @@ function exportarExcelPlantilla(modo) {
         ]);
     }
 
-    // Agregar Cuadro Resumen de Cotas Compensadas debajo (calculándolo al vuelo si aún no estaba desplegado)
     let estacionesComp = calcularEstacionesCompensadas();
     let bmsComp = estacionesComp.filter(e => !e.esPC);
     if (bmsComp.length > 0) {
@@ -1699,7 +1819,13 @@ function calcDel() { let d = document.getElementById('calcDisplay'); d.value = d
 function calcEval() {
     let decs = getDecs();
     try {
-        let res = new Function('return ' + document.getElementById('calcDisplay').value)();
+        let expr = document.getElementById('calcDisplay').value.replace(/[^0-9+\-*/.()]/g, '');
+        if (!expr) return;
+        let res = new Function('return ' + expr)();
+        if (!isFinite(res)) {
+            document.getElementById('calcDisplay').value = 'Error';
+            return;
+        }
         document.getElementById('calcDisplay').value = (res % 1 !== 0) ? Number(res.toFixed(decs)) : res;
     } catch(e) {
         document.getElementById('calcDisplay').value = 'Error';

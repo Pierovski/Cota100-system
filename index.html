@@ -69,10 +69,16 @@
         }
         @keyframes flowWater { 0% { transform: translateX(0); } 100% { transform: translateX(-50vw); } }
 
-        /* --- SPLASH SCREEN --- */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        /* --- SPLASH SCREEN SIEMPRE CON FONDO BLANCO PURO --- */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: #ffffff !important; 
+            z-index: 10005; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: 0.3s; 
+        }
         .splash-animar { animation: fadeOutSplash 0.4s ease-in-out 1.2s forwards; }
-        #splash-screen img { width: 160px; height: auto; filter: drop-shadow(0 10px 20px rgba(255,85,0,0.25)); }
+        #splash-screen img { width: 180px; height: auto; }
         .logo-animar { animation: pulseLogo 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         @keyframes pulseLogo { 0% { transform: scale(0.9); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fadeOutSplash { 100% { opacity: 0; visibility: hidden; z-index: -1; } }
@@ -280,7 +286,7 @@
         </div>
     </div>
 
-    <!-- SPLASH SCREEN -->
+    <!-- SPLASH SCREEN CON FONDO BLANCO PURO -->
     <div id="splash-screen">
         <img src="icono.png" alt="COTA100 Logo">
     </div>
@@ -436,10 +442,10 @@
                 version_export: "8.0",
                 fecha: new Date().toISOString(),
                 storage_dump: dump,
-                // Compatibilidad retroactiva con backups v7.0
                 ajustes: JSON.parse(localStorage.getItem('cota100_ajustes')),
                 db_simple: JSON.parse(localStorage.getItem('cota100_db_simple_v4')),
                 db_alcan: JSON.parse(localStorage.getItem('cota100_db_alcan_v3')),
+                db_vial: JSON.parse(localStorage.getItem('cota100_db_vial_v1')),
                 db_poligonal: JSON.parse(localStorage.getItem('cota100_db_poligonal_v11')),
                 db_polabierta: JSON.parse(localStorage.getItem('cota100_db_polabierta_v5')),
                 db_polcerrada: JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4')),
@@ -447,27 +453,45 @@
             };
         }
 
-                function inyectarTodoLocalStorage(b) {
-            if (b.storage_dump && typeof b.storage_dump === 'object') {
+        function inyectarTodoLocalStorage(b, nombreArchivo = "") {
+            if (b && b.storage_dump && typeof b.storage_dump === 'object') {
                 Object.keys(b.storage_dump).forEach(k => {
                     if (b.storage_dump[k] !== null && b.storage_dump[k] !== undefined) {
                         localStorage.setItem(k, b.storage_dump[k]);
                     }
                 });
-                return true;
-            } else if (b.ajustes || b.db_simple || b.db_alcan || b.db_poligonal || b.db_polabierta || b.db_polcerrada || b.db_areas) {
+                return "Bóveda General";
+            }
+            if (b && (b.ajustes || b.db_simple || b.db_alcan || b.db_vial || b.db_poligonal || b.db_polabierta || b.db_polcerrada || b.db_areas)) {
                 if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
                 if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
                 if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
+                if(b.db_vial) localStorage.setItem('cota100_db_vial_v1', JSON.stringify(b.db_vial));
                 if(b.db_poligonal) localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b.db_poligonal));
                 if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
                 if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
                 if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));
-                return true;
+                return "Bóveda General";
             }
-            throw new Error("Archivo individual o formato incompatible con Bóveda General");
+            if (b && Array.isArray(b.proyectos)) {
+                let p0 = b.proyectos[0] || {};
+                let fn = nombreArchivo.toLowerCase();
+                if (fn.includes('poligonal') || p0.tablaIda !== undefined) {
+                    localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b));
+                    return "Módulo Nivelación Simultánea";
+                } else if (fn.includes('simple') || p0.tabla !== undefined) {
+                    localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b));
+                    return "Módulo Nivelación Simple";
+                } else if (fn.includes('carreteras') || fn.includes('vial') || (p0.estadoActivo && p0.estadoActivo.anchoIzq !== undefined)) {
+                    localStorage.setItem('cota100_db_vial_v1', JSON.stringify(b));
+                    return "Módulo Carreteras";
+                } else if (fn.includes('alcan') || p0.perfiles !== undefined) {
+                    localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b));
+                    return "Módulo Alcantarillado";
+                }
+            }
+            throw new Error("Formato incompatible con Bóveda COTA100");
         }
-        
 
         // --- BLINDAJE NATIVO DE ALMACENAMIENTO PERMANENTE ---
         async function blindarAlmacenamientoPersistente() {
@@ -561,13 +585,14 @@
         function restaurarRapidoTotal() {
             const fileInput = document.getElementById('importVaultFile');
             if(fileInput.files.length === 0) return;
+            const fileName = fileInput.files[0].name || "";
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const b = JSON.parse(e.target.result);
-                    inyectarTodoLocalStorage(b);
-                    alert("✅ Bóveda restaurada con éxito. Se actualizará el sistema.");
+                    const origen = inyectarTodoLocalStorage(b, fileName);
+                    alert(`✅ Restaurado con éxito (${origen}). Se actualizará el sistema.`);
                     window.location.reload();
                 } catch(err) { alert("❌ Error: El archivo seleccionado no es un respaldo válido."); }
             };
@@ -638,10 +663,20 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+            const splash = document.getElementById('splash-screen');
+            const logo = splash.querySelector('img');
+
             if (sessionStorage.getItem('cota100_auth') !== 'true') {
-                document.getElementById('splash-screen').style.display = 'none';
+                // 1. Muestra siempre tu logo con fondo blanco al arrancar la app
+                logo.classList.add('logo-animar');
+                splash.classList.add('splash-animar');
+                sessionStorage.setItem('splashMostrado', 'true');
+
+                // 2. Prepara el PIN detrás para que aparezca suave al desvanecerse el logo
                 document.getElementById('lock-screen').style.display = 'flex';
-                document.getElementById('pinInput').focus();
+                setTimeout(() => {
+                    document.getElementById('pinInput').focus();
+                }, 1400);
             } else {
                 iniciarAppVisual();
             }
@@ -671,7 +706,6 @@
 
         let currentUser = null;
 
-        // Detecta automáticamente si ya habías iniciado sesión antes
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const dot = document.getElementById('cloudDotIndicator');
@@ -726,7 +760,6 @@
                 const payload = window.recopilarTodoLocalStorage();
                 const fechaLegible = new Date().toLocaleString('es-PE', { hour12: true });
 
-                // Se guarda estrictamente bajo el UID único de quien inició sesión
                 await setDoc(doc(db, "bovedas_cota100", currentUser.uid), {
                     usuario_email: currentUser.email,
                     usuario_nombre: currentUser.displayName || "",

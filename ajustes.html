@@ -191,7 +191,7 @@
     </div>
 
     <div class="top-bar">
-        <a href="index.html" class="btn-volver-mini" onclick="feedbackUI()">
+        <a href="index.html" class="btn-volver-mini" onclick="guardarAjustes(false)">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -214,16 +214,16 @@
                         Prefijo de Proyectos
                         <span class="info-icon" onclick="showInfoAlert('Nombre base que se asignará automáticamente cuando crees un nuevo proyecto (Ej. si pones LOTE, el sistema creará LOTE 1, LOTE 2).')">ℹ️</span>
                     </label>
-                    <input type="text" id="ajusteProyecto" placeholder="EJ: LOTE URBANO" oninput="this.value = this.value.toUpperCase()">
+                    <input type="text" id="ajusteProyecto" placeholder="EJ: LOTE URBANO" oninput="this.value = this.value.toUpperCase(); guardarAjustes(false);">
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label>Operador</label>
-                        <input type="text" id="ajusteOperador" placeholder="EJ: PIERO C." oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" id="ajusteOperador" placeholder="EJ: PIERO C." oninput="this.value = this.value.toUpperCase(); guardarAjustes(false);">
                     </div>
                     <div class="input-group">
                         <label>Equipo Base</label>
-                        <input type="text" id="ajusteEquipo" placeholder="EJ: LEICA TS06" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" id="ajusteEquipo" placeholder="EJ: LEICA TS06" oninput="this.value = this.value.toUpperCase(); guardarAjustes(false);">
                     </div>
                 </div>
             </div>
@@ -534,6 +534,7 @@
             } else if(tipoModalActual === 'delimitador') {
                 document.getElementById('ajusteDelimitador').value = valor; document.getElementById('txtDelimitador').innerText = texto;
             }
+            guardarAjustes(false);
         }
 
         // --- SISTEMA GENERAL ---
@@ -613,7 +614,7 @@
         }
 
         function guardarAjustes(mostrarNotificacion = false) {
-            feedbackUI();
+            if (mostrarNotificacion) feedbackUI();
             let conf = {
                 proyecto: document.getElementById('ajusteProyecto').value.trim(),
                 operador: document.getElementById('ajusteOperador').value.trim(),
@@ -707,7 +708,7 @@
         function limpiarDB(modulo) {
             feedbackUI();
             let msg = "";
-            if(modulo === 'nivelacion') msg = "Nivelación Simple, Simultánea y Alcantarillado";
+            if(modulo === 'nivelacion') msg = "Nivelación Simple, Simultánea, Alcantarillado y Carreteras";
             else if(modulo === 'poligonales') msg = "Poligonales Abiertas y Cerradas";
             else if(modulo === 'areas') msg = "Áreas, Lotes y Perímetros";
 
@@ -715,6 +716,7 @@
                 if(modulo === 'nivelacion') { 
                     localStorage.removeItem('cota100_db_simple_v4'); 
                     localStorage.removeItem('cota100_db_alcan_v3'); 
+                    localStorage.removeItem('cota100_db_vial_v1');
                     localStorage.removeItem('cota100_db_poligonal_v11');
                 }
                 if(modulo === 'poligonales') { 
@@ -746,6 +748,7 @@
                 ajustes: JSON.parse(localStorage.getItem('cota100_ajustes')),
                 db_simple: JSON.parse(localStorage.getItem('cota100_db_simple_v4')),
                 db_alcan: JSON.parse(localStorage.getItem('cota100_db_alcan_v3')),
+                db_vial: JSON.parse(localStorage.getItem('cota100_db_vial_v1')),
                 db_poligonal: JSON.parse(localStorage.getItem('cota100_db_poligonal_v11')),
                 db_polabierta: JSON.parse(localStorage.getItem('cota100_db_polabierta_v5')),
                 db_polcerrada: JSON.parse(localStorage.getItem('cota100_db_polcerrada_v4')),
@@ -786,31 +789,59 @@
             mostrarToast("Backup descargado en el dispositivo");
         }
 
+        function restaurarObjetoBackupInteligente(b, nombreArchivo = "") {
+            if (b && b.storage_dump && typeof b.storage_dump === 'object') {
+                Object.keys(b.storage_dump).forEach(k => {
+                    if (b.storage_dump[k] !== null && b.storage_dump[k] !== undefined) {
+                        localStorage.setItem(k, b.storage_dump[k]);
+                    }
+                });
+                return "Bóveda General";
+            }
+            if (b && (b.ajustes || b.db_simple || b.db_alcan || b.db_vial || b.db_poligonal || b.db_polabierta || b.db_polcerrada || b.db_areas)) {
+                if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
+                if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
+                if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
+                if(b.db_vial) localStorage.setItem('cota100_db_vial_v1', JSON.stringify(b.db_vial));
+                if(b.db_poligonal) localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b.db_poligonal));
+                if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
+                if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
+                if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));
+                return "Bóveda General";
+            }
+            // Detección automática si el usuario subió un backup de un módulo individual ({ activoId, proyectos: [...] })
+            if (b && Array.isArray(b.proyectos)) {
+                let p0 = b.proyectos[0] || {};
+                let fn = nombreArchivo.toLowerCase();
+                if (fn.includes('poligonal') || p0.tablaIda !== undefined) {
+                    localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b));
+                    return "Módulo Nivelación Simultánea";
+                } else if (fn.includes('simple') || p0.tabla !== undefined) {
+                    localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b));
+                    return "Módulo Nivelación Simple";
+                } else if (fn.includes('carreteras') || fn.includes('vial') || (p0.estadoActivo && p0.estadoActivo.anchoIzq !== undefined)) {
+                    localStorage.setItem('cota100_db_vial_v1', JSON.stringify(b));
+                    return "Módulo Carreteras";
+                } else if (fn.includes('alcan') || p0.perfiles !== undefined) {
+                    localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b));
+                    return "Módulo Alcantarillado";
+                }
+            }
+            throw new Error("Formato incompatible");
+        }
+
         function importarBackupTotal() {
             feedbackUI();
             const fileInput = document.getElementById('importFile');
             if(fileInput.files.length === 0) return;
+            const fileName = fileInput.files[0].name || "";
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const b = JSON.parse(e.target.result);
-                    if (b.storage_dump && typeof b.storage_dump === 'object') {
-                        Object.keys(b.storage_dump).forEach(k => {
-                            if (b.storage_dump[k] !== null && b.storage_dump[k] !== undefined) {
-                                localStorage.setItem(k, b.storage_dump[k]);
-                            }
-                        });
-                    } else {
-                        if(b.ajustes) localStorage.setItem('cota100_ajustes', JSON.stringify(b.ajustes));
-                        if(b.db_simple) localStorage.setItem('cota100_db_simple_v4', JSON.stringify(b.db_simple));
-                        if(b.db_alcan) localStorage.setItem('cota100_db_alcan_v3', JSON.stringify(b.db_alcan));
-                        if(b.db_poligonal) localStorage.setItem('cota100_db_poligonal_v11', JSON.stringify(b.db_poligonal));
-                        if(b.db_polabierta) localStorage.setItem('cota100_db_polabierta_v5', JSON.stringify(b.db_polabierta));
-                        if(b.db_polcerrada) localStorage.setItem('cota100_db_polcerrada_v4', JSON.stringify(b.db_polcerrada));
-                        if(b.db_areas) localStorage.setItem('cota100_db_areas_v2', JSON.stringify(b.db_areas));
-                    }
-                    alert("✅ Sistema Restaurado con éxito. Se recargará la aplicación.");
+                    const origen = restaurarObjetoBackupInteligente(b, fileName);
+                    alert(`✅ Restaurado con éxito (${origen}). Se recargará la aplicación.`);
                     window.location.reload();
                 } catch(err) { alert("❌ Error: Archivo de Backup corrupto o no compatible."); }
             };
