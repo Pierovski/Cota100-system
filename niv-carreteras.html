@@ -245,6 +245,18 @@
             .btn-calculadora-flotante { width: 45px; height: 45px; bottom: 10px; right: 10px; }
             .calculadora-modal { right: 10px; bottom: 65px; width: 230px; }
         }
+
+        /* --- ESTILOS DIDÁCTICOS PARA MODALES DE INFORMACIÓN --- */
+        #customAlertOverlay { z-index: 2000 !important; }
+        #customAlertModal { max-width: 400px !important; width: 92% !important; z-index: 2001 !important; }
+        #customAlertMsg { max-height: 62vh; overflow-y: auto; line-height: 1.45; padding-right: 4px; font-weight: 600; }
+        .info-formula { background: rgba(255, 85, 0, 0.10); border-left: 3px solid var(--primary-color); padding: 7px 9px; border-radius: 6px; font-family: monospace; font-size: 0.88rem; font-weight: 800; margin: 8px 0; color: var(--text-color); }
+        .info-ex { background: rgba(25, 118, 210, 0.09); border-left: 3px solid var(--blue-accent); padding: 7px 9px; border-radius: 6px; font-size: 0.86rem; margin: 8px 0; }
+        .info-tip { background: rgba(46, 204, 113, 0.12); border-left: 3px solid #2e7d32; padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .info-warn { background: rgba(211, 47, 47, 0.10); border-left: 3px solid var(--danger-color); padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .guia-item { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid var(--border-color); }
+        .guia-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .guia-num { min-width: 24px; height: 24px; border-radius: 50%; background: var(--primary-color); color: #fff; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 <body onload="inicializarApp()">
@@ -298,7 +310,13 @@
     <!-- MODAL CONTROL DE PLANTILLADO / CACHACOS EN VIVO (IZQ - EJE - DER) -->
     <div class="overlay-select" id="overlayCtrlTerr" onclick="cerrarModalCtrlTerr()"></div>
     <div class="modal-select" id="modalCtrlTerr">
-        <h3 id="tituloCtrlTerr" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:6px; font-size:1.1rem; text-align:center;">⛏️ CONTROL DE PLANTILLA</h3>
+        <div style="display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom:6px;">
+            <h3 id="tituloCtrlTerr" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; font-size:1.1rem; margin:0;">⛏️ CONTROL DE PLANTILLA</h3>
+            <span class="info-icon" style="margin:0;" onclick="showInfoVial('ctrlPlantilla')">ℹ️</span>
+        </div>
+        <div id="avisoLockCtrlTerr" style="display:none; font-size:0.78rem; font-weight:800; color:var(--success-text); background:var(--success-bg); border:1px solid var(--success-text); border-radius:6px; padding:6px 8px; margin-bottom:8px; text-align:center;">
+            🔒 Estaca congelada en VERDE. Los lados sin modificar conservan su cota congelada aunque hayas movido el nivel.
+        </div>
         <p style="font-size:0.8rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:12px;">Ingresa la <strong>Lectura de Mira V.AD(-)</strong> sobre el terreno o antepón <strong>#</strong> si digitas una Cota Directa (ej: <code>#102.450</code>).</p>
         <div class="form-grid-3">
             <div class="input-group">
@@ -315,9 +333,10 @@
             </div>
         </div>
         <div id="previewCtrlTerrBox" style="font-size:0.78rem; font-weight:800; text-align:center; padding:8px; border-radius:6px; background:rgba(128,128,128,0.08); margin-bottom:10px;"></div>
-        <div class="confirm-btns" style="margin-top:10px;">
-            <button class="confirm-btn" style="background:var(--danger-color); color:#fff;" onclick="limpiarInputsCtrlTerr()">LIMPIAR</button>
-            <button class="confirm-btn" style="background:var(--primary-color); color:#fff;" onclick="guardarCtrlTerr()">GUARDAR</button>
+        <div class="confirm-btns" style="margin-top:10px; gap:6px;">
+            <button class="confirm-btn" style="background:var(--danger-color); color:#fff; padding:10px 4px; font-size:0.85rem;" onclick="limpiarInputsCtrlTerr()">LIMPIAR</button>
+            <button class="confirm-btn" style="background:rgba(128,128,128,0.22); color:var(--text-color); padding:10px 4px; font-size:0.85rem;" onclick="cerrarModalCtrlTerr()">CERRAR</button>
+            <button class="confirm-btn" style="background:var(--primary-color); color:#fff; padding:10px 4px; font-size:0.85rem;" onclick="guardarCtrlTerr()">GUARDAR</button>
         </div>
     </div>
 
@@ -355,7 +374,7 @@
         </div>
     </div>
 
-    <div class="overlay-select" id="customAlertOverlay"></div>
+    <div class="overlay-select" id="customAlertOverlay" onclick="cerrarCustomAlert()"></div>
     <div class="modal-select" id="customAlertModal">
         <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
         <div class="confirm-msg" id="customAlertMsg" style="font-size:0.95rem; font-weight:600; text-align:left; color:var(--text-color); margin-bottom:15px;">Texto</div>
@@ -504,47 +523,47 @@
 
                 <canvas id="croquisCanvas" width="340" height="165" style="display:none; width:100%; border:1px solid var(--border-color); border-radius:8px; margin-bottom:12px; background: var(--card-bg);"></canvas>
 
-                <label style="color:var(--primary-color); margin-bottom:6px;">📐 Geometría Longitudinal (Eje)</label>
+                <label style="color:var(--primary-color); margin-bottom:6px;"><span>📐 Geometría Longitudinal (Eje)</span><span style="font-size:0.68rem; opacity:0.75; text-transform:none;">Tangentes / peralte pleno</span></label>
                 <div class="form-grid">
                     <div class="input-group">
                         <label>
                             Prog. Inicial (m)
-                            <span class="info-icon" onclick="showCustomAlert('Kilometraje de inicio de tu tramo en metros. Ejemplo: escribe <strong>0</strong> para 0+000 o <strong>1240</strong> para arrancar en 1+240.', 'PROGRESIVA INICIAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('progIni')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="progIni" value="0.000" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Longitud Tramo (m)
-                            <span class="info-icon" onclick="showCustomAlert('Distancia horizontal total del tramo a estacar o plantillar.', 'LONGITUD DEL TRAMO')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('distTotal')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="distTotal" placeholder="Ej: 100.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota Eje Inicial
-                            <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje en la Progresiva Inicial.', 'COTA EJE INICIAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('cotaIni')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="cotaIni" placeholder="Ej: 100.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota Eje Final
-                            <span class="info-icon" onclick="showCustomAlert('Cota de diseño del Eje al terminar el tramo. Puedes dejarla en blanco y usar <strong>🪄 Deducir Dato Eje</strong> si ya tienes la pendiente.', 'COTA EJE FINAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('cotaFin')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="cotaFin" placeholder="Ej: 101.500" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pend. Eje (%) [+/-]
-                            <span class="info-icon" onclick="showCustomAlert('Pendiente longitudinal del eje vial.<br>• <strong>Positiva (+)</strong>: La vía SUBE.<br>• <strong>Negativa (-)</strong>: La vía BAJA.', 'PENDIENTE LONGITUDINAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('pteLong')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="pteLong" placeholder="Ej: 1.500 o -1.500" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Offset Capa (m)
-                            <span class="info-icon" onclick="showCustomAlert('<strong>DESFASE DE ESTRUCTURA:</strong><br>Si tus cotas de eje son de Rasante (Acabado), pero estás plantillando <strong>Subrasante</strong> (ej: -0.450) o <strong>Base</strong> (ej: -0.050), escribe ese espesor aquí. Usa 0.000 para Rasante.', 'OFFSET DE CAPA')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('offsetCapa')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="offsetCapa" value="0.000" placeholder="Ej: -0.200" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
@@ -567,28 +586,28 @@
                         <div class="input-group">
                             <label style="color:var(--izq-color);">
                                 ⬅️ Ancho Carril Izq (m)
-                                <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde izquierdo de calzada.', 'ANCHO IZQUIERDO')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoVial('anchoIzq')">ℹ️</span>
                             </label>
                             <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--der-color);">
                                 ➡️ Ancho Carril Der (m)
-                                <span class="info-icon" onclick="showCustomAlert('Distancia horizontal desde el Eje hasta el borde derecho de calzada.', 'ANCHO DERECHO')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoVial('anchoDer')">ℹ️</span>
                             </label>
                             <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--izq-color);">
                                 ⬅️ Bombeo/Peralte Izq (%)
-                                <span class="info-icon" onclick="showCustomAlert('Inclinación transversal izquierda respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE IZQ')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoVial('bombeo')">ℹ️</span>
                             </label>
                             <input type="text" inputmode="decimal" id="bombeoIzq" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); sincronizarChipsTransversal(); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--der-color);">
                                 ➡️ Bombeo/Peralte Der (%)
-                                <span class="info-icon" onclick="showCustomAlert('Inclinación transversal derecha respecto al Eje.<br>• <strong>Negativo (Ej: -2.00)</strong>: El borde cae por debajo del eje.<br>• <strong>Positivo (Ej: +4.00)</strong>: El borde sube por encima del eje (Peralte).', 'BOMBEO / PERALTE DER')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoVial('bombeo')">ℹ️</span>
                             </label>
                             <input type="text" inputmode="decimal" id="bombeoDer" value="-2.000" placeholder="Ej: -2.000" oninput="formatDecimal(this); sincronizarChipsTransversal(); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
@@ -614,7 +633,7 @@
             <div id="panelEstacion">
                 <div class="form-grid">
                     <div class="input-group full-width">
-                        <label>BM de Referencia</label>
+                        <label>BM de Referencia <span class="info-icon" onclick="showInfoVial('bm')">ℹ️</span></label>
                         <div style="display: flex; gap: 8px;">
                             <div class="custom-select" style="flex: 60%;" onclick="abrirModalSelect('bm')">
                                 <span id="txtSelectBM">-- ELEGIR BM --</span>
@@ -626,14 +645,14 @@
                     <div class="input-group">
                         <label>
                             Vista Atrás (+)
-                            <span class="info-icon" onclick="showCustomAlert('Lectura de mira sobre el BM de partida para obtener la Altura de Instrumento (AI).', 'VISTA ATRÁS')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('va')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.425" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
                             Estacado cada (m)
-                            <span class="info-icon" onclick="showCustomAlert('Intervalo entre progresivas (Ej: 20m en tangentes, 10m en curvas, 5m en rampa).', 'INTERVALO DE ESTACADO')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoVial('intervalo')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="intervalo" value="20.000" placeholder="Ej: 20.000" oninput="formatDecimal(this); guardarEstadoVial();" onblur="completarCerosInput(this); guardarEstadoVial();">
                     </div>
@@ -649,18 +668,14 @@
         <!-- SECCIÓN DE LIBRETA GENERADA -->
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">
-                AI (Altura Instrumento Inicial): <span class="ai-num" id="txtAI">0.000</span>
+                AI (Altura de Instrumento): <span class="ai-num" id="txtAI">0.000</span>
                 <div class="res-vial-meta" id="resVialMeta"></div>
             </div>
 
             <div style="display: flex; gap:8px; margin-bottom: 8px;">
-                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
-                    📍 Añadir PL
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando cambies el nivel de posición. Ingresa la progresiva del cambio, la Vista Adelante anteponiendo el signo menos (ej: <strong>-1.845</strong>) o la Cota directa del apoyo, y luego la nueva Vista Atrás (+). Se recalcula en cascada si ajustas tu BM.', 'AÑADIR PL')">ℹ️</span>
-                </button>
-                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="abrirEstacaLibre()">
-                    🔍 Estaca Libre
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>SOBREANCHO / CUNETA / PROG. INTERMEDIA:</strong><br>Calcula al instante la Cota y Lectura de Mira para cualquier progresiva y a cualquier distancia del eje (bermas, cunetas, sobreanchos).', 'ESTACA LIBRE')">ℹ️</span>
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:6px;" onclick="abrirEstacaLibre()">
+                    🔍 Estaca Libre / Sobreancho / Cuneta
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showInfoVial('estacaLibre')">ℹ️</span>
                 </button>
             </div>
 
@@ -668,17 +683,16 @@
                 <button type="button" class="chip-btn activo" id="btnVistaAmbos" onclick="cambiarModoVistaTabla('ambos')">👁️ Mira + Cota</button>
                 <button type="button" class="chip-btn" id="btnVistaMira" onclick="cambiarModoVistaTabla('mira')">🎯 Solo Mira</button>
                 <button type="button" class="chip-btn" id="btnVistaCota" onclick="cambiarModoVistaTabla('cota')">📐 Solo Cotas</button>
-                <button type="button" class="chip-btn" style="color:var(--danger-color); border-color:rgba(211,47,47,0.4);" onclick="limpiarPLs()">🗑️ Reset PLs</button>
             </div>
 
             <div class="table-wrapper">
                 <table id="tablaCarreteras" style="user-select:none; -webkit-user-select:none;">
                     <thead>
                         <tr>
-                            <th style="width: 25%;">PROGRESIVA</th>
-                            <th class="th-izq" style="width: 25%;">⬅️ IZQ <span id="thAnchoIzq" style="font-size:0.65rem; display:block; opacity:0.9;">-3.50m (-2%)</span></th>
-                            <th class="th-eje" style="width: 25%;">🎯 EJE VIAL <span id="thOffsetEje" style="font-size:0.65rem; display:block; opacity:0.9;">CL (0.00m)</span></th>
-                            <th class="th-der" style="width: 25%;">➡️ DER <span id="thAnchoDer" style="font-size:0.65rem; display:block; opacity:0.9;">+3.50m (-2%)</span></th>
+                            <th style="width: 25%;">PROGRESIVA <span class="th-info" onclick="showInfoVial('thProg')">i</span></th>
+                            <th class="th-izq" style="width: 25%;">⬅️ IZQ <span class="th-info" onclick="showInfoVial('thBordes')">i</span><span id="thAnchoIzq" style="font-size:0.65rem; display:block; opacity:0.9;">-3.50m (-2%)</span></th>
+                            <th class="th-eje" style="width: 25%;">🎯 EJE VIAL <span class="th-info" onclick="showInfoVial('thEje')">i</span><span id="thOffsetEje" style="font-size:0.65rem; display:block; opacity:0.9;">CL (0.00m)</span></th>
+                            <th class="th-der" style="width: 25%;">➡️ DER <span class="th-info" onclick="showInfoVial('thBordes')">i</span><span id="thAnchoDer" style="font-size:0.65rem; display:block; opacity:0.9;">+3.50m (-2%)</span></th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla"></tbody>
@@ -768,26 +782,105 @@
             setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
         }
 
+        function showInfoVial(clave) {
+            const mapa = {
+                progIni: {
+                    t: "PROGRESIVA INICIAL (m)",
+                    m: `Kilometraje en metros donde arranca tu tramo de vía.<div class="info-ex"><strong>Ejemplos:</strong><br>• Para empezar en <strong>0+000</strong> escribe <code>0</code><br>• Para empezar en <strong>1+240</strong> escribe <code>1240</code><br>• Para empezar en <strong>0+035.50</strong> escribe <code>35.5</code></div><div class="info-tip">💡 Aunque arranques en una progresiva impar (ej. 1+245.50), la app cerrará automáticamente a progresivas redondas (1+260, 1+280...) según tu intervalo.</div>`
+                },
+                distTotal: {
+                    t: "LONGITUD DEL TRAMO (m)",
+                    m: `Distancia horizontal total del tramo recto (tangente) o de peralte constante que vas a plantillar.<div class="info-warn">⚠️ Este módulo usa interpolación lineal: ideal para <strong>tangentes y peralte pleno</strong> (no para curvas verticales parabólicas ni transiciones de peralte).</div>`
+                },
+                cotaIni: {
+                    t: "COTA DEL EJE INICIAL",
+                    m: `Elevación de diseño del <strong>Eje Vial (CL)</strong> en la Progresiva Inicial.<div class="info-tip">🪄 Si dejas una de las 4 casillas del eje vacía y llenas las otras 3, presiona <strong>Deducir Dato Eje</strong> para calcularla al instante.</div>`
+                },
+                cotaFin: {
+                    t: "COTA DEL EJE FINAL",
+                    m: `Elevación de diseño del <strong>Eje Vial (CL)</strong> al terminar el tramo.`
+                },
+                pteLong: {
+                    t: "PENDIENTE LONGITUDINAL DEL EJE (%)",
+                    m: `Inclinación de la carretera a lo largo del eje.<div class="info-formula">S (%) = ((C. Final − C. Inicial) ÷ Longitud) × 100</div><div class="info-ex"><strong>Regla de signos:</strong><br>• <strong>Positiva (+)</strong>: la vía <strong>SUBE</strong> hacia adelante.<br>• <strong>Negativa (−)</strong>: la vía <strong>BAJA</strong> hacia adelante.</div>`
+                },
+                offsetCapa: {
+                    t: "OFFSET DE CAPA / ESTRUCTURA (m)",
+                    m: `Te permite trabajar con las cotas de <strong>Rasante (Asfalto)</strong> del plano mientras nivelas capas inferiores sin recalcular a mano.<div class="info-ex"><strong>Ejemplo de paquete estructural:</strong><br>• Rasante (carpeta terminada): <code>0.000</code><br>• Base granular (−5 cm): <code>-0.050</code><br>• Sub-base (−25 cm): <code>-0.250</code><br>• Subrasante (−45 cm): <code>-0.450</code></div><div class="info-formula">Cota Capa = Cota Rasante + Offset</div>`
+                },
+                anchoIzq: {
+                    t: "ANCHO DE CARRIL IZQUIERDO (m)",
+                    m: `Distancia horizontal desde el <strong>Eje Vial (CL)</strong> hacia el borde izquierdo (mirando en sentido de avance de las progresivas).`
+                },
+                anchoDer: {
+                    t: "ANCHO DE CARRIL DERECHO (m)",
+                    m: `Distancia horizontal desde el <strong>Eje Vial (CL)</strong> hacia el borde derecho (mirando en sentido de avance de las progresivas).`
+                },
+                bombeo: {
+                    t: "BOMBEO Y PERALTE (%)",
+                    m: `Inclinación transversal desde el eje hacia los bordes.<div class="info-formula">ΔH Borde = Ancho × (Pendiente % ÷ 100)</div><div class="info-ex"><strong>Regla de signos (siempre respecto al Eje):</strong><br>• <strong>Negativo (−)</strong>: el borde <strong>CAE</strong> por debajo del eje (Bombeo normal: −2% / −2%).<br>• <strong>Positivo (+)</strong>: el borde <strong>SUBE</strong> por encima del eje (Peralte en curva: ej. Izq −4% / Der +4%).</div><div class="info-tip">👁️ Toca <strong>Croquis Sección</strong> para ver el dibujo en vivo de cómo queda tu sección.</div>`
+                },
+                bm: {
+                    t: "BM DE REFERENCIA",
+                    m: `Punto de elevación conocida donde apoyas la mira para amarrar tu estación.<div class="info-tip">💡 Si necesitas cambiar el nivel de sitio a mitad del tramo, marca en verde (1 toque) las estacas terminadas, cambia aquí tu nuevo BM/apoyo + nueva <strong>Vista Atrás (+)</strong> y vuelve a generar.</div>`
+                },
+                va: {
+                    t: "VISTA ATRÁS (+)",
+                    m: `Lectura de mira sobre tu BM de referencia para obtener la <strong>Altura de Instrumento (AI)</strong>.<div class="info-formula">AI = Cota BM + Vista Atrás (+)</div><div class="info-tip">💡 Debajo se calcula el rango recomendado de V.AT(+) para que toda la sección (eje y bordes) entre dentro de tu mira.</div>`
+                },
+                intervalo: {
+                    t: "INTERVALO DE ESTACADO (m)",
+                    m: `Separación entre estacas en la libreta.<div class="info-ex"><strong>Usual en obra vial:</strong><br>• Tangentes: cada <strong>20 m</strong><br>• Curvas / zonas urbanas: cada <strong>10 m</strong><br>• Rampas o empalmes: cada <strong>5 m</strong></div>`
+                },
+                estacaLibre: {
+                    t: "ESTACA LIBRE / SOBREANCHO / CUNETA",
+                    m: `Calculadora rápida para consultar cualquier punto que no coincida con los bordes estándar.<div class="info-ex"><strong>Ejemplo:</strong> Hallar la lectura de mira para un sobreancho o borde de berma en la progresiva <strong>0+125.50</strong> a <strong>4.80 m</strong> del eje con pendiente de <strong>−4.0%</strong>.</div>`
+                },
+                thProg: {
+                    t: "PROGRESIVA Y CONTROL DE PLANTILLA",
+                    m: `Indica el kilometraje de cada estaca.<br><br>• Toca <strong>+ Plantilla</strong> para ingresar la lectura real de mira en terreno (Izq, Eje, Der) y ver cuánto falta <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en cada punto.<br>• Si tienes cota directa en vez de mira, antepón <strong>#</strong> (ej. <code>#102.450</code>).`
+                },
+                thEje: {
+                    t: "EJE VIAL (CL)",
+                    m: `Número grande = <strong>Lectura de mira</strong> a buscar en el eje.<br>Número pequeño (C:) = <strong>Cota de diseño</strong> (ya incluye tu Offset de Capa).<div class="info-formula">Mira = AI − Cota Diseño</div><div class="info-ex"><strong>Guía para el nivelador / motoniveladora:</strong><br>• Lectura real <strong>menor</strong> que Mira diseño ➔ <strong>CORTAR (sobra material)</strong>.<br>• Lectura real <strong>mayor</strong> que Mira diseño ➔ <strong>RELLENAR (falta material)</strong>.</div>`
+                },
+                thBordes: {
+                    t: "BORDES IZQUIERDO Y DERECHO",
+                    m: `Muestra la <strong>Lectura de Mira</strong> y la <strong>Cota de Diseño</strong> en cada borde aplicando el ancho y bombeo/peralte configurado.<div class="info-formula">Cota Borde = Cota Eje + (Ancho × Bombeo%)</div><div class="info-tip">💡 Si aparece <strong>C: -0.050m</strong> significa que debes bajar/cortar 5 cm; si aparece <strong>R: +0.050m</strong> debes subir/rellenar 5 cm.</div>`
+                },
+                ctrlPlantilla: {
+                    t: "CÓMO USAR CONTROL DE PLANTILLA",
+                    m: `Calcula en vivo cuánto debes <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en Izq, Eje y Der de esta estaca.<div class="info-ex"><strong>2 formas de ingresar el terreno:</strong><br>• <strong>Por Lectura de Mira:</strong> escribe directo lo que ves en la mira (ej. <code>1.450</code>). La app calcula <code>C. Terreno = AI − 1.450</code>.<br>• <strong>Por Cota Directa:</strong> antepón <strong>#</strong> (ej. <code>#102.450</code>) si traes la elevación desde GPS o estación total.</div><div class="info-tip">🔒 Si la estaca está marcada en <strong>verde</strong>, los lados que no edites mantienen su cota congelada aunque luego muevas el nivel a otro BM.</div>`
+                }
+            };
+            let item = mapa[clave];
+            if (item) showCustomAlert(item.m, item.t);
+        }
+
         function mostrarLeyenda() {
             let html = `
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">💧</span>
-                    <div><strong style="color:var(--primary-color);">Bombeo y Peralte:</strong> Usa valores negativos (ej: <strong>-2.0%</strong>) cuando el carril cae hacia afuera del eje, y positivos (ej: <strong>+4.0%</strong>) cuando el carril se eleva en el peralte de una curva.</div>
+                <div class="guia-item">
+                    <div class="guia-num">1</div>
+                    <div><strong style="color:var(--primary-color);">Configura el Eje y la Capa:</strong> Ingresa Prog. Inicial, Longitud, Cotas o Pendiente (+ sube / − baja). Si estás en subrasante o base, pon el espesor negativo en <strong>Offset Capa</strong> (ej. <code>-0.200</code>).</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">📍</span>
-                    <div><strong style="color:var(--primary-color);">PL con V. Adelante (-):</strong> Al añadir un Punto de Liga, puedes ingresar la lectura de mira anteponiendo <strong>-</strong> (ej: <code>-1.640</code>) o la cota directa del apoyo.</div>
+                <div class="guia-item">
+                    <div class="guia-num">2</div>
+                    <div><strong style="color:var(--primary-color);">Bombeo o Peralte:</strong> Usa los botones rápidos (<strong>💧 Bombeo</strong>, <strong>↪️ Peralte Izq/Der</strong>) y revisa el dibujo en <strong>👁️ Croquis Sección</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">⛏️</span>
-                    <div><strong style="color:var(--primary-color);">Control de Cachacos Blindado:</strong> Toca <strong>+ Plantilla</strong> para meter lecturas de mira en Izq, Eje y Der (o antepón <strong>#</strong> para Cota Directa, ej: <code>#102.450</code>). La cota de terreno queda congelada aunque luego insertes un PL.</div>
+                <div class="guia-item">
+                    <div class="guia-num">3</div>
+                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca <strong>+ Plantilla</strong> en cualquier estaca e ingresa tus lecturas de mira en Izq, Eje y Der (o <code>#Cota</code>) para ver al instante el <strong>Corte (C:)</strong> o <strong>Relleno (R:)</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start;">
-                    <span style="font-size:1.2rem; margin-right:10px;">▶</span>
-                    <div><strong style="color:var(--primary-color);">Toque Simple y Doble:</strong> 1 toque pinta la estaca en verde y congela sus lecturas. 2 toques abren la <strong>TARJETA GIGANTE TRIPLE</strong>.</div>
+                <div class="guia-item">
+                    <div class="guia-num">4</div>
+                    <div><strong style="color:var(--primary-color);">Toque Simple / Doble:</strong><br>• <strong>1 toque</strong> marca la estaca en <strong>verde</strong> y congela sus lecturas.<br>• <strong>2 toques</strong> abren la <strong>TARJETA GIGANTE TRIPLE</strong> (Izq / Eje / Der).</div>
+                </div>
+                <div class="guia-item">
+                    <div class="guia-num">5</div>
+                    <div><strong style="color:var(--primary-color);">¿Cambias el nivel de lugar?</strong> Marca en verde las estacas terminadas, cambia el BM y la nueva <strong>Vista Atrás (+)</strong> en el Panel 2 y vuelve a generar. Las verdes quedan congeladas y las demás se recalculan.</div>
                 </div>
             `;
-            showCustomAlert(html, "GUÍA DE CARRETERAS");
+            showCustomAlert(html, "GUÍA RÁPIDA DE CARRETERAS");
         }
 
         function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
@@ -1686,90 +1779,7 @@
             return Math.round(((pendienteTransv / 100.0) * Math.abs(distEje)) * factor);
         }
 
-        /* --- RECÁLCULO EN CASCADA DE PLs Y SOPORTE BIDIRECCIONAL --- */
-        function recalcularCascadaPLs(pls, baseAIInt, decs = getDecs()) {
-            if (!pls || isNaN(baseAIInt)) return;
-            let entries = Object.keys(pls).map(k => ({
-                prog: parseFloat(k),
-                key: k,
-                data: pls[k]
-            })).filter(e => !isNaN(e.prog) && e.data);
 
-            entries.sort((a, b) => {
-                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
-                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
-                return oa - ob;
-            });
-
-            let aiVigenteInt = baseAIInt;
-            entries.forEach(item => {
-                if (item.data.vad !== undefined && item.data.vad !== null && !isNaN(parseFloat(item.data.vad))) {
-                    let vadInt = toScaledInt(Math.abs(parseFloat(item.data.vad)), decs);
-                    let nuevaCotaBMInt = aiVigenteInt - vadInt;
-                    item.data.bm = fromScaledInt(nuevaCotaBMInt, decs);
-                }
-                let bmInt = toScaledInt(item.data.bm, decs);
-                let vaInt = toScaledInt(item.data.va, decs);
-                if (!isNaN(bmInt) && !isNaN(vaInt)) {
-                    aiVigenteInt = bmInt + vaInt;
-                }
-            });
-        }
-
-        function obtenerPLActivoParaProg(prog, pls) {
-            if (!pls) return null;
-            let entries = Object.keys(pls).map(k => ({ prog: parseFloat(k), key: k, data: pls[k] })).filter(e => !isNaN(e.prog) && e.data);
-            if (entries.length === 0) return null;
-
-            let conOrden = entries.slice().sort((a, b) => {
-                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
-                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
-                return oa - ob;
-            });
-            let sentidoReversa = conOrden.length >= 2 && (conOrden[conOrden.length - 1].prog < conOrden[0].prog);
-
-            if (!sentidoReversa) {
-                let active = null;
-                entries.forEach(e => {
-                    if (e.prog <= prog + 1e-6 && (!active || e.prog > active.prog)) active = e;
-                });
-                return active;
-            } else {
-                let active = null;
-                entries.forEach(e => {
-                    if (e.prog >= prog - 1e-6 && (!active || e.prog < active.prog)) active = e;
-                });
-                return active;
-            }
-        }
-
-        function obtenerAIEfectivaInt(prog, baseAIInt, pls, decs = getDecs()) {
-            let active = obtenerPLActivoParaProg(prog, pls);
-            if (active && active.data) {
-                return {
-                    aiInt: toScaledInt(active.data.bm, decs) + toScaledInt(active.data.va, decs),
-                    plProg: active.prog,
-                    plCota: active.data.bm
-                };
-            }
-            return { aiInt: baseAIInt, plProg: null, plCota: null };
-        }
-
-        function obtenerUltimaAICronologicaInt(pls, baseAIInt, excludeKey = null, decs = getDecs()) {
-            if (!pls) return baseAIInt;
-            recalcularCascadaPLs(pls, baseAIInt, decs);
-            let entries = Object.keys(pls)
-                .map(k => ({ key: k, prog: parseFloat(k), data: pls[k] }))
-                .filter(e => !isNaN(e.prog) && e.data && (excludeKey === null || e.key !== excludeKey));
-            if (entries.length === 0) return baseAIInt;
-            entries.sort((a, b) => {
-                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
-                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
-                return oa - ob;
-            });
-            let ultimo = entries[entries.length - 1].data;
-            return toScaledInt(ultimo.bm, decs) + toScaledInt(ultimo.va, decs);
-        }
 
         /* --- CROQUIS DINÁMICO DE SECCIÓN TRANSVERSAL --- */
         function toggleCroquisSeccion() {
@@ -1865,7 +1875,7 @@
                 if (maxVA < 0 || maxVA < minVA) {
                     alerta.style.color = "var(--danger-color)";
                     alerta.innerText = maxVA < 0
-                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (requiere Punto de Liga).`
+                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (usa un apoyo más bajo o cambia de estación).`
                         : `⚠️ Desnivel del tramo excede mira de ${limiteMira}m en una sola estación.`;
                 } else {
                     alerta.style.color = "var(--primary-color)";
@@ -1878,84 +1888,7 @@
             }
         }
 
-        /* --- PUNTOS DE LIGA (PL) CON SOPORTE DE VISTA ADELANTE (-) Y CASCADA --- */
-        function gestionarPL() {
-            let decs = getDecs();
-            showCustomPrompt("PROGRESIVA DEL NUEVO PL (Ej: 120 o 1240)", "", (progStr) => {
-                let prog = parseFloat(progStr.replace(',', '.'));
-                if (isNaN(prog)) return showToast("Progresiva no válida", "error");
-                let keyProg = normProgKey(prog);
 
-                let p = obtenerProyectoActivo();
-                let pls = (p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {};
-                let plExistente = pls[keyProg];
-                let valorSugerido = plExistente
-                    ? (plExistente.vad !== undefined && plExistente.vad !== null ? `-${Math.abs(plExistente.vad).toFixed(decs)}` : Number(plExistente.bm).toFixed(decs))
-                    : "";
-
-                showCustomPrompt("V. ADELANTE (antepón -) O COTA DIRECTA (Vacío = Borrar PL)", valorSugerido, (bmStr) => {
-                    let clean = bmStr.trim().replace(',', '.');
-                    if (clean === "") {
-                        if (p.estadoActivo && p.estadoActivo.pls && p.estadoActivo.pls[keyProg]) {
-                            delete p.estadoActivo.pls[keyProg];
-                            sincronizarEstadoConPerfilActivo();
-                            guardarBD(); generarLibretaVial(true);
-                            return showToast(`🗑️ PL en ${formatearProg(prog)} eliminado`, "warning");
-                        }
-                        return;
-                    }
-                    let val = parseFloat(clean);
-                    if (isNaN(val)) return showToast("Valor no válido", "error");
-
-                    let bmBaseInt = toScaledInt(document.getElementById('cotaBM').value, decs);
-                    let vaBaseInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
-                    let aiBaseInt = (!isNaN(bmBaseInt) && !isNaN(vaBaseInt))
-                        ? (bmBaseInt + vaBaseInt)
-                        : toScaledInt(document.getElementById('txtAI').innerText, decs);
-
-                    let cotaPL = val;
-                    let vadGuardada = null;
-                    if (clean.startsWith('-') && val < 0) {
-                        vadGuardada = Math.abs(val);
-                        let aiVigenteInt = obtenerUltimaAICronologicaInt(pls, aiBaseInt, keyProg, decs);
-                        cotaPL = fromScaledInt(aiVigenteInt - toScaledInt(vadGuardada, decs), decs);
-                    }
-
-                    let vaSugerida = plExistente && plExistente.va !== undefined ? Number(plExistente.va).toFixed(decs) : "";
-                    showCustomPrompt(`COTA PL: ${cotaPL.toFixed(decs)} | INGRESA V. ATRÁS (+)`, vaSugerida, (vaStr) => {
-                        let va = parseFloat(vaStr.replace(',', '.'));
-                        if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
-                        if (!p.estadoActivo) p.estadoActivo = {};
-                        if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
-
-                        let ordenPL = (plExistente && plExistente.orden !== undefined) ? plExistente.orden : Date.now();
-                        p.estadoActivo.pls[keyProg] = {
-                            bm: cotaPL,
-                            va: va,
-                            vad: vadGuardada,
-                            orden: ordenPL
-                        };
-                        recalcularCascadaPLs(p.estadoActivo.pls, aiBaseInt, decs);
-                        sincronizarEstadoConPerfilActivo();
-                        guardarBD(); generarLibretaVial(true);
-                        showToast(`✅ PL en ${formatearProg(prog)} (Cota: ${Number(p.estadoActivo.pls[keyProg].bm).toFixed(decs)})`, "success");
-                    });
-                });
-            });
-        }
-
-        function limpiarPLs() {
-            showCustomConfirm("¿Borrar todos los Puntos de Liga (PL) de este tramo?", () => {
-                let p = obtenerProyectoActivo();
-                if (p.estadoActivo && p.estadoActivo.pls) {
-                    p.estadoActivo.pls = {};
-                    sincronizarEstadoConPerfilActivo();
-                    guardarBD();
-                    generarLibretaVial(true);
-                    showToast("PLs eliminados", "success");
-                }
-            });
-        }
 
         /* --- ESTACA LIBRE / SOBREANCHO / CUNETA (SINCRONIZADA AL MILÍMETRO CON LA LIBRETA) --- */
         function abrirEstacaLibre() {
@@ -2000,11 +1933,7 @@
                 return;
             }
 
-            let proj = obtenerProyectoActivo();
-            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
-            recalcularCascadaPLs(pls, baseAIInt, decs);
-            let aiInfo = obtenerAIEfectivaInt(prog, baseAIInt, pls, decs);
-            let aiEfectivoInt = aiInfo.aiInt;
+            let aiEfectivoInt = baseAIInt;
 
             let avance = prog - pIni;
             let cotaEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
@@ -2024,17 +1953,37 @@
         }
 
         /* --- CONTROL DE PLANTILLA / CACHACOS BLINDADO CON COTA CONGELADA (cotaInt) --- */
+        let ctrlTerrSnap = null;
+
         function abrirModalCtrlTerr(event, prog) {
             event.stopPropagation();
             feedbackUI();
             ctrlTerrProgActiva = normProgKey(prog);
             let p = obtenerProyectoActivo();
-            let reg = (p.estadoActivo && p.estadoActivo.cotasTerreno && p.estadoActivo.cotasTerreno[ctrlTerrProgActiva]) ? p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] : {};
+            let reg = (p.estadoActivo && p.estadoActivo.cotasTerreno && (p.estadoActivo.cotasTerreno[ctrlTerrProgActiva] || p.estadoActivo.cotasTerreno[prog])) || {};
+            let locked = (p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {};
+            let lockEntry = locked[ctrlTerrProgActiva] || locked[prog] || null;
+            let esCongelada = Boolean(lockEntry);
+
+            let vIzq = reg.rawIzq || (reg.ctIzq !== undefined && !isNaN(reg.ctIzq) ? `#${reg.ctIzq}` : "");
+            let vEje = reg.rawEje || (reg.ctEje !== undefined && !isNaN(reg.ctEje) ? `#${reg.ctEje}` : "");
+            let vDer = reg.rawDer || (reg.ctDer !== undefined && !isNaN(reg.ctDer) ? `#${reg.ctDer}` : "");
+
+            ctrlTerrSnap = {
+                esCongelada,
+                lockEntry,
+                rawIzq: vIzq, cotaIntIzq: reg.cotaIntIzq,
+                rawEje: vEje, cotaIntEje: reg.cotaIntEje,
+                rawDer: vDer, cotaIntDer: reg.cotaIntDer
+            };
+
+            let aviso = document.getElementById('avisoLockCtrlTerr');
+            if (aviso) aviso.style.display = esCongelada ? 'block' : 'none';
 
             document.getElementById('tituloCtrlTerr').innerText = `⛏️ PLANTILLA EN ${formatearProg(prog)}`;
-            document.getElementById('inpTerrIzq').value = reg.rawIzq || (reg.ctIzq !== undefined && !isNaN(reg.ctIzq) ? `#${reg.ctIzq}` : "");
-            document.getElementById('inpTerrEje').value = reg.rawEje || (reg.ctEje !== undefined && !isNaN(reg.ctEje) ? `#${reg.ctEje}` : "");
-            document.getElementById('inpTerrDer').value = reg.rawDer || (reg.ctDer !== undefined && !isNaN(reg.ctDer) ? `#${reg.ctDer}` : "");
+            document.getElementById('inpTerrIzq').value = vIzq;
+            document.getElementById('inpTerrEje').value = vEje;
+            document.getElementById('inpTerrDer').value = vDer;
 
             previewCtrlTerr();
             document.getElementById('overlayCtrlTerr').style.display = 'block';
@@ -2075,20 +2024,23 @@
             }
         }
 
-        function resolverCotaTerrenoGuardadaInt(reg, lado, currentAIInt, decs = getDecs()) {
+        function resolverCotaTerrenoGuardadaInt(reg, lado, currentAIInt, isLocked = false, decs = getDecs()) {
             if (!reg) return NaN;
             let cotaIntProp = `cotaInt${lado}`;
             let rawProp = `raw${lado}`;
             let legacyProp = `ct${lado}`;
 
+            if (isLocked && reg[cotaIntProp] !== undefined && reg[cotaIntProp] !== null && !isNaN(reg[cotaIntProp])) {
+                return Number(reg[cotaIntProp]);
+            }
+            if (reg[rawProp]) {
+                return parsearInputTerrenoExplicit(reg[rawProp], currentAIInt, decs).cotaInt;
+            }
             if (reg[cotaIntProp] !== undefined && reg[cotaIntProp] !== null && !isNaN(reg[cotaIntProp])) {
                 return Number(reg[cotaIntProp]);
             }
             if (reg[legacyProp] !== undefined && reg[legacyProp] !== null && !isNaN(parseFloat(reg[legacyProp]))) {
                 return toScaledInt(reg[legacyProp], decs);
-            }
-            if (reg[rawProp]) {
-                return parsearInputTerrenoExplicit(reg[rawProp], currentAIInt, decs).cotaInt;
             }
             return NaN;
         }
@@ -2112,31 +2064,41 @@
             let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
             let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
             let baseAIInt = bmInt + vaInt;
-            let proj = obtenerProyectoActivo();
-            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
-            recalcularCascadaPLs(pls, baseAIInt, decs);
-            let currentAIInt = obtenerAIEfectivaInt(progNum, baseAIInt, pls, decs).aiInt;
+            let currentAIInt = baseAIInt;
 
             let avance = progNum - pIni;
             let cEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
             let cIzqInt = cEjeInt + calcularDesnivelTransvInt(bIzq, aIzq, decs);
             let cDerInt = cEjeInt + calcularDesnivelTransvInt(bDer, aDer, decs);
 
-            let ctIzqInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrIzq').value, currentAIInt, decs).cotaInt;
-            let ctEjeInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrEje').value, currentAIInt, decs).cotaInt;
-            let ctDerInt = parsearInputTerrenoExplicit(document.getElementById('inpTerrDer').value, currentAIInt, decs).cotaInt;
+            if (ctrlTerrSnap && ctrlTerrSnap.esCongelada && ctrlTerrSnap.lockEntry && ctrlTerrSnap.lockEntry.ceje !== undefined) {
+                cIzqInt = toScaledInt(ctrlTerrSnap.lockEntry.cizq, decs);
+                cEjeInt = toScaledInt(ctrlTerrSnap.lockEntry.ceje, decs);
+                cDerInt = toScaledInt(ctrlTerrSnap.lockEntry.cder, decs);
+            }
+
+            let resolverPreviewLado = (inpVal, snapRaw, snapCotaInt) => {
+                if (ctrlTerrSnap && ctrlTerrSnap.esCongelada && inpVal.trim() === String(snapRaw || "").trim() && snapCotaInt !== undefined && snapCotaInt !== null && !isNaN(snapCotaInt)) {
+                    return Number(snapCotaInt);
+                }
+                return parsearInputTerrenoExplicit(inpVal, currentAIInt, decs).cotaInt;
+            };
+
+            let ctIzqInt = resolverPreviewLado(document.getElementById('inpTerrIzq').value, ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
+            let ctEjeInt = resolverPreviewLado(document.getElementById('inpTerrEje').value, ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
+            let ctDerInt = resolverPreviewLado(document.getElementById('inpTerrDer').value, ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
 
             let fmt = (cDisInt, cTerrInt) => {
                 if (isNaN(cTerrInt)) return "---";
                 let diff = fromScaledInt(cDisInt - cTerrInt, decs);
                 return (diff < 0 ? `C:${diff.toFixed(decs)}` : (diff > 0 ? `R:+${diff.toFixed(decs)}` : `OK 0.000`));
             };
-            box.innerHTML = `AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)}m ➔ <strong>IZQ:</strong> ${fmt(cIzqInt, ctIzqInt)} | <strong>EJE:</strong> ${fmt(cEjeInt, ctEjeInt)} | <strong>DER:</strong> ${fmt(cDerInt, ctDerInt)}`;
+            let prefAI = (ctrlTerrSnap && ctrlTerrSnap.esCongelada) ? `🔒 Congelada` : `AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)}m`;
+            box.innerHTML = `${prefAI} ➔ <strong>IZQ:</strong> ${fmt(cIzqInt, ctIzqInt)} | <strong>EJE:</strong> ${fmt(cEjeInt, ctEjeInt)} | <strong>DER:</strong> ${fmt(cDerInt, ctDerInt)}`;
         }
 
         function guardarCtrlTerr() {
             let decs = getDecs();
-            let progNum = parseFloat(ctrlTerrProgActiva);
             let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
             let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
             let baseAIInt = bmInt + vaInt;
@@ -2144,13 +2106,19 @@
             let p = obtenerProyectoActivo();
             if (!p.estadoActivo) p.estadoActivo = {};
             if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
-            let pls = p.estadoActivo.pls || {};
-            recalcularCascadaPLs(pls, baseAIInt, decs);
-            let currentAIInt = obtenerAIEfectivaInt(progNum, baseAIInt, pls, decs).aiInt;
+            let currentAIInt = baseAIInt;
 
-            let pIzq = parsearInputTerrenoExplicit(document.getElementById('inpTerrIzq').value, currentAIInt, decs);
-            let pEje = parsearInputTerrenoExplicit(document.getElementById('inpTerrEje').value, currentAIInt, decs);
-            let pDer = parsearInputTerrenoExplicit(document.getElementById('inpTerrDer').value, currentAIInt, decs);
+            let resolverGuardarLado = (inpVal, snapRaw, snapCotaInt) => {
+                let s = String(inpVal || "").trim();
+                if (ctrlTerrSnap && ctrlTerrSnap.esCongelada && s !== "" && s === String(snapRaw || "").trim() && snapCotaInt !== undefined && snapCotaInt !== null && !isNaN(snapCotaInt)) {
+                    return { raw: snapRaw, cotaInt: Number(snapCotaInt) };
+                }
+                return parsearInputTerrenoExplicit(s, currentAIInt, decs);
+            };
+
+            let pIzq = resolverGuardarLado(document.getElementById('inpTerrIzq').value, ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
+            let pEje = resolverGuardarLado(document.getElementById('inpTerrEje').value, ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
+            let pDer = resolverGuardarLado(document.getElementById('inpTerrDer').value, ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
 
             if (!pIzq.raw && !pEje.raw && !pDer.raw) {
                 delete p.estadoActivo.cotasTerreno[ctrlTerrProgActiva];
@@ -2223,6 +2191,14 @@
                             leje: lEje, ceje: cEje,
                             lder: lDer, cder: cDer
                         };
+                        let regT = p.estadoActivo.cotasTerreno && (p.estadoActivo.cotasTerreno[keyProg] || p.estadoActivo.cotasTerreno[prog]);
+                        if (regT) {
+                            let decs = getDecs();
+                            let aiBaseNow = toScaledInt(document.getElementById('cotaBM').value || 0, decs) + toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
+                            if (regT.rawIzq) regT.cotaIntIzq = parsearInputTerrenoExplicit(regT.rawIzq, aiBaseNow, decs).cotaInt;
+                            if (regT.rawEje) regT.cotaIntEje = parsearInputTerrenoExplicit(regT.rawEje, aiBaseNow, decs).cotaInt;
+                            if (regT.rawDer) regT.cotaIntDer = parsearInputTerrenoExplicit(regT.rawDer, aiBaseNow, decs).cotaInt;
+                        }
                     } else {
                         delete p.estadoActivo.lockedRows[keyProg];
                     }
@@ -2276,6 +2252,31 @@
                 }
             }
 
+            if (!silencioso && !isNaN(ci) && !isNaN(cf) && !isNaN(d) && !isNaN(pte) && d > 0) {
+                let pteExacta = ((cf - ci) / d) * 100.0;
+                let tolRedondeoPte = Math.pow(10, -decs) * 0.6;
+                let cfPorPteInt = toScaledInt(ci + ((pte / 100.0) * d), decs);
+                let cfInputInt = toScaledInt(cf, decs);
+                if (Math.abs(cfInputInt - cfPorPteInt) > 1 && Math.abs(pte - pteExacta) > tolRedondeoPte) {
+                    let ptePorCotas = ((cf - ci) / d) * 100.0;
+                    let cfPorPte = fromScaledInt(cfPorPteInt, decs);
+                    showCustomConfirm(
+                        `⚠️ <strong>CONTRADICCIÓN EN EJE VIAL</strong>\nCota Final (${cf.toFixed(decs)}) y Pendiente (${pte.toFixed(decs)}%) no coinciden.\n\n• Con tus Cotas: S = <strong>${ptePorCotas.toFixed(decs)}%</strong>\n• Con tu Pendiente: C.F. = <strong>${cfPorPte.toFixed(decs)} m</strong>\n\n¿Cuál dato manda?`,
+                        () => {
+                            document.getElementById('pteLong').value = ptePorCotas.toFixed(decs);
+                            generarLibretaVial(false);
+                        },
+                        () => {
+                            document.getElementById('cotaFin').value = cfPorPte.toFixed(decs);
+                            generarLibretaVial(false);
+                        },
+                        "USAR COTAS",
+                        "USAR PENDIENTE"
+                    );
+                    return;
+                }
+            }
+
             if (isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) {
                 if (!silencioso) showToast("⚠️ Completa Longitud, Cota Inicial y Pendiente del Eje.", "warning");
                 return;
@@ -2305,11 +2306,8 @@
             tbody.innerHTML = "";
 
             let proj = obtenerProyectoActivo();
-            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
             let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
-
-            recalcularCascadaPLs(pls, baseAIInt, decs);
 
             let estaciones = [];
             let pIniRed = Number(pIni.toFixed(3));
@@ -2328,18 +2326,10 @@
                 estaciones.push(pFin);
             }
 
-            let prevActivePLProg = null;
+            let currentAIInt = baseAIInt;
 
             estaciones.forEach((progActual, idx) => {
                 let keyProg = normProgKey(progActual);
-                let aiInfo = obtenerAIEfectivaInt(progActual, baseAIInt, pls, decs);
-                let currentAIInt = aiInfo.aiInt;
-                let activePLProg = aiInfo.plProg;
-
-                if (activePLProg !== null && activePLProg !== prevActivePLProg) {
-                    tbody.innerHTML += `<tr><td colspan="4" style="background:rgba(25, 118, 210, 0.12); color:var(--blue-accent); font-size:0.8rem; padding:6px; font-weight:900;">📍 PL EN ${formatearProg(activePLProg)} (Cota PL: ${Number(aiInfo.plCota).toFixed(decs)} | Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
-                    prevActivePLProg = activePLProg;
-                }
 
                 let avance = progActual - pIni;
                 let cotaEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
@@ -2391,9 +2381,10 @@
                 let warnDer = (leerDer > limiteMira || leerDer < 0) ? 'color:var(--danger-color);' : '';
 
                 let regTerr = cotasTerr[keyProg] || cotasTerr[progActual] || null;
-                let ctIzqInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Izq', currentAIInt, decs);
-                let ctEjeInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Eje', currentAIInt, decs);
-                let ctDerInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Der', currentAIInt, decs);
+                let estaCongelada = Boolean(lockEntry);
+                let ctIzqInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Izq', currentAIInt, estaCongelada, decs);
+                let ctEjeInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Eje', currentAIInt, estaCongelada, decs);
+                let ctDerInt = resolverCotaTerrenoGuardadaInt(regTerr, 'Der', currentAIInt, estaCongelada, decs);
                 let tieneTerr = !isNaN(ctIzqInt) || !isNaN(ctEjeInt) || !isNaN(ctDerInt);
 
                 let tagIzq = crearTagCorteRellenoInt(cotaIzqIntFinal, ctIzqInt, decs);

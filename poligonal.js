@@ -144,26 +144,85 @@ function cerrarCustomAlert() {
     setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
 }
 
+function showInfoPol(clave) {
+    const mapa = {
+        cotaBM: {
+            t: "COTA INICIAL (BM DE PARTIDA)",
+            m: `Elevación oficial del punto donde arranca tu circuito.<div class="info-tip">💡 Si tocas el pin <strong>📍</strong> en la Fila 1 de la tabla y eliges un BM de tu lista, esta casilla se llena automáticamente.</div>`
+        },
+        orden: {
+            t: "ORDEN DE NIVELACIÓN (TOLERANCIA)",
+            m: `Define el error máximo admisible según el tipo de obra:<div class="info-formula">T = m × √K &nbsp; (K en kilómetros)</div><div class="info-ex">• <strong>Orden I (4 mm √K):</strong> Geodesia, presas, túneles<br>• <strong>Orden II (8 mm √K):</strong> Puentes, carreteras principales<br>• <strong>Orden III (12 mm √K):</strong> Saneamiento, canales, vías urbanas<br>• <strong>Orden IV (20 mm √K):</strong> Obra general y movimiento de tierras</div><div class="info-tip"><strong>Ejemplo:</strong> en 1,000 m (1 km) con Orden III, la tolerancia es <strong>±0.012 m (12 mm)</strong>.</div>`
+        },
+        dist: {
+            t: "LONGITUD DEL CIRCUITO (m)",
+            m: `Distancia horizontal real recorrida de inicio a fin, en metros (<strong>no la dupliques</strong> por usar doble línea).<div class="info-ex"><strong>Ejemplo:</strong> Si trasladas cota por 850 m usando doble liga, ingresa <code>850</code>. La app calcula K = 0.850 km para la tolerancia.</div>`
+        },
+        tolArmada: {
+            t: "TOLERANCIA POR ARMADA (mm)",
+            m: `Diferencia máxima permitida en una sola estación entre la Línea 1 (izq) y la Línea 2 (der) para avisarte al instante si hubo error de lectura o si el alarife movió el sapo.<div class="info-tip">💡 Valor estándar de campo: <strong>2 mm</strong> (1 mm para alta precisión).</div>`
+        },
+        cotaLlegada: {
+            t: "COTA DE LLEGADA (OPCIONAL)",
+            m: `Solo se usa cuando <strong>cierras en otro BM oficial distinto</strong> al de partida.<br><br>• Si el BM de llegada ya está en tu lista oficial y lo vinculas con <strong>📍</strong> en la última fila, no necesitas escribirlo aquí.<br>• Si es un traslado abierto hacia un BM nuevo (sin cota oficial previa), déjalo <strong>vacío</strong>.`
+        },
+        pto: {
+            t: "PUNTO (PTO) Y AUTO-NOMBRADO",
+            m: `Identifica cada estación del circuito (se sincroniza automáticamente entre Línea 1 y Línea 2).<br><br>• Toca <strong>📍</strong> para insertar un BM de tu Base de Datos en el inicio, en un BM intermedio o al final.<br>• Si dejas el nombre vacío y llenas V.AD y V.AT, se nombra solo como <strong>PC-1, PC-2...</strong><br>• La última fila (solo V.AD) siempre entra en el cuadro de cotas compensadas.`
+        },
+        va1: {
+            t: "VISTA ATRÁS (+) — LÍNEA 1 (IZQ)",
+            m: `Primera lectura hacia atrás sobre el BM o sobre el <strong>sapo/punto izquierdo</strong> del cambio.<div class="info-formula">AI (L1) = Cota L1 + V.AT (+)</div>`
+        },
+        vd1: {
+            t: "VISTA ADELANTE (−) — LÍNEA 1 (IZQ)",
+            m: `Lectura hacia adelante sobre el <strong>sapo/punto izquierdo</strong> o sobre el BM de llegada.<div class="info-formula">Cota L1 = AI (L1) − V.AD (−)</div>`
+        },
+        va2: {
+            t: "VISTA ATRÁS (+) — LÍNEA 2 (DER)",
+            m: `Segunda lectura independiente hacia atrás sobre el BM o sobre el <strong>sapo/punto derecho</strong> del cambio (preferiblemente variando ligeramente la altura o usando un segundo punto de cambio).<div class="info-formula">AI (L2) = Cota L2 + V.AT (+)</div>`
+        },
+        vd2: {
+            t: "VISTA ADELANTE (−) — LÍNEA 2 (DER)",
+            m: `Lectura hacia adelante sobre el <strong>sapo/punto derecho</strong> o sobre el BM de llegada.<div class="info-formula">Cota L2 = AI (L2) − V.AD (−)</div>`
+        },
+        estado: {
+            t: "COTA Y CONTROL EN VIVO (HUD)",
+            m: `En cada fila verás la AI, la cota calculada y un semáforo automático:<div class="info-ex">• <strong>Δ Arranque:</strong> diferencia entre V.AT L1 y L2 en el BM inicial.<br>• <strong>Δ PC:</strong> <code>|(VD1−VD2) − (VA1−VA2)|</code>. Detecta al milímetro si el alarife movió el sapo o leíste mal en ese cambio.<br>• <strong>Δ Cierre:</strong> diferencia acumulada <code>|L1 − L2|</code> al llegar a un BM.</div><div class="info-tip">💡 La aprobación oficial del circuito siempre se verifica al pulsar <strong>VERIFICAR CIERRE FINAL</strong> usando T = m · √K.</div>`
+        },
+        prueba2Estacas: {
+            t: "PRUEBA DE 2 ESTACAS (COLIMACIÓN)",
+            m: `Verifica si tu nivel óptico está calibrado antes de empezar una nivelación larga.<div class="info-formula">[A] ◄── 15m ── (Est.1) ── 15m ──► [B] ◄─ 2m ─► (Est.2)</div><div class="info-ex"><strong>Paso a paso en campo:</strong><br><strong>1.</strong> Clava 2 estacas firmes <strong>A</strong> y <strong>B</strong> separadas unos <strong>30 m</strong> (<code>Dist. Estacas A-B</code>).<br><strong>2. Estación 1 (al centro exacto):</strong> arma el nivel justo a la mitad (15 m de A y 15 m de B). Lee <strong>A1</strong> y <strong>B1</strong>. Aquí cualquier error se anula y obtienes el desnivel verdadero.<br><strong>3. Estación 2 (POR FUERA detrás de B):</strong> mueve el nivel detrás de B, a unos <strong>2 m</strong> (<code>Est. 2 a Mira B</code>), quedando a 32 m de A. Lee <strong>A2</strong> y <strong>B2</strong>.</div><div class="info-tip">🔧 <strong>Resultado:</strong> Si el error es ≤ <strong>3.0 mm</strong> en 30 m, el nivel está listo. Si es mayor, la app te dice a qué lectura exacta debes ajustar el retículo apuntando a la mira lejana <strong>A2</strong>.</div><div class="info-warn">🚨 <strong>IMPORTANTE:</strong> Nunca armes la Estación 2 <em>entre</em> A y B; colócala siempre <strong>por fuera</strong> (detrás de B) para que la fórmula sea exacta.</div>`
+        }
+    };
+    let item = mapa[clave];
+    if (item) showCustomAlert(item.m, item.t);
+}
+
 function mostrarLeyenda() {
     let html = `
-        <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">📍</span> 
-            <div><strong style="color:var(--primary-color);">Selector de BMs en cualquier fila:</strong> Toca el pin 📍 en cualquier estación (inicio, control intermedio o cierre final) para inyectar un BM de tu Base de Datos.</div>
+        <div class="guia-item">
+            <div class="guia-num">1</div>
+            <div><strong style="color:var(--primary-color);">Configura el circuito:</strong> Abre <strong>📁 Base de Datos y Parámetros</strong> e ingresa tu Cota Inicial, Longitud (m) y Orden (I a IV). Si vas a comprobar tu nivel antes de empezar, usa <strong>🎯 PRUEBA DE 2 ESTACAS</strong>.</div>
         </div>
-        <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">🔄</span> 
-            <div><strong style="color:var(--primary-color);">Auto-Nombrado Inteligente:</strong> Si una fila tiene V.AD(-) y V.AT(+) se nombra sola como <strong>PC-1, PC-2...</strong> Si es la última estación de cierre (solo V.AD), se trata como BM/Estación de llegada para incluirse en la compensación.</div>
+        <div class="guia-item">
+            <div class="guia-num">2</div>
+            <div><strong style="color:var(--primary-color);">Cómo trabaja la Doble Liga (Pata de Gallo):</strong> En cada armada haces dos lecturas independientes: <strong>Línea 1 (Izq)</strong> en un sapo/estaca y <strong>Línea 2 (Der)</strong> en otro. La app controla cada cambio en vivo con <strong>Δ PC</strong>.</div>
         </div>
-        <div style="display:flex; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-            <span style="font-size:1.2rem; margin-right:10px;">⚠️</span> 
-            <div><strong style="color:var(--primary-color);">HUD Δ PC y Δ Cierre:</strong> Evalúa al milímetro si el alarife movió el sapo en un cambio (Δ PC) o la discrepancia entre líneas en un BM (Δ Cierre).</div>
+        <div class="guia-item">
+            <div class="guia-num">3</div>
+            <div><strong style="color:var(--primary-color);">BMs intermedios y cierre:</strong> Usa el pin <strong>📍</strong> en cualquier fila para insertar BMs oficiales de paso o el BM final. En la última estación deja vacía <strong>V.AT(+)</strong>.</div>
         </div>
-        <div style="display:flex; align-items:flex-start;">
-            <span style="font-size:1.2rem; margin-right:10px;">📊</span> 
-            <div><strong style="color:var(--primary-color);">Exportación y BMs:</strong> Guarda los BMs compensados directo en la DB o exporta a Excel (Líneas Gemelas o Ida y Vuelta continua con simulación realista de trípode).</div>
+        <div class="guia-item">
+            <div class="guia-num">4</div>
+            <div><strong style="color:var(--primary-color);">Audita y compensa:</strong> Pulsa <strong>VERIFICAR CIERRE FINAL</strong>. Si cumple, toca <strong>Obtener Cotas Compensadas</strong> para repartir el error por sub-tramos.</div>
+        </div>
+        <div class="guia-item">
+            <div class="guia-num">5</div>
+            <div><strong style="color:var(--primary-color);">Guarda y exporta:</strong> Guarda los nuevos BMs en la DB o exporta a <strong>Excel</strong> (Líneas 1 y 2 o formato Ida y Vuelta) y <strong>CSV para Civil 3D</strong>.</div>
         </div>
     `;
-    showCustomAlert(html, "GUÍA DE FUNCIONES");
+    showCustomAlert(html, "GUÍA RÁPIDA — DOBLE LIGA");
 }
 
 function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
@@ -325,20 +384,20 @@ function guardarCompensadasEnDB() {
 
         let existenteIdx = p.bms.findIndex(b => b.nombre === nombreBM);
         if (existenteIdx > -1) {
-            if (idx > 0) {
+            if (idx > 0 && p.bms[existenteIdx].origen === "calculado") {
                 p.bms[existenteIdx].cota = cotaComp;
                 if (!p.bms[existenteIdx].obs) p.bms[existenteIdx].obs = "Compensado en Circuito";
                 actualizados++;
             }
         } else {
-            p.bms.push({ nombre: nombreBM, cota: cotaComp, obs: "BM Compensado en Circuito" });
+            p.bms.push({ nombre: nombreBM, cota: cotaComp, obs: "BM Compensado en Circuito", origen: "calculado" });
             nuevos++;
         }
     });
 
     guardarBD();
     renderBMs();
-    showToast(`✅ ${nuevos} BMs creados y ${actualizados} actualizados en la DB`, "success");
+    showToast(`✅ ${nuevos} creados / ${actualizados} actualizados (Edita un BM para marcarlo Oficial)`, "success");
 }
 
 function guardarBMsCompensadosEnDB() {
@@ -737,7 +796,7 @@ function addBM() {
         showCustomConfirm("⚠️ ¿Actualizar los datos de este BM?", () => {
             let oldName = p.bms[editandoBMIndex].nombre;
             if(p.bms.some((bm, i) => bm.nombre === name && i !== editandoBMIndex)) return showToast("⚠️ Ya existe otro BM con ese nombre.", "warning");
-            p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs };
+            p.bms[editandoBMIndex] = { nombre: name, cota: cotaExacta, obs: obs, origen: 'oficial' };
 
             document.querySelectorAll('#cuerpoIda tr').forEach((trIda, rIdx) => {
                 let inPto = trIda.querySelector('.in-pto');
@@ -751,7 +810,7 @@ function addBM() {
         });
     } else {
         if(p.bms.some(bm => bm.nombre === name)) return showToast("Ya existe un BM con ese nombre.", "warning");
-        p.bms.push({ nombre: name, cota: cotaExacta, obs: obs }); finalizarGuardado();
+        p.bms.push({ nombre: name, cota: cotaExacta, obs: obs, origen: 'oficial' }); finalizarGuardado();
     }
 }
 
@@ -785,7 +844,7 @@ function renderBMs() {
         list.innerHTML += `
         <div class="bm-item" data-bmname="${escapeHTML(bm.nombre)}" onclick="clickEnBM(this, event)">
             <div class="bm-item-header">
-                <div class="bm-info"><strong>${escapeHTML(bm.nombre)}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
+                <div class="bm-info"><strong>${escapeHTML(bm.nombre)}${bm.origen === 'calculado' ? ' <small style="opacity:0.6; font-weight:700;">(Calc.)</small>' : ''}</strong><span>Elev: ${bm.cota.toFixed(decs)} m</span></div>
                 <div class="bm-actions" onclick="event.stopPropagation()">
                     <button onclick="cargarEditBM(${i})">✏️</button>
                     <button style="color:var(--danger-color);" onclick="deleteBM(${i})">🗑️</button>
@@ -1102,7 +1161,7 @@ function getErrorHUDStyles(pct) {
 function obtenerCotaOficialEstacion(ptoNombre, idxEstacion, ultimoIndice, cotaBMInicial, cotaLlegadaInput, p, ptoInicioNombre) {
     if (idxEstacion === 0) return cotaBMInicial;
     if (p && Array.isArray(p.bms)) {
-        let bmMatch = p.bms.find(b => b.nombre === ptoNombre);
+        let bmMatch = p.bms.find(b => b.nombre === ptoNombre && b.origen !== "calculado");
         if (bmMatch) return bmMatch.cota;
     }
     if (idxEstacion === ultimoIndice) {
@@ -1304,6 +1363,9 @@ function procesarDobleLiga() {
 
         if(anchors.length > 1) {
             let distPerSetup = distM / (filledRows > 1 ? filledRows - 1 : 1);
+            let ultimoCtrlOficialIdx = 0;
+            let ultimaCotaOficial = cotaBM;
+            let ultimoPromOficial = cotaBM;
 
             for(let k = 0; k < anchors.length - 1; k++) {
                 let start = anchors[k];
@@ -1311,21 +1373,46 @@ function procesarDobleLiga() {
                 let ptoStart = filasIda[start].querySelector('.in-pto').value.toUpperCase().trim();
                 let ptoEnd = filasIda[end].querySelector('.in-pto').value.toUpperCase().trim();
 
+                let divIdaStart = filasIda[start].querySelector('.out-cota div[data-cota]');
+                let divVueltaStart = filasVuelta[start].querySelector('.out-cota div[data-cota]');
+                let cotaIdaStart = divIdaStart ? parseFloat(divIdaStart.getAttribute('data-cota')) : NaN;
+                let cotaVueltaStart = divVueltaStart ? parseFloat(divVueltaStart.getAttribute('data-cota')) : NaN;
+
                 let divIda = filasIda[end].querySelector('.out-cota div[data-cota]');
                 let cotaIdaEnd = divIda ? parseFloat(divIda.getAttribute('data-cota')) : NaN;
                 let divVuelta = filasVuelta[end].querySelector('.out-cota div[data-cota]');
                 let cotaVueltaEnd = divVuelta ? parseFloat(divVuelta.getAttribute('data-cota')) : NaN;
 
-                if(!isNaN(cotaIdaEnd) && !isNaN(cotaVueltaEnd)) {
-                    let errLineas = Math.abs(cotaIdaEnd - cotaVueltaEnd);
+                if(!isNaN(cotaIdaStart) && !isNaN(cotaVueltaStart) && !isNaN(cotaIdaEnd) && !isNaN(cotaVueltaEnd)) {
+                    // Discrepancia propia del sub-tramo (ΔH_L1 vs ΔH_L2), no la acumulada desde el origen
+                    let dhIdaTramo = cotaIdaEnd - cotaIdaStart;
+                    let dhVueltaTramo = cotaVueltaEnd - cotaVueltaStart;
+                    let errLineas = Math.abs(dhIdaTramo - dhVueltaTramo);
+
                     let promEnd = (cotaIdaEnd + cotaVueltaEnd) / 2.0;
                     let setups = end - start;
                     let distTramo = setups * distPerSetup;
                     let tolTramo = multiplicador * Math.sqrt(distTramo / 1000);
 
                     let cotaOficialTarget = obtenerCotaOficialEstacion(ptoEnd, end, ultimoLleno, cotaBM, cotaLlegadaInput, p, ptoInicioNombre);
-                    let errContraBM = !isNaN(cotaOficialTarget) ? Math.abs(promEnd - cotaOficialTarget) : NaN;
-                    let cumple = (errLineas <= tolTramo + 1e-7) && (isNaN(errContraBM) || errContraBM <= tolTramo + 1e-7);
+                    let errContraBM = NaN;
+                    let diffFirmadoBM = 0;
+                    let tolContraBM = tolTramo;
+
+                    if (!isNaN(cotaOficialTarget)) {
+                        let setupsDesdeCtrl = end - ultimoCtrlOficialIdx;
+                        tolContraBM = multiplicador * Math.sqrt((setupsDesdeCtrl * distPerSetup) / 1000);
+                        let dhMedidoCtrl = promEnd - ultimoPromOficial;
+                        let dhOficialCtrl = cotaOficialTarget - ultimaCotaOficial;
+                        diffFirmadoBM = dhMedidoCtrl - dhOficialCtrl;
+                        errContraBM = Math.abs(diffFirmadoBM);
+
+                        ultimoCtrlOficialIdx = end;
+                        ultimaCotaOficial = cotaOficialTarget;
+                        ultimoPromOficial = promEnd;
+                    }
+
+                    let cumple = (errLineas <= tolTramo + 1e-7) && (isNaN(errContraBM) || errContraBM <= tolContraBM + 1e-7);
                     if(!cumple) todosCumplen = false;
 
                     let bgCumple = document.body.classList.contains('dark-mode') ? 'rgba(46,125,50,0.1)' : '#f1f8e9';
@@ -1333,11 +1420,10 @@ function procesarDobleLiga() {
                     let borderCumple = document.body.classList.contains('dark-mode') ? 'var(--success-text)' : '#a5d6a7';
                     let borderFalla = document.body.classList.contains('dark-mode') ? 'var(--danger-color)' : '#ef9a9a';
 
-                    let diffFirmadoBM = !isNaN(cotaOficialTarget) ? (promEnd - cotaOficialTarget) : 0;
                     let lineaExtraBM = !isNaN(errContraBM)
                         ? `<div style="font-size:0.85rem; margin-top:4px; padding-top:4px; border-top:1px dashed rgba(128,128,128,0.3); display:flex; justify-content:space-between;">
                              <span>Cota BM Oficial: <strong>${cotaOficialTarget.toFixed(decs)} m</strong></span>
-                             <span>Err. vs BM: <strong>${(diffFirmadoBM > 0 ? '+' : '') + diffFirmadoBM.toFixed(4)} m</strong></span>
+                             <span>Err. Tramo vs BM: <strong>${(diffFirmadoBM > 0 ? '+' : '') + diffFirmadoBM.toFixed(4)} m</strong> (±${tolContraBM.toFixed(4)})</span>
                            </div>`
                         : '';
 
@@ -1345,7 +1431,7 @@ function procesarDobleLiga() {
                         <div style="border: 2px solid ${cumple ? borderCumple : borderFalla}; border-radius: 6px; padding: 10px; margin-bottom: 10px; text-align: left; background: ${cumple ? bgCumple : bgFalla};">
                             <div style="font-weight: 900; color: var(--text-color); margin-bottom: 5px;">📍 ${escapeHTML(ptoStart)} ➔ ${escapeHTML(ptoEnd)} <span style="float:right; font-size:0.8rem; opacity:0.8;">(${setups} armadas)</span></div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-color); opacity: 0.9;">
-                                <span>Discrepancia (L1 vs L2): <strong>${errLineas.toFixed(4)} m</strong></span>
+                                <span>Discrepancia Tramo (ΔL1 vs ΔL2): <strong>${errLineas.toFixed(4)} m</strong></span>
                                 <span>Tol: <strong>±${tolTramo.toFixed(4)} m</strong></span>
                             </div>
                             ${lineaExtraBM}
@@ -1423,6 +1509,7 @@ function calcularEstacionesCompensadas() {
             let tieneVA = (vaIdaVal !== "" && vaVueltaVal !== "");
             let promCrudo = (cotaIda + cotaVuelta) / 2.0;
             datosEstaciones.push({
+                origIdx: datosEstaciones.length,
                 pto: pto,
                 cotaIda: cotaIda,
                 cotaVuelta: cotaVuelta,
@@ -1518,11 +1605,14 @@ function exportarCSVparaCivil3D() {
     let csvContent = `Punto${delim}Este${delim}Norte${delim}Elevacion${delim}Descripcion\n`;
     let ptoCount = 1;
 
-    compRows.forEach(tr => {
+    let distM = parseFloat(document.getElementById('distanciaM').value) || 0;
+    let pasoEste = (compRows.length > 1 && distM > 0) ? (distM / (compRows.length - 1)) : 10.0;
+    compRows.forEach((tr, idx) => {
         let tds = tr.querySelectorAll('td');
         let ptoStr = tds[0].innerText.trim();
         let elevStr = parseFloat(tds[4].innerText).toFixed(decs);
-        csvContent += `${ptoCount}${delim}1000.000${delim}1000.000${delim}${elevStr}${delim}${ptoStr}\n`;
+        let esteStr = (1000.0 + idx * pasoEste).toFixed(3);
+        csvContent += `${ptoCount}${delim}${esteStr}${delim}1000.000${delim}${elevStr}${delim}${ptoStr}\n`;
         ptoCount++;
     });
 
@@ -1700,8 +1790,8 @@ function exportarExcelPlantilla(modo) {
         let r1 = dataL1[i] || {pto:"", vaInt:NaN, aiInt:NaN, vdInt:NaN, cotaInt:NaN, obs:""};
         let r2 = exportL2[i] || {pto:"", vaInt:NaN, aiInt:NaN, vdInt:NaN, cotaInt:NaN, obs:""};
         
-        let va1Out = (i === NLast && isCamuflaje) ? NaN : r1.vaInt;
-        let ai1Out = (i === NLast && isCamuflaje) ? NaN : r1.aiInt;
+        let va1Out = (i === NLast) ? NaN : r1.vaInt;
+        let ai1Out = (i === NLast) ? NaN : r1.aiInt;
         let va2Out = (i === NLast) ? NaN : r2.vaInt;
         let ai2Out = (i === NLast) ? NaN : r2.aiInt;
 
@@ -1779,24 +1869,57 @@ function exportarExcelPlantilla(modo) {
     let bmsComp = estacionesComp.filter(e => !e.esPC);
     if (bmsComp.length > 0) {
         wsData.push([null, null, null, null, null, null, null, null, null, null, null, null, null]);
-        wsData.push([
-            {v: "PUNTO / BM", s: headIda},
-            {v: isCamuflaje ? "COTA IDA" : "COTA L1", s: headIda},
-            {v: isCamuflaje ? "COTA VUELTA" : "COTA L2", s: headIda},
-            {v: "PROMEDIO", s: headIda},
-            {v: "COTA COMPENSADA", s: headIda},
-            null, null, null, null, null, null, null, null
-        ]);
-        bmsComp.forEach(item => {
+        if (isCamuflaje) {
             wsData.push([
-                {v: item.pto, s: cellCenter},
-                {v: Number(item.cotaIda.toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(item.cotaVuelta.toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(item.promCrudo.toFixed(decs)), t: 'n', s: cellCota},
-                {v: Number(item.cotaCompensada.toFixed(decs)), t: 'n', s: cellSumDiff},
+                {v: "PUNTO / BM", s: headIda},
+                {v: "COTA IDA", s: headIda},
+                {v: "COTA VUELTA (LIB.)", s: headIda},
+                {v: "ΔH IDA", s: headIda},
+                {v: "ΔH VUELTA", s: headIda},
+                {v: "COTA PROMEDIO", s: headIda},
+                {v: "COTA COMPENSADA", s: headIda},
+                null, null, null, null, null, null
+            ]);
+            let cotaIniIda = fromScaledInt(dataL1[0].cotaInt, decs);
+            let cotaFinVuelta = fromScaledInt(exportL2[NLast].cotaInt, decs);
+            bmsComp.forEach(item => {
+                let idxVuelta = (item.origIdx !== undefined && (NLast - item.origIdx) >= 0 && (NLast - item.origIdx) < exportL2.length)
+                    ? (NLast - item.origIdx)
+                    : exportL2.findIndex(r => r.pto === item.pto);
+                let cotaVueltaLib = idxVuelta >= 0 ? fromScaledInt(exportL2[idxVuelta].cotaInt, decs) : item.cotaVuelta;
+                let dhIda = item.cotaIda - cotaIniIda;
+                let dhVuelta = cotaFinVuelta - cotaVueltaLib;
+                wsData.push([
+                    {v: item.pto, s: cellCenter},
+                    {v: Number(item.cotaIda.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(cotaVueltaLib.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(dhIda.toFixed(decs)), t: 'n', s: cellDec},
+                    {v: Number(dhVuelta.toFixed(decs)), t: 'n', s: cellDec},
+                    {v: Number(item.promCrudo.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(item.cotaCompensada.toFixed(decs)), t: 'n', s: cellSumDiff},
+                    null, null, null, null, null, null
+                ]);
+            });
+        } else {
+            wsData.push([
+                {v: "PUNTO / BM", s: headIda},
+                {v: "COTA L1", s: headIda},
+                {v: "COTA L2", s: headIda},
+                {v: "PROMEDIO", s: headIda},
+                {v: "COTA COMPENSADA", s: headIda},
                 null, null, null, null, null, null, null, null
             ]);
-        });
+            bmsComp.forEach(item => {
+                wsData.push([
+                    {v: item.pto, s: cellCenter},
+                    {v: Number(item.cotaIda.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(item.cotaVuelta.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(item.promCrudo.toFixed(decs)), t: 'n', s: cellCota},
+                    {v: Number(item.cotaCompensada.toFixed(decs)), t: 'n', s: cellSumDiff},
+                    null, null, null, null, null, null, null, null
+                ]);
+            });
+        }
     }
     
     let ws = XLSX.utils.aoa_to_sheet(wsData);

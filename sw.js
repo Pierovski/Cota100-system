@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cota100-v10.5';
+const CACHE_NAME = 'cota100-v10.9';
 
 const urlsToCache = [
   './',

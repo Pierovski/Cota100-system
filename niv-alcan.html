@@ -256,6 +256,18 @@
         .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
         .btn-opcion span.cota { color: var(--text-color); font-size: 0.9rem; font-weight: 700;}
+
+        /* --- ESTILOS DIDÁCTICOS PARA MODALES DE INFORMACIÓN --- */
+        #customAlertOverlay { z-index: 2000 !important; }
+        #customAlertModal { max-width: 400px !important; width: 92% !important; z-index: 2001 !important; }
+        #customAlertMsg { max-height: 62vh; overflow-y: auto; line-height: 1.45; padding-right: 4px; font-weight: 600; }
+        .info-formula { background: rgba(255, 85, 0, 0.10); border-left: 3px solid var(--primary-color); padding: 7px 9px; border-radius: 6px; font-family: monospace; font-size: 0.88rem; font-weight: 800; margin: 8px 0; color: var(--text-color); }
+        .info-ex { background: rgba(25, 118, 210, 0.09); border-left: 3px solid var(--blue-accent); padding: 7px 9px; border-radius: 6px; font-size: 0.86rem; margin: 8px 0; }
+        .info-tip { background: rgba(46, 204, 113, 0.12); border-left: 3px solid #2e7d32; padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .info-warn { background: rgba(211, 47, 47, 0.10); border-left: 3px solid var(--danger-color); padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .guia-item { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid var(--border-color); }
+        .guia-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .guia-num { min-width: 24px; height: 24px; border-radius: 50%; background: var(--primary-color); color: #fff; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 <body onload="inicializarApp()">
@@ -297,7 +309,7 @@
     </div>
 
     <!-- MODAL ALERTA DE INFORMACIÓN (INFO ICONS) -->
-    <div class="overlay-select" id="customAlertOverlay"></div>
+    <div class="overlay-select" id="customAlertOverlay" onclick="cerrarCustomAlert()"></div>
     <div class="modal-select" id="customAlertModal">
         <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
         <div class="confirm-msg" id="customAlertMsg" style="font-size:0.95rem; font-weight:600; text-align:left; color:var(--text-color); margin-bottom:15px;">Texto</div>
@@ -451,33 +463,46 @@
                 
                 <canvas id="croquisCanvas" width="300" height="150" style="display:none; width:100%; border:1px solid var(--border-color); border-radius:8px; margin-bottom:10px; background: var(--card-bg);"></canvas>
 
+                <!-- SELECTOR DE REFERENCIA DE COTA (FONDO ZANJA vs C.F. BATEA DE PLANO) -->
+                <div style="display:flex; gap:6px; margin-bottom:10px;">
+                    <button type="button" id="btnRefZanja" class="btn-accion" style="flex:1; padding:8px; font-size:0.8rem; background:var(--primary-color);" onclick="cambiarModoRefAlcan('zanja')">⛏️ Ref: Fondo Zanja</button>
+                    <button type="button" id="btnRefBatea" class="btn-accion" style="flex:1; padding:8px; font-size:0.8rem; background:var(--table-header);" onclick="cambiarModoRefAlcan('batea')">💧 Ref: C.F. Batea (Plano)</button>
+                </div>
+                <div id="boxEspesorPared" class="input-group full-width" style="display:none; margin-bottom:10px;">
+                    <label>
+                        Espesor Pared Tubo (m)
+                        <span class="info-icon" onclick="showInfoAlcan('pared')">ℹ️</span>
+                    </label>
+                    <input type="text" inputmode="decimal" id="espesorPared" value="0.006" placeholder="0.006" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="alCambiarEspesorPared(this);">
+                </div>
+
                 <!-- CASILLAS DE DISEÑO: SIN AUTOCÁLCULO SILENCIOSO PARA QUE "DEDUCIR DATO" FUNCIONE SIEMPRE -->
                 <div class="form-grid">
                     <div class="input-group">
                         <label>
                             Cota F. Inicial 
-                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo de zanja (excavación) en el buzón de inicio (Aguas arriba).<br><br><em>Para hallar cualquier dato faltante, llena 3 casillas, deja 1 vacía y presiona <strong>🪄 Deducir Dato Faltante</strong>.</em>', 'COTA INICIAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('cotaIni')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota F. Final 
-                            <span class="info-icon" onclick="showCustomAlert('Cota de fondo de zanja (excavación) en el buzón de llegada (Aguas abajo).', 'COTA FINAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('cotaFin')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Distancia (m)
-                            <span class="info-icon" onclick="showCustomAlert('Longitud horizontal total del tramo de tubería a nivelar. Si no es múltiplo del intervalo, el sistema incluirá automáticamente la progresiva exacta del buzón final.', 'DISTANCIA TOTAL')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('distTotal')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pendiente (%)
-                            <span class="info-icon" onclick="showCustomAlert('Caída porcentual del tubo. Positiva (+) baja de Cota Inicial a Final.<br><br><strong>Norma RNE OS.070 dinámica:</strong><br>• Si Tubo ≤ 0.160m (6&quot;): exige mín. 1.0%<br>• Si Tubo ≥ 0.200m (8&quot;): exige mín. 0.5%', 'PENDIENTE')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('pte')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(); evaluarLimiteVA(); guardarEstadoAlcan();">
                         <span id="alertaNorma" style="color:var(--danger-color); font-size:0.73rem; font-weight:800; display:none; margin-top:2px;">⚠️ Pend. Mínima</span>
@@ -504,7 +529,10 @@
             <div id="panelEstacion">
                 <div class="form-grid">
                     <div class="input-group full-width">
-                        <label>BM de Referencia</label>
+                        <label>
+                            BM de Referencia
+                            <span class="info-icon" onclick="showInfoAlcan('bm')">ℹ️</span>
+                        </label>
                         <div style="display: flex; gap: 8px;">
                             <div class="custom-select" style="flex: 60%;" onclick="abrirModalSelect('bm')">
                                 <span id="txtSelectBM">-- ELEGIR BM --</span>
@@ -516,7 +544,7 @@
                     <div class="input-group full-width">
                         <label>
                             Vista Atrás (+)
-                            <span class="info-icon" onclick="showCustomAlert('Lectura actual de la mira o wincha sobre tu BM de referencia.', 'VISTA ATRÁS')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('va')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="vistaAtras" placeholder="Ej: 1.250" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                         <div class="txt-ayuda" id="txtAlertaVA" style="color:var(--primary-color); margin-top:4px; font-weight:800; font-size:0.85rem;"></div>
@@ -524,21 +552,21 @@
                     <div class="input-group">
                         <label>
                             Cama (m)
-                            <span class="info-icon" onclick="showCustomAlert('Grosor de la arena de apoyo sobre el fondo de zanja. Se suma junto a la altura del tubo para obtener la Cota de Lomo.', 'CAMA DE APOYO')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('cama')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="camaApoyo" placeholder="Ej: 0.100" oninput="formatDecimal(this); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Tubo (m)
-                            <span class="info-icon" onclick="showCustomAlert('Diámetro exterior de la tubería para calcular la cota del lomo (corona). Además, ajusta automáticamente la alerta de pendiente mínima RNE OS.070 (0.160m = 1.0% | 0.200m = 0.5%).', 'ALTURA DE TUBO')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('tubo')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); evaluarNormativa(); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); evaluarNormativa(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group full-width">
                         <label>
                             Progresivas cada (m)
-                            <span class="info-icon" onclick="showCustomAlert('Indica a cada cuántos metros quieres que se genere el cálculo de las cotas en la libreta. (Ej: cada 5m, 10m).', 'INTERVALO')">ℹ️</span>
+                            <span class="info-icon" onclick="showInfoAlcan('intervalo')">ℹ️</span>
                         </label>
                         <input type="text" inputmode="decimal" id="intervalo" value="10.000" placeholder="Ej: 5.000" oninput="formatDecimal(this); guardarEstadoAlcan();" onblur="completarCerosInput(this); guardarEstadoAlcan();">
                     </div>
@@ -552,34 +580,26 @@
 
         <div class="seccion-tabla" id="seccionTabla">
             <div class="res-ai" id="resAI">
-                AI (Altura Instrumento Inicial): <span id="txtAI">0.000</span>
+                AI (Altura de Instrumento): <span id="txtAI">0.000</span>
                 <div class="res-hidraulico" id="resHidraulico"></div>
             </div>
             
-            <div style="display: flex; gap:8px; margin-bottom: 10px;">
-                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="gestionarPL()">
-                    📍 Añadir PL 
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>PUNTO DE LIGA (PL):</strong><br>Úsalo cuando necesitas cambiar el nivel de posición. Ingresa la progresiva del cambio, la Vista Adelante anteponiendo el signo menos (ej: <strong>-1.845</strong>) o la Cota directa del apoyo, y luego la nueva Vista Atrás (+). Se recalcula en cascada si ajustas tu BM.', 'AÑADIR PL')">ℹ️</span>
-                </button>
-                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:5px;" onclick="interpolarProg()">
-                    🔍 Interpolar 
-                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showCustomAlert('<strong>CÁLCULO EXACTO:</strong><br>Halla la Cota teórica y Lectura de mira exacta para cualquier progresiva intermedia que no aparezca en tu tabla principal (Ej: una conexión domiciliaria o un cruce de tubería).', 'INTERPOLAR')">ℹ️</span>
+            <div style="display: flex; gap:8px; margin-bottom: 12px;">
+                <button class="btn-accion btn-auto" style="flex:1; margin:0; display:flex; justify-content:center; align-items:center; gap:6px;" onclick="interpolarProg()">
+                    🔍 Interpolar Progresiva Exacta
+                    <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showInfoAlcan('interpolar')">ℹ️</span>
                 </button>
             </div>
-            <button class="btn-accion btn-auto" style="width:100%; margin-bottom:15px; color:var(--danger-color); border-color:var(--danger-color); display:flex; justify-content:center; align-items:center; gap:5px;" onclick="limpiarPLs()">
-                🗑️ Reset PLs de esta Libreta 
-                <span class="info-icon" style="margin:0; background:rgba(211,47,47,0.1); color:var(--danger-color);" onclick="event.stopPropagation(); showCustomAlert('<strong>BORRAR CAMBIOS:</strong><br>Elimina todos los Puntos de Liga (PL) ingresados en este tramo específico para recalcular toda la libreta desde cero.', 'RESET PLs')">ℹ️</span>
-            </button>
 
             <div class="table-wrapper">
                 <table id="tablaAlcantarillado" style="user-select:none; -webkit-user-select:none;">
                     <thead>
                         <tr>
-                            <th style="width: 27%;">PROG. / CORTE</th>
-                            <th style="width: 17.5%;">L. ZANJA <span class="th-info" onclick="showCustomAlert('<strong>LECTURA DE ZANJA:</strong><br>Lo que debes leer en la mira para llegar a la Cota de Fondo (Excavación).', 'LECTURA ZANJA')">i</span></th>
-                            <th style="width: 17.5%;">L. LOMO<br><span style="font-size:0.6rem; opacity:0.8;" id="infoTubo">Tubo+Cama</span></th>
-                            <th style="width: 19%; color: #aaa;">C. Zanja <span class="th-info" onclick="showCustomAlert('<strong>COTA ZANJA:</strong><br>Elevación teórica del fondo de la zanja en esta progresiva.', 'COTA ZANJA')">i</span></th>
-                            <th style="width: 19%; color: #aaa;">C. Lomo</th>
+                            <th style="width: 27%;">PROG. / CORTE <span class="th-info" onclick="showInfoAlcan('thProg')">i</span></th>
+                            <th style="width: 17.5%;">L. ZANJA <span class="th-info" onclick="showInfoAlcan('thLZanja')">i</span></th>
+                            <th style="width: 17.5%;">L. LOMO <span class="th-info" onclick="showInfoAlcan('thLLomo')">i</span><br><span style="font-size:0.6rem; opacity:0.8;" id="infoTubo">Tubo+Cama</span></th>
+                            <th style="width: 19%; color: #aaa;">C. Zanja <span class="th-info" onclick="showInfoAlcan('thCZanja')">i</span></th>
+                            <th style="width: 19%; color: #aaa;">C. Lomo <span class="th-info" onclick="showInfoAlcan('thCLomo')">i</span></th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla"></tbody>
@@ -666,26 +686,101 @@
             setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
         }
 
+        function showInfoAlcan(clave) {
+            const mapa = {
+                pared: {
+                    t: "ESPESOR DE PARED DEL TUBO",
+                    m: `Grosor de la pared inferior de la tubería. Solo se usa cuando trabajas con <strong>Ref: C.F. Batea (Plano)</strong>.<div class="info-formula">C. Zanja = Batea − Pared − Cama<br>C. Lomo = C. Zanja + Cama + Tubo</div><div class="info-ex"><strong>Ejemplo PVC 8" (200 mm):</strong><br>Batea = 100.000 m, Pared = 0.006 m, Cama = 0.100 m, Tubo = 0.200 m<br>➔ C. Zanja = <strong>99.894 m</strong> | C. Lomo = <strong>100.194 m</strong></div><div class="info-tip">💡 Si tu plano ya te da cotas de excavación (fondo de zanja), usa el botón <strong>⛏️ Ref: Fondo Zanja</strong>.</div>`
+                },
+                cotaIni: {
+                    t: "COTA INICIAL (AGUAS ARRIBA)",
+                    m: `Elevación de arranque en el buzón superior (Progresiva <strong>0+000</strong>).<br><br>• En modo <strong>⛏️ Fondo Zanja</strong>: escribe la cota de excavación.<br>• En modo <strong>💧 C.F. Batea</strong>: escribe la Cota de Fondo (batea interior del tubo) tal como viene en el plano.<div class="info-tip">🪄 <strong>Atajo:</strong> Llena 3 casillas de diseño, deja 1 vacía y toca <strong>Deducir Dato Faltante</strong>.</div>`
+                },
+                cotaFin: {
+                    t: "COTA FINAL (AGUAS ABAJO)",
+                    m: `Elevación de llegada en el buzón inferior (final del tramo).<br><br>• En modo <strong>⛏️ Fondo Zanja</strong>: escribe la cota de excavación final.<br>• En modo <strong>💧 C.F. Batea</strong>: escribe la Cota de Fondo (batea) del buzón final del plano.<br><br>Debe ser <strong>menor</strong> que la Cota Inicial para que el agua corra por gravedad.<div class="info-warn">🚨 Si accidentalmente la pones mayor que la Cota Inicial, la app te avisará en rojo que hay <strong>CONTRAPENDIENTE</strong>.</div>`
+                },
+                distTotal: {
+                    t: "DISTANCIA TOTAL DEL TRAMO",
+                    m: `Longitud horizontal entre el buzón de inicio y el buzón de llegada, en metros.<div class="info-ex"><strong>Ejemplo:</strong> Si tu tramo mide <strong>47.30 m</strong> y pides progresivas cada 10 m, la libreta generará: 0+000, 0+010, 0+020, 0+030, 0+040 y cerrará exacto en <strong>0+047.30</strong>.</div>`
+                },
+                pte: {
+                    t: "PENDIENTE DEL COLECTOR (%)",
+                    m: `Caída vertical por cada 100 m horizontales. Positiva (+) significa que <strong>baja</strong> de Cota Inicial a Final.<div class="info-formula">S (%) = ((C. Ini − C. Fin) ÷ Distancia) × 100</div><div class="info-ex"><strong>Control Norma RNE OS.070:</strong><br>• Tubo Ø 6" (≤ 0.175 m): mínimo <strong>1.0%</strong> (10‰)<br>• Tubo Ø 8" o más (≥ 0.200 m): mínimo <strong>0.5%</strong> (5‰)</div><div class="info-warn">🚨 Si sale 0% o negativa (-), aparecerá alerta roja inmediata.</div>`
+                },
+                bm: {
+                    t: "BM DE REFERENCIA (PUNTO DE APOYO)",
+                    m: `Punto de elevación conocida donde el alarife coloca la mira para dar la primera lectura.<br><br>Puedes elegir un BM guardado con <strong>-- ELEGIR BM --</strong> o escribir directamente la cota en la casilla derecha.<div class="info-tip">💡 Si cambias tu nivel a otra posición a mitad del tramo, marca en verde (1 toque) las estacas ya hechas, coloca aquí tu nuevo apoyo + nueva V.AT(+) y vuelve a generar.</div>`
+                },
+                va: {
+                    t: "VISTA ATRÁS (+)",
+                    m: `Lectura de mira sobre tu BM de referencia. Sirve para hallar la <strong>Altura de Instrumento (AI)</strong> del nivel.<div class="info-formula">AI = Cota BM + Vista Atrás (+)</div><div class="info-ex"><strong>Ejemplo:</strong> BM = 100.000 m y lees 1.450 en la mira ➔ <strong>AI = 101.450 m</strong>.</div><div class="info-tip">💡 Debajo de la casilla la app calcula automáticamente el rango seguro de V.AT(+) para que tu mira (4m o 5m) alcance toda la zanja.</div>`
+                },
+                cama: {
+                    t: "CAMA DE APOYO (ARENA)",
+                    m: `Espesor de la capa de arena o material fino compactado que va sobre el fondo de excavación antes de asentar la tubería (usualmente <strong>0.100 m</strong>).<div class="info-formula">C. Lomo = C. Zanja + Cama + Diám. Tubo</div>`
+                },
+                tubo: {
+                    t: "DIÁMETRO EXTERIOR DEL TUBO (m)",
+                    m: `Altura exterior total de la tubería en metros. Se suma a la cama para calcular el lomo (corona superior) y además configura la alerta RNE OS.070.<div class="info-ex"><strong>Referencias rápidas:</strong><br>• 6" ➔ <strong>0.160 m</strong> (alerta mín. 1.0%)<br>• 8" ➔ <strong>0.200 m</strong> (alerta mín. 0.5%)<br>• 10" ➔ <strong>0.250 m</strong> | 12" ➔ <strong>0.315 m</strong></div>`
+                },
+                intervalo: {
+                    t: "INTERVALO DE PROGRESIVAS",
+                    m: `Cada cuántos metros quieres las lecturas en la libreta.<div class="info-ex"><strong>Recomendación de campo:</strong><br>• Excavación con retroexcavadora: cada <strong>10 m</strong><br>• Refine de cama e instalación de tubo: cada <strong>5 m</strong> o <strong>6 m</strong> (largo de un tubo PVC)</div>`
+                },
+                interpolar: {
+                    t: "INTERPOLAR PROGRESIVA EXACTA",
+                    m: `Calcula al instante la Cota y Lectura de mira (Zanja y Lomo) para cualquier punto intermedio que no esté en la tabla.<div class="info-ex"><strong>Útil para:</strong> conexiones domiciliarias, cruces con agua potable, buzonetas o verificar un tubo a los <strong>17.40 m</strong>.</div>`
+                },
+                thProg: {
+                    t: "PROGRESIVA Y PROFUNDIDAD DE ZANJA",
+                    m: `Muestra la distancia acumulada desde el buzón de inicio.<br><br>• Toca <strong>+ Terreno</strong> para ingresar la lectura de mira en el terreno natural (o escribe <code>#102.500</code> para meter cota directa) y ver cuánto falta excavar (<strong>⛏️ H</strong>).<br>• Toca el ícono (➖ / 🪨 / 💧) para anotar tipo de terreno (normal, roca o napa freática).`
+                },
+                thLZanja: {
+                    t: "LECTURA DE MIRA EN ZANJA (FONDO)",
+                    m: `Es el número exacto que debes leer en la mira parada sobre el <strong>fondo excavado</strong>.<div class="info-formula">L. Zanja = AI − Cota Zanja</div><div class="info-ex"><strong>¿Cómo guiar al peón/máquina?</strong><br>• Si lees <strong>menos</strong> que L. Zanja ➔ <strong>FALTA EXCAVAR</strong> (está alto).<br>• Si lees <strong>más</strong> que L. Zanja ➔ <strong>SE PASÓ</strong> (hay que rellenar/compactar).</div><div class="info-warn">⚠️ Si aparece en <strong>ROJO</strong>, excede el largo de tu mira o la zanja está más alta que tu nivel.</div>`
+                },
+                thLLomo: {
+                    t: "LECTURA DE MIRA EN LOMO DE TUBO",
+                    m: `Es el número exacto que debes leer con la mira apoyada sobre la <strong>parte superior (lomo/corona)</strong> del tubo ya instalado sobre su cama.<div class="info-formula">L. Lomo = AI − Cota Lomo</div><div class="info-tip">💡 Si la lectura real es menor, el tubo está alto (bajarlo). Si es mayor, está hundido (aumentar cama).</div>`
+                },
+                thCZanja: {
+                    t: "COTA DE FONDO DE ZANJA",
+                    m: `Elevación teórica de diseño del suelo excavado (base de la cama de apoyo) en esa progresiva.`
+                },
+                thCLomo: {
+                    t: "COTA DE LOMO (CORONA DEL TUBO)",
+                    m: `Elevación teórica de la parte más alta del tubo instalado.<div class="info-formula">C. Lomo = C. Zanja + Cama + Tubo</div>`
+                }
+            };
+            let item = mapa[clave];
+            if (item) showCustomAlert(item.m, item.t);
+        }
+
         function mostrarLeyenda() {
             let html = `
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">🪄</span> 
-                    <div><strong style="color:var(--primary-color);">Deducir Dato:</strong> Llena 3 casillas de diseño, deja 1 vacía y toca <strong>Deducir Dato Faltante</strong>.</div>
+                <div class="guia-item">
+                    <div class="guia-num">1</div>
+                    <div><strong style="color:var(--primary-color);">Elige tu referencia del plano:</strong> Toca <strong>⛏️ Ref: Fondo Zanja</strong> si tus cotas son de excavación, o <strong>💧 Ref: C.F. Batea</strong> si las copias directo del plano de saneamiento.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">📐</span> 
-                    <div><strong style="color:var(--primary-color);">RNE OS.070 Dinámico:</strong> Si pones Tubo ≤ 0.160m (6") alerta si la pendiente baja de 1.0%. Para Tubo ≥ 0.200m (8") alerta debajo de 0.5%.</div>
+                <div class="guia-item">
+                    <div class="guia-num">2</div>
+                    <div><strong style="color:var(--primary-color);">Llena 3 datos y deduce el 4°:</strong> Ingresa Cotas, Distancia o Pendiente. Si te falta 1, toca <strong>🪄 Deducir Dato Faltante</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">📏</span> 
-                    <div><strong style="color:var(--primary-color);">Corte de Zanja Blindado:</strong> Toca <strong>+ Terreno</strong> debajo de cada progresiva para ingresar Lectura de Mira en Terreno (o antepón <strong>#</strong> para Cota Directa, ej: <code>#6.450</code>).</div>
+                <div class="guia-item">
+                    <div class="guia-num">3</div>
+                    <div><strong style="color:var(--primary-color);">Estaciona y genera:</strong> Elige tu BM, escribe la <strong>Vista Atrás (+)</strong>, cama, tubo y toca <strong>⚙️ GENERAR LIBRETA</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start;">
-                    <span style="font-size:1.2rem; margin-right:10px;">▶</span> 
-                    <div><strong style="color:var(--primary-color);">Toque Simple / Doble:</strong> 1 toque pinta la fila en verde (bloqueada). 2 toques abre la <strong>TARJETA GIGANTE</strong>.</div>
+                <div class="guia-item">
+                    <div class="guia-num">4</div>
+                    <div><strong style="color:var(--primary-color);">En la zanja (1 toque / 2 toques):</strong><br>• <strong>1 toque</strong> en una fila la pinta en <strong>verde</strong> y congela sus datos (estaca terminada).<br>• <strong>2 toques</strong> abren la <strong>TARJETA GIGANTE</strong> para dictar lecturas a distancia.<br>• Toca <strong>+ Terreno</strong> para saber la altura de corte (<strong>⛏️ H</strong>).</div>
+                </div>
+                <div class="guia-item">
+                    <div class="guia-num">5</div>
+                    <div><strong style="color:var(--primary-color);">¿Necesitas mover el nivel?</strong> Marca en verde las progresivas ya terminadas, abre el Panel 2, ingresa tu nuevo BM/apoyo y nueva <strong>Vista Atrás (+)</strong> y vuelve a generar. Las filas verdes quedan intactas y las pendientes se actualizan.</div>
                 </div>
             `;
-            showCustomAlert(html, "GUÍA DE FUNCIONES");
+            showCustomAlert(html, "GUÍA RÁPIDA DE CAMPO");
         }
 
         function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
@@ -863,7 +958,62 @@
         let wakeLock = null;
         let editandoBMIndex = -1;
         let audioCtxAlc = null;
+        let modoRefAlcan = 'zanja';
         const iconosTerr = ['➖', '🪨', '💧'];
+
+        function cambiarModoRefAlcan(modo, silencioso = false) {
+            let nuevoModo = (modo === 'batea') ? 'batea' : 'zanja';
+            let cambioReal = (nuevoModo !== modoRefAlcan);
+            modoRefAlcan = nuevoModo;
+            let bZ = document.getElementById('btnRefZanja');
+            let bB = document.getElementById('btnRefBatea');
+            let boxP = document.getElementById('boxEspesorPared');
+            if (bZ) bZ.style.background = modoRefAlcan === 'zanja' ? 'var(--primary-color)' : 'var(--table-header)';
+            if (bB) bB.style.background = modoRefAlcan === 'batea' ? 'var(--primary-color)' : 'var(--table-header)';
+            if (boxP) boxP.style.display = modoRefAlcan === 'batea' ? 'flex' : 'none';
+            if (!silencioso) {
+                feedbackUI();
+                evaluarLimiteVA();
+                let p = obtenerProyectoActivo();
+                let lockedCount = (p && p.estadoActivo && p.estadoActivo.lockedRows) ? Object.keys(p.estadoActivo.lockedRows).length : 0;
+                let tablaAbierta = document.getElementById('seccionTabla').style.display === 'block';
+                if (cambioReal && lockedCount > 0 && tablaAbierta) {
+                    showCustomConfirm(
+                        `⚠️ Tienes <strong>${lockedCount}</strong> fila(s) marcada(s) en verde con cotas del modo anterior.\n\n¿Deseas desbloquearlas para recalcular toda la libreta con el nuevo modo?`,
+                        () => {
+                            p.estadoActivo.lockedRows = {};
+                            sincronizarEstadoConPerfilActivo();
+                            guardarEstadoAlcan();
+                            generarLibreta(true);
+                            showToast("Filas recalculadas con nueva referencia", "success");
+                        },
+                        () => {
+                            guardarEstadoAlcan();
+                            generarLibreta(true);
+                        },
+                        "RECALCULAR TODAS",
+                        "MANTENER VERDES"
+                    );
+                } else {
+                    guardarEstadoAlcan();
+                    if (tablaAbierta) generarLibreta(true);
+                }
+            }
+        }
+
+        function alCambiarEspesorPared(input) {
+            completarCerosInput(input);
+            guardarEstadoAlcan();
+            if (document.getElementById('seccionTabla').style.display === 'block') {
+                generarLibreta(true);
+                let p = obtenerProyectoActivo();
+                if (p && p.estadoActivo && p.estadoActivo.lockedRows && Object.keys(p.estadoActivo.lockedRows).length > 0) {
+                    showToast("Nota: las filas en verde mantienen su valor congelado", "warning");
+                }
+            }
+        }
+
+
 
         function feedbackUI() {
             if (globalConfig.vibracion !== false && navigator.vibrate) {
@@ -994,6 +1144,8 @@
                 per.pls = JSON.parse(JSON.stringify(p.estadoActivo.pls || {}));
                 per.lockedRows = JSON.parse(JSON.stringify(p.estadoActivo.lockedRows || {}));
                 per.cotasTerreno = JSON.parse(JSON.stringify(p.estadoActivo.cotasTerreno || {}));
+                per.modoRef = p.estadoActivo.modoRef || 'zanja';
+                per.espesorPared = p.estadoActivo.espesorPared || '0.006';
             }
         }
 
@@ -1004,6 +1156,7 @@
                 distTotal: document.getElementById('distTotal').value, pte: document.getElementById('pte').value,
                 cotaBM: document.getElementById('cotaBM').value, vistaAtras: document.getElementById('vistaAtras').value,
                 camaApoyo: document.getElementById('camaApoyo').value, alturaTubo: document.getElementById('alturaTubo').value,
+                modoRef: modoRefAlcan, espesorPared: document.getElementById('espesorPared')?.value || "0.006",
                 intervalo: document.getElementById('intervalo').value, perfilSeleccionado: document.getElementById('hdnSelectPerfil').value,
                 bmSeleccionado: document.getElementById('hdnSelectBM').value, tablaHTML: document.getElementById('cuerpoTabla').innerHTML,
                 tablaVisible: document.getElementById('seccionTabla').style.display === 'block',
@@ -1038,6 +1191,8 @@
                 document.getElementById('distTotal').value = p.estadoActivo.distTotal || ""; document.getElementById('pte').value = p.estadoActivo.pte || "";
                 document.getElementById('cotaBM').value = p.estadoActivo.cotaBM || ""; document.getElementById('vistaAtras').value = p.estadoActivo.vistaAtras || "";
                 document.getElementById('camaApoyo').value = p.estadoActivo.camaApoyo || ""; document.getElementById('alturaTubo').value = p.estadoActivo.alturaTubo || "";
+                if (document.getElementById('espesorPared')) document.getElementById('espesorPared').value = p.estadoActivo.espesorPared ?? "0.006";
+                cambiarModoRefAlcan(p.estadoActivo.modoRef || 'zanja', true);
                 document.getElementById('intervalo').value = p.estadoActivo.intervalo || "10.000";
                 
                 evaluarLimiteVA(); evaluarNormativa();
@@ -1313,6 +1468,8 @@
 
             let datosTramo = {
                 nombre: nom, ci: ci, cf: cf, dist: dist, pte: pte,
+                modoRef: modoRefAlcan,
+                espesorPared: document.getElementById('espesorPared')?.value || "0.006",
                 pls: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {})),
                 lockedRows: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.lockedRows) ? p.estadoActivo.lockedRows : {})),
                 cotasTerreno: JSON.parse(JSON.stringify((p.estadoActivo && p.estadoActivo.cotasTerreno) ? p.estadoActivo.cotasTerreno : {}))
@@ -1390,6 +1547,8 @@
                 p.estadoActivo.pls = JSON.parse(JSON.stringify(per.pls || {}));
                 p.estadoActivo.lockedRows = JSON.parse(JSON.stringify(per.lockedRows || {}));
                 p.estadoActivo.cotasTerreno = JSON.parse(JSON.stringify(per.cotasTerreno || {}));
+                if (document.getElementById('espesorPared')) document.getElementById('espesorPared').value = per.espesorPared ?? "0.006";
+                cambiarModoRefAlcan(per.modoRef || 'zanja', true);
 
                 evaluarLimiteVA(); evaluarNormativa();
                 renderPerfiles();
@@ -1467,7 +1626,16 @@
                 etiquetaTubo = 'Ø 6" (0.16m)';
             }
 
-            if(!isNaN(v) && Math.abs(v) < minPte && Math.abs(v) > 0) {
+            let decs = getDecs();
+            if (!isNaN(v) && v < 0) {
+                inputPte.style.borderColor = "var(--danger-color)";
+                alerta.innerText = `🚨 CONTRAPENDIENTE (${v.toFixed(decs)}%): ¡El flujo sube!`;
+                alerta.style.display = "block";
+            } else if (!isNaN(v) && v === 0) {
+                inputPte.style.borderColor = "var(--danger-color)";
+                alerta.innerText = `🚨 PENDIENTE 0.0%: ¡Tubería sin caída!`;
+                alerta.style.display = "block";
+            } else if (!isNaN(v) && v < minPte) {
                 inputPte.style.borderColor = "var(--danger-color)";
                 alerta.innerText = `⚠️ RNE OS.070: Mín. ${minPte.toFixed(1)}% para ${etiquetaTubo}`;
                 alerta.style.display = "block";
@@ -1539,71 +1707,15 @@
             return toScaledInt(ci - caidaPorPte, decs);
         }
 
-        /* --- RECÁLCULO EN CASCADA DE PLs Y SOPORTE BIDIRECCIONAL --- */
-        function recalcularCascadaPLs(pls, baseAIInt, decs = getDecs()) {
-            if (!pls || isNaN(baseAIInt)) return;
-            let entries = Object.keys(pls).map(k => ({
-                prog: parseFloat(k),
-                key: k,
-                data: pls[k]
-            })).filter(e => !isNaN(e.prog) && e.data);
-
-            entries.sort((a, b) => {
-                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
-                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
-                return oa - ob;
-            });
-
-            let aiVigenteInt = baseAIInt;
-            entries.forEach(item => {
-                if (item.data.vad !== undefined && item.data.vad !== null && !isNaN(parseFloat(item.data.vad))) {
-                    let vadInt = toScaledInt(Math.abs(parseFloat(item.data.vad)), decs);
-                    let nuevaCotaBMInt = aiVigenteInt - vadInt;
-                    item.data.bm = fromScaledInt(nuevaCotaBMInt, decs);
-                }
-                let bmInt = toScaledInt(item.data.bm, decs);
-                let vaInt = toScaledInt(item.data.va, decs);
-                if (!isNaN(bmInt) && !isNaN(vaInt)) {
-                    aiVigenteInt = bmInt + vaInt;
-                }
-            });
+        function calcularCotasSeccionAlcan(prog, ci, cf, d, pte, camaInt, alturaInt, decs = getDecs()) {
+            let cotaRefInt = calcularCotaZanjaInt(prog, ci, cf, d, pte, decs);
+            let paredInt = (modoRefAlcan === 'batea') ? toScaledInt(document.getElementById('espesorPared')?.value || 0, decs) : 0;
+            let cotaZanjaInt = (modoRefAlcan === 'batea') ? (cotaRefInt - paredInt - camaInt) : cotaRefInt;
+            let cotaLomoInt = cotaZanjaInt + camaInt + alturaInt;
+            return { cotaZanjaInt, cotaLomoInt };
         }
 
-        function obtenerPLActivoParaProg(prog, pls) {
-            if (!pls) return null;
-            let keys = Object.keys(pls).map(k => parseFloat(k)).filter(k => !isNaN(k));
-            if (keys.length === 0) return null;
 
-            let conOrden = keys.map(k => ({ prog: k, orden: pls[k].orden !== undefined ? pls[k].orden : k }))
-                               .sort((a, b) => a.orden - b.orden);
-            let sentidoReversa = conOrden.length >= 2 && (conOrden[conOrden.length - 1].prog < conOrden[0].prog);
-
-            if (!sentidoReversa) {
-                let activePLProg = -Infinity;
-                keys.forEach(pk => { if (pk <= prog && pk > activePLProg) activePLProg = pk; });
-                return activePLProg !== -Infinity ? activePLProg : null;
-            } else {
-                let activePLProg = Infinity;
-                keys.forEach(pk => { if (pk >= prog && pk < activePLProg) activePLProg = pk; });
-                return activePLProg !== Infinity ? activePLProg : null;
-            }
-        }
-
-        function obtenerUltimaAICronologicaInt(pls, baseAIInt, excludeProg = null, decs = getDecs()) {
-            if (!pls) return baseAIInt;
-            recalcularCascadaPLs(pls, baseAIInt, decs);
-            let entries = Object.keys(pls)
-                .map(k => ({ prog: parseFloat(k), data: pls[k] }))
-                .filter(e => !isNaN(e.prog) && e.data && (excludeProg === null || Math.abs(e.prog - excludeProg) > 1e-6));
-            if (entries.length === 0) return baseAIInt;
-            entries.sort((a, b) => {
-                let oa = a.data.orden !== undefined ? a.data.orden : a.prog;
-                let ob = b.data.orden !== undefined ? b.data.orden : b.prog;
-                return oa - ob;
-            });
-            let ultimo = entries[entries.length - 1].data;
-            return toScaledInt(ultimo.bm, decs) + toScaledInt(ultimo.va, decs);
-        }
 
         /* --- F4: INTERPOLADOR RÁPIDO Y LECTURA --- */
         function interpolarProg() {
@@ -1622,18 +1734,13 @@
             showCustomPrompt("PROGRESIVA A INTERPOLAR (Ej: 12.50)", "", (val) => {
                 let prog = parseFloat(val.replace(',', '.')); if(isNaN(prog)) return;
                 
-                let proj = obtenerProyectoActivo();
-                let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
-                recalcularCascadaPLs(pls, aiInt, decs);
-                let activePLProg = obtenerPLActivoParaProg(prog, pls);
-                let aiEfectivoInt = activePLProg !== null
-                    ? (toScaledInt(pls[activePLProg].bm, decs) + toScaledInt(pls[activePLProg].va, decs))
-                    : aiInt;
+                let aiEfectivoInt = aiInt;
 
-                let cotaZInt = calcularCotaZanjaInt(prog, ci, cf, d, p, decs);
                 let camaInt = toScaledInt(document.getElementById('camaApoyo').value || 0, decs);
                 let alturaInt = toScaledInt(document.getElementById('alturaTubo').value || 0, decs);
-                let cotaLInt = cotaZInt + camaInt + alturaInt;
+                let sec = calcularCotasSeccionAlcan(prog, ci, cf, d, p, camaInt, alturaInt, decs);
+                let cotaZInt = sec.cotaZanjaInt;
+                let cotaLInt = sec.cotaLomoInt;
                 
                 let lZanjaInt = aiEfectivoInt - cotaZInt;
                 let lLomoInt = aiEfectivoInt - cotaLInt;
@@ -1732,15 +1839,17 @@
             }
 
             if (!isNaN(ci) && !isNaN(cf) && !isNaN(bm)) { 
-                let cotaMinimaZanja = Math.min(ci, cf);
-                let cotaMaximaLomo = Math.max(ci, cf) + cama + altura;
+                let pared = (modoRefAlcan === 'batea') ? (parseFloat(document.getElementById('espesorPared')?.value) || 0) : 0;
+                let desfaseZanja = (modoRefAlcan === 'batea') ? (pared + cama) : 0;
+                let cotaMinimaZanja = Math.min(ci, cf) - desfaseZanja;
+                let cotaMaximaLomo = Math.max(ci, cf) - desfaseZanja + cama + altura;
                 let maxVA = limiteMira - bm + cotaMinimaZanja;
                 let minVA = Math.max(0, cotaMaximaLomo - bm);
 
                 if (maxVA < 0 || maxVA < minVA) {
                     alerta.style.color = "var(--danger-color)";
                     alerta.innerText = maxVA < 0
-                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (requiere Punto de Liga).`
+                        ? `⚠️ BM muy alto para mira de ${limiteMira}m (usa un apoyo más bajo o cambia de estación).`
                         : `⚠️ Desnivel excede mira de ${limiteMira}m en una sola armada.`;
                 } else {
                     alerta.style.color = "var(--primary-color)";
@@ -1753,95 +1862,19 @@
             }
         }
 
-        /* --- F1: PUNTOS DE CAMBIO (PL) CON CASCADA Y ORDEN CRONOLÓGICO --- */
-        function gestionarPL() {
-            let decs = getDecs();
-            showCustomPrompt("PROGRESIVA DEL NUEVO PL (m)", "", (progStr) => {
-                let prog = parseFloat(progStr.replace(',', '.'));
-                if (isNaN(prog)) return showToast("Progresiva no válida", "error");
-
-                let p = obtenerProyectoActivo();
-                let pls = (p.estadoActivo && p.estadoActivo.pls) ? p.estadoActivo.pls : {};
-                let plExistente = pls[prog];
-                let valorSugerido = plExistente
-                    ? (plExistente.vad !== undefined && plExistente.vad !== null ? `-${Math.abs(plExistente.vad).toFixed(decs)}` : Number(plExistente.bm).toFixed(decs))
-                    : "";
-
-                showCustomPrompt("V. ADELANTE (antepón -) O COTA DIRECTA (Vacío = Borrar PL)", valorSugerido, (bmStr) => {
-                    let clean = bmStr.trim().replace(',', '.');
-                    if (clean === "") {
-                        if (p.estadoActivo && p.estadoActivo.pls && p.estadoActivo.pls[prog]) {
-                            delete p.estadoActivo.pls[prog];
-                            sincronizarEstadoConPerfilActivo();
-                            guardarBD(); generarLibreta(true);
-                            return showToast(`🗑️ PL en ${formatearProg(prog)} eliminado`, "warning");
-                        }
-                        return;
-                    }
-                    let val = parseFloat(clean);
-                    if (isNaN(val)) return showToast("Valor no válido", "error");
-
-                    let bmBaseInt = toScaledInt(document.getElementById('cotaBM').value, decs);
-                    let vaBaseInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
-                    let aiBaseInt = (!isNaN(bmBaseInt) && !isNaN(vaBaseInt))
-                        ? (bmBaseInt + vaBaseInt)
-                        : toScaledInt(document.getElementById('txtAI').innerText, decs);
-
-                    let cotaPL = val;
-                    let vadGuardada = null;
-                    if (clean.startsWith('-') && val < 0) {
-                        vadGuardada = Math.abs(val);
-                        let aiVigenteInt = obtenerUltimaAICronologicaInt(pls, aiBaseInt, prog, decs);
-                        cotaPL = fromScaledInt(aiVigenteInt - toScaledInt(vadGuardada, decs), decs);
-                    }
-
-                    let vaSugerida = plExistente && plExistente.va !== undefined ? Number(plExistente.va).toFixed(decs) : "";
-                    showCustomPrompt(`COTA PL: ${cotaPL.toFixed(decs)} | INGRESA V. ATRÁS (+)`, vaSugerida, (vaStr) => {
-                        let va = parseFloat(vaStr.replace(',', '.'));
-                        if (isNaN(va)) return showToast("Vista Atrás no válida", "error");
-                        if (!p.estadoActivo) p.estadoActivo = {};
-                        if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
-
-                        let ordenPL = (plExistente && plExistente.orden !== undefined) ? plExistente.orden : Date.now();
-                        p.estadoActivo.pls[prog] = {
-                            bm: cotaPL,
-                            va: va,
-                            vad: vadGuardada,
-                            orden: ordenPL
-                        };
-                        recalcularCascadaPLs(p.estadoActivo.pls, aiBaseInt, decs);
-                        sincronizarEstadoConPerfilActivo();
-                        guardarBD(); generarLibreta(true);
-                        showToast(`✅ PL en ${formatearProg(prog)} (Cota: ${Number(p.estadoActivo.pls[prog].bm).toFixed(decs)})`, "success");
-                    });
-                });
-            });
-        }
-
-        function limpiarPLs() {
-            showCustomConfirm("¿Borrar todos los Puntos de Cambio (PL) de esta libreta?", () => {
-                let p = obtenerProyectoActivo();
-                if(p.estadoActivo && p.estadoActivo.pls) {
-                    p.estadoActivo.pls = {};
-                    sincronizarEstadoConPerfilActivo();
-                    guardarBD();
-                    generarLibreta(true);
-                    showToast("PLs reseteados", "success");
-                }
-            });
-        }
-
-        /* --- RESOLUCIÓN DE TERRENO 100% EXPLÍCITA (# = COTA DIRECTA, NORMAL = MIRA) --- */
-        function resolverCotaTerrenoInt(entry, currentAIInt, decs = getDecs()) {
+        /* --- RESOLUCIÓN DE TERRENO EXPLÍCITA (# = COTA DIRECTA, NORMAL = MIRA; CONGELADA SI FILA VERDE) --- */
+        function resolverCotaTerrenoInt(entry, currentAIInt, isLocked = false, decs = getDecs()) {
             if (entry === undefined || entry === null || entry === "") return NaN;
-            if (typeof entry === "object" && entry.cotaInt !== undefined && !isNaN(entry.cotaInt)) {
+            if (typeof entry === "number") return toScaledInt(entry, decs);
+
+            if (isLocked && typeof entry === "object" && entry.cotaInt !== undefined && !isNaN(entry.cotaInt)) {
                 return Number(entry.cotaInt);
             }
-            if (typeof entry === "number") {
-                return toScaledInt(entry, decs);
-            }
+
             let rawStr = typeof entry === "object" ? String(entry.raw || "").trim() : String(entry).trim();
-            if (!rawStr) return NaN;
+            if (!rawStr) {
+                return (typeof entry === "object" && entry.cotaInt !== undefined && !isNaN(entry.cotaInt)) ? Number(entry.cotaInt) : NaN;
+            }
 
             let cleanStr = rawStr.replace(',', '.');
             let forzarCota = cleanStr.startsWith('#');
@@ -1849,7 +1882,6 @@
 
             let valInt = toScaledInt(cleanStr, decs);
             if (isNaN(valInt)) return NaN;
-
             return forzarCota ? valInt : (currentAIInt - valInt);
         }
 
@@ -1940,6 +1972,9 @@
                     let p = obtenerProyectoActivo(); if(!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
                     if(isLocked) {
                         p.estadoActivo.lockedRows[prog] = { lz: tr.dataset.lz, ll: tr.dataset.ll, cz: tr.dataset.cz, cl: tr.dataset.cl, terr: tr.querySelector('.icono-terr').innerText };
+                        if (tr.dataset.ct && p.estadoActivo.cotasTerreno && p.estadoActivo.cotasTerreno[prog] && typeof p.estadoActivo.cotasTerreno[prog] === 'object') {
+                            p.estadoActivo.cotasTerreno[prog].cotaInt = toScaledInt(tr.dataset.ct, getDecs());
+                        }
                     } else { delete p.estadoActivo.lockedRows[prog]; }
                     sincronizarEstadoConPerfilActivo();
                     guardarBD();
@@ -1976,6 +2011,32 @@
                 }
             }
 
+            if (!silencioso && !isNaN(ci) && !isNaN(cf) && !isNaN(d) && !isNaN(pte) && d > 0) {
+                let pteExacta = ((ci - cf) / d) * 100.0;
+                let tolRedondeoPte = Math.pow(10, -decs) * 0.6;
+                let cfPorPteInt = toScaledInt(ci - ((pte / 100.0) * d), decs);
+                let cfInputInt = toScaledInt(cf, decs);
+                if (Math.abs(cfInputInt - cfPorPteInt) > 1 && Math.abs(pte - pteExacta) > tolRedondeoPte) {
+                    let ptePorCotas = ((ci - cf) / d) * 100.0;
+                    let cfPorPte = fromScaledInt(cfPorPteInt, decs);
+                    showCustomConfirm(
+                        `⚠️ <strong>CONTRADICCIÓN EN DISEÑO</strong>\nCota Final (${cf.toFixed(decs)}) y Pendiente (${pte.toFixed(decs)}%) no coinciden.\n\n• Con tus Cotas: S = <strong>${ptePorCotas.toFixed(decs)}%</strong>\n• Con tu Pendiente: C.F. = <strong>${cfPorPte.toFixed(decs)} m</strong>\n\n¿Cuál dato manda?`,
+                        () => {
+                            document.getElementById('pte').value = ptePorCotas.toFixed(decs);
+                            evaluarNormativa();
+                            generarLibreta(false);
+                        },
+                        () => {
+                            document.getElementById('cotaFin').value = cfPorPte.toFixed(decs);
+                            generarLibreta(false);
+                        },
+                        "USAR COTAS",
+                        "USAR PENDIENTE"
+                    );
+                    return;
+                }
+            }
+
             if(isNaN(ci) || isNaN(d) || isNaN(pte) || d <= 0) {
                 if(!silencioso) showToast("⚠️ Faltan datos válidos de Diseño.", "warning");
                 return;
@@ -1997,15 +2058,13 @@
             let baseAIInt = bmInt + vaInt;
             document.getElementById('txtAI').innerText = fromScaledInt(baseAIInt, decs).toFixed(decs);
             if(!silencioso) document.getElementById('panelEstacion').style.display = 'none';
-            document.getElementById('infoTubo').innerText = `Cama ${fromScaledInt(camaInt, decs).toFixed(2)} + Tubo ${fromScaledInt(alturaInt, decs).toFixed(2)}`;
+            let refTag = modoRefAlcan === 'batea' ? 'Ref:Batea | ' : '';
+            document.getElementById('infoTubo').innerText = `${refTag}Cama ${fromScaledInt(camaInt, decs).toFixed(2)} + Tubo ${fromScaledInt(alturaInt, decs).toFixed(2)}`;
             let tbody = document.getElementById('cuerpoTabla'); tbody.innerHTML = "";
 
             let proj = obtenerProyectoActivo();
-            let pls = (proj.estadoActivo && proj.estadoActivo.pls) ? proj.estadoActivo.pls : {};
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
             let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
-
-            recalcularCascadaPLs(pls, baseAIInt, decs);
 
             let estaciones = [];
             let pasos = Math.floor((d + 1e-7) / intervalo);
@@ -2018,25 +2077,14 @@
             }
 
             let currentAIInt = baseAIInt;
-            let prevActivePLProg = null;
             let sumaCortesInt = 0;
             let conteoCortes = 0;
 
             estaciones.forEach((i, idx) => {
-                let activePLProg = obtenerPLActivoParaProg(i, pls);
-                if(activePLProg !== null) {
-                    currentAIInt = toScaledInt(pls[activePLProg].bm, decs) + toScaledInt(pls[activePLProg].va, decs);
-                } else {
-                    currentAIInt = baseAIInt;
-                }
 
-                if (activePLProg !== null && activePLProg !== prevActivePLProg) {
-                    tbody.innerHTML += `<tr><td colspan="5" style="background:rgba(25, 118, 210, 0.12); color:var(--blue-accent); font-size:0.8rem; padding:5px; font-weight:900;">📍 PL EN ${formatearProg(activePLProg)} (Cota PL: ${Number(pls[activePLProg].bm).toFixed(decs)} | Nueva AI: ${fromScaledInt(currentAIInt, decs).toFixed(decs)} m)</td></tr>`;
-                    prevActivePLProg = activePLProg;
-                }
-
-                let cotaZanjaInt = calcularCotaZanjaInt(i, ci, cf, d, pte, decs);
-                let cotaLomoInt = cotaZanjaInt + camaInt + alturaInt;
+                let secAlcan = calcularCotasSeccionAlcan(i, ci, cf, d, pte, camaInt, alturaInt, decs);
+                let cotaZanjaInt = secAlcan.cotaZanjaInt;
+                let cotaLomoInt = secAlcan.cotaLomoInt;
                 
                 let leerZanja, leerLomo, czStr, clStr, czIntFinal, terrIcon = '➖', cssRow = '';
                 let esBuzonFinal = (idx === estaciones.length - 1 && Math.abs(i - d) < 0.001 && Math.abs(d % intervalo) > 0.001);
@@ -2067,7 +2115,7 @@
                 let llStr = leerLomo.toFixed(decs);
                 let progTexto = formatearProg(i);
 
-                let ctInt = resolverCotaTerrenoInt(cotasTerr[i], currentAIInt, decs);
+                let ctInt = resolverCotaTerrenoInt(cotasTerr[i], currentAIInt, Boolean(locked[i]), decs);
                 let btnCorteHTML = "";
                 let dataCtAttr = "";
                 let dataProfAttr = "";
@@ -2127,10 +2175,13 @@
             let pteStr = document.getElementById('pte').value || "";
             let distStr = document.getElementById('distTotal').value || "";
             let tramoNombre = document.getElementById('txtNombreTramoActivo').innerText || "Manual";
+            let refModoTxt = modoRefAlcan === 'batea'
+                ? `C.F. Batea (Pared: ${document.getElementById('espesorPared')?.value || '0.006'}m | Cama: ${document.getElementById('camaApoyo').value || '0'}m)`
+                : `Fondo de Zanja (Cama: ${document.getElementById('camaApoyo').value || '0'}m)`;
             let datos = [
                 ["REPORTE DE CONTROL DE ALCANTARILLADO - COTA100"],
                 ["Proyecto:", p ? p.nombre : "Obra", "Tramo:", tramoNombre, "Fecha:", fechaHoy],
-                ["Operador:", oper, "", "Equipo:", eq],
+                ["Operador:", oper, "Equipo:", eq, "Referencia:", refModoTxt],
                 ["Longitud Tramo (m):", distStr, "Pendiente (%):", pteStr, "AI Inicial:", aiStr],
                 [],
                 ["PROGRESIVA", "LECTURA ZANJA", "LECTURA LOMO", "COTA ZANJA", "COTA LOMO", "COTA TERRENO", "PROF. EXCAVACIÓN (m)", "TIPO TERRENO"]

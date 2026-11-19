@@ -186,6 +186,7 @@
         .badge-corte { background: rgba(211, 47, 47, 0.12); color: var(--danger-color); border: 1px solid rgba(211, 47, 47, 0.3); }
         .badge-relleno { background: rgba(25, 118, 210, 0.12); color: var(--blue-accent); border: 1px solid rgba(25, 118, 210, 0.3); }
         .badge-rasante-ok { background: rgba(46, 125, 50, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
+        .badge-comp { font-size: 0.68rem; font-weight: 900; border-radius: 3px; padding: 1px 4px; margin-top: 2px; display: none; text-align: center; background: rgba(46, 125, 50, 0.12); color: var(--success-color); border: 1px solid rgba(46, 125, 50, 0.35); }
 
         .trend-icon { width: 15px; text-align: center; display: inline-block; font-size: 1.2rem; font-weight: 900; cursor: pointer; user-select: none;}
         .trend-icon:active { transform: scale(1.2); }
@@ -248,6 +249,18 @@
         .btn-opcion { width: 100%; padding: 14px; margin-bottom: 8px; border: 1px solid var(--primary-color); background: rgba(255,85,0,0.05); border-radius: 10px; font-size: 1.05rem; font-weight: 800; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;}
         .btn-opcion:active { background: var(--primary-color) !important; color: #fff !important;}
         .btn-opcion span.cota { color: var(--text-color); font-size: 0.9rem; font-weight: 700;}
+
+        /* --- ESTILOS DIDÁCTICOS PARA MODALES DE INFORMACIÓN --- */
+        #customAlertOverlay { z-index: 2000 !important; }
+        #customAlertModal { max-width: 400px !important; width: 92% !important; z-index: 2001 !important; }
+        #customAlertMsg { max-height: 62vh; overflow-y: auto; line-height: 1.45; padding-right: 4px; font-weight: 600; }
+        .info-formula { background: rgba(255, 85, 0, 0.10); border-left: 3px solid var(--primary-color); padding: 7px 9px; border-radius: 6px; font-family: monospace; font-size: 0.88rem; font-weight: 800; margin: 8px 0; color: var(--text-color); }
+        .info-ex { background: rgba(25, 118, 210, 0.09); border-left: 3px solid var(--blue-accent); padding: 7px 9px; border-radius: 6px; font-size: 0.86rem; margin: 8px 0; }
+        .info-tip { background: rgba(46, 204, 113, 0.12); border-left: 3px solid #2e7d32; padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .info-warn { background: rgba(211, 47, 47, 0.10); border-left: 3px solid var(--danger-color); padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .guia-item { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid var(--border-color); }
+        .guia-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .guia-num { min-width: 24px; height: 24px; border-radius: 50%; background: var(--primary-color); color: #fff; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 <body onload="inicializarApp()">
@@ -276,7 +289,7 @@
         </div>
     </div>
 
-    <div class="overlay-select" id="customAlertOverlay"></div>
+    <div class="overlay-select" id="customAlertOverlay" onclick="cerrarCustomAlert()"></div>
     <div class="modal-select" id="customAlertModal">
         <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
         <div class="confirm-msg" id="customAlertMsg" style="font-size:0.95rem; font-weight:600; text-align:left; color:var(--text-color); margin-bottom:15px;">Texto</div>
@@ -355,7 +368,7 @@
                 <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-bottom: 10px;">
                     <label style="color: var(--primary-color);">
                         <span>🎯 Cota Plantilla / Rasante Fija (Opcional)</span>
-                        <span class="info-icon" style="background:rgba(128,128,128,0.1); border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center; cursor:pointer;" onclick="showCustomAlert('Si estás nivelando una plataforma o subrasante a una cota de diseño fija, escríbela aquí. En cada fila verás en vivo cuánto falta CORTAR (-) o RELLENAR (+) respecto a esa plantilla.', 'CONTROL DE PLANTILLA')">ℹ️</span>
+                        <span class="info-icon" style="background:rgba(128,128,128,0.1); border-radius:50%; width:20px; height:20px; display:inline-flex; justify-content:center; align-items:center; cursor:pointer;" onclick="showInfoSimple('plantilla')">ℹ️</span>
                     </label>
                     <input type="text" inputmode="decimal" id="cotaRasanteFija" placeholder="Opcional (Ej: 102.500 para ver Corte/Relleno)" oninput="formatDecimal(this); procesarTabla();" onblur="completarCerosSimple(this)">
                 </div>
@@ -405,10 +418,10 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 29%;">PTO</th>
-                        <th style="width: 19.5%;">V.AT(+) <span class="th-info" onclick="showCustomAlert('<strong>VISTA ATRÁS:</strong><br>Lectura de la mira sobre un punto de cota conocida (BM) o punto de cambio para establecer la Altura de Instrumento.', 'VISTA ATRÁS')">i</span></th>
-                        <th style="width: 19.5%;">V.AD(-) <span class="th-info" onclick="showCustomAlert('<strong>VISTA ADELANTE:</strong><br>Lectura de radiación sobre el terreno para calcular su elevación. Si se digita una COTA manual, aquí te dirá qué lectura de mira necesitas leer.', 'VISTA ADELANTE')">i</span></th>
-                        <th style="width: 32%;">AI / COTA <span class="th-info" onclick="showCustomAlert('<strong>COTA DEL TERRENO:</strong><br>Elevación final. Haz <strong>DOBLE TOQUE</strong> rápido aquí para escribir una cota a mano (replanteo inverso). Si borras la cota manual, vuelve al modo normal.', 'COTA (DOBLE TOQUE)')">i</span></th>
+                        <th style="width: 29%;">PTO <span class="th-info" onclick="showInfoSimple('pto')">i</span></th>
+                        <th style="width: 19.5%;">V.AT(+) <span class="th-info" onclick="showInfoSimple('va')">i</span></th>
+                        <th style="width: 19.5%;">V.AD(-) <span class="th-info" onclick="showInfoSimple('vd')">i</span></th>
+                        <th style="width: 32%;">AI / COTA <span class="th-info" onclick="showInfoSimple('cota')">i</span></th>
                     </tr>
                 </thead>
                 <tbody id="cuerpoTabla"></tbody>
@@ -526,7 +539,8 @@
                     cota: tr.querySelector('.in-cota').value,
                     fijo: tr.querySelector('.in-cota').dataset.fijo || (i===0 ? "true" : "false"),
                     locked: tr.dataset.locked || "false",
-                    cierreCompensado: tr.dataset.cierreCompensado || "false"
+                    cierreCompensado: tr.dataset.cierreCompensado || "false",
+                    corrInt: tr.dataset.corrInt || ""
                 });
             });
             p.tabla = filas; 
@@ -561,30 +575,57 @@
             setTimeout(() => { document.getElementById('customAlertOverlay').style.display = 'none'; }, 300);
         }
 
+        function showInfoSimple(clave) {
+            const mapa = {
+                plantilla: {
+                    t: "CONTROL DE PLANTILLA / RASANTE FIJA",
+                    m: `Úsalo cuando estás nivelando una losa, plataforma, falso piso o subrasante horizontal a una elevación única.<div class="info-formula">Diferencia = Cota Plantilla − Cota Terreno</div><div class="info-ex"><strong>Ejemplo (Plantilla = 102.500 m):</strong><br>• Si el terreno sale <strong>102.700</strong> ➔ <strong style="color:var(--danger-color);">CORTE: -0.200 m</strong> (sobran 20 cm)<br>• Si el terreno sale <strong>102.350</strong> ➔ <strong style="color:var(--blue-accent);">RELLENO: +0.150 m</strong> (faltan 15 cm)</div><div class="info-tip">💡 Si solo estás haciendo un levantamiento libre, déjalo vacío.</div>`
+                },
+                pto: {
+                    t: "PUNTO (PTO) Y BOTONES RÁPIDOS",
+                    m: `Nombre de cada estación o punto radiado.<br><br>• <strong>📍 Pin:</strong> elige un BM de tu Base de Datos. Al insertarlo te preguntará si quieres <strong>FIJAR COTA</strong> (nuevo punto de partida) o <strong>VER CIERRE</strong> (revisar el error con el que llegaste).<br>• <strong>💾 Disquete:</strong> aparece cuando escribes un punto nuevo para guardarlo al instante como BM.<div class="info-tip">⚡ <strong>Auto-Nombrado:</strong> si lo dejas vacío y llenas V.AD y V.AT, se nombra solo como <strong>PC-1, PC-2...</strong> Si solo llenas V.AD, se nombra <strong>R-1, R-2...</strong></div>`
+                },
+                va: {
+                    t: "VISTA ATRÁS (+)",
+                    m: `Lectura de mira sobre un punto de cota conocida (BM inicial o Punto de Cambio PC) para calcular la nueva <strong>Altura de Instrumento (AI)</strong>.<div class="info-formula">AI = Cota del Punto + Vista Atrás (+)</div><div class="info-ex"><strong>¿Mira invertida (techos / vigas)?</strong><br>Coloca el signo menos delante (ej. <code>-1.850</code>). Se pintará de <strong>morado</strong> y aplicará la matemática exacta de mira invertida.</div>`
+                },
+                vd: {
+                    t: "VISTA ADELANTE (−)",
+                    m: `Lectura de mira sobre el terreno o punto cuyo nivel quieres hallar.<div class="info-formula">Cota = AI − Vista Adelante (−)</div><div class="info-ex"><strong>2 formas de usarla:</strong><br>• <strong>Levantamiento normal:</strong> escribes la lectura de mira y la app calcula la Cota.<br>• <strong>Replanteo inverso:</strong> haz <strong>doble toque</strong> en la casilla Cota, escribe la cota deseada y aquí te aparecerá la lectura exacta que debes buscar en la mira.</div><div class="info-tip">💡 Para mira invertida (bajo viga/techo), antepón <code>-</code> (ej. <code>-2.100</code>).</div>`
+                },
+                cota: {
+                    t: "AI / COTA Y HERRAMIENTAS DE FILA",
+                    m: `Muestra arriba la <strong>Altura de Instrumento (AI)</strong> y abajo la <strong>Cota calculada</strong>.<br><br>• <strong>🔓/🔒 Etiqueta AI:</strong> toca para bloquear esa fila con candado y evitar cambios por error.<br>• <strong>👆 Doble toque en Cota:</strong> habilita teclado para escribir una cota deseada (replanteo inverso). Si luego borras el número, vuelve a modo normal.<br>• <strong>▲ / ▼ Flecha lateral:</strong> toca una flecha y luego otra en distinta fila para calcular el desnivel exacto (<strong>ΔH</strong>) entre esos dos puntos.`
+                }
+            };
+            let item = mapa[clave];
+            if (item) showCustomAlert(item.m, item.t);
+        }
+
         function mostrarLeyenda() {
             let html = `
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">📍</span> 
-                    <div><strong style="color:var(--primary-color);">Vincular BM:</strong> Toca para inyectar un BM de la Base de Datos a la libreta (Cota Fija o Ver Cierre).</div>
+                <div class="guia-item">
+                    <div class="guia-num">1</div>
+                    <div><strong style="color:var(--primary-color);">Arranca desde tu BM (Fila 1):</strong> Toca el pin <strong>📍</strong> en la fila 1 para cargar un BM (o escribe su cota con doble toque) e ingresa la <strong>V.AT(+)</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">🎯</span> 
-                    <div><strong style="color:var(--primary-color);">Control de Plantilla:</strong> Escribe una Cota de Rasante Fija arriba para ver en cada lectura de terreno el <strong>Corte (-)</strong> o <strong>Relleno (+)</strong> en vivo.</div>
+                <div class="guia-item">
+                    <div class="guia-num">2</div>
+                    <div><strong style="color:var(--primary-color);">Radia o haz cambios (PC):</strong><br>• Para un punto normal del terreno: llena solo <strong>V.AD(−)</strong> (se nombra <strong>R-1, R-2...</strong>).<br>• Para cambiar el nivel de lugar: llena <strong>V.AD(−)</strong> y la nueva <strong>V.AT(+)</strong> en la misma fila (se nombra <strong>PC-1, PC-2...</strong>).</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">⚡</span> 
-                    <div><strong style="color:var(--primary-color);">Auto-Nombrado:</strong> Si dejas el nombre vacío y llenas V.AT(+) y V.AD(-), se nombrará solo como <strong>PC-1, PC-2...</strong> Si solo llenas V.AD(-), se nombrará <strong>R-1, R-2...</strong></div>
+                <div class="guia-item">
+                    <div class="guia-num">3</div>
+                    <div><strong style="color:var(--primary-color);">Replanteo inverso y Mira invertida:</strong><br>• <strong>Doble toque en Cota</strong> para dictar una elevación objetivo y obtener la lectura de mira.<br>• Antepón <code>-</code> en V.AT o V.AD para lecturas de <strong>mira invertida</strong> en techos/vigas.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                    <span style="font-size:1.2rem; margin-right:10px;">⚖️</span> 
-                    <div><strong style="color:var(--primary-color);">Compensar Cierre:</strong> Al cerrar en un BM conocido, reparte el error automáticamente entre los Puntos de Cambio del tramo sin alterar cierres previos.</div>
+                <div class="guia-item">
+                    <div class="guia-num">4</div>
+                    <div><strong style="color:var(--primary-color);">Cierre y Compensación segura:</strong> Al llegar a un BM de control (elige <strong>VER CIERRE</strong>), la app muestra el error exacto y un botón para compensar <strong>sin alterar tus lecturas crudas V.AD(−)</strong>.</div>
                 </div>
-                <div style="display:flex; align-items:flex-start;">
-                    <span style="font-size:1.2rem; margin-right:10px;">👆</span> 
-                    <div><strong style="color:var(--primary-color);">Doble Toque en Cota:</strong> Activa el modo replanteo inverso (ingresas Cota deseada y calcula la lectura de mira). Si la borras y la dejas vacía, vuelve a modo normal.</div>
+                <div class="guia-item">
+                    <div class="guia-num">5</div>
+                    <div><strong style="color:var(--primary-color);">Desnivel rápido (ΔH):</strong> Toca la flechita <strong>▲/▼</strong> de una fila y luego la de otra para ver la diferencia de altura entre ambos puntos al instante.</div>
                 </div>
             `;
-            showCustomAlert(html, "GUÍA DE FUNCIONES");
+            showCustomAlert(html, "GUÍA RÁPIDA — NIVELACIÓN SIMPLE");
         }
 
         function showCustomConfirm(message, onOk, onCancel = null, okText = "ACEPTAR", cancelText = "CANCELAR") {
@@ -1179,6 +1220,9 @@
             const aplicarBMFijo = () => {
                 input.dataset.bmAsignado = val; 
                 tr.dataset.cierreCompensado = "false";
+                tr.dataset.corrInt = "";
+                let tbody = document.getElementById('cuerpoTabla');
+                if (tr !== tbody.firstElementChild) tr.querySelector('.in-vd').value = "";
                 inCota.value = bmEncontrado.cota.toFixed(decs);
                 inCota.dataset.fijo = "true"; 
                 inCota.classList.add('fijo'); 
@@ -1234,7 +1278,7 @@
             let inputCota = tr.querySelector('.in-cota');
             let nombre = inputPto.value.toUpperCase().trim();
             let decs = getDecs();
-            let cotaInt = toScaledInt(inputCota.value, decs);
+            let cotaInt = obtenerCotaEfectivaFilaInt(tr, decs);
 
             if (!nombre) return;
 
@@ -1274,13 +1318,48 @@
             }
         }
 
-        /* --- COMPENSACIÓN AUTOMÁTICA DE CIERRE AISLADA POR SUB-TRAMOS --- */
-        function compensarCierreSimple(filaDestinoIdx, errorCierreInt) {
-            if (tablaBloqueada) return showToast("Desbloquea la tabla primero", "warning");
-            let decs = getDecs();
-            let p = obtenerProyectoActivo();
-            let trs = document.querySelectorAll('#cuerpoTabla tr');
+        function obtenerCotaEfectivaFilaInt(tr, decs = getDecs()) {
+            let cotaInt = toScaledInt(tr.querySelector('.in-cota').value, decs);
+            if (isNaN(cotaInt)) return NaN;
+            let corrInt = (tr.dataset.corrInt !== undefined && tr.dataset.corrInt !== "") ? parseInt(tr.dataset.corrInt) : NaN;
+            return !isNaN(corrInt) ? (cotaInt + corrInt) : cotaInt;
+        }
 
+        function invalidarCompensacionDesde(input, campo = 'vd') {
+            let tr = input ? input.closest('tr') : null;
+            if (!tr) return;
+            let trs = Array.from(document.querySelectorAll('#cuerpoTabla tr'));
+            let idx = trs.indexOf(tr);
+            if (idx < 0) return;
+
+            let p = obtenerProyectoActivo();
+            let decs = getDecs();
+            let startIdx;
+            if (campo === 'va') {
+                startIdx = idx + 1;
+            } else {
+                startIdx = obtenerInicioTramoSimple(trs, idx, p, decs) + 1;
+            }
+
+            let seLimpioAlgo = false;
+            for (let j = startIdx; j < trs.length; j++) {
+                let inPtoJ = trs[j].querySelector('.in-pto');
+                let inCotaJ = trs[j].querySelector('.in-cota');
+                let esBMFijoDBJ = (inPtoJ.dataset.bmAsignado && inPtoJ.dataset.bmAsignado !== "" && inCotaJ.dataset.fijo === "true");
+                if (esBMFijoDBJ && j > idx) break;
+                if (trs[j].dataset.corrInt || trs[j].dataset.cierreCompensado === "true") {
+                    trs[j].dataset.corrInt = "";
+                    trs[j].dataset.cierreCompensado = "false";
+                    seLimpioAlgo = true;
+                }
+            }
+            if (seLimpioAlgo) {
+                showToast("Compensación anterior limpiada al editar lectura", "warning");
+            }
+        }
+
+        /* --- COMPENSACIÓN DE CIERRE SIN ALTERAR LECTURAS CRUDAS V.AD(-) --- */
+        function obtenerInicioTramoSimple(trs, filaDestinoIdx, p, decs) {
             let ultimoInicioFijo = 0;
             for (let i = filaDestinoIdx - 1; i >= 0; i--) {
                 let ptoRow = trs[i].querySelector('.in-pto').value.toUpperCase().trim();
@@ -1288,7 +1367,8 @@
                 let esFijo = trs[i].querySelector('.in-cota').dataset.fijo === "true";
                 let fueCompensado = trs[i].dataset.cierreCompensado === "true";
                 let cotaRowInt = toScaledInt(trs[i].querySelector('.in-cota').value, decs);
-                let bmCerradoExacto = bmEnDB && !isNaN(cotaRowInt) && (cotaRowInt === toScaledInt(bmEnDB.cota, decs));
+                let corrRowInt = trs[i].dataset.corrInt ? parseInt(trs[i].dataset.corrInt) : 0;
+                let bmCerradoExacto = bmEnDB && !isNaN(cotaRowInt) && ((cotaRowInt + (isNaN(corrRowInt) ? 0 : corrRowInt)) === toScaledInt(bmEnDB.cota, decs));
                 let tieneVa = !isNaN(toScaledInt(trs[i].querySelector('.in-va').value, decs));
 
                 if (i === 0 || ((esFijo || fueCompensado || bmCerradoExacto) && tieneVa)) {
@@ -1296,8 +1376,18 @@
                     break;
                 }
             }
+            return ultimoInicioFijo;
+        }
 
-            let filasCambio = [];
+        function compensarCierreSimple(filaDestinoIdx, errorCierreInt) {
+            if (tablaBloqueada) return showToast("Desbloquea la tabla primero", "warning");
+            let decs = getDecs();
+            let p = obtenerProyectoActivo();
+            let trs = document.querySelectorAll('#cuerpoTabla tr');
+
+            let ultimoInicioFijo = obtenerInicioTramoSimple(trs, filaDestinoIdx, p, decs);
+
+            let indicesCambio = [];
             for (let i = ultimoInicioFijo + 1; i <= filaDestinoIdx; i++) {
                 if (trs[i].dataset.locked === "true") continue;
                 let inVa = trs[i].querySelector('.in-va');
@@ -1308,36 +1398,63 @@
                 let vaInt = toScaledInt(inVa.value, decs);
                 let vdInt = toScaledInt(inVd.value, decs);
 
-                if (i === filaDestinoIdx || (!isNaN(vaInt) && !isNaN(vdInt))) {
-                    if (!isNaN(vdInt)) {
-                        filasCambio.push(inVd);
-                    }
+                if ((i === filaDestinoIdx || (!isNaN(vaInt) && !isNaN(vdInt))) && !isNaN(vdInt)) {
+                    indicesCambio.push(i);
                 }
             }
 
-            if (filasCambio.length === 0) {
+            if (indicesCambio.length === 0) {
                 return showToast("No hay estaciones desbloqueadas en este tramo para repartir el error.", "warning");
             }
 
             let errorMetros = fromScaledInt(errorCierreInt, decs);
-            showCustomConfirm(`⚖️ <strong>COMPENSAR CIERRE</strong><br><br>Se repartirá el error de <strong>${errorCierreInt > 0 ? '+' : ''}${errorMetros.toFixed(decs)} m</strong> entre <strong>${filasCambio.length}</strong> lectura(s) de cambio del tramo actual para cerrar en ${(0).toFixed(decs)} m.<br><br>¿Aplicar ajuste?`, () => {
-                let n = filasCambio.length;
-                let cuotaBase = Math.trunc(errorCierreInt / n);
-                let residuo = errorCierreInt - (cuotaBase * n);
+            let corrTotalMetros = -errorMetros;
+            showCustomConfirm(`⚖️ <strong>COMPENSAR CIERRE (DATOS CRUDOS INTACTOS)</strong><br><br>Error de cierre: <strong>${errorCierreInt > 0 ? '+' : ''}${errorMetros.toFixed(decs)} m</strong>.<br>Se aplicará una corrección total de <strong>${corrTotalMetros > 0 ? '+' : ''}${corrTotalMetros.toFixed(decs)} m</strong> sobre <strong>${indicesCambio.length}</strong> estación(es) de cambio y sus radiaciones.<br><br>Tus lecturas <strong>V.AD(-)</strong> originales no se alteran.`, () => {
+                let n = indicesCambio.length;
+                let totalCorr = -errorCierreInt;
+                let cuotaBase = Math.trunc(totalCorr / n);
+                let residuo = totalCorr - (cuotaBase * n);
                 let signoResiduo = residuo >= 0 ? 1 : -1;
                 let absResiduo = Math.abs(residuo);
 
-                filasCambio.forEach((inputVd, idx) => {
-                    let vdActualInt = toScaledInt(inputVd.value, decs);
-                    let extra = (idx >= n - absResiduo) ? signoResiduo : 0;
-                    let nuevoVdInt = vdActualInt + cuotaBase + extra;
-                    inputVd.value = fromScaledInt(nuevoVdInt, decs).toFixed(decs);
-                });
+                let corrAcumulada = 0;
+                let cambioPos = 0;
+                for (let i = ultimoInicioFijo + 1; i <= filaDestinoIdx; i++) {
+                    let esFijoManual = trs[i].querySelector('.in-cota').dataset.fijo === "true";
+                    if (esFijoManual && i !== filaDestinoIdx) {
+                        trs[i].dataset.corrInt = "";
+                        continue;
+                    }
+                    if (cambioPos < n && indicesCambio[cambioPos] === i) {
+                        let extra = (cambioPos >= n - absResiduo) ? signoResiduo : 0;
+                        corrAcumulada += cuotaBase + extra;
+                        cambioPos++;
+                    }
+                    trs[i].dataset.corrInt = String(corrAcumulada);
+                }
 
                 trs[filaDestinoIdx].dataset.cierreCompensado = "true";
                 procesarTabla();
-                showToast(`Cierre compensado a ${(0).toFixed(decs)} m`, "success");
+                showToast(`Cierre compensado a ${(0).toFixed(decs)} m (lecturas crudas intactas)`, "success");
             });
+        }
+
+        function quitarCompensacionSimple(filaDestinoIdx) {
+            if (tablaBloqueada) return showToast("Desbloquea la tabla primero", "warning");
+            let decs = getDecs();
+            let p = obtenerProyectoActivo();
+            let trs = document.querySelectorAll('#cuerpoTabla tr');
+            let ultimoInicioFijo = obtenerInicioTramoSimple(trs, filaDestinoIdx, p, decs);
+            for (let i = ultimoInicioFijo + 1; i < trs.length; i++) {
+                let inPtoI = trs[i].querySelector('.in-pto');
+                let inCotaI = trs[i].querySelector('.in-cota');
+                let esBMFijoDB = (inPtoI.dataset.bmAsignado && inPtoI.dataset.bmAsignado !== "" && inCotaI.dataset.fijo === "true");
+                if (i > filaDestinoIdx && esBMFijoDB) break;
+                trs[i].dataset.corrInt = "";
+                trs[i].dataset.cierreCompensado = "false";
+            }
+            procesarTabla();
+            showToast("Compensación removida del tramo", "default");
         }
 
         function toggleLockAI(btn) {
@@ -1407,7 +1524,8 @@
             let decs = getDecs();
             let divContainer = spanIcon.closest('.cota-container');
             let input = divContainer.querySelector('.in-cota');
-            let valInt = toScaledInt(input.value, decs);
+            let tr = divContainer.closest('tr');
+            let valInt = obtenerCotaEfectivaFilaInt(tr, decs);
             
             if(!isNaN(valInt)) {
                 if(!cotaSel1) {
@@ -1496,7 +1614,18 @@
                         aiActualInt = NaN; 
                     }
                 } else {
-                    if (!isNaN(aiActualInt)) {
+                    let esBMFijoDB = (inPto.dataset.bmAsignado && inPto.dataset.bmAsignado !== "" && isFijo);
+                    if (esBMFijoDB) {
+                        // Nuevo BM oficial de partida: NUNCA inyecta una V.AD(-) ficticia
+                        let cotaValInt = toScaledInt(cotaInp.value, decs);
+                        if (!isNaN(cotaValInt) && !isNaN(vaInt)) {
+                            aiActualInt = cotaValInt + vaInt;
+                            aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs);
+                        } else {
+                            aiActualInt = NaN;
+                            aiNum.innerText = "---";
+                        }
+                    } else if (!isNaN(aiActualInt)) {
                         if (isCotaActive || (isFijo && !isVdActive)) {
                             let cotaValInt = toScaledInt(cotaInp.value, decs);
                             if (!isNaN(cotaValInt)) {
@@ -1523,7 +1652,9 @@
                                     }
                                 }
                                 if (!isNaN(vaInt)) { 
-                                    aiActualInt = cotaCalcInt + vaInt; 
+                                    let corrCierreInt = (tr.dataset.cierreCompensado === "true" && tr.dataset.corrInt !== undefined && tr.dataset.corrInt !== "") ? parseInt(tr.dataset.corrInt) : 0;
+                                    let cotaBaseParaAIInt = cotaCalcInt + (isNaN(corrCierreInt) ? 0 : corrCierreInt);
+                                    aiActualInt = cotaBaseParaAIInt + vaInt; 
                                     aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
                                 } else { 
                                     aiNum.innerText = fromScaledInt(aiActualInt, decs).toFixed(decs); 
@@ -1551,20 +1682,36 @@
                     }
                 }
 
+                let badgeComp = tr.querySelector('.badge-comp');
                 let currentCotaInt = toScaledInt(cotaInp.value, decs);
-                if(!isNaN(currentCotaInt)) {
+                let corrInt = (tr.dataset.corrInt !== undefined && tr.dataset.corrInt !== "") ? parseInt(tr.dataset.corrInt) : NaN;
+                let tieneCorr = !isNaN(corrInt) && !isNaN(currentCotaInt) && i > 0;
+                let cotaEfectivaInt = tieneCorr ? (currentCotaInt + corrInt) : currentCotaInt;
+
+                if (badgeComp) {
+                    if (tieneCorr) {
+                        let corrM = fromScaledInt(corrInt, decs);
+                        let compM = fromScaledInt(cotaEfectivaInt, decs);
+                        badgeComp.style.display = 'block';
+                        badgeComp.innerText = `⚖️ Comp: ${compM.toFixed(decs)} (${corrInt >= 0 ? '+' : ''}${corrM.toFixed(decs)})`;
+                    } else {
+                        badgeComp.style.display = 'none';
+                    }
+                }
+
+                if(!isNaN(cotaEfectivaInt)) {
                     if(!isNaN(prevCotaCalculadaInt)) {
-                        if(currentCotaInt > prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--success-color); font-size:1.2rem; font-weight:900;">▲</span>';
-                        else if(currentCotaInt < prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--danger-color); font-size:1.2rem; font-weight:900;">▼</span>';
+                        if(cotaEfectivaInt > prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--success-color); font-size:1.2rem; font-weight:900;">▲</span>';
+                        else if(cotaEfectivaInt < prevCotaCalculadaInt) iconTrend.innerHTML = '<span style="color:var(--danger-color); font-size:1.2rem; font-weight:900;">▼</span>';
                         else iconTrend.innerHTML = '<span style="color:gray; font-size:1.2rem; font-weight:900;">▶</span>';
                     } else {
                         iconTrend.innerHTML = '<span style="color:gray; font-size:1.2rem; font-weight:900;">●</span>';
                     }
-                    prevCotaCalculadaInt = currentCotaInt;
+                    prevCotaCalculadaInt = cotaEfectivaInt;
 
                     if (badgeRas) {
                         if (!isNaN(cotaPlantillaInt) && i > 0) {
-                            let diffRasInt = cotaPlantillaInt - currentCotaInt;
+                            let diffRasInt = cotaPlantillaInt - cotaEfectivaInt;
                             let diffRas = fromScaledInt(diffRasInt, decs);
                             badgeRas.style.display = 'block';
                             badgeRas.className = 'badge-rasante';
@@ -1620,13 +1767,21 @@
                         let bmRefInt = toScaledInt(bmRef.cota, decs);
                         let errorCierreInt = cotaCalcInt - bmRefInt;
                         let errorCierre = fromScaledInt(errorCierreInt, decs);
-                        if (errorCierreInt !== 0) tr.dataset.cierreCompensado = "false";
+                        let corrRowInt = (tr.dataset.corrInt !== undefined && tr.dataset.corrInt !== "") ? parseInt(tr.dataset.corrInt) : 0;
+                        let errorCompInt = (cotaCalcInt + (isNaN(corrRowInt) ? 0 : corrRowInt)) - bmRefInt;
+                        let yaCompensadoOk = (tr.dataset.cierreCompensado === "true" && errorCompInt === 0);
+                        if (!yaCompensadoOk && errorCierreInt !== 0) tr.dataset.cierreCompensado = "false";
 
-                        let claseColor = Math.abs(errorCierre) > 0.02 ? "error-alto" : "";
-                        let btnCompHTML = errorCierreInt !== 0
-                            ? `<br><button class="btn-compensar-inline" onclick="compensarCierreSimple(${i}, ${errorCierreInt})">⚖️ Compensar Cierre en Libreta</button>`
-                            : `<br><span style="font-size:0.85rem; font-weight:800;">✓ CIERRE PERFECTO (${(0).toFixed(decs)} m)</span>`;
-                        htmlCierres += `<div class="cierre-aviso ${claseColor}" style="display:block;">🎯 <strong>CIERRE EN [${escapeHTML(bmRef.nombre)}]</strong><br>Error: ${errorCierreInt > 0 ? '+' : ''}${errorCierre.toFixed(decs)} m${btnCompHTML}</div>`;
+                        let claseColor = (!yaCompensadoOk && Math.abs(errorCierre) > 0.02) ? "error-alto" : "";
+                        let btnCompHTML = "";
+                        if (errorCierreInt === 0) {
+                            btnCompHTML = `<br><span style="font-size:0.85rem; font-weight:800;">✓ CIERRE PERFECTO (${(0).toFixed(decs)} m)</span>`;
+                        } else if (yaCompensadoOk) {
+                            btnCompHTML = `<br><span style="font-size:0.85rem; font-weight:800;">✓ COMPENSADO A ${(0).toFixed(decs)} m (Lecturas crudas intactas)</span><br><button class="btn-compensar-inline" style="background:var(--table-header);" onclick="quitarCompensacionSimple(${i})">↩️ Quitar Compensación</button>`;
+                        } else {
+                            btnCompHTML = `<br><button class="btn-compensar-inline" onclick="compensarCierreSimple(${i}, ${errorCierreInt})">⚖️ Compensar Cierre (Sin alterar V.AD)</button>`;
+                        }
+                        htmlCierres += `<div class="cierre-aviso ${claseColor}" style="display:block;">🎯 <strong>CIERRE EN [${escapeHTML(bmRef.nombre)}]</strong><br>Error Crudo: ${errorCierreInt > 0 ? '+' : ''}${errorCierre.toFixed(decs)} m${btnCompHTML}</div>`;
                     }
                 }
             }
@@ -1649,7 +1804,7 @@
             let maxInt = -Infinity, minInt = Infinity, sumInt = 0, count = 0;
             document.querySelectorAll('#cuerpoTabla tr').forEach(tr => {
                 let isFixed = tr.querySelector('.in-cota').dataset.fijo === "true";
-                let vInt = toScaledInt(tr.querySelector('.in-cota').value, decs);
+                let vInt = obtenerCotaEfectivaFilaInt(tr, decs);
                 if(!isNaN(vInt) && !isFixed) {
                     if(vInt > maxInt) maxInt = vInt;
                     if(vInt < minInt) minInt = vInt;
@@ -1684,14 +1839,15 @@
                     <span class="btn-save-bm" onclick="guardarBMFantasma(this)" title="Guardar como BM">💾</span>
                     <span class="btn-pin" onclick="abrirSelectorBM(this)">📍</span>
                 </td>
-                <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
-                <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" ${esPrimera ? 'disabled style="background:rgba(128,128,128,0.1)"' : ''} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
+                <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" oninput="formatDecimal(this); invalidarCompensacionDesde(this, this.classList.contains('in-va') ? 'va' : 'vd'); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
+                <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" ${esPrimera ? 'disabled style="background:rgba(128,128,128,0.1)"' : ''} oninput="formatDecimal(this); invalidarCompensacionDesde(this, this.classList.contains('in-va') ? 'va' : 'vd'); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
                 <td class="celda-combinada">
                     <div class="btn-ai-label" onclick="toggleLockAI(this)">🔓 AI: <span class="val-ai-num">---</span></div>
                     <div class="cota-container" onclick="manejarCotaTap(this, event)">
-                        <input type="text" inputmode="decimal" class="in-cota" placeholder="Cota..." oninput="formatDecimal(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
+                        <input type="text" inputmode="decimal" class="in-cota" placeholder="Cota..." oninput="formatDecimal(this); invalidarCompensacionDesde(this, 'cota'); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
                         <span class="trend-icon" onclick="medirDesnivelRapido(this)"></span>
                     </div>
+                    <div class="badge-comp"></div>
                     <div class="badge-rasante"></div>
                 </td>
             `;
@@ -1727,6 +1883,7 @@
                 const tr = document.createElement('tr');
                 tr.dataset.locked = f.locked || "false";
                 tr.dataset.cierreCompensado = f.cierreCompensado || "false";
+                tr.dataset.corrInt = f.corrInt || "";
                 let lockIcon = (f.locked === "true") ? "🔒" : "🔓";
                 let disAttr = (f.locked === "true") ? "readonly" : "";
                 
@@ -1741,14 +1898,15 @@
                         <span class="btn-save-bm" style="${btnSaveStyle}" onclick="guardarBMFantasma(this)" title="Guardar como BM">💾</span>
                         <span class="btn-pin" onclick="abrirSelectorBM(this)">📍</span>
                     </td>
-                    <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" value="${escapeHTML(f.va)}" ${disAttr} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
-                    <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" value="${escapeHTML(f.vd)}" ${i===0 ? 'disabled style="background:rgba(128,128,128,0.1)"' : disAttr} oninput="formatDecimal(this); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
+                    <td><input type="text" inputmode="decimal" class="in-va" placeholder="(+)" value="${escapeHTML(f.va)}" ${disAttr} oninput="formatDecimal(this); invalidarCompensacionDesde(this, this.classList.contains('in-va') ? 'va' : 'vd'); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
+                    <td><input type="text" inputmode="decimal" class="in-vd" placeholder="[-]" value="${escapeHTML(f.vd)}" ${i===0 ? 'disabled style="background:rgba(128,128,128,0.1)"' : disAttr} oninput="formatDecimal(this); invalidarCompensacionDesde(this, this.classList.contains('in-va') ? 'va' : 'vd'); verificarAutoFila(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)"></td>
                     <td class="celda-combinada">
                         <div class="btn-ai-label" onclick="toggleLockAI(this)">${lockIcon} AI: <span class="val-ai-num">---</span></div>
                         <div class="cota-container" onclick="manejarCotaTap(this, event)">
-                            <input type="text" inputmode="decimal" class="in-cota ${f.fijo === "true" ? 'fijo' : ''}" placeholder="Cota..." value="${escapeHTML(f.cota)}" data-fijo="${f.fijo}" oninput="formatDecimal(this); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
+                            <input type="text" inputmode="decimal" class="in-cota ${f.fijo === "true" ? 'fijo' : ''}" placeholder="Cota..." value="${escapeHTML(f.cota)}" data-fijo="${f.fijo}" oninput="formatDecimal(this); invalidarCompensacionDesde(this, 'cota'); procesarTabla()" onblur="completarCerosSimple(this)" onkeydown="manejarEnterTabla(event, this)">
                             <span class="trend-icon" onclick="medirDesnivelRapido(this)"></span>
                         </div>
+                        <div class="badge-comp"></div>
                         <div class="badge-rasante"></div>
                     </td>
                 `;
@@ -1764,7 +1922,11 @@
             let fechaHoy = new Date().toLocaleDateString('es-PE');
             let oper = globalConfig.operador || "COTA100";
             let eq = globalConfig.equipo || "Nivel Automático";
-            let cabeceras = ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", "COTA TERRENO"];
+            let hayCompensacion = Array.from(document.querySelectorAll('#cuerpoTabla tr')).some(tr => tr.dataset.corrInt && tr.dataset.corrInt !== "");
+            let cabeceras = ["PUNTO", "V. ATRÁS (+)", "ALT. INSTRUMENTO", "V. ADEL. (-)", hayCompensacion ? "COTA CRUDA" : "COTA TERRENO"];
+            if (hayCompensacion) {
+                cabeceras.push("CORRECCIÓN (m)", "COTA COMPENSADA");
+            }
             if (!isNaN(cotaPlantillaInt)) {
                 cabeceras.push("COTA PLANTILLA", "CORTE (-) / RELLENO (+)");
             }
@@ -1787,6 +1949,9 @@
                 let obsPto = ""; let bmData = p.bms.find(b => b.nombre === ptoVal);
                 if(bmData && bmData.obs) obsPto = bmData.obs;
 
+                let corrInt = (tr.dataset.corrInt !== undefined && tr.dataset.corrInt !== "") ? parseInt(tr.dataset.corrInt) : NaN;
+                let cotaFinalInt = (!isNaN(corrInt) && !isNaN(cotaInt)) ? (cotaInt + corrInt) : cotaInt;
+
                 let aiInt = (aiStr !== "---" && aiStr !== "FALTA VD") ? toScaledInt(aiStr, decs) : NaN;
                 let fila = [
                     ptoVal,
@@ -1795,9 +1960,18 @@
                     !isNaN(vdInt) ? fromScaledInt(vdInt, decs) : "",
                     !isNaN(cotaInt) ? fromScaledInt(cotaInt, decs) : ""
                 ];
+                if (hayCompensacion) {
+                    if (!isNaN(corrInt) && !isNaN(cotaInt)) {
+                        fila.push(fromScaledInt(corrInt, decs), fromScaledInt(cotaFinalInt, decs));
+                    } else if (!isNaN(cotaInt)) {
+                        fila.push(0, fromScaledInt(cotaInt, decs));
+                    } else {
+                        fila.push("", "");
+                    }
+                }
                 if (!isNaN(cotaPlantillaInt)) {
-                    if (!isNaN(cotaInt) && idx > 0) {
-                        let diffInt = cotaPlantillaInt - cotaInt;
+                    if (!isNaN(cotaFinalInt) && idx > 0) {
+                        let diffInt = cotaPlantillaInt - cotaFinalInt;
                         fila.push(fromScaledInt(cotaPlantillaInt, decs), fromScaledInt(diffInt, decs));
                     } else {
                         fila.push("", "");

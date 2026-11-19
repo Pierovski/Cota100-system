@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     
-    <script src="poligonal.js" defer></script>
+    <script src="poligonal.js?v=5" defer></script>
 
     <style>
         /* --- ESTILOS UNIFICADOS COTA100 --- */
@@ -267,6 +267,18 @@
             .btn-calculadora-flotante { width: 45px; height: 45px; right: 10px;}
             .calculadora-modal { right: 10px; bottom: 65px; width: 230px;}
         }
+
+        /* --- ESTILOS DIDÁCTICOS PARA MODALES DE INFORMACIÓN --- */
+        #customAlertOverlay { z-index: 2000 !important; }
+        #customAlertModal { max-width: 400px !important; width: 92% !important; z-index: 2001 !important; }
+        #customAlertMsg { max-height: 62vh; overflow-y: auto; line-height: 1.45; padding-right: 4px; font-weight: 600; }
+        .info-formula { background: rgba(255, 85, 0, 0.10); border-left: 3px solid var(--primary-color); padding: 7px 9px; border-radius: 6px; font-family: monospace; font-size: 0.88rem; font-weight: 800; margin: 8px 0; color: var(--text-color); }
+        .info-ex { background: rgba(25, 118, 210, 0.09); border-left: 3px solid var(--blue-accent); padding: 7px 9px; border-radius: 6px; font-size: 0.86rem; margin: 8px 0; }
+        .info-tip { background: rgba(46, 204, 113, 0.12); border-left: 3px solid #2e7d32; padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .info-warn { background: rgba(211, 47, 47, 0.10); border-left: 3px solid var(--danger-color); padding: 7px 9px; border-radius: 6px; font-size: 0.85rem; margin-top: 8px; }
+        .guia-item { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 9px; margin-bottom: 9px; border-bottom: 1px solid var(--border-color); }
+        .guia-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .guia-num { min-width: 24px; height: 24px; border-radius: 50%; background: var(--primary-color); color: #fff; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
     </style>
 </head>
 <body onload="inicializarApp()">
@@ -288,7 +300,7 @@
     <!-- MODAL PRUEBA DE 2 ESTACAS (CON DISTANCIAS REALES DE CAMPO) -->
     <div class="overlay-select" id="overlayPrueba"></div>
     <div class="modal-select" id="modalPrueba" style="max-width: 360px;">
-        <h3 style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem; text-align:center;">🎯 PRUEBA DE 2 ESTACAS</h3>
+        <div style="display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom:10px;"><h3 style="color:var(--primary-color); font-weight:900; text-transform:uppercase; font-size: 1.1rem; margin:0;">🎯 PRUEBA DE 2 ESTACAS</h3><span class="info-icon" style="margin:0;" onclick="showInfoPol('prueba2Estacas')">ℹ️</span></div>
         
         <div style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px; margin-bottom:8px;">
             <div style="font-size:0.78rem; font-weight:800; color:var(--primary-color); margin-bottom:5px;">DISTANCIAS DE CAMPO (m)</div>
@@ -331,7 +343,7 @@
         </div>
     </div>
 
-    <div class="overlay-select" id="customAlertOverlay"></div>
+    <div class="overlay-select" id="customAlertOverlay" onclick="cerrarCustomAlert()"></div>
     <div class="modal-select" id="customAlertModal">
         <h3 id="customAlertTitle" style="color:var(--primary-color); font-weight:900; text-transform:uppercase; margin-bottom:10px; font-size: 1.1rem;">ℹ️ INFORMACIÓN</h3>
         <div class="confirm-msg" id="customAlertMsg" style="font-size:0.95rem; font-weight:600; text-align:left; color:var(--text-color); margin-bottom:15px;">Texto</div>
@@ -415,14 +427,14 @@
                         <div class="input-group">
                             <label>
                                 Cota Inicial (BM)
-                                <span class="info-icon" onclick="showCustomAlert('Cota oficial de partida para todo el circuito.', 'COTA INICIAL')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoPol('cotaBM')">ℹ️</span>
                             </label>
                             <input type="text" id="cotaBM" inputmode="decimal" placeholder="Ej: 100.000" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
                         <div class="input-group">
                             <label>
                                 Orden Niv.
-                                <span class="info-icon" onclick="showCustomAlert('Fórmula de tolerancia permisible. A menor orden, mayor exigencia de precisión en el cierre.', 'ORDEN DE NIVELACIÓN')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoPol('orden')">ℹ️</span>
                             </label>
                             <div class="custom-select" onclick="abrirModalSelect('orden')">
                                 <span id="txtSelectOrden">Orden IV (20mm √K)</span>
@@ -434,21 +446,21 @@
                         <div class="input-group">
                             <label>
                                 Long. Circuito (m)
-                                <span class="info-icon" onclick="showCustomAlert('Longitud horizontal real del circuito recorrido en metros (sin duplicar por doble mira). Calcula la tolerancia T = m · √K.', 'LONGITUD DEL CIRCUITO')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoPol('dist')">ℹ️</span>
                             </label>
                             <input type="text" id="distanciaM" inputmode="decimal" placeholder="Ej: 1500" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
                         <div class="input-group">
                             <label>
                                 Tol. Armada (mm)
-                                <span class="info-icon" onclick="showCustomAlert('Máxima diferencia en milímetros permitida entre el desnivel de ambas líneas en una misma armada.', 'TOLERANCIA POR ARMADA')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoPol('tolArmada')">ℹ️</span>
                             </label>
                             <input type="text" id="tolTramo" inputmode="decimal" value="2" placeholder="Ej: 2" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
                         <div class="input-group full-width">
                             <label style="color:var(--primary-color);">
                                 Cota Llegada (Opcional)
-                                <span class="info-icon" onclick="showCustomAlert('Si nivelas hacia un BM distinto al de partida, ingresa su cota aquí (o vincúlalo con 📍 desde tu lista de BMs). Si cierras en el mismo BM inicial, déjalo vacío.', 'COTA DE LLEGADA')">ℹ️</span>
+                                <span class="info-icon" onclick="showInfoPol('cotaLlegada')">ℹ️</span>
                             </label>
                             <input type="text" id="cotaLlegada" inputmode="decimal" placeholder="Opcional. Ej: 105.000" oninput="formatDecimal(this); guardarBD(); procesarDobleLiga();" onblur="completarCeros(this)">
                         </div>
@@ -477,7 +489,7 @@
                         <button id="btnGuardarBM" class="btn-accion" style="padding: 10px; font-size: 0.9rem; background: var(--primary-color);" onclick="addBM()">💾 Guardar BM</button>
                     </div>
 
-                    <button class="btn-accion" style="background:transparent; color: var(--primary-color); border: 1px solid var(--primary-color); margin-top: 8px; font-size: 0.88rem; padding: 9px;" onclick="abrirPruebaDosEstacas()">🎯 PRUEBA DE 2 ESTACAS (COLIMACIÓN)</button>
+                    <button class="btn-accion" style="background:transparent; color: var(--primary-color); border: 1px solid var(--primary-color); margin-top: 8px; font-size: 0.88rem; padding: 9px; display:flex; justify-content:center; align-items:center; gap:6px;" onclick="abrirPruebaDosEstacas()">🎯 PRUEBA DE 2 ESTACAS (COLIMACIÓN) <span class="info-icon" style="margin:0;" onclick="event.stopPropagation(); showInfoPol('prueba2Estacas')">ℹ️</span></button>
                 </div>
                 
                 <label style="margin-top: 8px; display: flex; justify-content: space-between; font-size:0.73rem; opacity:0.75;">
@@ -506,10 +518,10 @@
                     <table id="tablaIda">
                         <thead>
                             <tr>
-                                <th class="sticky-col" style="width: 24%;">PTO</th>
-                                <th style="width: 17.5%;">V.AT(+) <span class="th-info" onclick="showCustomAlert('Lectura de la mira izquierda sobre el punto conocido.', 'VISTA ATRÁS (LÍNEA 1)')">i</span></th>
-                                <th style="width: 17.5%;">V.AD(-) <span class="th-info" onclick="showCustomAlert('Lectura de la mira izquierda sobre el punto a conocer.', 'VISTA ADELANTE (LÍNEA 1)')">i</span></th>
-                                <th style="width: 31%;">COTA & ESTADO</th>
+                                <th class="sticky-col" style="width: 24%;">PTO <span class="th-info" onclick="showInfoPol('pto')">i</span></th>
+                                <th style="width: 17.5%;">V.AT(+) <span class="th-info" onclick="showInfoPol('va1')">i</span></th>
+                                <th style="width: 17.5%;">V.AD(-) <span class="th-info" onclick="showInfoPol('vd1')">i</span></th>
+                                <th style="width: 31%;">COTA & ESTADO <span class="th-info" onclick="showInfoPol('estado')">i</span></th>
                                 <th style="width: 10%;">🗑️</th>
                             </tr>
                         </thead>
@@ -523,10 +535,10 @@
                     <table id="tablaVuelta">
                         <thead>
                             <tr>
-                                <th class="sticky-col" style="width: 24%;">PTO</th>
-                                <th style="width: 17.5%;">V.AT(+) <span class="th-info" onclick="showCustomAlert('Lectura de la mira derecha sobre el punto conocido.', 'VISTA ATRÁS (LÍNEA 2)')">i</span></th>
-                                <th style="width: 17.5%;">V.AD(-) <span class="th-info" onclick="showCustomAlert('Lectura de la mira derecha sobre el punto a conocer.', 'VISTA ADELANTE (LÍNEA 2)')">i</span></th>
-                                <th style="width: 31%;">COTA & ESTADO</th>
+                                <th class="sticky-col" style="width: 24%;">PTO <span class="th-info" onclick="showInfoPol('pto')">i</span></th>
+                                <th style="width: 17.5%;">V.AT(+) <span class="th-info" onclick="showInfoPol('va2')">i</span></th>
+                                <th style="width: 17.5%;">V.AD(-) <span class="th-info" onclick="showInfoPol('vd2')">i</span></th>
+                                <th style="width: 31%;">COTA & ESTADO <span class="th-info" onclick="showInfoPol('estado')">i</span></th>
                                 <th style="width: 10%;">🗑️</th>
                             </tr>
                         </thead>
