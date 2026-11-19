@@ -317,19 +317,29 @@
         <div id="avisoLockCtrlTerr" style="display:none; font-size:0.78rem; font-weight:800; color:var(--success-text); background:var(--success-bg); border:1px solid var(--success-text); border-radius:6px; padding:6px 8px; margin-bottom:8px; text-align:center;">
             🔒 Estaca congelada en VERDE. Los lados sin modificar conservan su cota congelada aunque hayas movido el nivel.
         </div>
-        <p style="font-size:0.8rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:12px;">Ingresa la <strong>Lectura de Mira V.AD(-)</strong> sobre el terreno o antepón <strong>#</strong> si digitas una Cota Directa (ej: <code>#102.450</code>).</p>
+        <div class="chip-group" style="margin-bottom:8px;">
+            <button type="button" class="chip-btn activo" id="btnModoTerrMira" onclick="setModoTerrGlobal('mira')">📏 Mira V.AD(-)</button>
+            <button type="button" class="chip-btn" id="btnModoTerrCota" onclick="setModoTerrGlobal('cota')">📐 Cota Directa</button>
+        </div>
+        <p style="font-size:0.74rem; font-weight:700; opacity:0.75; text-align:center; margin-bottom:10px;">Elige arriba el modo general o toca la etiqueta <strong>MIRA / COTA</strong> de cada lado para mezclarlos.</p>
         <div class="form-grid-3">
             <div class="input-group">
-                <label style="color:var(--izq-color); justify-content:center;">⬅️ IZQ</label>
-                <input type="text" id="inpTerrIzq" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+                <label style="color:var(--izq-color); justify-content:center; gap:4px; cursor:pointer;" onclick="toggleModoTerrLado('Izq')">
+                    ⬅️ IZQ <span id="pillTerrIzq" style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:var(--primary-color); color:#fff;">MIRA</span>
+                </label>
+                <input type="text" id="inpTerrIzq" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Mira..." oninput="formatDecimal(this); previewCtrlTerr();">
             </div>
             <div class="input-group">
-                <label style="color:var(--primary-color); justify-content:center;">🎯 EJE</label>
-                <input type="text" id="inpTerrEje" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+                <label style="color:var(--primary-color); justify-content:center; gap:4px; cursor:pointer;" onclick="toggleModoTerrLado('Eje')">
+                    🎯 EJE <span id="pillTerrEje" style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:var(--primary-color); color:#fff;">MIRA</span>
+                </label>
+                <input type="text" id="inpTerrEje" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Mira..." oninput="formatDecimal(this); previewCtrlTerr();">
             </div>
             <div class="input-group">
-                <label style="color:var(--der-color); justify-content:center;">➡️ DER</label>
-                <input type="text" id="inpTerrDer" inputmode="decimal" placeholder="Mira/#Cota" oninput="formatTerrInput(this); previewCtrlTerr();">
+                <label style="color:var(--der-color); justify-content:center; gap:4px; cursor:pointer;" onclick="toggleModoTerrLado('Der')">
+                    ➡️ DER <span id="pillTerrDer" style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:var(--primary-color); color:#fff;">MIRA</span>
+                </label>
+                <input type="text" id="inpTerrDer" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Mira..." oninput="formatDecimal(this); previewCtrlTerr();">
             </div>
         </div>
         <div id="previewCtrlTerrBox" style="font-size:0.78rem; font-weight:800; text-align:center; padding:8px; border-radius:6px; background:rgba(128,128,128,0.08); margin-bottom:10px;"></div>
@@ -530,7 +540,7 @@
                             Prog. Inicial (m)
                             <span class="info-icon" onclick="showInfoVial('progIni')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="progIni" value="0.000" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="progIni" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); guardarEstadoVial();">
                     </div>
                     <div class="input-group">
                         <label>
@@ -565,7 +575,7 @@
                             Offset Capa (m)
                             <span class="info-icon" onclick="showInfoVial('offsetCapa')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="offsetCapa" value="0.000" placeholder="Ej: -0.200" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
+                        <input type="text" inputmode="decimal" id="offsetCapa" placeholder="0.000 (Ej: -0.200)" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
                     </div>
                 </div>
 
@@ -838,7 +848,7 @@
                 },
                 thProg: {
                     t: "PROGRESIVA Y CONTROL DE PLANTILLA",
-                    m: `Indica el kilometraje de cada estaca.<br><br>• Toca <strong>+ Plantilla</strong> para ingresar la lectura real de mira en terreno (Izq, Eje, Der) y ver cuánto falta <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en cada punto.<br>• Si tienes cota directa en vez de mira, antepón <strong>#</strong> (ej. <code>#102.450</code>).`
+                    m: `Indica el kilometraje de cada estaca.<br><br>• Toca <strong>+ Plantilla</strong> para ingresar la lectura real de mira en terreno (Izq, Eje, Der) y ver cuánto falta <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en cada punto.<br>• Puedes alternar entre <strong>📏 Mira V.AD(-)</strong> y <strong>📐 Cota Directa</strong> con los botones del modal (o tocar la etiqueta MIRA/COTA de cada lado).`
                 },
                 thEje: {
                     t: "EJE VIAL (CL)",
@@ -850,7 +860,7 @@
                 },
                 ctrlPlantilla: {
                     t: "CÓMO USAR CONTROL DE PLANTILLA",
-                    m: `Calcula en vivo cuánto debes <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en Izq, Eje y Der de esta estaca.<div class="info-ex"><strong>2 formas de ingresar el terreno:</strong><br>• <strong>Por Lectura de Mira:</strong> escribe directo lo que ves en la mira (ej. <code>1.450</code>). La app calcula <code>C. Terreno = AI − 1.450</code>.<br>• <strong>Por Cota Directa:</strong> antepón <strong>#</strong> (ej. <code>#102.450</code>) si traes la elevación desde GPS o estación total.</div><div class="info-tip">🔒 Si la estaca está marcada en <strong>verde</strong>, los lados que no edites mantienen su cota congelada aunque luego muevas el nivel a otro BM.</div>`
+                    m: `Calcula en vivo cuánto debes <strong>Cortar (C:)</strong> o <strong>Rellenar (R:)</strong> en Izq, Eje y Der de esta estaca.<div class="info-ex"><strong>2 formas de ingresar el terreno:</strong><br>• <strong>Por Lectura de Mira:</strong> escribe directo lo que ves en la mira (ej. <code>1.450</code>). La app calcula <code>C. Terreno = AI − 1.450</code>.<br>• <strong>Por Cota Directa:</strong> toca el botón <strong>📐 Cota Directa</strong> (o la etiqueta del lado que necesites) y escribe la elevación directo en el teclado numérico.</div><div class="info-tip">🔒 Si la estaca está marcada en <strong>verde</strong>, los lados que no edites mantienen su cota congelada aunque luego muevas el nivel a otro BM.</div>`
                 }
             };
             let item = mapa[clave];
@@ -869,7 +879,7 @@
                 </div>
                 <div class="guia-item">
                     <div class="guia-num">3</div>
-                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca <strong>+ Plantilla</strong> en cualquier estaca e ingresa tus lecturas de mira en Izq, Eje y Der (o <code>#Cota</code>) para ver al instante el <strong>Corte (C:)</strong> o <strong>Relleno (R:)</strong>.</div>
+                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca <strong>+ Plantilla</strong> en cualquier estaca e alterna entre <strong>Mira V.AD(-)</strong> o <strong>Cota Directa</strong> en Izq, Eje y Der para ver al instante el <strong>Corte (C:)</strong> o <strong>Relleno (R:)</strong>.</div>
                 </div>
                 <div class="guia-item">
                     <div class="guia-num">4</div>
@@ -948,10 +958,10 @@
             if (input.value !== val) input.value = val;
         }
 
-        function formatTerrInput(input) {
-            let v = input.value.replace(/,/g, '.').replace(/[^0-9.#-]/g, '');
-            if (v.indexOf('#') > 0) v = '#' + v.replace(/#/g, '');
-            if (input.value !== v) input.value = v;
+        function valorNoCero(val) {
+            if (val === undefined || val === null || String(val).trim() === "") return "";
+            let n = parseFloat(String(val).replace(',', '.'));
+            return (!isNaN(n) && Math.abs(n) > 1e-9) ? String(val) : "";
         }
 
         function completarCerosInput(input) {
@@ -1006,6 +1016,35 @@
 
             cargarProyectoActivo();
             initTouchDragBM();
+            configurarInputsNumericos();
+        }
+
+        function configurarInputsNumericos() {
+            document.querySelectorAll('input').forEach(inp => {
+                inp.setAttribute('autocomplete', 'off');
+                inp.setAttribute('autocorrect', 'off');
+                inp.setAttribute('autocapitalize', 'off');
+                inp.setAttribute('spellcheck', 'false');
+            });
+            document.querySelectorAll('input[inputmode="decimal"]').forEach(inp => {
+                if (inp.dataset.autoSelBound) return;
+                inp.dataset.autoSelBound = "1";
+                inp.addEventListener('focus', function() {
+                    const el = this;
+                    el.dataset.justFocused = "1";
+                    setTimeout(() => { try { el.select(); } catch(e) {} }, 20);
+                    setTimeout(() => { el.dataset.justFocused = "0"; }, 300);
+                });
+                inp.addEventListener('mouseup', function(e) {
+                    if (this.dataset.justFocused === "1") {
+                        e.preventDefault();
+                        this.dataset.justFocused = "0";
+                    }
+                });
+                inp.addEventListener('blur', function() {
+                    this.dataset.justFocused = "0";
+                });
+            });
         }
 
         function obtenerProyectoActivo() { return appDataVial.proyectos.find(p => p.id === appDataVial.activoId); }
@@ -1208,12 +1247,12 @@
                 if (!p.estadoActivo.cotasTerreno) p.estadoActivo.cotasTerreno = {};
                 if (!p.estadoActivo.pls) p.estadoActivo.pls = {};
                 if (!p.estadoActivo.lockedRows) p.estadoActivo.lockedRows = {};
-                document.getElementById('progIni').value = p.estadoActivo.progIni ?? "0.000";
+                document.getElementById('progIni').value = valorNoCero(p.estadoActivo.progIni);
                 document.getElementById('distTotal').value = p.estadoActivo.distTotal || "";
                 document.getElementById('cotaIni').value = p.estadoActivo.cotaIni || "";
                 document.getElementById('cotaFin').value = p.estadoActivo.cotaFin || "";
                 document.getElementById('pteLong').value = p.estadoActivo.pteLong || "";
-                document.getElementById('offsetCapa').value = p.estadoActivo.offsetCapa ?? "0.000";
+                document.getElementById('offsetCapa').value = valorNoCero(p.estadoActivo.offsetCapa);
                 document.getElementById('anchoIzq').value = p.estadoActivo.anchoIzq ?? "3.500";
                 document.getElementById('anchoDer').value = p.estadoActivo.anchoDer ?? "3.500";
                 document.getElementById('bombeoIzq').value = p.estadoActivo.bombeoIzq ?? "-2.000";
@@ -1625,12 +1664,12 @@
                 feedbackUI();
                 sincronizarEstadoConPerfilActivo();
                 document.getElementById('hdnSelectPerfil').value = indexStr;
-                document.getElementById('progIni').value = per.progIni ?? "0.000";
+                document.getElementById('progIni').value = valorNoCero(per.progIni);
                 document.getElementById('distTotal').value = per.dist;
                 document.getElementById('cotaIni').value = per.ci;
                 document.getElementById('cotaFin').value = per.cf;
                 document.getElementById('pteLong').value = per.pte;
-                document.getElementById('offsetCapa').value = per.offset ?? "0.000";
+                document.getElementById('offsetCapa').value = valorNoCero(per.offset);
                 document.getElementById('anchoIzq').value = per.aIzq ?? "3.500";
                 document.getElementById('anchoDer').value = per.aDer ?? "3.500";
                 document.getElementById('bombeoIzq').value = per.bIzq ?? "-2.000";
@@ -1686,6 +1725,8 @@
                 p.estadoActivo.lockedRows = {};
                 p.estadoActivo.cotasTerreno = {};
             }
+            document.getElementById('progIni').value = "";
+            document.getElementById('offsetCapa').value = "";
             document.getElementById('cotaIni').value = "";
             document.getElementById('cotaFin').value = "";
             document.getElementById('distTotal').value = "";
@@ -1897,12 +1938,18 @@
             let d = parseFloat(document.getElementById('distTotal').value);
             let pte = parseFloat(document.getElementById('pteLong').value);
             if (isNaN(ci) || (isNaN(pte) && (isNaN(cf) || isNaN(d)))) return showToast("Completa primero los datos del Eje", "warning");
-            document.getElementById('elProg').value = document.getElementById('progIni').value || "0.000";
-            document.getElementById('elOffset').value = document.getElementById('anchoDer').value || "3.500";
-            document.getElementById('elBombeo').value = document.getElementById('bombeoDer').value || "-2.000";
+            let elProg = document.getElementById('elProg');
+            let elOffset = document.getElementById('elOffset');
+            let elBombeo = document.getElementById('elBombeo');
+            elProg.value = "";
+            elOffset.value = "";
+            elBombeo.value = "";
+            elProg.placeholder = `Ej: ${document.getElementById('progIni').value || "0.000"}`;
+            elOffset.placeholder = `Ej: ${document.getElementById('anchoDer').value || "3.500"}`;
+            elBombeo.placeholder = `Ej: ${document.getElementById('bombeoDer').value || "-2.000"}`;
             calcEstacaLibre();
             document.getElementById('overlayEstacaLibre').style.display = 'block';
-            setTimeout(() => { document.getElementById('overlayEstacaLibre').classList.add('activo'); document.getElementById('modalEstacaLibre').classList.add('abierto'); }, 10);
+            setTimeout(() => { document.getElementById('overlayEstacaLibre').classList.add('activo'); document.getElementById('modalEstacaLibre').classList.add('abierto'); elProg.focus(); }, 10);
         }
 
         function cerrarEstacaLibre() {
@@ -1954,6 +2001,56 @@
 
         /* --- CONTROL DE PLANTILLA / CACHACOS BLINDADO CON COTA CONGELADA (cotaInt) --- */
         let ctrlTerrSnap = null;
+        let modosTerr = { Izq: 'mira', Eje: 'mira', Der: 'mira' };
+
+        function actualizarUITerrModos() {
+            ['Izq', 'Eje', 'Der'].forEach(lado => {
+                let esCota = modosTerr[lado] === 'cota';
+                let pill = document.getElementById('pillTerr' + lado);
+                let inp = document.getElementById('inpTerr' + lado);
+                if (pill) {
+                    pill.innerText = esCota ? 'COTA' : 'MIRA';
+                    pill.style.background = esCota ? 'var(--blue-accent)' : 'var(--primary-color)';
+                }
+                if (inp) inp.placeholder = esCota ? 'Cota...' : 'Mira...';
+            });
+            let todosCota = (modosTerr.Izq === 'cota' && modosTerr.Eje === 'cota' && modosTerr.Der === 'cota');
+            let todosMira = (modosTerr.Izq === 'mira' && modosTerr.Eje === 'mira' && modosTerr.Der === 'mira');
+            let bM = document.getElementById('btnModoTerrMira');
+            let bC = document.getElementById('btnModoTerrCota');
+            if (bM) bM.classList.toggle('activo', todosMira);
+            if (bC) bC.classList.toggle('activo', todosCota);
+        }
+
+        function setModoTerrGlobal(modo) {
+            feedbackUI();
+            const lados = ['Izq', 'Eje', 'Der'];
+            const vaciosOpuestos = lados.filter(l => document.getElementById('inpTerr' + l).value.trim() === '' && modosTerr[l] !== modo);
+            const llenosOpuestos = lados.filter(l => document.getElementById('inpTerr' + l).value.trim() !== '' && modosTerr[l] !== modo);
+
+            if (llenosOpuestos.length > 0 && vaciosOpuestos.length > 0) {
+                vaciosOpuestos.forEach(l => { modosTerr[l] = modo; });
+                showToast(`Modo ${modo === 'cota' ? 'Cota' : 'Mira'} aplicado a vacíos (los escritos se protegen; toca otra vez o su etiqueta para cambiarlos).`, "warning");
+            } else {
+                lados.forEach(l => { modosTerr[l] = modo; });
+            }
+            actualizarUITerrModos();
+            previewCtrlTerr();
+        }
+
+        function toggleModoTerrLado(lado) {
+            feedbackUI();
+            modosTerr[lado] = (modosTerr[lado] === 'cota') ? 'mira' : 'cota';
+            actualizarUITerrModos();
+            previewCtrlTerr();
+        }
+
+        function obtenerRawConModo(lado) {
+            let val = document.getElementById('inpTerr' + lado).value.trim().replace(',', '.');
+            if (!val) return "";
+            if (val.startsWith('#')) return val;
+            return modosTerr[lado] === 'cota' ? `#${val}` : val;
+        }
 
         function abrirModalCtrlTerr(event, prog) {
             event.stopPropagation();
@@ -1981,9 +2078,20 @@
             if (aviso) aviso.style.display = esCongelada ? 'block' : 'none';
 
             document.getElementById('tituloCtrlTerr').innerText = `⛏️ PLANTILLA EN ${formatearProg(prog)}`;
-            document.getElementById('inpTerrIzq').value = vIzq;
-            document.getElementById('inpTerrEje').value = vEje;
-            document.getElementById('inpTerrDer').value = vDer;
+            const asignarCampoTerr = (lado, rawVal) => {
+                let s = String(rawVal || "").trim();
+                if (s.startsWith('#')) {
+                    modosTerr[lado] = 'cota';
+                    document.getElementById('inpTerr' + lado).value = s.substring(1).trim();
+                } else {
+                    modosTerr[lado] = 'mira';
+                    document.getElementById('inpTerr' + lado).value = s;
+                }
+            };
+            asignarCampoTerr('Izq', vIzq);
+            asignarCampoTerr('Eje', vEje);
+            asignarCampoTerr('Der', vDer);
+            actualizarUITerrModos();
 
             previewCtrlTerr();
             document.getElementById('overlayCtrlTerr').style.display = 'block';
@@ -2084,9 +2192,9 @@
                 return parsearInputTerrenoExplicit(inpVal, currentAIInt, decs).cotaInt;
             };
 
-            let ctIzqInt = resolverPreviewLado(document.getElementById('inpTerrIzq').value, ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
-            let ctEjeInt = resolverPreviewLado(document.getElementById('inpTerrEje').value, ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
-            let ctDerInt = resolverPreviewLado(document.getElementById('inpTerrDer').value, ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
+            let ctIzqInt = resolverPreviewLado(obtenerRawConModo('Izq'), ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
+            let ctEjeInt = resolverPreviewLado(obtenerRawConModo('Eje'), ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
+            let ctDerInt = resolverPreviewLado(obtenerRawConModo('Der'), ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
 
             let fmt = (cDisInt, cTerrInt) => {
                 if (isNaN(cTerrInt)) return "---";
@@ -2116,9 +2224,9 @@
                 return parsearInputTerrenoExplicit(s, currentAIInt, decs);
             };
 
-            let pIzq = resolverGuardarLado(document.getElementById('inpTerrIzq').value, ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
-            let pEje = resolverGuardarLado(document.getElementById('inpTerrEje').value, ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
-            let pDer = resolverGuardarLado(document.getElementById('inpTerrDer').value, ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
+            let pIzq = resolverGuardarLado(obtenerRawConModo('Izq'), ctrlTerrSnap?.rawIzq, ctrlTerrSnap?.cotaIntIzq);
+            let pEje = resolverGuardarLado(obtenerRawConModo('Eje'), ctrlTerrSnap?.rawEje, ctrlTerrSnap?.cotaIntEje);
+            let pDer = resolverGuardarLado(obtenerRawConModo('Der'), ctrlTerrSnap?.rawDer, ctrlTerrSnap?.cotaIntDer);
 
             if (!pIzq.raw && !pEje.raw && !pDer.raw) {
                 delete p.estadoActivo.cotasTerreno[ctrlTerrProgActiva];

@@ -483,28 +483,28 @@
                             Cota F. Inicial 
                             <span class="info-icon" onclick="showInfoAlcan('cotaIni')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaIni" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(false); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(false); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Cota F. Final 
                             <span class="info-icon" onclick="showInfoAlcan('cotaFin')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="cotaFin" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(false); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(false); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Distancia (m)
                             <span class="info-icon" onclick="showInfoAlcan('distTotal')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="distTotal" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(false); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(false); evaluarLimiteVA(); guardarEstadoAlcan();">
                     </div>
                     <div class="input-group">
                         <label>
                             Pendiente (%)
                             <span class="info-icon" onclick="showInfoAlcan('pte')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(); evaluarLimiteVA(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="pte" placeholder="0.000" oninput="formatDecimal(this); evaluarNormativa(false); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarNormativa(true); evaluarLimiteVA(); guardarEstadoAlcan();">
                         <span id="alertaNorma" style="color:var(--danger-color); font-size:0.73rem; font-weight:800; display:none; margin-top:2px;">⚠️ Pend. Mínima</span>
                     </div>
                 </div>
@@ -561,7 +561,8 @@
                             Tubo (m)
                             <span class="info-icon" onclick="showInfoAlcan('tubo')">ℹ️</span>
                         </label>
-                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); evaluarNormativa(); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); evaluarNormativa(); guardarEstadoAlcan();">
+                        <input type="text" inputmode="decimal" id="alturaTubo" placeholder="Ej: 0.200" oninput="formatDecimal(this); evaluarNormativa(false); evaluarLimiteVA(); guardarEstadoAlcan();" onblur="completarCerosInput(this); evaluarNormativa(true); guardarEstadoAlcan();">
+                        <span id="alertaNormaTubo" style="color:var(--danger-color); font-size:0.73rem; font-weight:800; display:none; margin-top:2px;"></span>
                     </div>
                     <div class="input-group full-width">
                         <label>
@@ -1099,6 +1100,35 @@
             
             cargarProyectoActivo();
             initTouchDragBM();
+            configurarInputsNumericos();
+        }
+
+        function configurarInputsNumericos() {
+            document.querySelectorAll('input').forEach(inp => {
+                inp.setAttribute('autocomplete', 'off');
+                inp.setAttribute('autocorrect', 'off');
+                inp.setAttribute('autocapitalize', 'off');
+                inp.setAttribute('spellcheck', 'false');
+            });
+            document.querySelectorAll('input[inputmode="decimal"]').forEach(inp => {
+                if (inp.dataset.autoSelBound) return;
+                inp.dataset.autoSelBound = "1";
+                inp.addEventListener('focus', function() {
+                    const el = this;
+                    el.dataset.justFocused = "1";
+                    setTimeout(() => { try { el.select(); } catch(e) {} }, 20);
+                    setTimeout(() => { el.dataset.justFocused = "0"; }, 300);
+                });
+                inp.addEventListener('mouseup', function(e) {
+                    if (this.dataset.justFocused === "1") {
+                        e.preventDefault();
+                        this.dataset.justFocused = "0";
+                    }
+                });
+                inp.addEventListener('blur', function() {
+                    this.dataset.justFocused = "0";
+                });
+            });
         }
 
         function obtenerProyectoActivo() { return appDataAlcan.proyectos.find(p => p.id === appDataAlcan.activoId); }
@@ -1610,15 +1640,26 @@
         function togglePanel(id) { const p = document.getElementById(id); p.style.display = p.style.display === "none" ? "block" : "none"; guardarEstadoAlcan(); }
 
         /* --- F2: ALERTA NORMATIVA RNE OS.070 DINÁMICA SEGÚN DIÁMETRO DE TUBO --- */
-        function evaluarNormativa() {
+        function evaluarNormativa(avisarToast = false) {
             let inputPte = document.getElementById('pte');
+            let inputTubo = document.getElementById('alturaTubo');
             let alerta = document.getElementById('alertaNorma');
-            if (!inputPte || !alerta) return;
+            let alertaTubo = document.getElementById('alertaNormaTubo');
+            if (!inputPte || !alerta) return "";
 
             let v = parseFloat(inputPte.value);
-            let tubo = parseFloat(document.getElementById('alturaTubo')?.value);
+            if (isNaN(v)) {
+                let ci = parseFloat(document.getElementById('cotaIni')?.value);
+                let cf = parseFloat(document.getElementById('cotaFin')?.value);
+                let d = parseFloat(document.getElementById('distTotal')?.value);
+                if (!isNaN(ci) && !isNaN(cf) && !isNaN(d) && d > 0) {
+                    v = ((ci - cf) / d) * 100.0;
+                }
+            }
 
-            // RNE OS.070: si el tubo es <= 0.160m (6" domiciliaria/ramal) exige 1.0%; para >= 0.200m (8" colector) exige 0.5%
+            let tubo = parseFloat(inputTubo?.value);
+
+            // RNE OS.070: si el tubo es <= 0.175m (6" domiciliaria/ramal) exige 1.0%; para >= 0.200m (8" colector) exige 0.5%
             let minPte = 0.5;
             let etiquetaTubo = 'Ø 8" (0.20m)';
             if (!isNaN(tubo) && tubo > 0 && tubo <= 0.175) {
@@ -1627,22 +1668,32 @@
             }
 
             let decs = getDecs();
+            let msg = "";
             if (!isNaN(v) && v < 0) {
-                inputPte.style.borderColor = "var(--danger-color)";
-                alerta.innerText = `🚨 CONTRAPENDIENTE (${v.toFixed(decs)}%): ¡El flujo sube!`;
-                alerta.style.display = "block";
+                msg = `🚨 CONTRAPENDIENTE (${v.toFixed(decs)}%): ¡El flujo sube!`;
             } else if (!isNaN(v) && v === 0) {
+                msg = `🚨 PENDIENTE 0.0%: ¡Tubería sin caída!`;
+            } else if (!isNaN(v) && v < minPte - 1e-6) {
+                msg = `⚠️ RNE OS.070: Mín. ${minPte.toFixed(1)}% para ${etiquetaTubo}`;
+            }
+
+            if (msg) {
                 inputPte.style.borderColor = "var(--danger-color)";
-                alerta.innerText = `🚨 PENDIENTE 0.0%: ¡Tubería sin caída!`;
+                if (inputTubo) inputTubo.style.borderColor = "var(--danger-color)";
+                alerta.innerText = msg;
                 alerta.style.display = "block";
-            } else if (!isNaN(v) && v < minPte) {
-                inputPte.style.borderColor = "var(--danger-color)";
-                alerta.innerText = `⚠️ RNE OS.070: Mín. ${minPte.toFixed(1)}% para ${etiquetaTubo}`;
-                alerta.style.display = "block";
+                if (alertaTubo) {
+                    alertaTubo.innerText = msg;
+                    alertaTubo.style.display = "block";
+                }
+                if (avisarToast) showToast(msg, "error");
             } else {
                 inputPte.style.borderColor = "var(--border-color)";
+                if (inputTubo) inputTubo.style.borderColor = "var(--border-color)";
                 alerta.style.display = "none";
+                if (alertaTubo) alertaTubo.style.display = "none";
             }
+            return msg;
         }
 
         /* --- F3: MINI CROQUIS DE PERFIL CON SOPORTE MODO OSCURO --- */
@@ -2152,16 +2203,32 @@
             let txtCorteProm = conteoCortes > 0
                 ? `<span>⛏️ H. Prom: <strong style="color:var(--danger-color);">${fromScaledInt(Math.round(sumaCortesInt / conteoCortes), decs).toFixed(2)} m</strong></span>`
                 : '';
+            let tuboValRne = parseFloat(document.getElementById('alturaTubo')?.value);
+            let minRne = (!isNaN(tuboValRne) && tuboValRne > 0 && tuboValRne <= 0.175) ? 1.0 : 0.5;
+            let etiquetaTuboRne = minRne === 1.0 ? 'Ø 6" (0.16m)' : 'Ø 8" (0.20m)';
+            let alertaRneFinal = "";
+            if (pteReal < 0) alertaRneFinal = `🚨 CONTRAPENDIENTE (${pteReal.toFixed(decs)}%): ¡El flujo sube!`;
+            else if (pteReal === 0) alertaRneFinal = `🚨 PENDIENTE 0.0%: ¡Tubería sin caída!`;
+            else if (pteReal < minRne - 1e-6) alertaRneFinal = `⚠️ RNE OS.070: Mín. ${minRne.toFixed(1)}% para ${etiquetaTuboRne}`;
+
+            let badgeRne = alertaRneFinal
+                ? `<span style="width:100%; color:var(--danger-color); background:rgba(211,47,47,0.12); border:1px solid var(--danger-color); border-radius:6px; padding:4px 8px; margin-top:4px;">${alertaRneFinal}</span>`
+                : '';
+
             document.getElementById('resHidraulico').innerHTML = `
                 <span>📉 ΔH Tramo: <strong>${desnivelTotal.toFixed(decs)} m</strong></span>
                 <span>📐 S: <strong>${pteReal.toFixed(decs)}% (${ptePorMil.toFixed(1)}‰)</strong></span>
                 ${txtCorteProm}
+                ${badgeRne}
             `;
 
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
             guardarEstadoAlcan();
-            if(!silencioso) showToast("✅ Libreta Generada", "success");
+            if (!silencioso) {
+                if (alertaRneFinal) showToast(alertaRneFinal, "error");
+                else showToast("✅ Libreta Generada", "success");
+            }
         }
 
         function exportarXLSX() { 
