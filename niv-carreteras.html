@@ -153,6 +153,17 @@
         /* TABLA VIAL */
         .seccion-tabla { display: none; margin-top: 15px; }
         .table-wrapper { width: 100%; max-height: 60vh; overflow-y: auto; overflow-x: auto; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .tramo-tabla-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 5px 10px; font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+            background: rgba(25, 118, 210, 0.12); border: 1px solid var(--card-border); border-bottom: none;
+            border-left: 4px solid var(--blue-accent); border-radius: 8px 8px 0 0; color: var(--blue-accent);
+        }
+        .tramo-tabla-bar.modo-manual {
+            background: rgba(255, 85, 0, 0.08); border-left-color: var(--primary-color); color: var(--primary-color);
+        }
+        .tramo-tabla-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tramo-tabla-bar + .table-wrapper { border-radius: 0 0 8px 8px; }
         table { width: 100%; min-width: 580px; border-collapse: separate; border-spacing: 0; }
         th { background: var(--table-header); color: #fff; font-weight: 800; padding: 10px 4px; font-size: 0.78rem; text-transform: uppercase; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border-color); }
         td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 8px 4px; text-align: center; font-weight: 800; vertical-align: middle; }
@@ -598,14 +609,14 @@
                                 ⬅️ Ancho Carril Izq (m)
                                 <span class="info-icon" onclick="showInfoVial('anchoIzq')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="anchoIzq" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosPositivo(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--der-color);">
                                 ➡️ Ancho Carril Der (m)
                                 <span class="info-icon" onclick="showInfoVial('anchoDer')">ℹ️</span>
                             </label>
-                            <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosInput(this); evaluarLimiteVA(); guardarEstadoVial();">
+                            <input type="text" inputmode="decimal" id="anchoDer" value="3.500" placeholder="Ej: 3.500" oninput="formatDecimal(this); actualizarCroquisSiVisible(); alModificarParametroManual();" onblur="completarCerosPositivo(this); actualizarCroquisSiVisible(); evaluarLimiteVA(); guardarEstadoVial();">
                         </div>
                         <div class="input-group">
                             <label style="color:var(--izq-color);">
@@ -695,6 +706,9 @@
                 <button type="button" class="chip-btn" id="btnVistaCota" onclick="cambiarModoVistaTabla('cota')">📐 Solo Cotas</button>
             </div>
 
+            <div class="tramo-tabla-bar modo-manual" id="tramoTablaBar">
+                <span id="txtTramoTabla">⚡ MODO MANUAL (SIN GUARDAR)</span>
+            </div>
             <div class="table-wrapper">
                 <table id="tablaCarreteras" style="user-select:none; -webkit-user-select:none;">
                     <thead>
@@ -776,7 +790,8 @@
             toast.className = `toast ${type}`;
             toast.innerText = message;
             container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => toast.remove()); }, 3000);
+            const duracionToast = (type === 'warning' || type === 'error') ? 4500 : 3000;
+            setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => toast.remove()); }, duracionToast);
         }
 
         let confirmOkCallback = null, confirmCancelCallback = null, promptOkCallback = null;
@@ -879,7 +894,7 @@
                 </div>
                 <div class="guia-item">
                     <div class="guia-num">3</div>
-                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca <strong>+ Plantilla</strong> en cualquier estaca e alterna entre <strong>Mira V.AD(-)</strong> o <strong>Cota Directa</strong> en Izq, Eje y Der para ver al instante el <strong>Corte (C:)</strong> o <strong>Relleno (R:)</strong>.</div>
+                    <div><strong style="color:var(--primary-color);">Control de Cachacos (+ Plantilla):</strong> Toca <strong>+ Plantilla</strong> en cualquier estaca y alterna entre <strong>Mira V.AD(-)</strong> o <strong>Cota Directa</strong> en Izq, Eje y Der para ver al instante el <strong>Corte (C:)</strong> o <strong>Relleno (R:)</strong>.</div>
                 </div>
                 <div class="guia-item">
                     <div class="guia-num">4</div>
@@ -962,6 +977,25 @@
             if (val === undefined || val === null || String(val).trim() === "") return "";
             let n = parseFloat(String(val).replace(',', '.'));
             return (!isNaN(n) && Math.abs(n) > 1e-9) ? String(val) : "";
+        }
+
+        function leerAnchoPositivo(idInput) {
+            let raw = document.getElementById(idInput)?.value;
+            if (raw === undefined || raw === null || String(raw).trim() === "") return 0;
+            let n = parseFloat(String(raw).replace(',', '.'));
+            return isNaN(n) ? 0 : Math.abs(n);
+        }
+
+        function completarCerosPositivo(input) {
+            let decs = getDecs();
+            let val = input.value.trim();
+            if (val !== "" && val !== "-" && val !== ".") {
+                let n = parseFloat(val.replace(',', '.'));
+                if (!isNaN(n)) {
+                    let intVal = toScaledInt(Math.abs(n), decs);
+                    if (!isNaN(intVal)) input.value = fromScaledInt(intVal, decs).toFixed(decs);
+                }
+            }
         }
 
         function completarCerosInput(input) {
@@ -1547,6 +1581,8 @@
             let banner = document.getElementById('bannerTramoActivo');
             let lbl = document.getElementById('lblEstadoTramo');
             let txt = document.getElementById('txtNombreTramoActivo');
+            let barTabla = document.getElementById('tramoTablaBar');
+            let txtTabla = document.getElementById('txtTramoTabla');
 
             if (idxStr !== "" && p && p.perfiles && p.perfiles[parseInt(idxStr)]) {
                 let per = p.perfiles[parseInt(idxStr)];
@@ -1556,10 +1592,18 @@
                 lbl.innerText = "📌 TRAMO VIAL CARGADO EN USO";
                 txt.innerText = `${per.nombre} (${formatearProg(pIniNum)} a ${formatearProg(pFinNum)})`;
                 document.getElementById('nombrePerfilNuevo').value = per.nombre;
+                if (barTabla && txtTabla) {
+                    barTabla.className = "tramo-tabla-bar";
+                    txtTabla.innerText = `📌 ${per.nombre}`;
+                }
             } else {
                 banner.className = "tramo-status-banner modo-manual";
                 lbl.innerText = "TRABAJO ACTUAL EN PANTALLA";
                 txt.innerText = "⚡ MODO MANUAL / MODIFICADO";
+                if (barTabla && txtTabla) {
+                    barTabla.className = "tramo-tabla-bar modo-manual";
+                    txtTabla.innerText = "⚡ MODO MANUAL (SIN GUARDAR)";
+                }
             }
         }
 
@@ -1586,8 +1630,9 @@
             let cf = document.getElementById('cotaFin').value;
             let pte = document.getElementById('pteLong').value;
             let offset = document.getElementById('offsetCapa').value || "0.000";
-            let aIzq = document.getElementById('anchoIzq').value || "3.500";
-            let aDer = document.getElementById('anchoDer').value || "3.500";
+            let decs = getDecs();
+            let aIzq = leerAnchoPositivo('anchoIzq').toFixed(decs);
+            let aDer = leerAnchoPositivo('anchoDer').toFixed(decs);
             let bIzq = document.getElementById('bombeoIzq').value || "-2.000";
             let bDer = document.getElementById('bombeoDer').value || "-2.000";
 
@@ -1843,8 +1888,8 @@
             let isDark = document.body.classList.contains('dark-mode');
             let txtColor = isDark ? '#ffffff' : '#1a1e23';
 
-            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 3.5;
-            let aDer = parseFloat(document.getElementById('anchoDer').value) || 3.5;
+            let aIzq = leerAnchoPositivo('anchoIzq');
+            let aDer = leerAnchoPositivo('anchoDer');
             let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
             let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
             let dIzq = fromScaledInt(calcularDesnivelTransvInt(bIzq, aIzq, decs), decs);
@@ -1854,8 +1899,8 @@
             let scaleX = 115 / Math.max(aIzq, aDer, 1);
             let xIzq = centerX - (aIzq * scaleX);
             let xDer = centerX + (aDer * scaleX);
-            let yIzq = centerY - Math.max(-42, Math.min(42, bIzq * 7.5));
-            let yDer = centerY - Math.max(-42, Math.min(42, bDer * 7.5));
+            let yIzq = aIzq > 0 ? (centerY - Math.max(-42, Math.min(42, bIzq * 7.5))) : centerY;
+            let yDer = aDer > 0 ? (centerY - Math.max(-42, Math.min(42, bDer * 7.5))) : centerY;
 
             ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
             ctx.setLineDash([4, 4]);
@@ -1876,12 +1921,14 @@
             ctx.fillStyle = txtColor; ctx.font = 'bold 12px Rajdhani';
             ctx.textAlign = 'center';
             ctx.fillText(`EJE VIAL (CL)`, centerX, 16);
+            let lblXIzq = Math.min((xIzq + centerX)/2 - 10, centerX - 75);
+            let lblXDer = Math.max((xDer + centerX)/2 + 10, centerX + 75);
             ctx.fillStyle = '#1976d2';
-            ctx.fillText(`IZQ: ${aIzq.toFixed(2)}m (${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`, (xIzq + centerX)/2 - 10, yIzq < centerY ? yIzq - 10 : yIzq + 20);
-            ctx.fillText(`ΔH: ${dIzq > 0 ? '+' : ''}${dIzq.toFixed(decs)}m`, xIzq + 22, 152);
+            ctx.fillText(`IZQ: ${aIzq.toFixed(2)}m (${bIzq > 0 ? '+' : ''}${bIzq.toFixed(1)}%)`, lblXIzq, yIzq < centerY ? yIzq - 10 : yIzq + 20);
+            ctx.fillText(`ΔH: ${dIzq > 0 ? '+' : ''}${dIzq.toFixed(decs)}m`, Math.min(xIzq + 22, centerX - 75), 152);
             ctx.fillStyle = '#00897b';
-            ctx.fillText(`DER: ${aDer.toFixed(2)}m (${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`, (xDer + centerX)/2 + 10, yDer < centerY ? yDer - 10 : yDer + 20);
-            ctx.fillText(`ΔH: ${dDer > 0 ? '+' : ''}${dDer.toFixed(decs)}m`, xDer - 22, 152);
+            ctx.fillText(`DER: ${aDer.toFixed(2)}m (${bDer > 0 ? '+' : ''}${bDer.toFixed(1)}%)`, lblXDer, yDer < centerY ? yDer - 10 : yDer + 20);
+            ctx.fillText(`ΔH: ${dDer > 0 ? '+' : ''}${dDer.toFixed(decs)}m`, Math.max(xDer - 22, centerX + 75), 152);
         }
 
         function evaluarLimiteVA() {
@@ -1892,8 +1939,8 @@
             let d = parseFloat(document.getElementById('distTotal').value);
             let pte = parseFloat(document.getElementById('pteLong').value);
             let offset = parseFloat(document.getElementById('offsetCapa').value) || 0;
-            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
-            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let aIzq = leerAnchoPositivo('anchoIzq');
+            let aDer = leerAnchoPositivo('anchoDer');
             let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
             let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
             let bm = parseFloat(document.getElementById('cotaBM').value);
@@ -1960,15 +2007,17 @@
 
         function calcEstacaLibre() {
             let decs = getDecs();
+            let limiteMira = parseFloat(globalConfig.alertaMira) || 5.000;
             let pIni = parseFloat(document.getElementById('progIni').value) || 0;
             let d = parseFloat(document.getElementById('distTotal').value);
             let ci = parseFloat(document.getElementById('cotaIni').value);
             let cf = parseFloat(document.getElementById('cotaFin').value);
             let pte = parseFloat(document.getElementById('pteLong').value);
             let offsetCapaInt = toScaledInt(document.getElementById('offsetCapa').value || 0, decs);
-            let bmInt = toScaledInt(document.getElementById('cotaBM').value || 0, decs);
-            let vaInt = toScaledInt(document.getElementById('vistaAtras').value || 0, decs);
-            let baseAIInt = bmInt + vaInt;
+            let bmInt = toScaledInt(document.getElementById('cotaBM').value, decs);
+            let vaInt = toScaledInt(document.getElementById('vistaAtras').value, decs);
+            let tieneEstacion = !isNaN(bmInt) && !isNaN(vaInt);
+            let aiEfectivoInt = tieneEstacion ? (bmInt + vaInt) : NaN;
 
             let prog = parseFloat(document.getElementById('elProg').value);
             let distEje = parseFloat(document.getElementById('elOffset').value);
@@ -1980,21 +2029,40 @@
                 return;
             }
 
-            let aiEfectivoInt = baseAIInt;
-
+            let distAbs = Math.abs(distEje);
             let avance = prog - pIni;
             let cotaEjeInt = calcularCotaEjeInt(avance, ci, cf, d, pte, offsetCapaInt, decs);
-            let desnivelTransvInt = calcularDesnivelTransvInt(bTransv, distEje, decs);
+            let desnivelTransvInt = calcularDesnivelTransvInt(bTransv, distAbs, decs);
             let cotaEstacaInt = cotaEjeInt + desnivelTransvInt;
-            let miraEstacaInt = aiEfectivoInt - cotaEstacaInt;
-            let miraEjeInt = aiEfectivoInt - cotaEjeInt;
+
+            let pFinTramo = (!isNaN(d) && d > 0) ? (pIni + d) : NaN;
+            let fueraRango = !isNaN(pFinTramo) && (prog < pIni - 1e-6 || prog > pFinTramo + 1e-6);
+            let avisoRangoHTML = fueraRango
+                ? `<div style="color:var(--danger-color); background:rgba(211,47,47,0.10); border:1px solid rgba(211,47,47,0.35); border-radius:6px; padding:4px 6px; font-size:0.74rem; margin-bottom:6px;">⚠️ Fuera del tramo (${formatearProg(pIni)} a ${formatearProg(pFinTramo)}): valor extrapolado</div>`
+                : '';
+
+            let aiLineaHTML = tieneEstacion
+                ? `<div style="font-size:0.75rem; opacity:0.75; margin-bottom:6px;">AI vigente: ${fromScaledInt(aiEfectivoInt, decs).toFixed(decs)} m</div>`
+                : `<div style="font-size:0.74rem; color:var(--danger-color); margin-bottom:6px;">⚠️ Falta BM o Vista Atrás (+) en Panel 2 para calcular mira</div>`;
+
+            let miraEjeHTML = `<span style="font-size:0.8rem; color:#888;">Mira: ---</span>`;
+            let miraEstacaHTML = `<span style="font-size:0.95rem; color:#888;">Mira: ---</span>`;
+            if (tieneEstacion) {
+                let miraEje = fromScaledInt(aiEfectivoInt - cotaEjeInt, decs);
+                let miraEstaca = fromScaledInt(aiEfectivoInt - cotaEstacaInt, decs);
+                let alertaEje = (miraEje > limiteMira || miraEje < 0);
+                let alertaEst = (miraEstaca > limiteMira || miraEstaca < 0);
+                miraEjeHTML = `<span style="font-size:0.8rem; color:${alertaEje ? 'var(--danger-color)' : 'var(--success-text)'};">Mira: ${miraEje.toFixed(decs)}${alertaEje ? ' ⚠️' : ''}</span>`;
+                miraEstacaHTML = `<span style="font-size:0.95rem; color:${alertaEst ? 'var(--danger-color)' : 'var(--primary-color)'};">Mira: ${miraEstaca.toFixed(decs)}${alertaEst ? ' ⚠️' : ''}</span>`;
+            }
 
             box.innerHTML = `
-                <div style="color:var(--primary-color); font-size:1.05rem; margin-bottom:6px;">📍 PROG. ${formatearProg(prog)} (a ${distEje.toFixed(2)}m del Eje)</div>
-                <div style="font-size:0.75rem; opacity:0.75; margin-bottom:6px;">AI vigente: ${fromScaledInt(aiEfectivoInt, decs).toFixed(decs)} m</div>
+                ${avisoRangoHTML}
+                <div style="color:var(--primary-color); font-size:1.05rem; margin-bottom:4px;">📍 PROG. ${formatearProg(prog)} (a ${distAbs.toFixed(2)}m del Eje)</div>
+                ${aiLineaHTML}
                 <div style="display:flex; justify-content:space-around; border-top:1px dashed var(--border-color); padding-top:8px;">
-                    <div><span style="font-size:0.75rem; color:#888;">COTA EJE</span><br><strong>${fromScaledInt(cotaEjeInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.8rem; color:var(--success-text);">Mira: ${fromScaledInt(miraEjeInt, decs).toFixed(decs)}</span></div>
-                    <div><span style="font-size:0.75rem; color:#888;">COTA ESTACA</span><br><strong>${fromScaledInt(cotaEstacaInt, decs).toFixed(decs)}</strong><br><span style="font-size:0.95rem; color:var(--primary-color);">Mira: ${fromScaledInt(miraEstacaInt, decs).toFixed(decs)}</span></div>
+                    <div><span style="font-size:0.75rem; color:#888;">COTA EJE</span><br><strong>${fromScaledInt(cotaEjeInt, decs).toFixed(decs)}</strong><br>${miraEjeHTML}</div>
+                    <div><span style="font-size:0.75rem; color:#888;">COTA ESTACA</span><br><strong>${fromScaledInt(cotaEstacaInt, decs).toFixed(decs)}</strong><br>${miraEstacaHTML}</div>
                 </div>
             `;
         }
@@ -2164,8 +2232,8 @@
             let cf = parseFloat(document.getElementById('cotaFin').value);
             let pte = parseFloat(document.getElementById('pteLong').value) || 0;
             let offsetCapaInt = toScaledInt(document.getElementById('offsetCapa').value || 0, decs);
-            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
-            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let aIzq = leerAnchoPositivo('anchoIzq');
+            let aDer = leerAnchoPositivo('anchoDer');
             let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
             let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
 
@@ -2269,8 +2337,8 @@
 
             if (tapLength < 350 && tapLength > 0) {
                 clearTimeout(tr.tapTimer);
-                let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 3.5;
-                let aDer = parseFloat(document.getElementById('anchoDer').value) || 3.5;
+                let aIzq = leerAnchoPositivo('anchoIzq');
+                let aDer = leerAnchoPositivo('anchoDer');
                 let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
                 let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
 
@@ -2338,8 +2406,8 @@
             let offsetCapa = parseFloat(document.getElementById('offsetCapa').value) || 0;
             let offsetCapaInt = toScaledInt(offsetCapa, decs);
 
-            let aIzq = parseFloat(document.getElementById('anchoIzq').value) || 0;
-            let aDer = parseFloat(document.getElementById('anchoDer').value) || 0;
+            let aIzq = leerAnchoPositivo('anchoIzq');
+            let aDer = leerAnchoPositivo('anchoDer');
             let bIzq = parseFloat(document.getElementById('bombeoIzq').value) || 0;
             let bDer = parseFloat(document.getElementById('bombeoDer').value) || 0;
 
@@ -2417,6 +2485,15 @@
             let locked = (proj.estadoActivo && proj.estadoActivo.lockedRows) ? proj.estadoActivo.lockedRows : {};
             let cotasTerr = (proj.estadoActivo && proj.estadoActivo.cotasTerreno) ? proj.estadoActivo.cotasTerreno : {};
 
+            const MAX_ESTACIONES = 1000;
+            let estEstimadas = Math.ceil(d / intervalo) + 2;
+            if (!isFinite(estEstimadas) || estEstimadas > MAX_ESTACIONES) {
+                if (!silencioso) {
+                    showToast(`⚠️ Demasiadas estacas (~${isFinite(estEstimadas) ? estEstimadas : '∞'}). Revisa Longitud (${d}m) o Intervalo (${intervalo}m). Máx: ${MAX_ESTACIONES} filas.`, "error");
+                }
+                return;
+            }
+
             let estaciones = [];
             let pIniRed = Number(pIni.toFixed(3));
             let pFin = Number((pIni + d).toFixed(3));
@@ -2427,7 +2504,8 @@
                 ? Number((pIniRed + (intervalo - residuoIni)).toFixed(3))
                 : Number((pIniRed + intervalo).toFixed(3));
 
-            for (let pAct = primeraCerrada; pAct < pFin - 0.001; pAct = Number((pAct + intervalo).toFixed(3))) {
+            for (let pAct = primeraCerrada; pAct < pFin - 0.001 && estaciones.length < MAX_ESTACIONES; pAct = Number((pAct + intervalo).toFixed(3))) {
+                if (pAct <= estaciones[estaciones.length - 1]) break;
                 estaciones.push(pAct);
             }
             if (Math.abs(estaciones[estaciones.length - 1] - pFin) > 0.001) {
@@ -2435,6 +2513,7 @@
             }
 
             let currentAIInt = baseAIInt;
+            let cantCongeladas = 0;
 
             estaciones.forEach((progActual, idx) => {
                 let keyProg = normProgKey(progActual);
@@ -2452,6 +2531,7 @@
 
                 let lockEntry = locked[keyProg] || locked[progActual];
                 if (lockEntry && typeof lockEntry === "object" && lockEntry.leje !== undefined) {
+                    cantCongeladas++;
                     leerIzq = parseFloat(lockEntry.lizq);
                     leerEje = parseFloat(lockEntry.leje);
                     leerDer = parseFloat(lockEntry.lder);
@@ -2536,16 +2616,28 @@
             let deltaIzqMetros = fromScaledInt(deltaIzqInt, decs);
             let deltaDerMetros = fromScaledInt(deltaDerInt, decs);
 
+            let notaVerdesHTML = cantCongeladas > 0
+                ? `<span style="width:100%; color:var(--success-text); font-size:0.78rem; margin-top:2px;">🔒 ${cantCongeladas} ${cantCongeladas === 1 ? 'celda en verde congelada (no recalculada)' : 'celdas en verde congeladas (no recalculadas)'}</span>`
+                : '';
+
             document.getElementById('resVialMeta').innerHTML = `
                 <span>📐 S. Eje: <strong>${pteEfectiva > 0 ? '+' : ''}${pteEfectiva.toFixed(decs)}% (ΔH: ${desnivelLong > 0 ? '+' : ''}${desnivelLong.toFixed(decs)}m)</strong></span>
                 <span>⬅️ ΔIzq: <strong>${deltaIzqMetros > 0 ? '+' : ''}${deltaIzqMetros.toFixed(decs)}m</strong></span>
                 <span>➡️ ΔDer: <strong>${deltaDerMetros > 0 ? '+' : ''}${deltaDerMetros.toFixed(decs)}m</strong></span>
+                ${notaVerdesHTML}
             `;
 
+            actualizarBannerTramoActivo();
             document.getElementById('seccionTabla').style.display = 'block';
             document.getElementById('btnExcel').style.display = 'block';
             guardarEstadoVial();
-            if (!silencioso) showToast("✅ Plantillado Vial Generado", "success");
+            if (!silencioso) {
+                if (cantCongeladas > 0) {
+                    showToast(`⚠️ Recalculado. Las ${cantCongeladas} celdas marcadas en verde NO se van a recalcular.`, "warning");
+                } else {
+                    showToast("✅ Plantillado Vial Generado", "success");
+                }
+            }
         }
 
         function exportarXLSX() {
@@ -2555,8 +2647,8 @@
             let fechaHoy = new Date().toLocaleDateString('es-PE');
             let oper = globalConfig.operador || "COTA100";
             let eq = globalConfig.equipo || "Nivel Automático";
-            let aIzq = document.getElementById('anchoIzq').value;
-            let aDer = document.getElementById('anchoDer').value;
+            let aIzq = leerAnchoPositivo('anchoIzq').toFixed(decs);
+            let aDer = leerAnchoPositivo('anchoDer').toFixed(decs);
             let bIzq = document.getElementById('bombeoIzq').value;
             let bDer = document.getElementById('bombeoDer').value;
             let pte = document.getElementById('pteLong').value;
